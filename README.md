@@ -4,7 +4,7 @@ The personal blog of Richard L. Apodaca. Older material leans toward cheminforma
 
 ## Finding Ideas
 
-The `drafts` directory might be empty or running low. If it is, consider these sources for new drafts:
+Ideas for articles don't always come easy. When having trouble, try these approaches:
 
 - Previous articles. Have I learned something new? If I cite a Wikipedia article, can I write something better and cite that instead?
 - Zotero collection. You added the papers there because they interested you at one time. Try organizing it, for example. This forces you to take another look.
