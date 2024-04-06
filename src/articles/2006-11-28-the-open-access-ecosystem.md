@@ -1,0 +1,16 @@
+---
+title: "The Open Access Ecosystem"
+published: "2006-11-28T00:00:00.000Z"
+---
+
+What happens to an article in an Open Access journal that shuts down? Recently, this question was raised on the <a href="http://hardly.cubic.uni-koeln.de/pipermail/blue-obelisk/2006-November/000992.html">Blue Obelisk mailing list</a> about an article published in the <a href="http://ijc.com">Internet Journal of Chemistry</a> (IJC). Because the lights now appear to be out for good at IJC, are its articles lost forever?
+
+The good news is that by retaining copyright, authors of Open Access articles have the right to copy or reprocess their work in any form they see fit. If a traditional subscription-based journal shuts down, the fate of its entire article collection is up to the publisher, who is in nearly all cases the sole copyright holder. It's remarkable that self-respecting scientists would knowingly allow the fruits of their hard work to meet with such a fate. With Open Access, the author is in control of keeping their article publicly visible.
+
+The bad news is that keeping an article publicly visible is the last thing most scientists want to spend valuable time and energy on. After all, that's what the journal was there for, wasn't it? Given the technical barriers to self-archiving Open Access content, who could blame them? First, an author needs to find a server willing to host their content. After that comes learning the software to get the article onto the server. Then comes the need to decide on the archival format, being ever-mindful of the <a href="http://wwmm.ch.cam.ac.uk/blogs/murrayrust/?p=28">hamburger effect</a>. Of course, authors would probably want some assurance that the location of this article won't change and will be "permanently" available. Does a DOI need to be re-assigned? And let's not forget about how the poor reader is supposed to find these articles (some would say that <a href="http://google.com">Google</a> is the answer, but I would disagree). Expecting each author to solve these problems on his or her own simply won't work. There must be a better way.
+
+To my knowledge, there is no solution to the Open Access archiving problem. But if history is any guide, this is a huge opportunity that will soon disappear. Maybe a <a href="http://sf.net">SourceForge</a>-like repository for Open Access content would work. Perhaps something less structured would be enough. The profit motive would certainly come into play, as the successful solution to this problem would easily have thousands, if not tens of thousands, of regular users. Whatever form the solution might take, it would most likely be a simple system built by a small organization using off-the-shelf components. I would expect nothing less from <a href="/articles/2006/11/16/electric-cars-and-open-access">a disruptive technology</a> like Open Access.
+
+As one or more solutions to the Open Access archival problem begin to gain traction, other opportunities may arise and be exploited by enterprising individuals and small organizations. And so on, until a thriving ecosystem becomes established.
+
+Proponents have been debating the "how" of Open Access for some time now. Maybe it's time to start thinking about what comes <em>after</em> the Open Access transition.

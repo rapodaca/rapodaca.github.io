@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE CDXML SYSTEM "http://www.cambridgesoft.com/xml/cdxml.dtd" >
+<CDXML
+ CreationProgram="ChemDraw 12.0.3.1216"
+ Name="metallic-delocalized-single-bond.cdxml"
+ BoundingBox="42.27 157.26 216.53 168.87"
+ WindowPosition="0 0"
+ WindowSize="0 0"
+ FractionalWidths="yes"
+ InterpretChemically="yes"
+ ShowAtomQuery="yes"
+ ShowAtomStereo="no"
+ ShowAtomEnhancedStereo="yes"
+ ShowAtomNumber="no"
+ ShowBondQuery="yes"
+ ShowBondRxn="yes"
+ ShowBondStereo="no"
+ ShowTerminalCarbonLabels="no"
+ ShowNonTerminalCarbonLabels="no"
+ HideImplicitHydrogens="no"
+ Magnification="250"
+ LabelFont="51232"
+ LabelSize="10"
+ LabelFace="96"
+ CaptionFont="51232"
+ CaptionSize="10"
+ HashSpacing="2.5"
+ MarginWidth="1.6"
+ LineWidth="0.6"
+ BoldWidth="2"
+ BondLength="14.4"
+ BondSpacing="18"
+ ChainAngle="120"
+ LabelJustification="Auto"
+ CaptionJustification="Left"
+ AminoAcidTermini="HOH"
+ ShowSequenceTermini="yes"
+ ShowSequenceBonds="yes"
+ PrintMargins="36 36 36 36"
+ MacPrintInfo="0003000002D002D0000000001DFE16F6FF86FF881E7617700367052803FC00020000004800480000000002D80228000100000064000000010003030300000001270F000100010000000000000000000000006800001901900000000000200000000000000000000000000000000000000000000000000000"
+ color="0"
+ bgcolor="1"
+><colortable>
+<color r="1" g="1" b="1"/>
+<color r="0" g="0" b="0"/>
+<color r="1" g="0" b="0"/>
+<color r="1" g="1" b="0"/>
+<color r="0" g="1" b="0"/>
+<color r="0" g="1" b="1"/>
+<color r="0" g="0" b="1"/>
+<color r="1" g="0" b="1"/>
+</colortable><fonttable>
+<font id="51232" charset="x-mac-roman" name="Helvetica"/>
+</fonttable><page
+ id="152"
+ BoundingBox="0 0 540 719.9"
+ HeaderPosition="36"
+ FooterPosition="36"
+ PrintTrimMarks="yes"
+ HeightPages="1"
+ WidthPages="1"
+><fragment
+ id="122"
+ BoundingBox="42.27 157.49 98.28 168.64"
+><n
+ id="121"
+ p="48.25 165.04"
+ Z="21"
+ Element="3"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="50.02 168.64"
+ BoundingBox="42.27 160.24 50.02 168.64"
+ LabelJustification="Right"
+ Justification="Right"
+ LabelAlignment="Right"
+><s font="51232" size="10" face="96">Li</s></t></n><n
+ id="123"
+ p="60.72 157.84"
+ Z="22"
+ AS="N"
+/><n
+ id="125"
+ p="73.19 165.04"
+ Z="24"
+ AS="N"
+/><n
+ id="127"
+ p="85.66 157.84"
+ Z="26"
+ AS="N"
+/><n
+ id="147"
+ p="98.13 165.04"
+ Z="36"
+ AS="N"
+/><b
+ id="124"
+ Z="23"
+ B="121"
+ E="123"
+ BS="N"
+/><b
+ id="126"
+ Z="25"
+ B="123"
+ E="125"
+ BS="N"
+/><b
+ id="128"
+ Z="27"
+ B="125"
+ E="127"
+ BS="N"
+/><b
+ id="148"
+ Z="37"
+ B="127"
+ E="147"
+ BS="N"
+/></fragment><fragment
+ id="129"
+ BoundingBox="141.94 159.34 154.08 166.79"
+><n
+ id="130"
+ p="144.24 163.19"
+ Z="28"
+ Element="3"
+ NumHydrogens="0"
+ Charge="1"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="141.94 166.79"
+ BoundingBox="141.94 159.34 154.08 166.79"
+ LabelJustification="Left"
+ LabelAlignment="Left"
+><s font="51232" size="10" face="96">Li+</s></t></n></fragment><fragment
+ id="137"
+ BoundingBox="170.48 157.26 216.53 168.87"
+><n
+ id="131"
+ p="178.97 161.34"
+ Z="29"
+ Charge="-1"
+ AS="N"
+/><n
+ id="132"
+ p="191.44 168.53"
+ Z="30"
+ AS="N"
+/><n
+ id="133"
+ p="203.91 161.34"
+ Z="32"
+ AS="N"
+/><n
+ id="149"
+ p="216.38 168.54"
+ Z="38"
+ AS="N"
+/><b
+ id="135"
+ Z="31"
+ B="131"
+ E="132"
+ BS="N"
+/><b
+ id="136"
+ Z="33"
+ B="132"
+ E="133"
+ BS="N"
+/><b
+ id="150"
+ Z="39"
+ B="133"
+ E="149"
+ BS="N"
+/><graphic
+ id="142"
+ BoundingBox="173 159.78 173 169.78"
+ Z="34"
+ GraphicType="Symbol"
+ SymbolType="Minus"
+><represent attribute="Charge" object="131"/></graphic></fragment><t
+ id="146"
+ p="115 166.44"
+ BoundingBox="115 158.04 121.65 168.09"
+ Z="35"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="10">&amp;</s></t></page></CDXML>

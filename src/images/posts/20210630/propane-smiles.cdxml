@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE CDXML SYSTEM "http://www.cambridgesoft.com/xml/cdxml.dtd" >
+<CDXML
+ CreationProgram="ChemDraw 12.0.3.1216"
+ Name="propane-smiles.cdxml"
+ BoundingBox="55.58 153.7 177.61 199.3"
+ WindowPosition="0 0"
+ WindowSize="0 0"
+ FractionalWidths="yes"
+ InterpretChemically="yes"
+ ShowAtomQuery="yes"
+ ShowAtomStereo="no"
+ ShowAtomEnhancedStereo="yes"
+ ShowAtomNumber="no"
+ ShowBondQuery="yes"
+ ShowBondRxn="yes"
+ ShowBondStereo="no"
+ ShowTerminalCarbonLabels="no"
+ ShowNonTerminalCarbonLabels="no"
+ HideImplicitHydrogens="no"
+ Magnification="500"
+ LabelFont="51232"
+ LabelSize="10"
+ LabelFace="96"
+ CaptionFont="51232"
+ CaptionSize="10"
+ HashSpacing="2.5"
+ MarginWidth="1.6"
+ LineWidth="0.6"
+ BoldWidth="2"
+ BondLength="14.4"
+ BondSpacing="18"
+ ChainAngle="120"
+ LabelJustification="Auto"
+ CaptionJustification="Left"
+ AminoAcidTermini="HOH"
+ ShowSequenceTermini="yes"
+ ShowSequenceBonds="yes"
+ PrintMargins="36 36 36 36"
+ MacPrintInfo="0003000002D002D0000000001DFE16F6FF86FF881E7617700367052803FC00020000004800480000000002D80228000100000064000000010003030300000001270F000100010000000000000000000000006800001901900000000000200000000000000000000000000000000000000000000000000000"
+ color="0"
+ bgcolor="1"
+><colortable>
+<color r="1" g="1" b="1"/>
+<color r="0" g="0" b="0"/>
+<color r="1" g="0" b="0"/>
+<color r="1" g="1" b="0"/>
+<color r="0" g="1" b="0"/>
+<color r="0" g="1" b="1"/>
+<color r="0" g="0" b="1"/>
+<color r="1" g="0" b="1"/>
+</colortable><fonttable>
+<font id="51232" charset="x-mac-roman" name="Helvetica"/>
+</fonttable><page
+ id="99"
+ BoundingBox="0 0 540 719.9"
+ HeaderPosition="36"
+ FooterPosition="36"
+ PrintTrimMarks="yes"
+ HeightPages="1"
+ WidthPages="1"
+><fragment
+ id="80"
+ BoundingBox="64.83 190.8 86.43 198.4"
+><n
+ id="79"
+ p="68.01 194.5"
+ Z="2"
+ Warning="An atom in this label has an invalid valence."
+ NodeType="Unspecified"
+ NeedsClean="yes"
+ AS="N"
+><fragment
+ id="100"
+><n
+ id="100"
+ p="68.01 194.5"
+ NumHydrogens="0"
+/><n
+ id="101"
+ p="53.66 194.5"
+ NumHydrogens="0"
+/><n
+ id="102"
+ p="82.36 194.5"
+ NumHydrogens="0"
+/><b
+ id="103"
+ B="100"
+ E="101"
+ Order="3"
+/><b
+ id="104"
+ B="100"
+ E="102"
+/></fragment><t
+ id="78"
+ p="64.83 198.2"
+ BoundingBox="64.83 190.8 86.43 198.4"
+ Z="1"
+ LabelJustification="Left"
+ LabelLineHeight="auto"
+ LineHeight="auto"
+ LabelAlignment="Left"
+><s font="51232" size="10">CCC</s></t></n></fragment><fragment
+ id="83"
+ BoundingBox="143.41 189.9 171.71 199.3"
+><n
+ id="82"
+ p="146.58 193.6"
+ Z="5"
+ Warning="An atom in this label has an invalid valence."
+ NodeType="Unspecified"
+ NeedsClean="yes"
+ AS="N"
+><fragment
+ id="106"
+><n
+ id="106"
+ p="146.58 193.6"
+ NumHydrogens="0"
+/><n
+ id="107"
+ p="132.23 193.6"
+ NumHydrogens="0"
+/><n
+ id="108"
+ p="160.93 193.6"
+ NumHydrogens="0"
+/><b
+ id="109"
+ B="106"
+ E="107"
+ Order="3"
+/><b
+ id="110"
+ B="106"
+ E="108"
+/></fragment><t
+ id="81"
+ p="143.41 197.3"
+ BoundingBox="143.41 189.9 171.71 199.3"
+ Z="4"
+ LabelJustification="Left"
+ LabelLineHeight="auto"
+ LineHeight="auto"
+ LabelAlignment="Left"
+><s font="51232" size="10">C(C)C</s></t></n></fragment><fragment
+ id="85"
+ BoundingBox="55.58 153.7 95.69 176.27"
+><n
+ id="84"
+ p="63.17 170"
+ Z="7"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="1"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="55.58 176.15"
+ BoundingBox="55.58 170.14 59.73 176.15"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">1</s></t></objecttag></n><n
+ id="86"
+ p="75.63 162.8"
+ Z="9"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="2"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="73.53 159.82"
+ BoundingBox="73.53 153.7 77.68 159.82"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">2</s></t></objecttag></n><n
+ id="90"
+ p="88.1 170"
+ Z="11"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="3"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="91.54 176.27"
+ BoundingBox="91.54 170.14 95.69 176.27"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">3</s></t></objecttag></n><b
+ id="87"
+ Z="10"
+ B="84"
+ E="86"
+ BS="N"
+/><b
+ id="91"
+ Z="12"
+ B="86"
+ E="90"
+ BS="N"
+/></fragment><fragment
+ id="93"
+ BoundingBox="137.51 153.7 177.61 176.27"
+><n
+ id="92"
+ p="145.09 170"
+ Z="13"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="2"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="137.51 176.27"
+ BoundingBox="137.51 170.14 141.66 176.27"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">2</s></t></objecttag></n><n
+ id="94"
+ p="157.56 162.8"
+ Z="15"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="1"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="155.46 159.7"
+ BoundingBox="155.46 153.7 159.61 159.7"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">1</s></t></objecttag></n><n
+ id="96"
+ p="170.03 170"
+ Z="17"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="3"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="173.46 176.27"
+ BoundingBox="173.46 170.14 177.61 176.27"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">3</s></t></objecttag></n><b
+ id="95"
+ Z="16"
+ B="92"
+ E="94"
+ BS="N"
+/><b
+ id="97"
+ Z="18"
+ B="94"
+ E="96"
+ BS="N"
+/></fragment></page></CDXML>

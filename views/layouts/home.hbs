@@ -1,0 +1,27 @@
+{{#> layouts/base }}
+  {{#*inline "styles"}}
+    <link rel="stylesheet" href="/css/home.css">
+  {{/inline}}
+  {{#*inline "main"}}
+    {{#each collections.recentArticles}}
+      <article>
+        <div class="aside">
+          <img src="/{{summary-image}}" alt="Summary Image">
+        </div>
+        <div class="main">
+          <header>
+            <h1><a href="/{{path}}/">{{title}}</a></h1>
+            {{#if updated}}
+              <time datetime="{{updated}}">Updated {{updated}}</time>
+            {{else}}
+              <time datetime="{{published}}">{{published}}</time>
+            {{/if}}
+          </header>
+          <p>{{{summary}}}</p>
+          <p><a href="/{{path}}/">Read&nbsp;More&rarr;</a></p>
+        </div>
+      </article>
+    {{/each}}
+    <nav>Browse all articles in the <a href="/articles/">archive</a>.</nav>
+  {{/inline}}
+{{/layouts/base}}

@@ -1,0 +1,987 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE CDXML SYSTEM "http://www.cambridgesoft.com/xml/cdxml.dtd" >
+<CDXML
+ CreationProgram="ChemDraw 12.0.3.1216"
+ Name="from-perfect-matching-to-kekule-form.cdxml"
+ BoundingBox="114.52 228 491 321.14"
+ WindowPosition="0 0"
+ WindowSize="0 0"
+ FractionalWidths="yes"
+ InterpretChemically="yes"
+ ShowAtomQuery="yes"
+ ShowAtomStereo="no"
+ ShowAtomEnhancedStereo="yes"
+ ShowAtomNumber="no"
+ ShowBondQuery="yes"
+ ShowBondRxn="yes"
+ ShowBondStereo="no"
+ ShowTerminalCarbonLabels="no"
+ ShowNonTerminalCarbonLabels="no"
+ HideImplicitHydrogens="no"
+ Magnification="500"
+ LabelFont="51232"
+ LabelSize="10"
+ LabelFace="96"
+ CaptionFont="51232"
+ CaptionSize="10"
+ HashSpacing="2.5"
+ MarginWidth="1.6"
+ LineWidth="0.6"
+ BoldWidth="2"
+ BondLength="14.4"
+ BondSpacing="18"
+ ChainAngle="120"
+ LabelJustification="Auto"
+ CaptionJustification="Left"
+ AminoAcidTermini="HOH"
+ ShowSequenceTermini="yes"
+ ShowSequenceBonds="yes"
+ PrintMargins="36 36 36 36"
+ MacPrintInfo="0003000002D002D0000000001DFE16F6FF86FF881E7617700367052803FC00020000004800480000000002D80228000100000064000000010003030300000001270F000100010000000000000000000000006800001901900000000000200000000000000000000000000000000000000000000000000000"
+ color="0"
+ bgcolor="1"
+><colortable>
+<color r="1" g="1" b="1"/>
+<color r="0" g="0" b="0"/>
+<color r="1" g="0" b="0"/>
+<color r="1" g="1" b="0"/>
+<color r="0" g="1" b="0"/>
+<color r="0" g="1" b="1"/>
+<color r="0" g="0" b="1"/>
+<color r="1" g="0" b="1"/>
+</colortable><fonttable>
+<font id="51232" charset="x-mac-roman" name="Helvetica"/>
+</fonttable><page
+ id="278"
+ BoundingBox="0 0 540 719.9"
+ HeaderPosition="36"
+ FooterPosition="36"
+ PrintTrimMarks="yes"
+ HeightPages="1"
+ WidthPages="1"
+><group
+ id="276"
+ BoundingBox="309.44 228 386.08 280.97"
+><fragment
+ id="224"
+ BoundingBox="309.44 257.6 337.07 278.59"
+><n
+ id="226"
+ p="317.02 265.12"
+ Z="281"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="7"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="309.44 263.61"
+ BoundingBox="309.44 257.6 313.59 263.61"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">7</s></t></objecttag></n><n
+ id="227"
+ p="329.49 272.32"
+ Z="282"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="6"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="332.92 278.59"
+ BoundingBox="332.92 272.46 337.07 278.59"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">6</s></t></objecttag></n><b
+ id="236"
+ Z="287"
+ Warning="This isolated bond is probably not intended to have chemical significance."
+ B="226"
+ E="227"
+ BS="N"
+/></fragment><fragment
+ id="246"
+ BoundingBox="310.97 228.5 336.57 243.48"
+><n
+ id="225"
+ p="316.52 243.22"
+ Z="280"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="2"
+><objecttag
+ TagType="Unknown"
+ PositioningType="offset"
+ PositioningOffset="-5.55 -3.48"
+ Name="number"
+><t
+ p="310.97 239.74"
+ BoundingBox="310.97 233.62 315.12 239.74"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">2</s></t></objecttag></n><n
+ id="230"
+ p="328.99 236.02"
+ Z="285"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="3"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="332.42 234.63"
+ BoundingBox="332.42 228.5 336.57 234.63"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">3</s></t></objecttag></n><b
+ id="240"
+ Z="291"
+ Warning="This isolated bond is probably not intended to have chemical significance."
+ B="230"
+ E="225"
+ BS="N"
+/></fragment><fragment
+ id="247"
+ BoundingBox="341.39 238.12 346.01 274.06"
+><n
+ id="228"
+ p="343.96 261.62"
+ Z="283"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="5"
+><objecttag
+ TagType="Unknown"
+ PositioningType="offset"
+ PositioningOffset="-2.57 12.44"
+ Name="number"
+><t
+ p="341.39 274.06"
+ BoundingBox="341.39 268.05 345.54 274.06"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">5</s></t></objecttag></n><n
+ id="229"
+ p="343.96 247.22"
+ Z="284"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="4"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="341.86 244.12"
+ BoundingBox="341.86 238.12 346.01 244.12"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">4</s></t></objecttag></n><b
+ id="238"
+ Z="289"
+ Warning="This isolated bond is probably not intended to have chemical significance."
+ B="228"
+ E="229"
+ BS="N"
+/></fragment><fragment
+ id="248"
+ BoundingBox="351.26 260.1 386.08 280.97"
+><n
+ id="231"
+ p="362.43 274.82"
+ Z="292"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="11"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="351.26 280.97"
+ BoundingBox="351.26 274.96 359.56 280.97"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">11</s></t></objecttag></n><n
+ id="232"
+ p="374.9 267.62"
+ Z="293"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="10"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="377.78 266.23"
+ BoundingBox="377.78 260.1 386.08 266.23"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">10</s></t></objecttag></n><b
+ id="242"
+ Z="297"
+ Warning="This isolated bond is probably not intended to have chemical significance."
+ B="231"
+ E="232"
+ BS="N"
+/></fragment><fragment
+ id="249"
+ BoundingBox="352.85 228 380.48 248.99"
+><n
+ id="233"
+ p="372.9 242.72"
+ Z="294"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="9"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="376.33 248.99"
+ BoundingBox="376.33 242.86 380.48 248.99"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">9</s></t></objecttag></n><n
+ id="234"
+ p="360.43 235.52"
+ Z="295"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="8"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="352.85 234.13"
+ BoundingBox="352.85 228 357 234.13"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">8</s></t></objecttag></n><b
+ id="244"
+ Z="299"
+ Warning="This isolated bond is probably not intended to have chemical significance."
+ B="233"
+ E="234"
+ BS="N"
+/></fragment></group><fragment
+ id="168"
+ BoundingBox="114.52 230.75 198.09 278.22"
+><n
+ id="165"
+ p="137.03 247.05"
+ Z="178"
+ ShowAtomNumber="yes"
+ AtomNumber="2"
+><objecttag
+ TagType="Unknown"
+ PositioningType="offset"
+ PositioningOffset="-2.05 -6.48"
+ Name="number"
+><t
+ p="134.98 240.57"
+ BoundingBox="134.98 234.45 139.13 240.57"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">2</s></t></objecttag></n><n
+ id="167"
+ p="137.03 261.45"
+ Z="180"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="7"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="129.45 267.6"
+ BoundingBox="129.45 261.59 133.6 267.6"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">7</s></t></objecttag></n><n
+ id="169"
+ p="149.5 268.65"
+ Z="182"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="6"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="147.4 278.22"
+ BoundingBox="147.4 272.1 151.55 278.22"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">6</s></t></objecttag></n><n
+ id="171"
+ p="161.97 261.45"
+ Z="184"
+ ShowAtomNumber="yes"
+ AtomNumber="5"
+><objecttag
+ TagType="Unknown"
+ PositioningType="offset"
+ PositioningOffset="-2.57 12.44"
+ Name="number"
+><t
+ p="159.4 273.89"
+ BoundingBox="159.4 267.88 163.55 273.89"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">5</s></t></objecttag></n><n
+ id="173"
+ p="161.97 247.05"
+ Z="186"
+ ShowAtomNumber="yes"
+ AtomNumber="4"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="159.87 243.9"
+ BoundingBox="159.87 237.9 164.02 243.9"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">4</s></t></objecttag></n><n
+ id="175"
+ p="149.5 239.85"
+ Z="188"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="3"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="147.4 236.87"
+ BoundingBox="147.4 230.75 151.55 236.87"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">3</s></t></objecttag></n><n
+ id="183"
+ p="174.44 268.65"
+ Z="196"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="11"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="170.27 278.11"
+ BoundingBox="170.27 272.1 178.57 278.11"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">11</s></t></objecttag></n><n
+ id="185"
+ p="186.91 261.45"
+ Z="198"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="10"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="189.79 267.72"
+ BoundingBox="189.79 261.59 198.09 267.72"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">10</s></t></objecttag></n><n
+ id="187"
+ p="186.91 247.05"
+ Z="200"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="9"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="190.34 245.65"
+ BoundingBox="190.34 239.53 194.49 245.65"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">9</s></t></objecttag></n><n
+ id="189"
+ p="174.44 239.85"
+ Z="202"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="8"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="172.34 236.87"
+ BoundingBox="172.34 230.75 176.49 236.87"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">8</s></t></objecttag></n><n
+ id="196"
+ p="124.6 239.88"
+ Z="209"
+ ShowAtomNumber="yes"
+ Element="9"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+ AtomNumber="1"
+><t
+ p="122.1 243.47"
+ BoundingBox="122.1 235.07 128.2 243.47"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">F</s></t><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="114.52 237.74"
+ BoundingBox="114.52 231.73 118.67 237.74"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">1</s></t></objecttag></n><b
+ id="177"
+ Z="190"
+ B="165"
+ E="167"
+ BS="N"
+/><b
+ id="178"
+ Z="191"
+ B="167"
+ E="169"
+ BS="N"
+/><b
+ id="179"
+ Z="192"
+ B="169"
+ E="171"
+ BS="N"
+/><b
+ id="180"
+ Z="193"
+ B="171"
+ E="173"
+ BS="N"
+/><b
+ id="181"
+ Z="194"
+ B="173"
+ E="175"
+ BS="N"
+/><b
+ id="182"
+ Z="195"
+ B="175"
+ E="165"
+ BS="N"
+/><b
+ id="191"
+ Z="204"
+ B="171"
+ E="183"
+ BS="N"
+/><b
+ id="192"
+ Z="205"
+ B="183"
+ E="185"
+ BS="N"
+/><b
+ id="193"
+ Z="206"
+ B="185"
+ E="187"
+ BS="N"
+/><b
+ id="194"
+ Z="207"
+ B="187"
+ E="189"
+ BS="N"
+/><b
+ id="195"
+ Z="208"
+ B="189"
+ E="173"
+ BS="N"
+/><b
+ id="197"
+ Z="210"
+ B="165"
+ E="196"
+ BS="N"
+/></fragment><fragment
+ id="198"
+ BoundingBox="219.44 230.75 288.08 278.22"
+><n
+ id="199"
+ p="227.02 247.05"
+ Z="235"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="2"
+><objecttag
+ TagType="Unknown"
+ PositioningType="offset"
+ PositioningOffset="-2.05 -6.48"
+ Name="number"
+><t
+ p="224.97 240.57"
+ BoundingBox="224.97 234.45 229.12 240.57"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">2</s></t></objecttag></n><n
+ id="200"
+ p="227.02 261.45"
+ Z="236"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="7"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="219.44 267.6"
+ BoundingBox="219.44 261.59 223.59 267.6"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">7</s></t></objecttag></n><n
+ id="201"
+ p="239.49 268.65"
+ Z="237"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="6"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="237.39 278.22"
+ BoundingBox="237.39 272.1 241.54 278.22"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">6</s></t></objecttag></n><n
+ id="202"
+ p="251.97 261.45"
+ Z="238"
+ ShowAtomNumber="yes"
+ AtomNumber="5"
+><objecttag
+ TagType="Unknown"
+ PositioningType="offset"
+ PositioningOffset="-2.57 12.44"
+ Name="number"
+><t
+ p="249.4 273.89"
+ BoundingBox="249.4 267.88 253.55 273.89"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">5</s></t></objecttag></n><n
+ id="203"
+ p="251.97 247.05"
+ Z="239"
+ ShowAtomNumber="yes"
+ AtomNumber="4"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="249.92 243.9"
+ BoundingBox="249.92 237.9 254.07 243.9"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">4</s></t></objecttag></n><n
+ id="204"
+ p="239.49 239.85"
+ Z="240"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="3"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="237.39 236.87"
+ BoundingBox="237.39 230.75 241.54 236.87"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">3</s></t></objecttag></n><n
+ id="205"
+ p="264.44 268.65"
+ Z="247"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="11"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="260.26 278.11"
+ BoundingBox="260.26 272.1 268.56 278.11"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">11</s></t></objecttag></n><n
+ id="206"
+ p="276.91 261.45"
+ Z="248"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="10"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="279.78 267.72"
+ BoundingBox="279.78 261.59 288.08 267.72"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">10</s></t></objecttag></n><n
+ id="207"
+ p="276.91 247.05"
+ Z="249"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="9"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="280.34 245.65"
+ BoundingBox="280.34 239.53 284.49 245.65"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">9</s></t></objecttag></n><n
+ id="208"
+ p="264.44 239.85"
+ Z="250"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="8"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="262.34 236.87"
+ BoundingBox="262.34 230.75 266.49 236.87"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">8</s></t></objecttag></n><b
+ id="210"
+ Z="241"
+ B="199"
+ E="200"
+ BS="N"
+/><b
+ id="211"
+ Z="242"
+ B="200"
+ E="201"
+ BS="N"
+/><b
+ id="212"
+ Z="243"
+ B="201"
+ E="202"
+ BS="N"
+/><b
+ id="213"
+ Z="244"
+ B="202"
+ E="203"
+ BS="N"
+/><b
+ id="214"
+ Z="245"
+ B="203"
+ E="204"
+ BS="N"
+/><b
+ id="215"
+ Z="246"
+ B="204"
+ E="199"
+ BS="N"
+/><b
+ id="216"
+ Z="251"
+ B="202"
+ E="205"
+ BS="N"
+/><b
+ id="217"
+ Z="252"
+ B="205"
+ E="206"
+ BS="N"
+/><b
+ id="218"
+ Z="253"
+ B="206"
+ E="207"
+ BS="N"
+/><b
+ id="219"
+ Z="254"
+ B="207"
+ E="208"
+ BS="N"
+/><b
+ id="220"
+ Z="255"
+ B="208"
+ E="203"
+ BS="N"
+/></fragment><fragment
+ id="251"
+ BoundingBox="407.43 230.75 491 278.22"
+><n
+ id="252"
+ p="429.94 247.05"
+ Z="330"
+ ShowAtomNumber="yes"
+ AtomNumber="2"
+><objecttag
+ TagType="Unknown"
+ PositioningType="offset"
+ PositioningOffset="-2.05 -6.48"
+ Name="number"
+><t
+ p="427.89 240.57"
+ BoundingBox="427.89 234.45 432.04 240.57"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">2</s></t></objecttag></n><n
+ id="253"
+ p="429.94 261.45"
+ Z="331"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="7"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="422.36 267.6"
+ BoundingBox="422.36 261.59 426.51 267.6"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">7</s></t></objecttag></n><n
+ id="254"
+ p="442.41 268.65"
+ Z="332"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="6"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="440.31 278.22"
+ BoundingBox="440.31 272.1 444.46 278.22"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">6</s></t></objecttag></n><n
+ id="255"
+ p="454.88 261.45"
+ Z="333"
+ ShowAtomNumber="yes"
+ AtomNumber="5"
+><objecttag
+ TagType="Unknown"
+ PositioningType="offset"
+ PositioningOffset="-2.57 12.44"
+ Name="number"
+><t
+ p="452.31 273.89"
+ BoundingBox="452.31 267.88 456.46 273.89"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">5</s></t></objecttag></n><n
+ id="256"
+ p="454.88 247.05"
+ Z="334"
+ ShowAtomNumber="yes"
+ AtomNumber="4"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="452.83 243.9"
+ BoundingBox="452.83 237.9 456.98 243.9"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">4</s></t></objecttag></n><n
+ id="257"
+ p="442.41 239.85"
+ Z="335"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="3"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="440.31 236.87"
+ BoundingBox="440.31 230.75 444.46 236.87"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">3</s></t></objecttag></n><n
+ id="258"
+ p="467.35 268.65"
+ Z="342"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="11"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="463.18 278.11"
+ BoundingBox="463.18 272.1 471.48 278.11"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">11</s></t></objecttag></n><n
+ id="259"
+ p="479.82 261.45"
+ Z="343"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="10"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="482.7 267.72"
+ BoundingBox="482.7 261.59 491 267.72"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">10</s></t></objecttag></n><n
+ id="260"
+ p="479.82 247.05"
+ Z="344"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="9"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="483.26 245.65"
+ BoundingBox="483.26 239.53 487.41 245.65"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">9</s></t></objecttag></n><n
+ id="261"
+ p="467.35 239.85"
+ Z="345"
+ ShowAtomNumber="yes"
+ AS="N"
+ AtomNumber="8"
+><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="465.25 236.87"
+ BoundingBox="465.25 230.75 469.4 236.87"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">8</s></t></objecttag></n><n
+ id="262"
+ p="417.51 239.88"
+ Z="351"
+ ShowAtomNumber="yes"
+ Element="9"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+ AtomNumber="1"
+><t
+ p="415.01 243.47"
+ BoundingBox="415.01 235.07 421.11 243.47"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">F</s></t><objecttag
+ TagType="Unknown"
+ Name="number"
+><t
+ p="407.43 237.74"
+ BoundingBox="407.43 231.73 411.58 237.74"
+ CaptionLineHeight="variable"
+><s font="51232" size="7.5">1</s></t></objecttag></n><b
+ id="263"
+ Z="336"
+ B="252"
+ E="253"
+ BS="N"
+/><b
+ id="264"
+ Z="337"
+ B="253"
+ E="254"
+ Order="2"
+ BondCircularOrdering="263 0 0 265"
+/><b
+ id="265"
+ Z="338"
+ B="254"
+ E="255"
+ BS="N"
+/><b
+ id="266"
+ Z="339"
+ B="255"
+ E="256"
+ Order="2"
+ BondCircularOrdering="265 269 273 267"
+/><b
+ id="267"
+ Z="340"
+ B="256"
+ E="257"
+ BS="N"
+/><b
+ id="268"
+ Z="341"
+ B="257"
+ E="252"
+ Order="2"
+ BondCircularOrdering="267 0 274 263"
+/><b
+ id="269"
+ Z="346"
+ B="255"
+ E="258"
+ BS="N"
+/><b
+ id="270"
+ Z="347"
+ B="258"
+ E="259"
+ Order="2"
+ BondCircularOrdering="269 0 0 271"
+/><b
+ id="271"
+ Z="348"
+ B="259"
+ E="260"
+ BS="N"
+/><b
+ id="272"
+ Z="349"
+ B="260"
+ E="261"
+ Order="2"
+ BondCircularOrdering="271 0 0 273"
+/><b
+ id="273"
+ Z="350"
+ B="261"
+ E="256"
+ BS="N"
+/><b
+ id="274"
+ Z="352"
+ B="252"
+ E="262"
+ BS="N"
+/></fragment><t
+ id="222"
+ p="135.66 309.5"
+ BoundingBox="135.66 301.04 182.36 311.09"
+ Z="256"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="10">framework</s></t><t
+ id="223"
+ p="252.44 309.44"
+ BoundingBox="222.22 301.04 282.67 321.14"
+ Z="257"
+ Warning="ChemDraw can’t interpret this label."
+ CaptionJustification="Center"
+ Justification="Center"
+ LineHeight="auto"
+ LineStarts="15 23"
+><s font="51232" size="10">delocalization
+subgraph</s></t><t
+ id="250"
+ p="347.44 309.5"
+ BoundingBox="310.47 301.04 384.42 311.09"
+ Z="305"
+ Warning="ChemDraw can’t interpret this label."
+ CaptionJustification="Center"
+ Justification="Center"
+ LineHeight="auto"
+><s font="51232" size="10">perfect matching</s></t><t
+ id="275"
+ p="455 309.5"
+ BoundingBox="434.2 301.04 475.8 321.14"
+ Z="353"
+ Warning="ChemDraw can’t interpret this label."
+ CaptionJustification="Center"
+ Justification="Center"
+ LineHeight="auto"
+ LineStarts="10 14"
+><s font="51232" size="10">kekulized
+form</s></t></page></CDXML>

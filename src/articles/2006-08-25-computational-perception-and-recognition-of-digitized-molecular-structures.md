@@ -1,0 +1,16 @@
+---
+title: "Computational Perception and Recognition of Digitized Molecular Structures"
+published: "2006-08-25T00:00:00.000Z"
+---
+
+>Summing up, the system described here, entirely developed in C (Vax C/Ultrix-32, version 1.0), can perceive and recognize complex type-printed molecular structures and allows one[sic] for the automatic input of this graphic information to a computer system. For hand-printed molecular structures however, there are some limitations for character recognition but not for graph (skeleton) recognition.
+>
+><cite>[M. Leonor Contreras et al.](http://dx.doi.org/10.1021/ci00067a014)</cite>
+
+Raster images of 2-D molecular structures are everywhere - in books, in journal articles, on photocopies, in notebooks, and most importantly, on the internet (for example, on <a href="http://www.lipitor.com/cwp/appmanager/lipitor/lipitorDesktop?_nfpb=true&amp;_pageLabel=prescribingInformation">this page</a> and <a href="http://depth-first.com/articles/2006/08/24/scripting-cdk-with-jruby">this one</a>). Although readily interpretable by humans, these renderings are useless to computer indexing systems - unless they can be translated into machine-readable representational schemes such as connection tables.
+
+Ideally, content providers would encode their documents in such a way that chemical structure information is machine-indexable. Sadly, there are numerous options, no standard, and few tools specifically designed for doing so. Although the recent introduction of <a href="http://www.iupac.org/inchi/">InChI</a> may provide a solution going forward, raising awareness to the level needed to produce a significant change will take some time. Even if an encoding system can be standardized, it can't address the problem of the thousands, if not millions, of documents already in existence.
+
+The work by Contreras and coworkers was apparently one of the earliest reported attempts at solving this problem. A <a href="http://dx.doi.org/10.1021/ci034017n">more recent work</a> proposes the interesting possibility of using a two step process in which a raster image is converted first to an <a href="http://www.w3.org/TR/SVG/">SVG</a> document. In a separate step, this SVG document is then converted into a 2-D structure representational scheme. Free software capable of performing raster->SVG conversions is available (for example, <a href="http://autotrace.sourceforge.net/">Autotrace</a> and <a href="http://potrace.sourceforge.net/">Potrace</a>). Given the heterogeneous nature of images on the web, automated image prescreening would be essential. The use of Machine Vision techniques was proposed as one solution.
+
+As more chemical content makes its way to the web, the problem only gets worse. Fortunately, most of the raster images being posted are machine-generated with regular features. Raster image conversion has never been one of the more active areas of chemical informatics. Has the time come to revisit this problem? Going forward, what kinds of tools could content providers be given help them make their documents more searchable?

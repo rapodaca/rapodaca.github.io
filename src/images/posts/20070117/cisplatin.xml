@@ -1,0 +1,58 @@
+<?xml version="1.0" standalone="yes"?>
+
+<molecule>
+  <constitution>
+    <atoms>
+      <atom id="Pt0" symbol="Pt" hydrogens="0" ionization="2"></atom>
+      <atom id="Cl1" symbol="Cl" hydrogens="0" ionization="1"></atom>
+      <atom id="Cl2" symbol="Cl" hydrogens="0" ionization="1"></atom>
+      <atom id="N3" symbol="N" hydrogens="3" ionization="5"></atom>
+      <atom id="N4" symbol="N" hydrogens="3" ionization="5"></atom>
+    </atoms>
+    <bonding>
+      <bond source="Pt0" target="Cl1" bondingElectrons="2"></bond>
+      <bond source="Pt0" target="Cl2" bondingElectrons="2"></bond>
+      <bond source="Pt0" target="N3" bondingElectrons="2"></bond>
+      <bond source="Pt0" target="N4" bondingElectrons="2"></bond>
+    </bonding>
+  </constitution>
+  <configuration>
+    <configurationWheel>
+      <atomPair source="Pt0" target="N4"></atomPair>
+      <halfPlane>
+        <center atom="Cl2"></center>
+      </halfPlane>
+      <halfPlane>
+        <center atom="N3"></center>
+      </halfPlane>
+    </configurationWheel>
+    <configurationWheel>
+      <atomPair source="Pt0" target="N3"></atomPair>
+      <halfPlane>
+        <center atom="N4"></center>
+      </halfPlane>
+      <halfPlane>
+        <center atom="Cl1"></center>
+      </halfPlane>
+    </configurationWheel>
+    <configurationWheel>
+      <atomPair source="Pt0" target="Cl1"></atomPair>
+      <halfPlane>
+        <center atom="N3"></center>
+      </halfPlane>
+      <halfPlane>
+        <center atom="Cl2"></center>
+      </halfPlane>
+    </configurationWheel>
+    <configurationWheel>
+      <atomPair source="Pt0" target="Cl2"></atomPair>
+      <halfPlane>
+        <center atom="Cl1"></center>
+      </halfPlane>
+      <halfPlane>
+        <center atom="N4"></center>
+      </halfPlane>
+    </configurationWheel>
+  </configuration>
+</molecule>
+

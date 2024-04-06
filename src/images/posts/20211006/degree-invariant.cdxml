@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE CDXML SYSTEM "http://www.cambridgesoft.com/xml/cdxml.dtd" >
+<CDXML
+ CreationProgram="ChemDraw 12.0.3.1216"
+ Name="distance-sum.cdxml"
+ BoundingBox="134 97.45 173.55 159.15"
+ WindowPosition="0 0"
+ WindowSize="0 0"
+ WindowIsZoomed="yes"
+ FractionalWidths="yes"
+ InterpretChemically="yes"
+ ShowAtomQuery="yes"
+ ShowAtomStereo="no"
+ ShowAtomEnhancedStereo="yes"
+ ShowAtomNumber="no"
+ ShowBondQuery="yes"
+ ShowBondRxn="yes"
+ ShowBondStereo="no"
+ ShowTerminalCarbonLabels="no"
+ ShowNonTerminalCarbonLabels="no"
+ HideImplicitHydrogens="no"
+ Magnification="500"
+ LabelFont="51232"
+ LabelSize="10"
+ LabelFace="96"
+ CaptionFont="51232"
+ CaptionSize="10"
+ HashSpacing="2.5"
+ MarginWidth="1.6"
+ LineWidth="0.6"
+ BoldWidth="2"
+ BondLength="14.4"
+ BondSpacing="18"
+ ChainAngle="120"
+ LabelJustification="Auto"
+ CaptionJustification="Left"
+ AminoAcidTermini="HOH"
+ ShowSequenceTermini="yes"
+ ShowSequenceBonds="yes"
+ PrintMargins="36 36 36 36"
+ MacPrintInfo="0003000002D002D0000000001DFE16F6FF86FF881E7617700367052803FC00020000004800480000000002D80228000100000064000000010003030300000001270F000100010000000000000000000000006800001901900000000000200000000000000000000000000000000000000000000000000000"
+ color="0"
+ bgcolor="1"
+><colortable>
+<color r="1" g="1" b="1"/>
+<color r="0" g="0" b="0"/>
+<color r="1" g="0" b="0"/>
+<color r="1" g="1" b="0"/>
+<color r="0" g="1" b="0"/>
+<color r="0" g="1" b="1"/>
+<color r="0" g="0" b="1"/>
+<color r="1" g="0" b="1"/>
+</colortable><fonttable>
+<font id="51232" charset="x-mac-roman" name="Helvetica"/>
+</fonttable><page
+ id="370"
+ BoundingBox="0 0 540 719.9"
+ HeaderPosition="36"
+ FooterPosition="36"
+ PrintTrimMarks="yes"
+ HeightPages="1"
+ WidthPages="1"
+><group
+ id="368"
+ BoundingBox="134 97.45 173.55 159.15"
+><fragment
+ id="341"
+ BoundingBox="141.62 102.56 166.2 146.8"
+><n
+ id="338"
+ p="147 146.5"
+ Z="1"
+ AS="N"
+/><n
+ id="340"
+ p="161.4 146.5"
+ Z="3"
+ AS="N"
+/><n
+ id="342"
+ p="165.85 132.8"
+ Z="5"
+ AS="N"
+/><n
+ id="344"
+ p="154.2 124.34"
+ Z="7"
+/><n
+ id="346"
+ p="142.55 132.8"
+ Z="9"
+ AS="N"
+/><n
+ id="353"
+ p="154.2 109.99"
+ Z="16"
+ AS="N"
+/><n
+ id="355"
+ p="141.77 102.82"
+ Z="18"
+ AS="N"
+/><b
+ id="348"
+ Z="11"
+ B="338"
+ E="340"
+ BS="N"
+/><b
+ id="349"
+ Z="12"
+ B="340"
+ E="342"
+ BS="N"
+/><b
+ id="350"
+ Z="13"
+ B="342"
+ E="344"
+ BS="N"
+/><b
+ id="351"
+ Z="14"
+ B="344"
+ E="346"
+ BS="N"
+/><b
+ id="352"
+ Z="15"
+ B="346"
+ E="338"
+ BS="N"
+/><b
+ id="354"
+ Z="17"
+ B="344"
+ E="353"
+ BS="N"
+/><b
+ id="356"
+ Z="19"
+ B="353"
+ E="355"
+ BS="N"
+/></fragment><t
+ id="361"
+ p="135.5 104.1"
+ BoundingBox="135.5 97.45 140.05 105.65"
+ Z="20"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="8.15">1</s></t><t
+ id="362"
+ p="157.5 110.6"
+ BoundingBox="157.5 103.95 162.05 112.15"
+ Z="21"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="8.15">2</s></t><t
+ id="363"
+ p="145.5 123.6"
+ BoundingBox="145.5 116.95 150.05 125.15"
+ Z="22"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="8.15">3</s></t><t
+ id="364"
+ p="134 135.1"
+ BoundingBox="134 128.45 138.55 136.65"
+ Z="23"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="8.15">2</s></t><t
+ id="365"
+ p="143 156.6"
+ BoundingBox="143 149.95 147.55 158.15"
+ Z="24"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="8.15">2</s></t><t
+ id="366"
+ p="161 157.6"
+ BoundingBox="161 150.95 165.55 159.15"
+ Z="25"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="8.15">2</s></t><t
+ id="367"
+ p="169 135.6"
+ BoundingBox="169 128.95 173.55 137.15"
+ Z="26"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="8.15">2</s></t></group></page></CDXML>

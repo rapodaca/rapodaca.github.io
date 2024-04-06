@@ -1,0 +1,14 @@
+---
+title: "Why I Still Don't Use Connotea"
+published: "2007-03-22T00:00:00.000Z"
+---
+
+Like most scientists, I have a collection of hardcopy journal articles. After they sit on my desk for awhile, I sort them into folders. Each folder has a label such as "dihydroxylation", "olefin metathesis", or "InChI". This system is nothing more than a small [ontology](http://www.shirky.com/writings/ontology_overrated.html). It does the job of building a top-level index of my papers, but it's not nearly as effective as it could be.
+
+There are many problems with ontology. For example, the world changes; I decide to add just one aminohydroxylation paper to the "dihydroxylation" folder and before I know it there are five others in there. Most papers require multiple categories; should I file that metathesis paper under "ring closing", "ruthenium", or "nobel"?
+
+Some time ago, Nature Publishing Group launched [Connotea](http://www.connotea.org/), a service designed to do for scientific papers what [del.icio.us](http://del.icio.us/) does for hyperlinks. [CiteULike](http://www.citeulike.org/) is a similar service. Both services abandon heirarchical classification in favor of tags - short text descriptions that can be applied to one or more articles. The possibilities of harnessing the [collective intelligence](http://depth-first.com/articles/2007/01/18/collective-intelligence-and-the-dumbness-of-crowds) of your fellow scientists through these services are tantalizing. And the ability to finally do away with hardcopy journal articles seems liberating.
+
+I think both Connotea and CiteULike are great services, but I still continue to use my horrible system of physical papers and physical folders. And I know I'm not alone. Maybe the thought of transcribing my massive collection of paper into a system like Connotea gives me just the excuse I need to avoid doing it. Maybe I just like being able to browse the articles in these folders while looking for new ideas. Increasingly, I've been turning directly to services like [SciFinder](http://www.cas.org/SCIFINDER/) and Google to track down a paper, even if I know it's in my collection. So maybe my collection of hardcopy articles just isn't as useful as it once was.
+
+Successful information systems demonstrate a concrete payoff that is much higher than the price of admission. As anyone who uses Linux or Mac OS X can tell you, technical superiority alone is not enough to make people switch. Although Connotea could no doubt make the management of my personal collection of articles easier, the price is simply too high to justify the effort.

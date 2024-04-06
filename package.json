@@ -1,0 +1,34 @@
+{
+  "name": "depth-first.com",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Depth-First website",
+  "author": "Richard L. Apodaca",
+  "dependencies": {
+    "browser-sync": "^2.26.13",
+    "chai": "4.2.0",
+    "gfm-code-blocks": "1.0.0",
+    "handlebars": "^4.7.6",
+    "highlight.js": "10.4.1",
+    "metalsmith": "2.3.0",
+    "metalsmith-collection-metadata": "0.1.0",
+    "metalsmith-collections": "https://github.com/segmentio/metalsmith-collections.git",
+    "metalsmith-markdown": "^1.3.0",
+    "metalsmith-permalinks": "2.0.0",
+    "mocha": "5.2.0",
+    "moment": "2.23.0",
+    "request": "^2.88.0",
+    "request-promise-native": "1.0.5",
+    "showdown": "1.9.1",
+    "showdown-highlight": "file:/Users/rich/src/js/showdown-highlight",
+    "showdown-katex": "0.8.0",
+    "walk": "2.3.14"
+  },
+  "scripts": {
+    "dev": "node ./bin/server",
+    "test": "mocha -G --recursive --watch --reporter min",
+    "deploy": "bin/deploy.sh",
+    "clean": "rm -rf build/*",
+    "build": "node ./metalsmith.js"
+  }
+}

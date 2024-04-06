@@ -1,0 +1,21 @@
+---
+title: "Debabelization"
+published: "2006-11-08T00:00:00.000Z"
+---
+
+>Today, we find <em>Chemical Abstracts</em> with over two million compounds coded in a connectivity table system and ISI with close to a million compounds coded in WLN. The U.S. Patent Office has large files coded in the Hayward notation; the IDC has large numbers of compounds in its CT and GREMAS Code. Derwent has a sizable patent file coded in one fragment code, and many journal literature compounds coded in the Ring Code fragment code. There are a number of individual companies and government agencies with over 100,000 compounds coded in "a" system. And almost all companies synthesizing new compounds have some internal system for their compounds. Finally, there are many universities with a wide variety of coded structure files.
+><cite>[Charles E. Granito](http://dx.doi.org/10.1021/c160049a009)<cite>
+
+The situation described by Granito in 1973 seems eerily familiar today. The names of the players, the technologies, and encoding systems have changed, but the problem of multiple incompatible molecular languages has persisted for over 30 years.
+
+This problem will become even more pronounced in the near future as <a href="/articles/2006/11/07/twelve-free-chemistry-databases">free chemistry databases on the Web</a> continue their rapid proliferation. In Granito's world of closed, proprietary databases and unevenly distributed computer power, interoperability was an afterthought; in the coming world of free, open databases, and ubiquitous computer networks that connect to them, interoperability will be taken for granted.
+
+Granito goes on to observe that "there is no one 'best' system" for molecular representation. And he's right. Molecular languages evolve within a particular problem domain, just as human languages evolve within a specific cultural context. This isn't to say that a molecular language can't be creatively <a href="http://dx.doi.org/10.1021/ci0496797">adapted to serve purposes for which it was never designed</a>. Trying to do so is, after all, how new languages are conceived.
+
+Consider the case of InChI, which is both a molecular identification system and a <a href="/articles/2006/08/18/107-years-of-line-formula-notations-1861-1968">line notation</a>, or <a href="http://cml.sourceforge.net/">Chemical Markup Language</a> (CML), an XML language. There are vast areas of chemistry in which using either InChI or CML will be problematic - particularly polymers, organometallics, and inorganic chemistry. And let's not ignore new molecular representation problems brewing on the horizon like <a href="http://dx.doi.org/10.1002/anie.200602173">small molecule tertiary structure</a>. Yet for pure organic chemistry as most of us know it today, InChI and CML may well be optimal.
+
+The problem is that both InChI and CML compete with simpler, entrenched alternatives - SMILES and molfile, respectively. Even MDL, the author of the original molfile specification, is having difficulty gaining acceptance for its new molfile format, despite significant technical advantages.
+
+If history is any guide, we can look forward to at least as many molecular languages in the next thirty years as we've seen in the last thirty. It wasn't long ago that WLN was viewed as <a href="http://dx.doi.org/10.1021/ci00034a005">the language of the future</a>. Now it just looks cryptic. For this we can thank a combination of technology advances and the emergence of a far simpler alternative, SMILES. A similar fate, more likely than not, awaits all molecular languages currently in use.
+
+Will there ever be a universal molecular language and is there any point in trying to invent one? Every area of chemistry introduces its own peculiarities not shared by any of the others. Yet all users want the simplest language possible. These two contradictory forces ensure that a universal language is unlikely to ever appear. In other words, the most successful new molecular languages are likely to be <em>agile</em> - simple, easy to learn, cheap to implement, and quickly adaptable in the face of new chemical concepts and advances in computer technology.

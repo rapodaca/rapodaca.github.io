@@ -1,0 +1,91 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- Monolaterol -->
+<molecule>
+  <constitution>
+    <atoms>
+      <atom id="0" symbol="O" hydrogens="1" ionization="2"></atom>
+      <atom id="1" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="2" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="3" symbol="O" hydrogens="1" ionization="2"></atom>
+      <atom id="4" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="5" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="6" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="7" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="8" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="9" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="10" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="11" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="12" symbol="C" hydrogens="2" ionization="4"></atom>
+      <atom id="13" symbol="C" hydrogens="2" ionization="4"></atom>
+      <atom id="14" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="15" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="16" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="17" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="18" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="19" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="20" symbol="C" hydrogens="1" ionization="4"></atom>
+    </atoms>
+    <bonding>
+      <bond source="0" target="1" bondingElectrons="2"></bond>
+      <bond source="1" target="2" bondingElectrons="2"></bond>
+      <bond source="1" target="11" bondingElectrons="4"></bond>
+      <bond source="2" target="3" bondingElectrons="2"></bond>
+      <bond source="2" target="4" bondingElectrons="4"></bond>
+      <bond source="4" target="5" bondingElectrons="2"></bond>
+      <bond source="5" target="10" bondingElectrons="4"></bond>
+      <bond source="5" target="6" bondingElectrons="2"></bond>
+      <bond source="6" target="7" bondingElectrons="4"></bond>
+      <bond source="7" target="8" bondingElectrons="2"></bond>
+      <bond source="8" target="9" bondingElectrons="4"></bond>
+      <bond source="9" target="10" bondingElectrons="2"></bond>
+      <bond source="9" target="12" bondingElectrons="2"></bond>
+      <bond source="10" target="11" bondingElectrons="2"></bond>
+      <bond source="12" target="13" bondingElectrons="2"></bond>
+      <bond source="13" target="14" bondingElectrons="2"></bond>
+      <bond source="14" target="11" bondingElectrons="2"></bond>
+      <bond source="14" target="15" bondingElectrons="2"></bond>
+      <bond source="15" target="16" bondingElectrons="4"></bond>
+      <bond source="16" target="17" bondingElectrons="2"></bond>
+      <bond source="17" target="18" bondingElectrons="4"></bond>
+      <bond source="18" target="19" bondingElectrons="2"></bond>
+      <bond source="19" target="20" bondingElectrons="4"></bond>
+      <bond source="20" target="15" bondingElectrons="2"></bond>
+    </bonding>
+  </constitution>
+  <configuration>
+    <configurationWheel>
+      <atomPair source="14" target="15"></atomPair>
+      <halfPlane>
+        <lower atom="13"></lower>
+      </halfPlane>
+      <halfPlane></halfPlane>
+      <halfPlane></halfPlane>
+      <halfPlane>
+        <lower atom="11"></lower>
+      </halfPlane>
+    </configurationWheel>
+    <configurationWheel>
+      <atomPair source="14" target="11"></atomPair>
+      <halfPlane>
+        <lower atom="15"></lower>
+      </halfPlane>
+      <halfPlane></halfPlane>
+      <halfPlane></halfPlane>
+      <halfPlane>
+        <lower atom="13"></lower>
+      </halfPlane>
+    </configurationWheel>
+    <configurationWheel>
+      <atomPair source="14" target="13"></atomPair>
+      <halfPlane>
+        <lower atom="11"></lower>
+      </halfPlane>
+      <halfPlane></halfPlane>
+      <halfPlane></halfPlane>
+      <halfPlane>
+        <lower atom="15"></lower>
+      </halfPlane>
+    </configurationWheel>
+  </configuration>
+</molecule>
+

@@ -1,0 +1,15 @@
+---
+title: Eight Talks I'd Like to See in Philadelphia
+published: "2008-07-30T00:00:00.000Z"
+---
+
+I just received the Chemical Information Bulletin for the Fall ACS, a meeting I unfortunately won't be at. There are quite a few talks that sound good. Here's a list of eight of them:
+
+-  **CINF 5. The rise and fall of British Chemical Abstracts.** Helen Cooke, GSK. From the abstract: "Prior to the start of Chemical Abstracts (CA) in 1907, the ACS unsuccessfully attempted to collaborate with the SCI and CS to produce a single abstracts journal. The increasing importance of CA and the impact of outside influences, such as the war, led to the demise of the BCA in 1953." One can't help but wonder: if CAS is headed for a similar fate, what would its replacement(s) look like?
+-  **CINF 48. Using text-mining and crowdsourced curation to build a structure centric community for chemists.** [Antony Williams](http://chemspider.com/blog), ChemZoo. Could this have something to do with the question posed above?
+-  **CINF 50. Mining, storage, retrieval: The challenge of integrating cheminformatics with chemical structure recognition in text and images.** Valentina Eigner-Pitto, InfoChem. As early as 1990, the translation of raster images into machine-readable 2D chemical structures has been an area of active interest. The talk is part of a series on [extracting 2D structures from the print literature](http://depth-first.com/articles/2006/08/25/computational-perception-and-recognition-of-digitized-molecular-structures).
+-  **CINF 51. Automated extraction of chemical structures in large text corpora.** Nicko Goncharoff, SureChem. SureChem is building [an impressive database](http://www.freepatentsonline.com/) covering the chemical patent literature. Patents remain the world's largest repository of open access chemical publications, so tools to use them more effectively will only grow in importance.
+-  **CINF 53. Optical structure recognition application.** Igor V. Filippov, NCI. Igor's [OSRA software](http://cactus.nci.nih.gov/osra/) is an open source implementation capable of converting raster images into 2D structures. It was [reviewed here](http://depth-first.com/articles/2008/02/07/testing-automatic-chemical-structure-recognition-with-osra).
+-  **CINF 54. Introducing CLiDE Pro.** A Peter Johnson, U. of Leeds. Of special interest: "A key component of the presentation will be CLiDE Pro's approach to the interpretation of generic structures."
+-  **CINF 74. A status report on the InChI & InCHIKey project.** Stephen Heller, NIST. InChI has been the subject of [many articles](http://depth-first.com/articles/tag/inchi) here.
+-  **CINF 78. A new, automated retrosynthetic search engine: ARChem.** A. Peter Johnson, U. of Leeds. Truly usable synthesis planning always seems to be one of those technologies just on the horizon, so a new approach might have potential. Given that [ARChem Route Designer](http://www.simbiosys.ca/archem/index.html) "runs on a server with a web-based user interface", the talk is even more interesting.

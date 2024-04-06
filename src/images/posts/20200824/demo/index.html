@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head meta charset="utf-8">
+    <title>Cereus Editor</title>
+    <style>
+      body {
+        margin: 2em;
+      }
+      input {
+        font-size: 200%;
+        width: 100%;
+        padding: 0.1em;
+        background-color: #55ff00;
+      }
+      input::placeholder {
+        color: black;
+      }
+      .invalid {
+        background-color: #ff8888;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Smival</h1>
+    <input placeholder="Enter a SMILES..."></input>
+    <script type="module" src="./validate.js"></script>
+  </body>
+</html>

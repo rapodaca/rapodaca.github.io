@@ -1,0 +1,25 @@
+<html>
+  <head><title>JChemPaint Test</title></head>
+  <body>
+    <script language="JavaScript">
+      function writeMolfile()
+      {
+        document.form.output.value = document.applet.getMolFile();
+      }
+    </script>
+
+    <p>Back to the <a href="http://depth-first.com/articles/2006/08/21/four-free-2-d-structure-editors-for-web-applications">Editor Comparison</a></p>
+    <h1>JChemPaint</h1>
+
+    <applet codebase="." code="org.openscience.cdk.applications.jchempaint.applet.JChemPaintEditorApplet" archive="jchempaint-applet-core.jar" name="applet" width="510" height="360">
+    </applet>
+
+    <br />
+
+    <form method="post" name="form">
+      <input type="button" value="Get Molfile" onclick="writeMolfile()"></input>
+      <br /><br />
+      <textarea name="output" rows=20 cols=70></textarea>
+    </form>
+  </body>
+</html>

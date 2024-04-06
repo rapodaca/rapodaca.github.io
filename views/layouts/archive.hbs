@@ -1,0 +1,24 @@
+{{#> layouts/base }}
+  {{#*inline "styles"}}
+    <link rel="stylesheet" href="/css/archive.css">
+  {{/inline}}
+  {{#*inline "main"}}
+    <article>
+      <header>
+        <h1>{{title}}</h1>
+      </header>
+      <ol>
+        {{#each collections.articles}}
+          <li>
+            <h2><a href="/{{path}}">{{title}}</a></h2>
+            {{#if updated}}
+              <time datetime="{{updated}}">Updated {{updated}}</time>
+            {{else}}
+              <time datetime="{{published}}">{{published}}</time>
+            {{/if}}
+          </li>
+        {{/each}}
+      </ol>
+    </article>
+  {{/inline}}
+{{/layouts/base}}

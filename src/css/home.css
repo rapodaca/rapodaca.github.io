@@ -1,0 +1,54 @@
+article {
+  margin-bottom: 2em;
+}
+
+article h1 a {
+  text-decoration: none;
+  color: inherit;
+}
+
+article h1 a:hover {
+  text-decoration: underline;
+}
+
+article p {
+  line-height: 1.3em;
+  margin-bottom: 1em;
+}
+
+main nav {
+  border-top: 1px dotted #c0c0c0;
+  padding-top: 2em;
+  font-style: italic;
+}
+
+.aside {
+  width: 120px;
+  height: 120px;
+  display: block;
+  margin-bottom: 1em;
+}
+
+.aside img {
+  max-width: 100%;
+}
+
+.main {
+  display: inline-block;
+  text-align: top;
+  vertical-align: top;
+}
+
+@media (min-width: 800px) {
+  .aside {
+    width: 150px;
+    height: 150px;
+    display: inline-block;
+    margin-right: 1em;
+    margin-bottom: 0;
+  }
+
+  .main {
+    max-width: calc(100% - 150px - 2em);
+  }
+}

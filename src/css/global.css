@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:800|Roboto:400,900');
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+  font-family: "Roboto";
+}
+
+body {
+  margin: 0 0 5em;
+  color: #303030;
+}
+
+body>header {
+  background-color:#751919;
+  color: white;
+  opacity: 0.85;
+  margin-bottom: 2em;
+  padding-top: 0.75em;
+  padding-bottom: 0.75em;
+}
+
+body>header .site-id {
+  font-weight: 900;
+  font-size: 1.5em;
+  font-family: "Open Sans";
+  display: inline-block;
+}
+
+body>header .site-id a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body>header nav {
+  float: right;
+  font-size: 1.2em;
+}
+
+body>header nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body>header nav li {
+  display: inline-block;
+}
+
+body>header li + li:before {
+  content: "\00A0|\00A0"
+}
+
+.wrapper {
+  width: 90%;
+  margin: 0 auto;
+  max-width: 920px;
+}
+
+main {
+  padding-bottom: 3em;
+}
+
+main header {
+  margin-bottom: 1em;
+}
+
+main header h1 {
+  font-size: 2em;
+  line-height: 1.25em;
+  margin-bottom: 0.25em;
+  font-weight: 900;
+  color: #262626;
+}
+
+main header time {
+  font-size: 90%;
+  opacity: 0.5;
+}
+
+main header .byline {
+  margin-bottom: 0.2em;
+}
+
+footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 5em; /* matches body bottom */
+  width: 100%;
+  background-color: #262626;
+  color: white;
+  text-align: center;
+  padding-top: 2em;
+}
+
+footer a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+footer li {
+  display: inline-block;
+}
+
+footer li + li:before {
+  content: "\00A0|\00A0"
+}
+
+@media (min-width: 800px) {
+  main {
+    font-size: 120%;
+  }
+}

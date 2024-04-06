@@ -1,0 +1,18 @@
+---
+title: "Flying Coach"
+published: "2008-10-22T00:00:00.000Z"
+---
+
+Over the last couple of years, I've noticed several examples of [C&EN](http://pubs.acs.org/cen/index.html) readers writing in to complain about the way the American Chemical Society ([ACS](http://acs.org)) deals with its considerable intellecual property claims. Last week, [Jiri Janata](http://www.chemistry.gatech.edu/faculty/Janata/) wrote in to complain about the unfairness he sees in a scholarly organization taking free services from its members while at the same time charging for services at the same rate the general public is charged. [He writes](http://pubs.acs.org/isubscribe/journals/cen/86/i41/html/8641letters.html):
+
+>I am in the final stages of finishing the second edition of my book "Principles of Chemical Sensors." As one of the last steps in this process, I started requesting permissions to reproduce illustrations and tables from various copyrighted materials, among them 26 requests from ACS journals. I have done this several times before and I did not expect any complications. Much to my surprise, I have been advised by the ACS Copyright Office that "our limit for free permission is 10 figures/tables. Anything over this amount will be assessed a permission fee of $1.50 per figure/table, with a minimum of $50."
+>
+>I politely asked them to waive the fee because I have been an ACS member for more than 30 years. I have served on many editorial and advisory boards, published dozens of papers in ACS journals, and refereed hundreds of manuscripts. In my opinion, a waiver would have been fair and decent, considering also that ACS is one of the signatories to the [agreement of the International Association of Scientific, Technical & Medical Publishers](http://www.stm-assoc.org/stm-permission-guidelines/) \[link added\]. The answer I received from Eric S. Slater, Esq., was: "Unfortunately we are not able to waive the permissions fee. Copyright permission fees fit into the overall publication process at ACS, in that these fees are reinvested back into the publishing program, so that ACS can continue to produce high quality publications."
+>
+>Fine. I understand that business is business and that everybody is out to make a buck. However, I object to being treated by the professional society, which depends on my membership fees and on my voluntary services, like an economy-class passenger is treated by the airlines.
+>
+>So here is my answer. I will review 10 manuscripts per year free of charge. For anything over that number, I will request $50 per review. This will apply to all the publishers of scientific journals. If more scientists join in this action, the publishers will soon realize that they are here because of the scientists and not the other way around. To not cause a further collapse of the peer review process, I suggest that we start counting the year from each individual's birthday. Mine was in July, and I still have three "free of charge" manuscript reviews available. Dear editors and publishers: Be aware and hurry up; the freebies are going fast!
+
+Given the explosive advances in information technology over the last ten years, what role should scientific publishers now be playing and how should they be making money to support themselves?
+
+Whatever the answer, it appears that at least some passengers on ACS Airlines are discovering they paid for first class but got stuck in coach instead.

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns:extrep="http://www.sun.com/japex/extendedTestSuiteReport" xmlns:suite="http://www.sun.com/japex/testSuite" xmlns:rep="http://www.sun.com/japex/testSuiteReport" xmlns="http://www.w3.org/1999/xhtml">
+<link href="report.css" type="text/css" rel="stylesheet"/>
+<body>
+<table border="0" cellpadding="2">
+<tr>
+<td valign="middle" width="90">
+<p>
+<a href="https://japex.dev.java.net">
+<img src="small_japex.gif" align="middle" border="0"/>
+</a>
+</p>
+</td>
+<td valign="middle">
+<h1>Japex Report: CheminfoBench</h1>
+</td>
+</tr>
+</table>
+<h2>Global Parameters</h2>
+<ul>
+<li>configFile: <a href="mx-cdk-sdf.xml">mx-cdk-sdf.xml</a>
+</li>
+<li>chartType: barchart</li>
+<li>classPath: build/classes</li>
+<li>dateTime: 19 Jan 2009/00:32:11 PST</li>
+<li>hostName: mac.local</li>
+<li>numberOfCpus: 2</li>
+<li>numberOfThreads: 1</li>
+<li>osArchitecture: i386</li>
+<li>osName: Mac OS X</li>
+<li>plotDrivers: false</li>
+<li>plotGroupSize: 5</li>
+<li>reportsDirectory: build/reports</li>
+<li>resultAxis: normal</li>
+<li>resultAxisX: normal</li>
+<li>resultUnit: ms</li>
+<li>runIterations: 50</li>
+<li>runsPerDriver: 1</li>
+<li>version: 1.1.0</li>
+<li>vmInfo: Apple Inc. 1.5.0_13-119</li>
+<li>warmupIterations: 10</li>
+<li>warmupsPerDriver: 0</li>
+</ul>
+<h2>Result Summary 
+        (ms)</h2>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th width="15%">
+<b>driver</b>
+</th>
+<th>
+<b>resultAritMean</b>
+</th>
+<th>
+<b>resultGeomMean</b>
+</th>
+<th>
+<b>resultHarmMean</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">CDK-1.2.x</td>
+<td align="right">
+<nobr>21.172</nobr>
+</td>
+<td align="right">
+<nobr>21.172</nobr>
+</td>
+<td align="right">
+<nobr>21.172</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">mx-0.108.1</td>
+<td align="right">
+<nobr>26.065</nobr>
+</td>
+<td align="right">
+<nobr>26.065</nobr>
+</td>
+<td align="right">
+<nobr>26.065</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<br/>
+<center>
+<img src="result.jpg"/>
+</center>
+<br/>
+<br/>
+<h2>Driver: CDK-1.2.x</h2>
+<p>
+<ul>
+<li>classPath: build/classes
+./lib/cdk-1.2.x-20090116.jar</li>
+<li>driverClass: net.openmolecules.benchmark.driver.CDKSDFBench</li>
+<li>description: Reads SD file, prints sum of calculated molecular masses.</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>inputFile</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">CDK and MX Read 33-Record SD File and Calculate Sum of Molecular Masses</td>
+<td align="right">
+<nobr>data/pubchem_sample_33.sdf</nobr>
+</td>
+<td align="right">
+<nobr>50.000</nobr>
+</td>
+<td align="right">
+<nobr>1.059</nobr>
+</td>
+<td align="right">
+<nobr>21.172</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: mx-0.108.1</h2>
+<p>
+<ul>
+<li>classPath: build/classes
+./lib/mx-0.108.1.jar</li>
+<li>driverClass: net.openmolecules.benchmark.driver.MXSDFBench</li>
+<li>description: Reads SD file, prints sum of calculated molecular masses.</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>inputFile</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">CDK and MX Read 33-Record SD File and Calculate Sum of Molecular Masses</td>
+<td align="right">
+<nobr>data/pubchem_sample_33.sdf</nobr>
+</td>
+<td align="right">
+<nobr>50.000</nobr>
+</td>
+<td align="right">
+<nobr>1.303</nobr>
+</td>
+<td align="right">
+<nobr>26.065</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Results Per Test</h2>
+<br/>
+<center>
+<img src="testcase0.jpg"/>
+</center>
+<br/>
+<br/>
+<br/>
+<small>
+<hr/>
+<font size="-2">
+                        Generated using <a href="https://japex.dev.java.net">Japex</a> version 
+                        1.1.0</font>
+</small>
+</body>
+</html>

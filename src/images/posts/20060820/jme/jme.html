@@ -1,0 +1,36 @@
+<html>
+  <head><title>JME Test</title></head>
+  <body>
+    <script language="JavaScript">
+      function writeMolfile()
+      {
+        document.form.output.value = document.applet.molFile();
+      }
+
+      function writeSMILES()
+      {
+        document.form.output.value = document.applet.smiles();
+      }
+
+      function writeJME()
+      {
+        document.form.output.value = document.applet.jmeFile();
+      }
+    </script>
+
+    <p>Back to the <a href="http://depth-first.com/articles/2006/08/21/four-free-2-d-structure-editors-for-web-applications">Editor Comparison</a></p>
+    <h1>Java Molecular Editor (JME)</h1>
+    <applet code="JME.class" name="applet" archive="JME.jar" width=510 height=360>
+      Please enable Java and JavaScript on your machine.
+    </applet>
+    <br />
+    <form method="post" name="form">
+      <input type="button" value="Get Molfile" onclick="writeMolfile()"></input>
+      <input type="button" value="Get SMILES" onclick="writeSMILES()"></input>
+      <input type="button" value="Get JME" onclick="writeJME()"></input>
+      <br /><br />
+      <textarea name="output" rows=20 cols=70></textarea>
+    </form>
+
+  </body>
+</html>

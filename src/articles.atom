@@ -1,0 +1,30 @@
+---
+layout: inline
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+  <title>Depth-First</title>
+  <link href="https://depth-first.com/articles.atom" rel="self"/>
+  <link href="https://depth-first.com"/>
+  <updated>{{now}}</updated>
+  <id>http://depth-first.com/</id>
+  <author>
+    <name>Richard L. Apodaca</name>
+  </author>
+
+  {{#each collections.recentArticles}}
+    <entry>
+      <title>{{{title}}}</title>
+      <link href="https://depth-first.com/{{path}}/"/>
+      {{#if updated}}
+        <updated>{{{updated}}}</updated>
+      {{else}}
+        <updated>{{{published}}}</updated>
+      {{/if}}
+        <published>{{{published}}}</published>
+      <id>http://depth-first.com/{{{path}}}/</id>
+      <summary>{{summary}}</summary>
+    </entry>
+  {{/each}}
+</feed>

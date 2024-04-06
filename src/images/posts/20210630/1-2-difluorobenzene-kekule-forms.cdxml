@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE CDXML SYSTEM "http://www.cambridgesoft.com/xml/cdxml.dtd" >
+<CDXML
+ CreationProgram="ChemDraw 12.0.3.1216"
+ Name="1-2-difluorobenzene-kekule-forms.cdxml"
+ BoundingBox="41.37 243.2 259.54 309.17"
+ WindowPosition="0 0"
+ WindowSize="0 0"
+ FractionalWidths="yes"
+ InterpretChemically="yes"
+ ShowAtomQuery="yes"
+ ShowAtomStereo="no"
+ ShowAtomEnhancedStereo="yes"
+ ShowAtomNumber="no"
+ ShowBondQuery="yes"
+ ShowBondRxn="yes"
+ ShowBondStereo="no"
+ ShowTerminalCarbonLabels="no"
+ ShowNonTerminalCarbonLabels="no"
+ HideImplicitHydrogens="no"
+ Magnification="500"
+ LabelFont="51232"
+ LabelSize="10"
+ LabelFace="96"
+ CaptionFont="51232"
+ CaptionSize="10"
+ HashSpacing="2.5"
+ MarginWidth="1.6"
+ LineWidth="0.6"
+ BoldWidth="2"
+ BondLength="14.4"
+ BondSpacing="18"
+ ChainAngle="120"
+ LabelJustification="Auto"
+ CaptionJustification="Left"
+ AminoAcidTermini="HOH"
+ ShowSequenceTermini="yes"
+ ShowSequenceBonds="yes"
+ PrintMargins="36 36 36 36"
+ MacPrintInfo="0003000002D002D0000000001DFE16F6FF86FF881E7617700367052803FC00020000004800480000000002D80228000100000064000000010003030300000001270F000100010000000000000000000000006800001901900000000000200000000000000000000000000000000000000000000000000000"
+ color="0"
+ bgcolor="1"
+><colortable>
+<color r="1" g="1" b="1"/>
+<color r="0" g="0" b="0"/>
+<color r="1" g="0" b="0"/>
+<color r="1" g="1" b="0"/>
+<color r="0" g="1" b="0"/>
+<color r="0" g="1" b="1"/>
+<color r="0" g="0" b="1"/>
+<color r="1" g="0" b="1"/>
+</colortable><fonttable>
+<font id="51232" charset="x-mac-roman" name="Helvetica"/>
+</fonttable><page
+ id="51"
+ BoundingBox="0 0 540 719.9"
+ HeaderPosition="36"
+ FooterPosition="36"
+ PrintTrimMarks="yes"
+ HeightPages="1"
+ WidthPages="1"
+><fragment
+ id="5"
+ BoundingBox="63.73 243.2 103.9 280.35"
+><n
+ id="2"
+ p="78.66 255.18"
+ Z="1"
+/><n
+ id="4"
+ p="78.66 269.57"
+ Z="3"
+/><n
+ id="6"
+ p="91.13 276.77"
+ Z="5"
+ AS="N"
+/><n
+ id="8"
+ p="103.6 269.57"
+ Z="7"
+ AS="N"
+/><n
+ id="10"
+ p="103.6 255.18"
+ Z="9"
+ AS="N"
+/><n
+ id="12"
+ p="91.13 247.98"
+ Z="11"
+ AS="N"
+/><n
+ id="20"
+ p="66.23 248"
+ Z="19"
+ Element="9"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="63.73 251.6"
+ BoundingBox="63.73 243.2 69.83 251.6"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">F</s></t></n><n
+ id="22"
+ p="66.23 276.75"
+ Z="21"
+ Element="9"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="63.73 280.35"
+ BoundingBox="63.73 271.95 69.83 280.35"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">F</s></t></n><b
+ id="14"
+ Z="13"
+ B="2"
+ E="4"
+ Order="2"
+ BondCircularOrdering="19 21 23 15"
+/><b
+ id="15"
+ Z="14"
+ B="4"
+ E="6"
+ BS="N"
+/><b
+ id="16"
+ Z="15"
+ B="6"
+ E="8"
+ Order="2"
+ BondCircularOrdering="15 0 0 17"
+/><b
+ id="17"
+ Z="16"
+ B="8"
+ E="10"
+ BS="N"
+/><b
+ id="18"
+ Z="17"
+ B="10"
+ E="12"
+ Order="2"
+ BondCircularOrdering="17 0 0 19"
+/><b
+ id="19"
+ Z="18"
+ B="12"
+ E="2"
+ BS="N"
+/><b
+ id="21"
+ Z="20"
+ B="2"
+ E="20"
+ BS="N"
+/><b
+ id="23"
+ Z="22"
+ B="4"
+ E="22"
+ BS="N"
+/></fragment><fragment
+ id="27"
+ BoundingBox="190.48 243.2 230.65 280.35"
+><n
+ id="24"
+ p="205.41 269.57"
+ Z="23"
+/><n
+ id="26"
+ p="217.88 276.77"
+ Z="25"
+ AS="N"
+/><n
+ id="28"
+ p="230.35 269.57"
+ Z="27"
+ AS="N"
+/><n
+ id="30"
+ p="230.35 255.18"
+ Z="29"
+ AS="N"
+/><n
+ id="32"
+ p="217.88 247.98"
+ Z="31"
+ AS="N"
+/><n
+ id="34"
+ p="205.41 255.18"
+ Z="33"
+/><n
+ id="42"
+ p="192.98 248"
+ Z="41"
+ Element="9"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="190.48 251.6"
+ BoundingBox="190.48 243.2 196.58 251.6"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">F</s></t></n><n
+ id="44"
+ p="192.98 276.75"
+ Z="43"
+ Element="9"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="190.48 280.35"
+ BoundingBox="190.48 271.95 196.58 280.35"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">F</s></t></n><b
+ id="36"
+ Z="35"
+ B="24"
+ E="26"
+ Order="2"
+ BondCircularOrdering="41 45 0 37"
+/><b
+ id="37"
+ Z="36"
+ B="26"
+ E="28"
+ BS="N"
+/><b
+ id="38"
+ Z="37"
+ B="28"
+ E="30"
+ Order="2"
+ BondCircularOrdering="37 0 0 39"
+/><b
+ id="39"
+ Z="38"
+ B="30"
+ E="32"
+ BS="N"
+/><b
+ id="40"
+ Z="39"
+ B="32"
+ E="34"
+ Order="2"
+ BondCircularOrdering="39 0 43 41"
+/><b
+ id="41"
+ Z="40"
+ B="34"
+ E="24"
+ BS="N"
+/><b
+ id="43"
+ Z="42"
+ B="34"
+ E="42"
+ BS="N"
+/><b
+ id="45"
+ Z="44"
+ B="24"
+ E="44"
+ BS="N"
+/></fragment><fragment
+ id="48"
+ BoundingBox="41.37 299.12 126.27 309.17"
+><n
+ id="47"
+ p="43.87 304.05"
+ Z="46"
+ Warning="An atom in this label has an invalid valence."
+ NodeType="Unspecified"
+ NeedsClean="yes"
+ AS="N"
+><fragment
+ id="52"
+><n
+ id="52"
+ p="68.72 332.75"
+ Element="9"
+ NumHydrogens="0"
+/><n
+ id="53"
+ p="68.72 318.4"
+ NumHydrogens="0"
+/><n
+ id="54"
+ p="56.3 311.22"
+ NumHydrogens="0"
+/><n
+ id="55"
+ p="81.15 311.22"
+ Element="9"
+ NumHydrogens="0"
+/><n
+ id="56"
+ p="43.87 304.05"
+ NumHydrogens="0"
+/><n
+ id="57"
+ p="31.44 296.88"
+ NumHydrogens="0"
+/><n
+ id="58"
+ p="19.01 289.7"
+ NumHydrogens="0"
+/><n
+ id="59"
+ p="6.59 282.52"
+ NumHydrogens="0"
+/><b
+ id="60"
+ B="52"
+ E="53"
+/><b
+ id="61"
+ B="53"
+ E="54"
+ Order="2"
+/><b
+ id="62"
+ B="53"
+ E="55"
+/><b
+ id="63"
+ B="54"
+ E="56"
+ Order="2"
+/><b
+ id="64"
+ B="56"
+ E="57"
+ Order="2"
+/><b
+ id="65"
+ B="57"
+ E="58"
+ Order="2"
+/><b
+ id="66"
+ B="58"
+ E="59"
+ Order="2"
+/></fragment><t
+ id="46"
+ p="41.37 307.75"
+ BoundingBox="41.37 299.12 126.27 309.17"
+ Z="45"
+ LabelJustification="Left"
+ LabelLineHeight="auto"
+ LineHeight="auto"
+ LabelAlignment="Left"
+><s font="51232" size="10">FC1=C(F)CC=CC1</s></t></n></fragment><t
+ id="49"
+ p="161.59 307.75"
+ BoundingBox="161.59 299.12 259.54 309.17"
+ Z="48"
+ Warning="An atom in this label has an invalid valence."
+ LineHeight="auto"
+><s font="51232" size="10">FC1C(F)=CC=CC=C1</s></t></page></CDXML>

@@ -1,0 +1,13 @@
+server {
+  server_name www.depth-first.com;
+  listen      80;
+  
+  return 301  http://depth-first.com$request_uri;
+}
+
+server {
+  server_name  depth-first.com;
+  listen        80;
+  root         /var/www/depth-first.com;
+  error_page   404 /not_found/index.html;
+}
