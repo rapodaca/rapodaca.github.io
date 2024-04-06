@@ -1,54 +1,6 @@
 # Depth-First
 
-A blog mostly about cheminformatics, but sometimes other stuff.
-
-Depth-First articles take a lot of effort. They usually require some level of outside research, experimentation, or creation. It's really hard to do this in one go. What follows is an attempt to systematize the publication of high-quality, on-budget articles.
-
-The place to manage this kind of work is the `pending` directory. Its contents are split into three subdirectories, each with a specific purpose.
-
-The goal is to allow for the evolution and critical evaluation of articles together. In particular, expensive rewrites in which some crucial underlying concept is discovered late in the process should be avoided.
-
-## Concept
-
-The first stage of writing an article is a *concept*. A concept is a markdown document consisting of:
-
-1. A working title.
-2. Enables. What the eventual article makes possible.
-3. Requires. What the eventual article requires.
-4. Freeform notes. A mixture of bulleted and unbulleted notes, probably including links.
-
-The Concepts directory is not a place to dump information about interesting papers. Use Zotero notes for that.
-
-## Spec
-
-When a concept has accumulated sufficient detail and importance, a *spec* can be prepared. A spec is a markdown document consisting of:
-
-1. A title.
-2. Enables & Requires.
-3. Hook. 1-2 paragraphs that will interest SAM in reading the article.
-4. Section Headings. Includes "Conclusion."
-5. Section outlines.
-6. Notes. Anything that doesn't fit under a heading.
-
-## Draft
-
-When the Notes section of a spec is empty, a *draft* may be prepared. A draft is an important piece of writing of between 500 and 4,000 words, consisting of the following:
-
-1. A title.
-2. Benefits & Dependencies.
-3. Hook.
-4. Section Headings
-5. Section text. Figures may be left as captions.
-
-## Article
-
-When all images have been added to figure captions, an article may be prepared. An article is is a document that will be published to the blog, and may be later revised.
-
-Concepts, Specs, and Drafts that lose importance should be retired.
-
-## Topics
-
-Topics should be preferentially chosen for their ability to develop or promote something I'm personally working on, or which Metamolecular is developing/selling, or which a customer has revealed as important. Other topics are de-prioritized. They can be considered, but only after every other topic has been exhausted. Depth-First is not a news feed.
+The personal blog of Richard L. Apodaca. Older material leans toward cheminformatics.
 
 ## Finding Ideas
 
