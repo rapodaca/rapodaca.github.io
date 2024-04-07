@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Reading and Writing SD Files With MX | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Reading and Writing SD Files With MX</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-12-15T00:00:00.000Z">2008-12-15T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://www.mdli.com/downloads/public/ctfile/ctfile.jsp">MDL Structure Data Files (SD Files)</a> are the de facto standard for the exchange of chemical structures and associated data. As a result, methods for efficiently reading and writing these files play an important part in any cheminformatics toolkit.</p>
+<p>The latest release of <a href="http://code.google.com/p/mx-java/">MX</a>, the open source cheminformatics toolkit, adds support for reading and writing SD Files. Both <a href="http://code.google.com/p/mx-java/downloads/detail?name=mx-0.107.0-src.tar.gz&amp;can=2&amp;q=">source</a> and <a href="http://code.google.com/p/mx-java/downloads/detail?name=mx-0.107.0.jar&amp;can=2&amp;q=">platform-independent binary</a> distributions are available.</p>
+<p>The new release introduces <code>SDFileReader</code>. In <a href="/articles/2008/11/24/getting-started-with-mx">interactive JRuby</a>:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'mx-0.107.0.jar'</span>                       
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; import com.metamolecular.mx.io.mdl.SDFileReader
+=&gt; Java::ComMetamolecularMxIoMdl::SDFileReader
+irb(main):003:0&gt; r=SDFileReader.new <span class="hljs-string">'pubchem_sample_33.sdf'</span>     
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxIoMdl::SDFileReader:0x40b181 @java_object=com.metamolecular.mx.io.mdl.SDFileReader@145b02f&gt;</span>
+irb(main):004:0&gt; r.next_record                                  
+=&gt; nil
+irb(main):005:0&gt; m=r.get_molecule                               
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0xcb754f @java_object=com.metamolecular.mx.model.DefaultMolecule@60b407&gt;</span>
+irb(main):006:0&gt; m.count_atoms                                  
+=&gt; 31
+irb(main):007:0&gt; r.get_keys                                     
+=&gt; <span class="hljs-comment">#&amp;lt;Java::JavaUtil::ArrayList:0x381d92 @java_object=[PUBCHEM_COMPOUND_CID, PUBCHEM_COMPOUND_CANONICALIZED, PUBCHEM_CACTVS_COMPLEXITY, PUBCHEM_CACTVS_HBOND_ACCEPTOR, PUBCHEM_CACTVS_HBOND_DONOR, PUBCHEM_CACTVS_ROTATABLE_BOND, PUBCHEM_CACTVS_SUBSKEYS, PUBCHEM_IUPAC_OPENEYE_NAME, PUBCHEM_IUPAC_CAS_NAME, PUBCHEM_IUPAC_NAME, PUBCHEM_IUPAC_SYSTEMATIC_NAME, PUBCHEM_IUPAC_TRADITIONAL_NAME, PUBCHEM_NIST_INCHI, PUBCHEM_EXACT_MASS, PUBCHEM_MOLECULAR_FORMULA, PUBCHEM_MOLECULAR_WEIGHT, PUBCHEM_OPENEYE_CAN_SMILES, PUBCHEM_OPENEYE_ISO_SMILES, PUBCHEM_CACTVS_TPSA, PUBCHEM_MONOISOTOPIC_WEIGHT, PUBCHEM_TOTAL_CHARGE, PUBCHEM_HEAVY_ATOM_COUNT, PUBCHEM_ATOM_DEF_STEREO_COUNT, PUBCHEM_ATOM_UDEF_STEREO_COUNT, PUBCHEM_BOND_DEF_STEREO_COUNT, PUBCHEM_BOND_UDEF_STEREO_COUNT, PUBCHEM_ISOTOPIC_ATOM_COUNT, PUBCHEM_COMPONENT_COUNT, PUBCHEM_CACTVS_TAUTO_COUNT, PUBCHEM_BONDANNOTATIONS]&gt;</span>
+irb(main):008:0&gt; r.get_data <span class="hljs-string">'PUBCHEM_COMPOUND_CID'</span>              
+=&amp;gt; <span class="hljs-string">"1"</span>
+</code></pre>
+<p><code>SDFileReader</code> implements lazy iteration with <code>Molecules</code> and data only being created when requested.</p>
+<p>SD Files can be written with <code>SDFileWriter</code>. In <a href="/articles/2008/11/24/getting-started-with-mx">interactive JRuby</a>:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'mx-0.107.0.jar'</span>                       
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; import com.metamolecular.mx.io.mdl.SDFileWriter
+=&gt; Java::ComMetamolecularMxIoMdl::SDFileWriter
+irb(main):003:0&gt; import com.metamolecular.mx.io.Molecules       
+=&gt; Java::ComMetamolecularMxIo::Molecules
+irb(main):004:0&gt; w=SDFileWriter.new <span class="hljs-string">'output.sdf'</span>                
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxIoMdl::SDFileWriter:0x8a2023 @java_object=com.metamolecular.mx.io.mdl.SDFileWriter@43da1b&gt;</span>
+irb(main):005:0&gt; w.write_molecule Molecules.create_benzene      
+=&gt; nil
+irb(main):006:0&gt; w.write_data <span class="hljs-string">'key'</span>, <span class="hljs-string">'value'</span>                    
+=&gt; nil
+irb(main):007:0&gt; w.close
+=&gt; nil
+</code></pre>
+<p>For an up-to-date summary of MX's current capabilities, please check out the <a href="http://code.google.com/p/mx-java/">MX Homepage</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

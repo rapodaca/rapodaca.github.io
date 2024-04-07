@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>PubCouch: Install CouchDB on Ubuntu Karmic From Source | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>PubCouch: Install CouchDB on Ubuntu Karmic From Source</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-01-28T00:00:00.000Z">2010-01-28T00:00:00.000Z</time>
+      </header>
+      <p>Although I find CouchDB's slogan "Relax" comforting, after having worked with Couch both on OS X and Linux, I can say with confidence that the only time to relax is <em>after</em> CouchDB is installed and tested. The process of getting to that point is about as relaxing as root canal.</p>
+<p>This article, the second in a series on <a href="http://depth-first.com/articles/2010/01/20/pubcouch-a-couchdb-interface-to-pubchem">using CouchDB for PubChem data</a>, describes in detail how to install CouchDB from source on a freshly-built Ubuntu Karmic server.</p>
+<h2 id="theproblem">The Problem</h2>
+<p>At <a href="http://metamolecular.com">Metamolecular</a>, we've installed the latest Ubuntu release - <a href="https://wiki.ubuntu.com/KarmicKoala">Karmic Koala</a> on production and development boxes - getting CouchDB installed and running was the next task.</p>
+<p>Unfortunately, the Karmic CouchDB binary distribution is <a href="https://bugs.launchpad.net/ubuntu/karmic/+source/couchdb/+bug/448682">broken</a> - badly, and I can confirm all of the problems previously reported. It would appear that for now, CouchDB is one of those Ubuntu packages best compiled from source. There's another reason to install from source: CouchDB is still developing quite rapidly. Building from source increases the chances we'll be able to stay up-to-date at all times.</p>
+<p>I was disappointed at the lack of documentation for installing CouchDB from source on Karmic, so I've decided to share what worked from me here. This procedure worked on a newly-built system with no previous CouchDB installation. If you've already installed the binary packages, or other versions of Erlang or SpiderMonkey, you may have more work to do. What follows is a little out of order, and I may clean up when time permits.</p>
+<h2 id="downloadcompileandinstallcouchdb">Download, Compile, and Install CouchDB</h2>
+<pre><code class="hljs bash language-bash">sudo aptitude install build-essential erlang libicu-dev libmozjs-dev libcurl4-openssl-dev
+mkdir src
+<span class="hljs-built_in">cd</span> src
+wget http://apache.cs.utah.edu/couchdb/0.10.1/apache-couchdb-0.10.1.tar.gz
+tar xvf apache-couchdb-0.10.1.tar.gz
+<span class="hljs-built_in">cd</span> apache-couchdb-0.10.1/
+./configure
+make
+sudo make install
+</code></pre>
+<h2 id="configurecouchdb">Configure CouchDB</h2>
+<p>The <a href="http://books.couchdb.org/relax/">CouchDB Book</a> indicates these permissions need to be set, so I used:</p>
+<pre><code class="hljs bash language-bash">sudo chmod -R 0770 /usr/<span class="hljs-built_in">local</span>/etc/couchdb
+sudo chmod -R 0770 /usr/<span class="hljs-built_in">local</span>/var/lib/couchdb
+sudo chmod -R 0770 /usr/<span class="hljs-built_in">local</span>/var/<span class="hljs-built_in">log</span>/couchdb
+sudo chmod -R 0770 /usr/<span class="hljs-built_in">local</span>/var/run/couchdb
+
+sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/etc/couchdb
+sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/etc/couchdb
+sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/var/lib/couchdb
+sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/var/<span class="hljs-built_in">log</span>/couchdb
+sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/var/run/couchdb
+</code></pre>
+<p>Unfortunately, CouchDB won't run at this point:</p>
+<pre><code class="hljs bash language-bash">sudo -i -u couchdb couchdb -b
+sudo: unable to change directory to /var/lib/couchdb: No such file or directory
+Apache CouchDB needs write permission on the STDOUT file: couchdb.stdout
+</code></pre>
+<p>We need to create the missing directory and assign its permissions:</p>
+<pre><code class="hljs bash language-bash">$ sudo mkdir /var/lib/couchdb
+$ sudo chown -R couchdb:couchdb /var/lib/couchdb
+</code></pre>
+<p>I like to be able to run servers using init.d, so I used:</p>
+<pre><code class="hljs bash language-bash">$ sudo cp -v /usr/<span class="hljs-built_in">local</span>/etc/init.d/couchdb /etc/init.d/couchdb
+</code></pre>
+<p>Now we can start CouchDB and confirm it's working:</p>
+<pre><code class="hljs bash language-bash">$ sudo /etc/init.d/couchdb start
+$ netstat -an | grep 5984
+tcp        0      0 127.0.0.1:5984          0.0.0.0:*               LISTEN
+</code></pre>
+<p>The problem with this configuration is we won't be able to use the <a href="http://books.couchdb.org/relax/intro/getting-started">Futon</a> admin console from any location other than localhost. Because I'm setting up a server that will be compiling long running tasks, I want to know I can pop into Futon to check things out.</p>
+<p>To do that, we'll need to make a slight change. In the file <em>/usr/local/etc/couchdb/default.ini</em>, change the line that reads:</p>
+<pre><code class="hljs bash language-bash">bind_address = 127.0.0.1
+</code></pre>
+<p>to:</p>
+<pre><code class="hljs bash language-bash">bind_address = 0.0.0.0
+</code></pre>
+<h2 id="onelastwrinkle">One Last Wrinkle</h2>
+<p>Although you'll be able to create and read documents with what we've done so far, a cryptic error is displayed when we try to compile views: "{exit_status,127}".</p>
+<p>Starting with <a href="http://osdir.com/ml/couchdb-user/2009-03/msg00415.html">this thread</a>, I was able to piece together the answer. Running the following command shows us that Couch can't find one of the Spidermonkey libraries:</p>
+<pre><code class="hljs bash language-bash">$ /usr/<span class="hljs-built_in">local</span>/bin/couchjs /usr/<span class="hljs-built_in">local</span>/share/couchdb/server/main.js
+/usr/<span class="hljs-built_in">local</span>/lib/couchdb/bin/couchjs: error <span class="hljs-keyword">while</span> loading shared libraries: libmozjs.so.0d: cannot open shared object file: No such file or directory
+</code></pre>
+<p>We can find out which package might fit the bill with:</p>
+<pre><code class="hljs bash language-bash">$ aptitude search libmozjs
+p   libmozjs-dev                                                   - Development files <span class="hljs-keyword">for</span> the Mozilla SpiderMonkey JavaScript library       
+i   libmozjs0d                                                     - The Mozilla SpiderMonkey JavaScript library                             
+p   libmozjs0d-dbg                                                 - Development files <span class="hljs-keyword">for</span> the Mozilla SpiderMonkey JavaScript library
+</code></pre>
+<p>We installed the first of these libraries at the beginning of the process; it turns out we need to install the other one, too:</p>
+<pre><code class="hljs bash language-bash">$ sudo aptitude install libmozjs0d
+</code></pre>
+<p>We can now restart CouchDB and bask in all of its Map/Reduce glory:</p>
+<pre><code class="hljs bash language-bash">$ sudo /etc/init.d/couchdb stop
+$ sudo /etc/init.d/couchdb start
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>Installing CouchDB from source on the newest Ubuntu release is not hard with some basic documentation. We now have a completely up-to-date CouchDB system that we can (hopefully) upgrade as new releases are made. If you want to use CouchDB in production, there are a few more security-related steps you'll want to take, but as a development system, the setup described here should work nicely.</p>
+<p>If the procedure outline here worked for you, or if you find problems with it, I'd really appreciate your comments.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

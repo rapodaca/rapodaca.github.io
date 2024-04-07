@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JRuby for Cheminformatics - Parsing IUPAC Nomenclature with OPSIN | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>JRuby for Cheminformatics - Parsing IUPAC Nomenclature with OPSIN</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-10-12T00:00:00.000Z">2007-10-12T00:00:00.000Z</time>
+      </header>
+      <p>Recent articles have discussed the use of <a href="/articles/tag/rubidium">JRuby for cheminformatics</a>. We've seen how to <a href="/articles/2007/10/09/jruby-for-cheminformatics-parsing-smiles-simply">parse SMILES strings</a>, and <a href="/articles/2007/10/10/jruby-for-cheminformatics-reading-and-writing-inchis-via-the-java-native-interface">read or write InChIs</a>. In this article, we'll see how easy it is to parse IUPAC nomenclature from JRuby using Peter Corbett's <a href="/articles/2006/10/14/decoding-iupac-names-with-opsin">OPSIN library</a>.</p>
+<h2 id="installation">Installation</h2>
+<p>After <a href="/articles/2007/10/09/jruby-for-cheminformatics-parsing-smiles-simply">installing JRuby</a>, simply <a href="http://prdownloads.sourceforge.net/oscar3-chem/opsin-big-0.1.0.jar?download">download the OPSIN jarfile</a> and copy it to your JRuby <code>lib</code> directory. You're done.</p>
+<h2 id="asimplelibrary">A Simple Library</h2>
+<p>We can write a simple library to convert an IUPAC name into a CML document:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'jruby'</span>
+
+import <span class="hljs-string">'uk.ac.cam.ch.wwmm.opsin.NameToStructure'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">IUPAC</span></span>
+  @@nts = NameToStructure.new
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">read_name</span> <span class="hljs-title">name</span></span>
+    cml = @@nts.parse_to_cml(name)
+
+    raise <span class="hljs-string">"Could not parse '<span class="hljs-subst">#{name}</span>'."</span> <span class="hljs-keyword">unless</span> cml
+
+    cml.to_xml
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>The <code>read_name</code> method accepts an iupac name as a string and returns a CML document as a string. If the input can't be parsed, an exception is raised.</p>
+<h2 id="testingthelibrary">Testing the Library</h2>
+<p>We can test the library by saving it as a file called <strong>iupac.rb</strong> and invoking <code>jirb</code>:</p>
+<pre><code class="hljs bash language-bash">$ jirb
+irb(main):001:0&gt; require <span class="hljs-string">'iupac'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include IUPAC
+=&gt; Object
+irb(main):003:0&gt; read_name(<span class="hljs-string">'4-iodobenzoic acid'</span>)
+</code></pre>
+<p>This returns the XML shown below, which has been re-formatted for clarity:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">cml</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://www.xml-cml.org/schema"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">molecule</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"m1"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomArray</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a1"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a2"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"2"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a3"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"3"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a4"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"4"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a5"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"5"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a6"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"6"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a7"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a8"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"O"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a9"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"O"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a10"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"I"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">atomArray</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">bondArray</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a1 a2"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"2"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a2 a3"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a3 a4"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"2"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a4 a5"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a5 a6"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"2"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a6 a1"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a7 a1"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a7 a8"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"2"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a7 a9"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a10 a4"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">bondArray</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">molecule</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">cml</span>&gt;</span>
+</code></pre>
+<p>This simple Ruby library has parsed the name '4-iodobenzoic acid' and has returned a string containing the CML representation for the molecule. If we had wanted the <code>read_name</code> method to return a traversable XML object model, we could have enabled that as well.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>One of the objections raised whenever the issue of "new" programming languages comes up, regardless of their merit, is the age-old refrain "Yeah, but where's the software?" With JRuby, we bypass this question altogether. We can leverage the full scope of the massive Java development effort over the last ten years, which includes several excellent cheminformatics libraries. With virtually no effort, we have a working cheminformatics platform based on a widely-used, versatile and dynamic object-oriented scripting language. Future articles will discuss extensions to this platform and some applications.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

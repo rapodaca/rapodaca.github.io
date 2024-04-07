@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scripting Java with Ruby: Yet Another Java Bridge | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Scripting Java with Ruby: Yet Another Java Bridge</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-10-25T00:00:00.000Z">2006-10-25T00:00:00.000Z</time>
+      </header>
+      <p>New technologies attempting to compete with older technologies need to provide a clear upgrade path, if they are to succeed. A case in point is Ruby. Many Java developers' reaction to this language has less to do with its capabilities and more to do with previous investments in Java. What good is a new language if the special library X that you depend on needs to be rewritten from scratch?</p>
+<p>Previous articles, starting with <a href="http://depth-first.com/articles/2006/08/26/scripting-java-libraries-with-ruby-java-bridge">this one</a>, have discussed <a href="http://rjb.rubyforge.org">Ruby Java Bridge</a> (RJB) as a Java-Ruby integration tool. Two additional articles discussed RJB in the context of <a href="http://depth-first.com/articles/2006/10/24/metaprogramming-with-ruby-mapping-java-packages-onto-ruby-modules">mapping Java packages onto Ruby modules</a> and <a href="http://depth-first.com/articles/2006/10/12/running-ruby-java-bridge-on-windows">Java-Ruby integration on Windows</a>. RJB currently provides the mechanism whereby the full <a href="http://cdk.sf.net">Chemistry Development Kit</a> (CDK) API can be used in Ruby with <a href="http://rubyforge.org/projects/rcdk">Ruby CDK</a>.</p>
+<p>Another option for Java-Ruby integration is <a href="http://jruby.codehaus.org/">JRuby</a>, a Java implementation of the Ruby interpreter. JRuby offers tight integration with the Java Virtual Machine, which will be ideal in many situations. In other situations, it will not be the best choice. For example, one of the advantages of RJB over JRuby is that the standard C-Ruby implementation can be used. This in turn offers, for example, full <a href="http://www.rubyonrails.org/">Rails</a> functionality and access to C extensions. A disadvantage of RJB is that, being written in C, it requires a working build toolchain for installation.</p>
+<p>I've seen <a href="http://www.jaredrichardson.net/blog/2006/09/01/">one report</a> of a Macintosh installation of RJB that failed. Without a Mac of my own, I can't confirm if this is indeed a problem. But this report also pointed me to a third approach to Ruby-Java integration, <a href="http://www.cmt.phys.kyushu-u.ac.jp/~M.Sakurai/cgi-bin/fw/wiki.cgi?page=YAJB">Yet Another Java Bridge</a> (YAJB). YAJB is different from both JRuby and RJB in that it extends the C implementation of Ruby with a Java bridge written in pure Java. In theory, it should run on any platform that both Ruby and Java run on.</p>
+<p><a href="http://www.cmt.phys.kyushu-u.ac.jp/~M.Sakurai/java/ruby/yajb-0.8.1.tar.gz">YAJB-0.8.1</a> installed on my system without a hitch. From the root directory of the distribution:</p>
+<pre><code class="hljs bash language-bash">ruby setup.rb
+</code></pre>
+<p>Using YAJB was straightforward. A Java <code>Vector</code> instance could be instantiated and manipulated using familiar syntax:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'yajb/jbridge'</span>
+<span class="hljs-keyword">include</span> JavaBridge
+
+v = jnew <span class="hljs-string">"java.util.Vector"</span>
+
+v.add(<span class="hljs-string">"one"</span>)
+v.add(<span class="hljs-string">"two"</span>)
+v.size <span class="hljs-comment"># =&gt; 2</span>
+v.elementAt(<span class="hljs-number">1</span>) <span class="hljs-comment"># =&gt; "two"</span>
+</code></pre>
+<p>Good integration tools can make the difference between actually using new technologies and simply observing them. Java developers interested in using Ruby now have at least three good options to choose from: JRuby; RJB; and YAJB.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

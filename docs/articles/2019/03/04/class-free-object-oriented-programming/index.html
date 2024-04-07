@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Class-Free Object-Oriented Programming | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2019/03/04/class-free-object-oriented-programming/">
+      <meta property="og:title" content="Class-Free Object-Oriented Programming">
+      <meta property="og:description" content="Like the GOTO statement of yore, has the notion of class outlived its original purpose in object-oriented programming?">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20190304/summary.png">
+      <meta content="Like the GOTO statement of yore, has the notion of class outlived its original purpose in object-oriented programming?" name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Class-Free Object-Oriented Programming</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2019-03-04T09:00:00.000Z">2019-03-04T09:00:00.000Z</time>
+      </header>
+      <p>Back in 1968, Edsger Dijkstra published his well-known "go to statement considered harmful" letter advocating the abolition of the <code>GOTO</code> statement from high-level programming languages:</p>
+<blockquote>
+  <p>For a number of years I have been familiar with the observation that the quality of programmers is a decreasing function of the density of go to statements in the programs they produce. More recently I discovered why the use of the go to statement should be abolished from all "higher level" programming languages (i.e. everything except, perhaps, plain machine code). …</p>
+  <p><cite><a href="https://doi.org/10.1145/362929.362947">Edsger Dijkstra</a></cite></p>
+</blockquote>
+<p>At the time, <code>GOTO</code> was well-regarded and widely-used, as evidence by the <a href="http://david.tribble.com/text/goto.html">controversy</a> surrounding Dijkstra's letter and the length of time it took languages supporting <code>GOTO</code>, or its <a href="http://www.drdobbs.com/architecture-and-design/is-goto-still-considered-harmful/240166595">use in languages that sill support it</a>, to decline.</p>
+<p>Like the <code>GOTO</code> statement of yore, could class-based object-oriented programming (OOP) become yet another casualty of the relentless action of Moore's Law? This article first discusses the idea that classes in OOP may have outlived their original purpose, and concludes with a class-free OOP example in the form of a small graph manipulation library in JavaScript.</p>
+<h2 id="objectswithoutclassesinjavascript">Objects without Classes in JavaScript</h2>
+<p>The unique qualities of OOP are often introduced by referencing its three pillars:</p>
+<ul>
+<li><strong>encapsulation</strong> functions and data are hidden by default and only deliberately exposed</li>
+<li><strong>polymorphism</strong> two objects can differ in their implementation while sharing a common interface</li>
+<li><strong>inheritance</strong> an object can assume the behavior of another object</li>
+</ul>
+<p>Notice, however, that nothing about OOP requires classes specifically. A form of OOP can even be <a href="https://www.cs.rit.edu/~ats/books/ooc.pdf">implemented in C</a> through the adoption of certain conventions. Classes are but one path to OOP's promise of reusability.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/TMuno5RZNeE?start=2265" allowfullscreen=""></iframe>
+</div>
+<p>JavaScript was the first widely-used language to directly support OOP without classes. For two decades, JavaScript developers created and used objects — with no support for classes whatsoever. What JavaScript offered instead of classes was <a href="https://alistapart.com/article/prototypal-object-oriented-programming-using-javascript">prototypal OOP</a>, which can be invoked in several ways. For example, the following style is known as "pseudoclassical":</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// pseudoclassical OOP</span>
+<span class="hljs-keyword">const</span> Foo = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">value</span>) </span>{
+  <span class="hljs-keyword">this</span>._value = value; <span class="hljs-comment">// privacy by convention</span>
+};
+
+<span class="hljs-comment">// public interface</span>
+Foo.prototype.add = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">number</span>) </span>{
+  <span class="hljs-keyword">return</span> number + <span class="hljs-keyword">this</span>._value;
+};
+
+<span class="hljs-keyword">const</span> foo = <span class="hljs-keyword">new</span> Foo(<span class="hljs-number">42</span>);
+
+foo.add(<span class="hljs-number">1</span>); <span class="hljs-comment">// =&gt; 43</span>
+</code></pre>
+<p>Driven by the widespread use of this pattern and general confusion surrounding prototypal OOP, JavaScript was updated in 2015 to support <code>class</code> declarations. The analogous definition from above can be recast as a JavaScript class, as shown below:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// class declaration</span>
+<span class="hljs-keyword">const</span> Foo = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+  <span class="hljs-keyword">constructor</span> (value) {
+    <span class="hljs-keyword">this</span>._value = value; <span class="hljs-comment">// privacy by convention</span>
+  }
+
+  <span class="hljs-comment">// public interface</span>
+  add (number) {
+    <span class="hljs-keyword">return</span> number + <span class="hljs-keyword">this</span>._value;
+  }
+};
+
+<span class="hljs-keyword">const</span> foo = <span class="hljs-keyword">new</span> Foo(<span class="hljs-number">42</span>);
+
+foo.add(<span class="hljs-number">1</span>); <span class="hljs-comment">// =&gt; 43</span>
+</code></pre>
+<p>Aside from the <code>class</code> declaration's cleaner syntax, both forms of OOP use the same underlying prototypal mechanism. They enjoy exactly the same benefits (e.g., flexibility and performance) and suffer from the same liabilities (e.g., "fake" privacy and sometimes surprising behavior).</p>
+<p>Douglas Crockford, a pioneer for advocating JavaScript's application to complex problems, noted the confusion around prototypal inheritance. In his book, <em>JavaScript: The Good Parts</em>, he developed the following alternative — a kind of <a href="https://stackoverflow.com/questions/8698726/">factory function</a>. He called this creation pattern "functional" and showed how it supports inheritance among other features:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> createFoo = <span class="hljs-function">(<span class="hljs-params">spec</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> value = spec.value; <span class="hljs-comment">// real privacy</span>
+  <span class="hljs-keyword">const</span> result = {
+    <span class="hljs-attr">add</span>: <span class="hljs-function">(<span class="hljs-params">number</span>) =&gt;</span> number + value
+  };
+
+  <span class="hljs-keyword">return</span> result;
+};
+
+<span class="hljs-keyword">const</span> foo = createFoo({ <span class="hljs-attr">value</span>: <span class="hljs-number">42</span> });
+
+foo.add(<span class="hljs-number">1</span>); <span class="hljs-comment">// =&gt; 43</span>
+foo.value; <span class="hljs-comment">// =&gt; undefined</span>
+</code></pre>
+<p>Recently, Crockford revisited the functional object creation pattern. The video below begins with his explanation of "Class Free" OOP. However, the context makes it clear that Crockford's interest in this pattern extends beyond JavaScript. He's describing what the next major programming language will look like, and it ditches classes.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/DxnYQRuLX7Q?start=2734" allowfullscreen=""></iframe>
+</div>
+<p>Crockford's description of class-free OOP can be summarized in the pattern below, which takes advantage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">object destructuring</a> to selectively capture properties from the <code>spec</code> object:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{Object}</span> </span>spec a specification object
+ * <span class="hljs-doctag">@return <span class="hljs-type">{Object}</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> createFoo = <span class="hljs-function">(<span class="hljs-params">spec</span>) =&gt;</span> {
+  <span class="hljs-comment">// private state</span>
+  <span class="hljs-keyword">let</span> { value } = spec; <span class="hljs-comment">// selectively read from spec</span>
+
+  <span class="hljs-comment">// public, immutable interface</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.freeze({
+    <span class="hljs-attr">add</span>: <span class="hljs-function">(<span class="hljs-params">number</span>) =&gt;</span> number + value
+  });
+};
+
+<span class="hljs-keyword">const</span> foo = createFoo({ <span class="hljs-attr">value</span>: <span class="hljs-number">42</span> });
+
+foo.add(<span class="hljs-number">1</span>);
+</code></pre>
+<p>The top of the function contains everything that will remain hidden from the surrounding context. The bottom of the function, beginning with the <code>return</code> statement, contains only those functions that the newly-created object will expose to clients. Interestingly, this pattern divides objects into two broad categories: those exposing only properties (e.g., <code>spec</code>); and those exposing only functions (e.g., the return value from <code>createFoo</code>). Freezing the returned object makes it impervious to property assignment, deletion, or edits. Whereas JavaScript supports this style of OOP, Crockford hints at a language that would enforce its use in the same way that Java enforces the use of classes.</p>
+<p><img src="/images/posts/20190304/classy-enough.jpg" alt="Classy Enough" title="Classy Enough"></p>
+<h2 id="requirementsforagraphlibrary">Requirements for a Graph Library</h2>
+<p>Having established the basic pattern of object creation, let's apply it to a real problem.</p>
+<p>Graphs are ubiquitous data structures in computer science. Although they appear in numerous applications, my interest in graphs stems from chemistry and its well-established adoption of graphs as molecular representations.</p>
+<p>Although the functionality needed by a graph varies by application, we might aim for the following minimal feature set:</p>
+<ul>
+<li>enumerate nodes and edges</li>
+<li>enumerate a node's neighbors</li>
+<li>test a node or edge for membership</li>
+<li>obtain the weight of an edge</li>
+<li>obtain node and edge counts</li>
+</ul>
+<p>Molecular graphs are often constructed in a stepwise manner because node and edge properties can only be assigned with a global view of the graph. For example, an atom's hydrogen count will depend on bonding to its neighbors, which can only be known after the entire graph framework has been assembled. After assembly, however, molecular graphs are rarely changed. As such, they should be closed to later modification.</p>
+<p>Molecular graph libraries often try to accommodate both uses with an API that combines graph assembly with graph traversal in the same object. I think this is a mistake for a few reasons, one of them being complexity. Molecular graphs must support a wide range of features for traversal and analysis. Throwing construction features into the mix can lead to unwieldy APIs. Separation of concerns with respect to graph construction and traversal should be the goal.</p>
+<p>A better approach is to support a builder object. The builder exposes a rich API for graph creation. It also supports one more function granting access to the graph under construction. The graph itself only supports accessors for traversal and analysis, exposing nothing that allows state change.</p>
+<h2 id="graphbuilder">Graph Builder</h2>
+<p>A primitive graph builder can be obtained from the <code>createGraphBuilder</code> function given below. The return value, a graph builder, exposes no API for traversing the graph. For that, a client must call the <code>#graph</code> function, which returns a graph instance. That instance in turn provides accessors but no mutators. The graph itself is implemented with an <a href="http://2ality.com/2015/01/es6-maps-sets.html">ES6 <code>Map</code> instance</a>, although a variety of alternative implementations would also be possible.</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> createGraphBuilder = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> map = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
+  <span class="hljs-keyword">const</span> edges = [ ];
+
+  <span class="hljs-keyword">const</span> graph = {
+    <span class="hljs-attr">edges</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> edges.values(),
+    <span class="hljs-attr">hasEdge</span>: <span class="hljs-function">(<span class="hljs-params">source, target</span>) =&gt;</span> map.get(source).has(target),
+    <span class="hljs-attr">hasNode</span>: <span class="hljs-function">(<span class="hljs-params">node</span>) =&gt;</span> map.has(node),
+    <span class="hljs-attr">neighbors</span>: <span class="hljs-function">(<span class="hljs-params">node</span>) =&gt;</span> map.get(node).keys(),
+    <span class="hljs-attr">nodes</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> map.keys(),
+    <span class="hljs-attr">order</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> map.size,
+    <span class="hljs-attr">size</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> edges.length,
+    <span class="hljs-attr">weight</span>: <span class="hljs-function">(<span class="hljs-params">source, target</span>) =&gt;</span> map.get(source).get(target)
+  };
+
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">addNode</span>: <span class="hljs-function">(<span class="hljs-params">node</span>) =&gt;</span> map.set(node, <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>()),
+    <span class="hljs-attr">addEdge</span>: <span class="hljs-function">(<span class="hljs-params">source, target, weight</span>) =&gt;</span> {
+      map.get(source).set(target, weight);
+      map.get(target).set(source, weight);
+      edges.push([ source, target, weight ]);
+    },
+    <span class="hljs-attr">graph</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> graph
+  };
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createGraphBuilder
+</code></pre>
+<p><code>createGraphBuilder</code> is implemented as an ES6 module. This means that functions (and objects) appearing outside the scope of the exported function will be invisible to the rest of the environment. We can use this feature to create as many fully private helper functions and objects as needed.</p>
+<p>The builder can be created and used like this:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> builder = createGraphBuilder();
+
+builder.addNode(<span class="hljs-number">0</span>);
+builder.addNode(<span class="hljs-number">1</span>);
+builder.addEdge(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-string">'a'</span>);
+
+<span class="hljs-keyword">const</span> graph = builder.graph();
+
+graph.hasNode(<span class="hljs-number">0</span>); <span class="hljs-comment">// =&gt; true</span>
+graph.hasNode(<span class="hljs-number">3</span>); <span class="hljs-comment">// =&gt; false</span>
+graph.weight(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>); <span class="hljs-comment">// =&gt; 'a'</span>
+graph.weight(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>); <span class="hljs-comment">// =&gt; 'a' (undirected graph)</span>
+</code></pre>
+<h2 id="extendinggraph">Extending Graph</h2>
+<p>Some graph traversal functions will be used for both molecular graphs and other kinds of graphs. For example, an isomorphism detection function compares two graphs. In one mode of operation, they both could be molecules. But in another mode of operation, a generalized query graph will be matched against a molecule. It seems wasteful to rewrite the same function to accommodate slight interface differences between a graph and molecule. A better solution is to ensure that a molecule (and any graph-like object) inherits the graph interface. That way, any graph analysis can be performed against a graph or molecule without modification.</p>
+<p>Graph can be conveniently extended using the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">object spread</a> operator. Inside a <code>createMoleculeBuilder</code> function, this operator will be used to give the molecule under construction all the functionality of the graph that's also being constructed.</p>
+<p>This pattern demonstrates one way to achieve object composition that's as simple to use as object inheritance:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">import</span> createGraphBuilder <span class="hljs-keyword">from</span> <span class="hljs-string">'./create-graph-builder.js'</span>;
+
+<span class="hljs-keyword">const</span> createMoleculeBuilder = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> builder = createGraphBuilder();
+  <span class="hljs-keyword">const</span> atoms = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>(); <span class="hljs-comment">// atom-&gt;properties</span>
+  <span class="hljs-keyword">const</span> bonds = [ ]; <span class="hljs-comment">// bond array</span>
+
+  <span class="hljs-keyword">const</span> molecule = {
+    <span class="hljs-comment">// molecule will have all graph functions</span>
+    ...builder.graph(),
+    <span class="hljs-comment">// add molecule-specific functions and graph</span>
+    <span class="hljs-comment">// overrides here</span>
+  };
+
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">addAtom</span>: <span class="hljs-function">(<span class="hljs-params">spec</span>) =&gt;</span> addAtom(spec, atoms, builder),
+    <span class="hljs-attr">addBond</span>: <span class="hljs-function">(<span class="hljs-params">source, target, order</span>) =&gt;</span> addBond(source, target, builder, atoms, bonds),
+    <span class="hljs-comment">// other molecule-specific builder functions</span>
+    <span class="hljs-attr">molecule</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> molecule
+  };
+};
+
+<span class="hljs-keyword">const</span> addAtom = <span class="hljs-function">(<span class="hljs-params">spec, atoms, builder</span>) =&gt;</span> {
+  <span class="hljs-comment">// TODO</span>
+};
+
+<span class="hljs-keyword">const</span> addBond = <span class="hljs-function">(<span class="hljs-params">source, target, builder, atoms, bonds</span>) =&gt;</span> {
+  <span class="hljs-comment">// TODO</span>
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createMoleculeBuilder
+</code></pre>
+<p>Clients using <code>createMoleculeBuilder</code> have no clue as to how the graph/molecule is-a relationship is implemented:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> builder = createGraphBuilder();
+
+<span class="hljs-keyword">const</span> a1 = builder.addAtom({ <span class="hljs-attr">symbol</span>: <span class="hljs-string">'C'</span> });
+<span class="hljs-keyword">const</span> a2 = builder.addAtom({ <span class="hljs-attr">symbol</span>: <span class="hljs-string">'C'</span> });
+
+builder.addBond(a1, a2, <span class="hljs-number">2</span>); <span class="hljs-comment">// double bond</span>
+
+builder.molecule().order(); <span class="hljs-comment">// =&gt; 2</span>
+builder.molecule().size(); <span class="hljs-comment">// =&gt; 1</span>
+a1.symbol(); <span class="hljs-comment">// =&gt; 'C'</span>
+</code></pre>
+<h2 id="interfaces">Interfaces</h2>
+<p>Class-free OOP introduces a documentation problem within languages that don't directly support it. Whereas the "shape" of any object can be defined by referencing its class definition, class-free OOP offers no such feature. One approach is to provide special no-op interface classes that today's documentation generators will be able to understand.</p>
+<p>For example, <a href="http://usejsdoc.org">JSDoc</a> supports the <code>@interface</code> tag. Its purpose is to designate a class declaration as an interface. Using this capability, we might document the <code>Graph</code> interface as follows.</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@interface</span>
+ */</span>
+<span class="hljs-keyword">const</span> Graph = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+  <span class="hljs-comment">/**
+   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span> </span>the number of nodes
+   */</span>
+  order () { }
+
+  <span class="hljs-comment">/**
+   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span> </span>the number of edges
+   */</span>
+  size () { }
+
+  <span class="hljs-comment">// ... remaining methods</span>
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> Graph
+</code></pre>
+<p>The key point is that <code>Graph</code> would never be instantiated or "extended." It exists merely as a convenience for documenting a group of functions applicable to an object supporting the <code>Graph</code> interface.</p>
+<h2 id="classesconsideredharmful">Classes Considered Harmful?</h2>
+<p>The point behind class-free OOP may not be obvious. Yes, two decades of JavaScript use have proven beyond doubt that classes are unnecessary for OOP. And the patterns presented here show how to achieve the most desirable features of OOP in a class-free way. But if classes aren't in themselves harmful, why abandon them? Consider these points:</p>
+<ul>
+<li><strong>Classes are a fiction in JavaScript.</strong> Programmers assuming that class expressions work like the classes from languages they're familiar with could introduce insidious, avoidable bugs.</li>
+<li><strong>The <code>new</code> keyword leaks an implementation detail.</strong> Both prototypal and classical OOP force clients to use <code>new</code> when instantiating objects. This leaks unnecessary information about how objects are implemented. Refactoring toward factory functions as described above introduces a breaking API change.</li>
+<li><strong>Classes encourage inheritance over composition.</strong> Deep inheritance hierarchies make code brittle and hard to understand. Avoiding classes forces internal and external development efforts to focus on the more flexible practice of <a href="https://en.wikipedia.org/wiki/Composition_over_inheritance">object composition</a>.</li>
+<li><strong>Classes encourage <code>instanceof</code> programming.</strong> Class and type are tightly coupled in languages such as Java. But as we've seen, JavaScript has no concept of class. Regardless, the presence of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof"><code>instanceof</code></a> tempts everyone involved to reach for it in a pinch rather than polymorphism, thereby racking up technical debt.</li>
+<li><strong>Classes break encapsulation.</strong> Class expressions and pseudoclassical OOP in JavaScript provide no privacy, breaking encapsulation. The effects range from annoying (pollution of object properties with private values during debugging sessions) to structural (clients may come to depend on private data).</li>
+<li><strong>Classes are unnecessary.</strong>  Good constraints make intractable problems solvable. A programming language offering multiple options for fundamental processes like object creation and inheritance risks confusion and misuse. Although not always practical, language features that are no longer necessary should be retired.</li>
+</ul>
+<h2 id="performance">Performance</h2>
+<p>The one compelling reason to use classes might be performance. Whereas prototypal inheritance adds a single overridable property to the prototype chain for many objects, functional inheritance adds a separate property to each object instance. Depending on the application, this can lead to significantly increased memory requirements.</p>
+<p>Two factors should be considered here. The first is that memory is vastly more abundant now than it was 20 years ago. The second is that applications requiring large numbers of objects, held in memory simultaneously, are rare. In practice, objects such as molecular graphs will be created, used, and then thrown away. The practical effect of greater memory consumption will be offset by the work of an efficient garbage collector.</p>
+<p>If profiling does reveal bottlenecks due to class-free OOP, then they can be addressed through selective use of prototypal OOP hidden behind factory functions. However, there's little reason for prototypal OOP or exported JavaScript classes to be the default position. Correct, clean code should be the primary goal. Only having met this goal should performance enter the picture, and even then only given clear evidence for bottlenecks.</p>
+<p>Benchmarks, open as they are to misapplication and misinterpretation, offer one way to identify possible performance problems before full-scale implementation. They may offer even more useful insights in a language like JavaScript, with its highly-tuned and rapidly-evolving runtime. One benchmark pointing to higher memory use with factories compared to constructors was presented in 2017 by <a href="https://reallifeprogramming.com/will-chrome-optimize-your-object-factories-76f3fc331145">Marek Piechut</a>. His study created 1 million objects in memory. A factory functions required about ten times the memory as the comparable constructor function.</p>
+<p>One of the problems with benchmarks is setting up a realistic scenario. In my mind, there are very few situations that call for keeping hundreds of thousands of graphs in memory. As such, Piechut's results might best be thought of as a worst-case scenario.</p>
+<p>A more realistic situation would be the creation of a million or so graphs that are immediately traversed and then promptly left to the garbage collector. As such, a well-tuned garbage collector would minimize the difference between factories and constructors. That leaves execution time as the main parameter of interest.</p>
+<p>As a first approach to benchmarking, I set up the <a href="https://github.com/metamolecular/es6-graph">ES6 Graph</a> project. It features two factory functions that create work-alike graph instances. One uses class-free OOP ("classless") whereas the other uses pseudoclassical OOP ("classy"). Running on my modest system with Node 11.6, these benchmarks show only about 10% difference between the execution times (favoring pseudoclassical) of the two implementations. Browser tests on the same system show no difference in memory usage as reported by Chrome. Both Chrome and Safari (Mac OS) showed a similar 10% advantage in execution time for the pseudoclassical approach.</p>
+<p>The minuscule differences in execution time and memory consumption seen in these benchmarks support the position that performance should take a back seat to good OOP design. Choose the model that will best support encapsulation, polymorphism, and aggregation over inheritance.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Classes are but one path to OOP. Although classes may have once served a vital optimization role on resource-strapped computers and within languages with primitive OOP tooling, their potential for harm should not be ignored. It may not be time just yet to abolish classes, but it's pretty clear that the reasons to keep them around are dwindling.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

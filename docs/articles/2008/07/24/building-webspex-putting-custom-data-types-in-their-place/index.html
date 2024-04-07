@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building WebSpex - Putting Custom Data Types In Their Place | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building WebSpex - Putting Custom Data Types In Their Place</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-07-24T00:00:00.000Z">2008-07-24T00:00:00.000Z</time>
+      </header>
+      <p>The previous article in this series introduced <a href="/articles/2008/07/17/javascript-for-cheminformatics-an-introduction-to-webspex-a-spectroscopy-tool-for-the-internet">WebSpex</a>, a spectroscopic data visualization tool being designed especially for use in a Web browser. Previously, the platform on which the user interface would be built was discussed. This article will discuss the question of where to put the spectroscopy data that WebSpex will display.</p>
+<h2 id="tagsoup">Tag Soup</h2>
+<p>We've decided to target WebSpex for use on the Web, which means that spectroscopy data would need to be referenced or embedded in a Web page. How should we do this? The answer, it turns out, is far from obvious.</p>
+<p>If we knew that WebSpex were going to be created as a Java or Flash applet, which is not the current plan, we might be tempted to pass a reference to the data (or the data itself) as a parameter in the <a href="/articles/2008/03/12/demystifying-java-applets-part-3-failing-gracefully-when-your-users-dont-have-java"><code>&amp;lt;object&amp;gt;</code> tag</a>. For an applet, this might look something like:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"application/x-java-applet;version=1.4.2"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"520"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"350"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"code"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"com/metamolecular/webspex/applet/FullApplet.class"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"archive"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"http://metamolecular.com/applets/webspex.jar"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"jcamp"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"http://base-url/spectrum.jdx"</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">object</span>&gt;</span>
+</code></pre>
+<p>In the example above, the parameter <code>jcamp</code> would encode the path to a JCAMP-DX file for WebSpex to load.</p>
+<p>Alternatively, if we were going to develop WebSpex as a Flash applet, we might use an object tag like this:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"application/x-shockwave-flash"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"520"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"350"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"movie"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"webspex.swf"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"FlashVars"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"filename=http://spectrum.jdx"</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">object</span>&gt;</span> 
+</code></pre>
+<p>In this example, we associate the parameter <code>filename</code> with the value "spectrum.dx" using <a href="http://www.permadi.com/tutorial/flashVars/index.html">FlashVars</a>.</p>
+<p>This works well enough, but what if we need to load a custom data type in a Web page without a plugin?</p>
+<h2 id="someoptions">Some Options</h2>
+<p>There are a few options for including custom data in an HTML document:</p>
+<ul>
+<li><strong>Invent our Own Tag</strong> Browsers are designed to ignore content they don't understand. We could just hack our own tag, let's call it <code>&amp;lt;spectrum&amp;gt;</code>. But for a variety of reasons, this is a bad idea. Most importantly, we'd be breaking with conventions used worldwide, which is never a good idea without a very good reason. For another, any developer tools we'd use would probably complain about a mis-formed HTML document. Still another reason might be that browsers could parse our invented tag in unpredictable ways. We may also run into problems with search engines not indexing our content properly.</li>
+<li><strong>Use XHML</strong> We could try inventing a tag the right way: with <a href="http://en.wikipedia.org/wiki/XHTML">XHTML</a>. This might be a worthwhile option if our data type (<a href="http://dx.doi.org/10.1351/pac199163121781">JCAMP-DX</a>) were XML-based, but it's not. At best we'd expend a lot of effort learning about namespaces, schema, and HTTP response headers only to end up with an amorphous flat <code>&amp;lt;spectrum&amp;gt;</code> tag containing freeform text.</li>
+<li><strong>Use JSON</strong> We could encode our JCAMP-DX files as <a href="http://www.json.org/js.html">JSON</a>. JSON is a markup language like XML, but with the difference that it can be <code>eval</code>ed directly by the JavaScript interpreter. This has the advantage that either a filename, or the actual data could be encoded. We could, in fact, create the entire object model for our spectrum, ready to be displayed, if we had software that could make the conversion from JCAMP-DX to JSON. This approach has the disadvantage that it could require significant amounts JavaScript code to be mixed in with our HTML, <a href="http://en.wikipedia.org/wiki/Unobtrusive_JavaScript">a less than ideal solution</a>.</li>
+<li><strong>Use the Object Tag</strong> Given that none of the three options above are especially appealing, we might ask ourselves whether we've really tried everything possible to use plain old HTML to encode our data. More specifically, what if we were to use the object tag itself, without actually having a plugin?</li>
+</ul>
+<h2 id="encodingcustomdatatypeswiththeobjecttag">Encoding Custom Data Types With The Object Tag</h2>
+<p>The <a href="http://www.w3.org/TR/REC-html40/struct/objects.html#h-13.3">HTML 4 specification</a> has this to say about the object tag:</p>
+<blockquote>
+  <p>Most user agents have built-in mechanisms for rendering common data types such as text, GIF images, colors, fonts, and a handful of graphic elements. To render data types they don't support natively, user agents generally run external applications. The OBJECT element allows authors to control whether data should be rendered externally or by some program, specified by the author, that renders the data within the user agent.</p>
+  <p>In the most general case, an author may need to specify three types of information:</p>
+  <ul>
+  <li>The implementation of the included object. For instance, if the included object is a clock applet, the author must indicate the location of the applet's executable code.</li>
+  <li>The data to be rendered. For instance, if the included object is a program that renders font data, the author must indicate the location of that data.</li>
+  <li>Additional values required by the object at run-time. For example, some applets may require initial values for parameters.</li>
+  </ul>
+  <p>The OBJECT element allows authors to specify all three types of data, but authors may not have to specify all three at once. For example, some objects may not require data (e.g., a self-contained applet that performs a small animation). Others may not require run-time initialization. Still others may not require additional implementation information, i.e., the user agent itself may already know how to render that type of data (e.g., GIF images).</p>
+</blockquote>
+<p>In other words, we could place a reference to a spectrum object in an HTML page with code like this:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"520"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"350"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"data"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"http://base-url/spectrum.jdx"</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">object</span>&gt;</span>
+</code></pre>
+<p>After loading the document, we could have WebSpex walk the DOM looking for object tags that could be replaced with an instance of WebSpex. That instance could actually be placed inside the original object tag like this:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"520"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"350"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"data"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"http://base-url/spectrum.jdx"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"webspex"</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- WebSpex visual presentation --&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">object</span>&gt;</span>
+</code></pre>
+<p>The HTML 4 documentation states that any content contained within object tags not recognized by the user agent will be rendered (fallback content). So dynamically inserting the div into the object tag as shown above would have the effect of giving the browser something to display in place of the object tag.</p>
+<h2 id="advantagesofusingthisapproach">Advantages of Using This Approach</h2>
+<p>This approach has several advantages worth mentioning:</p>
+<ul>
+<li>It's fully compliant with the HTML 4 specification.</li>
+<li>It provides a natural anchor point to attach both the custom data and the visual presentation of that data.</li>
+<li>It's pure HTML, requiring minimal mixing in of JavaScript content.</li>
+<li>Web spiders can be taught a single method to associate a spectrum with a URL, regardless of how the viewer is implemented.</li>
+<li>It's technology-agnostic. This approach lets us implement WebSpex as a Java or Flash applet (or some other plugin technology) just as easily as a pure JavaScript UI. To change our viewer implementation, we just change a JavaScript file.</li>
+<li>It allows spectra to be inlined, or place directly into the HTML. Using a <a href="http://en.wikipedia.org/wiki/Data:_URI_scheme">Data URI</a>, we could replace "http://base-url/spectrum.jdx" with something like "data:chemical/x-jcamp-dx;base64,iVBORw0KGgoAA…". This would be important in those situations in which a public URL to a JCAMP file was not feasible and/or desirable. It could also accelerate the rendering of multiple spectra in the same page by eliminating the need to create a separate HTTP request for each file.</li>
+</ul>
+<p>The method carries an imporant limitation: if a user has disabled JavaScript, they may see nothing to indicate a problem. We could address this issue by always placing fallback content in the object tag that would then be overwritten by the JavaScript code.</p>
+<h2 id="implementationdetail">Implementation Detail</h2>
+<p>This approach relies on <a href="http://en.wikipedia.org/wiki/Unobtrusive_JavaScript">Onobtrusive JavaScript</a> techniques to keep JavaScript as separate from HTML as possible. One way to implement such a scheme would be to include a single reference to the relevant JavaScript somewhere in the document, probably withing the &lt;head&gt; tag or right after the opening &lt;body&gt; tag:</p>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"webspex.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</code></pre>
+<p>The file webspex.js would then execute code to place a function into the document's <code>onLoad</code> queue that would scan for object tags containing JCAMP-DX content and insert the needed viewer.</p>
+<h2 id="previoususes">Previous Uses</h2>
+<p>I'm unaware of any previous applications of this technique, although is seems like something that may have been used before.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Encoding and displaying custom data types in HTML is possible by using the HTML 4 object tag coupled with client-side JavaScript to rewrite the DOM. It offers the potential to create HTML documents that are both human- and machine-readable. Although the approach described here was developed for the special case of spectroscopy data, it could in principle be used for any data type requiring a visual presentation.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hashing InChIs | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Hashing InChIs</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-05-09T00:00:00.000Z">2007-05-09T00:00:00.000Z</time>
+      </header>
+      <p>The InChI team has announced <a href="http://chemdata.nist.gov/InChI/inchi-hash.pdf">a proposal</a> for a standardized InChI hashing mechanism. This would create a free, fixed-length, alphanumeric molecular identifier.</p>
+<p>This is an excellent proposal. One of the biggest problems in working with InChIs (and other line notations such as SMILES) is that even medium-sized molecules produce very long identifiers. Another problem is the use of characters that must be escaped in URLs. The hashing proposal addresses both of these issues, getting very close to creating <a href="http://depth-first.com/articles/2007/03/14/eleven-qualities-of-the-perfect-line-notation-for-the-web">the optimal molecular identifier</a>.</p>
+<p>For example, imagine the convenience of being able to refer to a molecule by a universally-recognized, machine-generated string like the one shown below:</p>
+<p><code>AAAAAAAAAAA-BBBBBBB-XYZ</code></p>
+<p>This is something that actually stands a chance of getting printed on reagent bottles, in catalogs, in patent applications, or anywhere else chemists are using chemical information. Aside from its length, it's not too different from that <a href="http://www.cas.org/expertise/cascontent/registry/regsys.html">other molecular identifier system</a>, but without the perpetual use tax.</p>
+<p>There are at least three downsides to this approach:</p>
+<ol>
+<li>For most purposes, hashing is a one-way process. It would become virtually impossible to computationally convert this hashed identifier back into its InChI or molecular representation . On the other hand, this could create a market for cryptography experts in cheminformatics. A hashed-InChI lookup service would start to look very useful.</li>
+<li>Because of the one-way nature of hashing, the authenticity of a hashed InChI couldn't be directly verified. Checksums will help, but the fundamental problem remains. InChI itself can be <a href="http://depth-first.com/articles/2006/09/19/decoding-inchis-with-rino">decoded</a>, and therefore authenticated.</li>
+<li>It's possible, although extremely unlikely, that two different molecules will end up having the same hashed InChI. Reducing the collision probability means increasing the length of the identifier.</li>
+</ol>
+<p>As in any design decision, the question is whether the benefits outweigh the disadvantages.</p>
+<p>Anyone is free to develop their own InChI hash system. Several, including me, already have. But by introducing a standard mechanism, the InChI team has the potential to create both a <em>free</em> and easy-to-use molecular identifier.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

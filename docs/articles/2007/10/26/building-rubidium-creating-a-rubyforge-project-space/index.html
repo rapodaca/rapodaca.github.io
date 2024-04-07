@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building Rubidium - Creating a RubyForge Project Space | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building Rubidium - Creating a RubyForge Project Space</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-10-26T00:00:00.000Z">2007-10-26T00:00:00.000Z</time>
+      </header>
+      <p>Recent articles have discussed <a href="http://depth-first.com/articles/tag/rubidium">Rubidium</a>, the cheminformatics toolkit for Ruby. In this article, the first in a series, I'll go beyond the Ruby code to discuss the technical aspects of taking an Open Source idea from concept to release.</p>
+<h2 id="findingahome">Finding a Home</h2>
+<p>Before setting up your Open Source project, you'll need to decide on how to host it. Project hosting can be as simple or elaborate as you wish, but the basic services include: a website; a mailing list; a discussion forum; a source code repository (typically CVS or Subversion); a bug tracking system; and a file release system.</p>
+<p>The multitude of choices can be broken down into two basic options: host the project yourself or use a free hosting service. Fortunately, Ruby-based projects enjoy two excellent free hosting options: <a href="http://sourceforge.net">SourceForge</a> and <a href="http://rubyforge.org">RubyForge</a>. Although SourceForge could certainly be used for a Ruby project, RubyForge is a more popular option. One of the reasons is that any RubyGem your project releases automatically becomes installable through the <a href="http://rubygems.org/">RubyGems</a> package management system with a simple one-line incantation:</p>
+<pre><code class="hljs bash language-bash">sudo gem install &lt;yourprojectname&gt;
+</code></pre>
+<p>Another reason to use RubyForge is discoverability. RubyForge only hosts projects related in some way to Ruby. So, your project will stand out a lot more in its category than with a much larger site like SourceForge.</p>
+<p>Given RubyForge's advantages, and my own interest in minimizing the work needed to maintain an Open Source project, Rubidium will be hosted on RubyForge.</p>
+<h2 id="requestingaprojectspace">Requesting a Project Space</h2>
+<p>Having decided on RubyForge as Rubidium's host, all that's left is to ask for free services. You'll need to <a href="http://rubyforge.org/account/register.php">register for a user account</a> if you haven't done so already. Then, simply <a href="http://rubyforge.org/register/projectinfo.php">apply for project space</a>. After about three business days, you should be notified whether your project was accepted.</p>
+<p>Several days ago, I completed this process for Rubidium. Its new home on RubyForge will be:</p>
+<p><a href="http://rubyforge.org/projects/rbtk">http://rubyforge.org/projects/rbtk</a></p>
+<p>The Rubidium home page can be found at:</p>
+<p><a href="http://rbtk.rubyforge.org">http://rbtk.rubyforge.org</a></p>
+<p>There's nothing useful there yet, a situation that will hopefully be fixed in a few weeks.</p>
+<h2 id="nextsteps">Next Steps</h2>
+<p>With powerful free services now available for the Rubidium project, we'll want to start taking advantage of them. The next articles in this series will discuss some ways of doing so.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

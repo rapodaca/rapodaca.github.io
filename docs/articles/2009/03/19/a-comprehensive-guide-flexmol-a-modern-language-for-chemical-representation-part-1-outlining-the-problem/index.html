@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Comprehensive Guide FlexMol, A Modern Language for Chemical Representation Part 1: Outlining the Problem | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Comprehensive Guide FlexMol, A Modern Language for Chemical Representation Part 1: Outlining the Problem</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-03-19T00:00:00.000Z">2009-03-19T00:00:00.000Z</time>
+      </header>
+      <p>Here's a simple question: what's the best way to draw ferrocene?</p>
+<p>This question was <a href="http://metallome.blogspot.com/2009/03/drawing-ferrocene.html">posed</a> in a recent article on <a href="http://metallome.blogspot.com">Metallome</a>. It turns out there are some differences of opinion.</p>
+<p>But this problem isn't limited to 'drawing' ferrocene - it extends to storing, transmitting, and manipulating representations of ferrocene with computers. And it isn't simply limited to ferrocene and multicentered bonding - it extends to stereochemistry as well.</p>
+<p>This problem has been brewing for decades. Awareness of it has been heightened by the emergence of numerous <a href="http://zusammen.metamolecular.com/2009/03/09/sixty-four-free-chemistry-databases-serialized">free Web-based chemical databases</a> over the last few years, and the need to freely exchange chemical information over the Web.</p>
+<h2 id="therightlevelofsimplification">The Right Level of Simplification</h2>
+<p>The fundamental problem with 'standard' molecular languages such as <a href="http://en.wikipedia.org/wiki/MDL_Molfile">molfile</a>, <a href="http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html">SMILES</a>, <a href="http://www.iupac.org/inchi/">InChI</a>, and <a href="http://cml.sourceforge.net/">CML</a> is their simplification of bonding and stereochemistry. Bonding is defined as an association between two atoms using two electrons. Stereochemistry is defined in terms of one or more chiral templates.</p>
+<p>It should be noted that this model is sufficient to describe a large amount of known chemistry. If the molecules you work with only have two-centered bonds and tetrahedral chirality, there is no problem at all.</p>
+<p>But modern chemistry has moved well beyond these simplistic notions of bonding and stereochemistry. The problem comes when you need to represent one of the fruits of these efforts and your only tools can't do the job.</p>
+<p><a href="http://en.wikipedia.org/wiki/Metallocene">Metallocenes</a>, pi-allyl complexes, piano-stool complexes, and <a href="/articles/2007/01/08/the-axial-chirality-problem">axially-chiral molecules</a> are no longer mere curiosities - they are important building blocks, catalysts, drug targets, and natural products used in both academia and industry. They are not widespread, but they are used with increasing regularity. At least one of them is on its way to a database near you.</p>
+<h2 id="adifferentapproachtoatoughproblem">A Different Approach to a Tough Problem</h2>
+<p>FlexMol takes a different approach. Bonding is defined in terms of systems of one or more pairs of atoms interacting with the cooperation of zero or more electrons. Stereochemistry is defined in terms planes passing through atom pair axes.</p>
+<p>As we shall see, this flexible system enables the faithful, lossless representation of almost any chemical substance consisting of a single, well-defined molecular entity.</p>
+<p>But before we do that, we'll take a look at some real-world problem cases in the next installment.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

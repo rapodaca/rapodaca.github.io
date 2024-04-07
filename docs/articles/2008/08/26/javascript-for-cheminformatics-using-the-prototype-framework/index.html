@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JavaScript for Cheminformatics - Using the Prototype Framework | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>JavaScript for Cheminformatics - Using the Prototype Framework</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-08-26T00:00:00.000Z">2008-08-26T00:00:00.000Z</time>
+      </header>
+      <p>If you want to do the kind of cheminformatics that involves manipulating atoms, bonds, and molecules, object-oriented programming works well as a development paradigm. Although perhaps not readily apparent, JavaScript <a href="http://depth-first.com/articles/2008/07/15/javascript-for-cheminformatics">offers everything</a> needed to create object-oriented models just as intricate at those written in languages like C++ and Java. This article discusses one approach that makes use of the <a href="http://www.prototypejs.org/">Prototype Framework</a>.</p>
+<h2 id="aboutprototype">About Prototype</h2>
+<p>Prototype is a set of extensions to the JavaScript language that make developing in it less painful. Some of the extensions relate to DOM manipulation. Other have to do with the way Strings and Arrays behave. For the purposes of this article, we'll be using Prototype's syntax support for classes and inheritance.</p>
+<h2 id="atomsbondsandmolecules">Atoms, Bonds, and Molecules</h2>
+<p>To start, we'll need classes that define the basic behavior of atoms, bonds, and molecules. Although we may ultimately need to consider issues such as <a href="http://depth-first.com/articles/2006/12/19/ferrocene-and-beyond-a-solution-to-the-molecular-representation-problem">multicentered bonding</a>, for now, we'll stick to a simplified view of chemistry that has bonds connecting two and only two atoms.</p>
+<h2 id="creatingtheclasses">Creating the Classes</h2>
+<p>We could use JavaScript's built-in method for creating objects from class-like structures, but Prototype's approach is cleaner.</p>
+<p>In the following library, we define a Molecule as a collection of Atoms and Bonds with useful relationships:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">var</span> Molecule = Class.create({
+  <span class="hljs-attr">initialize</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+    <span class="hljs-keyword">this</span>.atoms = [];
+    <span class="hljs-keyword">this</span>.bonds = [];
+  },
+
+  <span class="hljs-attr">addAtom</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">label</span>)</span>{
+    <span class="hljs-keyword">var</span> atom = <span class="hljs-keyword">new</span> Atom(label);
+
+    <span class="hljs-keyword">this</span>.atoms.push(atom);
+
+    <span class="hljs-keyword">return</span> atom;
+  },
+
+  <span class="hljs-attr">connect</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">sourceAtom, targetAtom, bondType</span>)</span>{
+    <span class="hljs-keyword">var</span> bond = <span class="hljs-keyword">new</span> Bond(sourceAtom, targetAtom, bondType);
+
+    sourceAtom.neighbors.push(targetAtom);
+    sourceAtom.bonds.push(bond);
+    targetAtom.neighbors.push(sourceAtom);
+    targetAtom.bonds.push(bond);
+
+    <span class="hljs-keyword">this</span>.bonds.push(bond);
+
+    <span class="hljs-keyword">return</span> bond;
+  }
+});
+
+<span class="hljs-keyword">var</span> Atom = Class.create({
+  <span class="hljs-attr">initialize</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">label</span>)</span>{
+    <span class="hljs-keyword">this</span>.label = label;
+    <span class="hljs-keyword">this</span>.neighbors = [];
+    <span class="hljs-keyword">this</span>.bonds = [];
+  }
+});
+
+<span class="hljs-keyword">var</span> Bond= Class.create({
+  <span class="hljs-attr">initialize</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">source, target, type</span>)</span>{
+    <span class="hljs-keyword">this</span>.source = source;
+    <span class="hljs-keyword">this</span>.target = target;
+    <span class="hljs-keyword">this</span>.type = type;
+  },
+
+  <span class="hljs-attr">getMate</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">atom</span>)</span>{
+    <span class="hljs-keyword">if</span> (atom == <span class="hljs-keyword">this</span>.source) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.target;
+    <span class="hljs-keyword">if</span> (atom == <span class="hljs-keyword">this</span>.target) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.source;
+
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+  },
+
+  <span class="hljs-attr">contains</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">atom</span>)</span>{
+    <span class="hljs-keyword">return</span> (atom == <span class="hljs-keyword">this</span>.source || atom == <span class="hljs-keyword">this</span>.target);
+  }
+});
+</code></pre>
+<h2 id="testingthelibrary">Testing the Library</h2>
+<p>We can test the library interactively by saving it in a file called <strong>chem.js</strong> and creating some simple HTML:</p>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"prototype.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"chem.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">pre</span>&gt;</span>
+</code></pre>
+<p>We can then use the <a href="http://addons.mozilla.org/en-US/firefox/addon/1843">Firebug console</a> to test the library interactively:</p>
+<pre><code class="hljs bash language-bash">&gt;&gt;&gt; m = new Molecule();
+Object atoms=[0] bonds=[0]
+&gt;&gt;&gt; c = m.addAtom(<span class="hljs-string">"C"</span>);
+Object label=C neighbors=[0] bonds=[0]
+&gt;&gt;&gt;n = m.addAtom(<span class="hljs-string">"N"</span>);
+Object label=N neighbors=[0] bonds=[0]
+&gt;&gt;&gt; m.connect(c, n, 3);
+&gt;&gt;&gt; c.neighbors.size()
+1
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>Although the cheminformatics library discussed here is far from being useful, it's not difficult to see how to extend it. Prototype offers a several possibilities for doing so.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>MX-1.0 Beta 2 | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>MX-1.0 Beta 2</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-07-02T00:00:00.000Z">2009-07-02T00:00:00.000Z</time>
+      </header>
+      <p>The second beta release of <a href="http://metamolecular.com/mx">MX</a> is now available for <a href="http://github.com/metamolecular/mx/downloads">download</a>. MX is a library of essential cheminformatics models and routines. It was created with the goal of providing a clean, well-tested platform for chemistry applications.</p>
+<p>This beta release includes a new binary fingerprinter package that was not ready for release in the first beta. Of particular note is the modular system MX uses for creating fingerprints based on interchangeable BloomFilter, Walker, RingFilter, RingFinder, and PathWriter classes.</p>
+<p>Unit tests are now augmented by <a href="http://mockito.org">Mockito</a> for stubbing and mocking. The MX test suite now includes over 300 individual tests, all of which pass.</p>
+<p>The full list of MX features includes:</p>
+<ul>
+<li>Substructure search and atom mapping based on the VF algorithm</li>
+<li>Exhaustive ring perception based on the Hanser algorithm</li>
+<li><strong>Path-based binary fingerprints</strong></li>
+<li>Flexible query atom support</li>
+<li>Depth-First traversal</li>
+<li>Implicit hydrogen detection</li>
+<li>Complete system of atomic masses and isotopes based on the IUPAC Technical Report.</li>
+<li>Model objects (Molecule, Atom, Bond, Superatom) based on MDL CTfile specification</li>
+<li>Molfile reader and writer</li>
+<li>SD File reader and writer</li>
+</ul>
+<p>MX is released under the highly permissive <a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>.</p>
+<p>If you find a bug or other issue, please consider filing an <a href="http://github.com/metamolecular/mx/issues">bug report</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

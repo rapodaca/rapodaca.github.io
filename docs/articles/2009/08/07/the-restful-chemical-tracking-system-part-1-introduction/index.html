@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The RESTful Chemical Tracking System Part 1 - Introduction | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The RESTful Chemical Tracking System Part 1 - Introduction</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-08-07T00:00:00.000Z">2009-08-07T00:00:00.000Z</time>
+      </header>
+      <p>Chemical and biological laboratories produce information in a large number of forms and for a variety of purposes. This diversity often works against the adoption of one-size-fits-all solutions, and can significantly increase the costs of creating custom systems.</p>
+<p>One approach to this problem focuses on creating interoperable components that can be reused in a variety of contexts. Decreasing the amount of effort needed to produce low-level functionality reduces the costs of building high-level user interfaces, at least in theory. The catch is that these components must work well together - something that doesn't always happen.</p>
+<p>All Articles in This Series:</p>
+<ol>
+<li>The RESTful Chemical Tracking System Part 1: Introduction</li>
+<li><a href="/articles/2009/08/14/the-restful-chemical-tracking-system-part-2-resources">The RESTful Chemical Tracking System Part 2: Resources</a></li>
+<li><a href="/articles/2009/08/21/the-restful-chemical-tracking-system-part-3-resource-associations">The RESTful Chemical Tracking System Part 3: Resource Associations</a></li>
+<li><a href="/articles/2009/08/28/the-restful-chemical-tracking-system-part-4-resources-representations-hypertext-and-json">The RESTful Chemical Tracking System Part 4: Resources, Representations, Hypertext, and JSON</a></li>
+<li><a href="/articles/2009/09/10/the-restful-chemical-tracking-system-part-5-media-types">The RESTful Chemical Tracking System Part 5: Media Types</a></li>
+</ol>
+<h2 id="restforlaboratoryinformationmanagementsystems">REST for Laboratory Information Management Systems</h2>
+<p>This post, the first in a series, explores the idea that the <a href="/articles/2009/07/31/restful-web-services-hypermedia-and-robot-scientists">REST architectural style</a> can be used to design loosely-coupled components for use in larger laboratory information management systems. To make things concrete, we'll focus on something almost every chemistry laboratory needs to deal with - chemical tracking.</p>
+<p>Chemical tracking is a broad subject that can involve many activities, including chemical inventory, quality control, and electronic laboratory notebook integration. The system we'll be discussing will be general enough to be used in all of these situations, but still limited in scope.</p>
+<h2 id="restforchemicaltracking">REST for Chemical Tracking</h2>
+<p>We won't actually be implementing the RESTful chemical tracking system. Instead, will be looking at the problem from the perspective of REST in preparation for building a system based on what we find.</p>
+<p>Why do this? After all, there are at least a few chemical tracking systems out there. What do we gain by creating another - and merely a component at that? That depends on how fundamental you think the problem of chemical tracking is. If you view it merely as something that gets done occasionally and in isolation from other activities in the lab, there's probably not much advantage.</p>
+<p>But if you view chemical tracking as central to your lab's activities, then a system designed from the beginning to integrate well with the software you use today and the software you're likely to use in the future can make a lot of sense.</p>
+<h2 id="theplan">The Plan</h2>
+<p>We'll start by cataloging the fundamental units of every RESTful system -- resources. We'll move on to looking for associations between these resources. Next, we'll develop media types to represent these resources. Finally, we'll bring it all together and discuss how other laboratory software and services can make use of our system.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

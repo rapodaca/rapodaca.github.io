@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>MX Performance Comparison #2: Exhaustive Ring Perception in MX and CDK  | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>MX Performance Comparison #2: Exhaustive Ring Perception in MX and CDK </h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-01-21T00:00:00.000Z">2009-01-21T00:00:00.000Z</time>
+      </header>
+      <p>Benchmarking can be a useful first step in optimizing the performance of software. Recently a group of developers including myself <a href="/articles/2009/01/14/open-benchmarks-for-cheminformatics-working-with-japex">began creating an open suite of benchmarks for cheminformatics</a>. Currently, two open source cheminformatics toolkits are included: <a href="http://metamolecular.com/mx/">MX</a> and <a href="http://cdk.sf.net">CDK</a>.</p>
+<p>Ring perception is the foundation of many cheminformatics algorithms, so performance is an important issue. How do MX and CDK compare? See for yourself:</p>
+<p><img src="/images/posts/20090121/benchmark/testcase0.jpg" alt="Benchmark" title="Benchmark"></p>
+<p>This benchmark <a href="/articles/2009/01/08/exhaustive-ring-perception-with-mx">finds all rings</a> in a <a href="http://github.com/rapodaca/cheminfbenchmark/blob/40b31fe4dc135e6acb11131a222d4048fc4f1add/data/pubchem_416_benzenes.sdf">collection of 416 substituted benzenes</a> created from <a href="http://github.com/rapodaca/cheminfbenchmark/blob/40b31fe4dc135e6acb11131a222d4048fc4f1add/resources/pubchem_416_benzenes_query.xml">a PubChem query</a>. Timing starts after an in-memory collection of hydrogen-suppressed molecules has been created to avoid differences in IO performance.  As you can see, MX is about 44% faster than CDK. Both toolkits find the same number of total rings in the dataset (2,179).</p>
+<p>To run the benchmark yourself, <a href="http://github.com/rapodaca/cheminfbenchmark/tree/20090121-1">use the GitHub repository</a>.</p>
+<p>One anecdotal observation: The number of iterations (10 warmup, 5 test) is lower than usual because CDK appeared to run slower and slower with each iteration. By the time 18 iterations had been made, my system was at a standstill. The cause is not clear. The setup as run avoids this behavior.</p>
+<p>Both CDK and MX implement the <a href="/articles/2008/12/16/exhaustive-ring-perception">Hanser Algorithm</a>, although even a quick glance at the respective sources will reveal big differences in implementation. The MX implementation was optimized for readability and correctness, but not performance. As such, there may be some low hanging fruit to be had from the simplest of optimizations.</p>
+<p>For more details, see <a href="/images/posts/20090121/benchmark/index.html">the full report</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

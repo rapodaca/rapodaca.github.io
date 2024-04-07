@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The Trouble with Hückel | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/07/14/the-trouble-with-huckel/">
+      <meta property="og:title" content="The Trouble with Hückel">
+      <meta property="og:description" content="Postmortem of a head-on collision between computational chemistry and cheminformatics.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20210714/summary.png">
+      <meta content="Postmortem of a head-on collision between computational chemistry and cheminformatics." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The Trouble with Hückel</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-07-14T21:00:00Z">Updated 2021-07-14T21:00:00Z</time>
+      </header>
+      <p>As the joke goes, the difference between computational chemistry and cheminformatics is that in computational chemistry molecules get to keep their hydrogens. The two fields clearly start from different assumptions, using them to answer different kinds of questions. One of the more striking differences between the two fields is the treatment of aromaticity. Today's article highlights the problems that can result when concepts are carelessly transplanted from one field to the other. A way forward is also proposed.</p>
+<h2 id="inanutshell">In a Nutshell</h2>
+<p>SMILES supports an atomic property, which I'll refer to as <code>aromatic</code>, defined in terms of "Hückel's rule." This rule, the result of applying simplifying assumptions to quantum mechanics, has a long history in chemistry. Unfortunately, Hückel's rule was never formulated in a way that is both detailed enough to reduce to software and general enough to cover all of organic chemistry. The result has been widespread disagreement over a foundational piece of cheminformatics infrastructure.</p>
+<h2 id="hckelsrule">Hückel's Rule</h2>
+<p>Certain molecules containing alternating circuits of single and double bonds display much higher chemical stability than others. How can this phenomenon be understood, or at least predicted? The most widely-used tool is <em>Hückel's rule</em>.</p>
+<p>Despite its widespread use in <a href="http://www.chem.ucla.edu/~harding/IGOC/H/huckels_rule.html">undergraduate courses</a> and research, a concise yet complete description of Hückel's rule is not easy to find. The original work by Erich Hückel in the 1930s is verbose and written in German. Later formulations cited "4n+2" as the rule without enumerating the exact set of conditions that must apply. And as we'll see, the details matter.</p>
+<p>The clearest and most complete expression of Hückel's rule can be found in the <em><a href="https://doi.org/10.1351/pac199466051077">IUPAC Glossary of terms used in physical organic chemistry</a></em>. Under the heading "Hückel's (4<em>n</em> + 2) rule, we find:</p>
+<blockquote>
+  <p>Monocyclic planar (or almost planar) systems of trigonally (or sometimes digonally) hybridized atoms that contain (4<em>n</em> + 2) π-electrons (where <em>n</em> is a non-negative integer) will exhibit aromatic character. The rule is generally limited to <em>n</em> = 0-5.
+  This rule is derived from the Huckel MO calculation on planar monocyclic conjugated hydrocarbons (CH<sub><em>m</em></sub>, where <em>m</em> is an integer equal to or greater than 3 according to which (4<em>n</em>+2) π-electrons are contained in a closed-shell system. Examples of systems that obey the Hückel rule include:
+  <img alt="IUPAC Hückel Aromaticity" src="/images/posts/20210714/iupac-hueckel-aromaticity.png">
+  Systems containing 4<em>n</em> π-electrons (such as cyclobutadiene and the cyclopentadienyl cation) are "antiaromatic".</p>
+</blockquote>
+<p>Breaking this down, Hückel's rule applies to a molecular subgraph for which <em>all</em> of the following conditions hold:</p>
+<ol>
+<li>The subgraph is a singular cycle. This requires all bonding pairs of atoms to be known.</li>
+<li>The subgraph is planar. This requires the 3D coordinates of each atom.</li>
+<li>All atoms are "trigonally" or "digonally" hybridized. This requires a model for orbital hybridization.</li>
+<li>The π-electron count for the atoms in the cycle is typically equal to: 2; 6, 10; 14; 18; or 22. This requires a method for assigning atomic π-electron contributions.</li>
+</ol>
+<p>The most widely-disregarded aspect of Hückel's rule is that it applies to single cycles only. Even naphthalenes, ubiquitous motifs in research and commerce, are disqualified. <a href="https://doi.org/10.1021/ja01138a038">In 1952</a>, Streitwieser and coworkers showed that independently calculated delocalization energies were inconsistent with the application of Hückel's rule over fused cycles.</p>
+<p>Even a casual reading of the IUPAC formulation reveals that Hückel's rule assumes some information that won't always be available in the context of using SMILES. For example, SMILES by definition lacks atomic coordinates so determining planarity in the general sense will be impossible. Similarly, models of hybridization are likely to be primitive at best when using SMILES. But perhaps the biggest problem with the IUPAC definition is what it doesn't say.</p>
+<h2 id="thequietparts">The Quiet Parts</h2>
+<p>The IUPAC formulation of Hückel's rule leaves some very important points as exercises for the reader. Consider these questions:</p>
+<ul>
+<li>Can a cycle be "peeled" away from another cycle to reveal a singular cycle, as we might want to do in naphthalene?</li>
+<li>If so, how are electrons to be divided up?</li>
+<li>What is the π-electron contribution of an atom with an exocyclic double bond such as cyclopentadienone? How does this contribution change with electronegativity?</li>
+<li>What are the rules for determining π-electron contributions for singly-bonded heteroatoms? Can two such atoms be adjacent to each other in the cycle?</li>
+<li>What's the maximum allowable deviation from planarity?</li>
+</ul>
+<figure>
+  <img alt="Hückel or Not Hückel?" src="/images/posts/20210714/hueckel-or-not-hueckel.png">
+  <figcaption>
+    <strong>Hückel or Not Hückel?</strong> Which molecules should be considered to contain motifs obeying the Hückel 4<em>n</em> + 2 rule? What atoms are involved, which rules for electron counting should be used, and how are those rules justified?
+  </figcaption>
+</figure>
+<p>Answering these questions consistently is no easy task. Each new corner case is sure to resurface the decades-old conflict between viewing aromaticity as a structural vs. behavioral phenomenon. The result would almost certainly be a patchwork of possibly contradictory rules that would provide a safe haven for the nastiest bugs. No two organizations faced with this problem would develop quite the same solutions, and even within an organization conflicts would be unavoidable.</p>
+<h2 id="smilesandhckelsrule">SMILES and Hückel's Rule</h2>
+<p>SMILES supports an atomic boolean flag with the label <code>aromatic</code>. Setting this flag adds the atom to a construct I call the "delocalization subgraph." This construct and its uses were <a href="/articles/2021/06/30/writing-aromatic-smiles/">previously described</a>. In a nutshell, the delocalization subgraph is a possibly empty, induced subgraph representing a delocalized electron system.</p>
+<p>What value does the <code>aromatic</code> flag add? According to Dave Weininger, the creator of SMILES, the idea was to aid canonicalization. In the <a href="https://doi.org/10.1021/ci00057a005">SMILES introductory paper</a> he explains:</p>
+<blockquote>
+  <p>The SMILES language was specifically designed to be “canonicalizable”, i.e. not only to provide an unambiguous chemical nomenclature but also be able to express a single, unique SMILES for every structure in the same language. This implies a fundamental requirement to express the symmetry of a molecule correctly. Consider the problem of generating a unique SMILES for OclccccclF ortho-fluorophenol, but without aromatic bonds. There are two ways to write it, OCl=CC=CC=ClF (with the substituted carbons joined by a single bond) and OCl=C(F)C=CC=Cl (with the substituted carbons joined by a double bond). These are two different molecular graphs: the SMILES for these will always differ. For purposes of unique nomenclature, it is not acceptable to have two different “unique SMILES” for the same molecule. SMILES language provides an “aromatic” concept to avoid this conundrum.</p>
+</blockquote>
+<p>Given its poor suitability to the task at hand, Hückel's rule was a surprising concept on which to base the SMILES aromaticity features. Nevertheless, the two are linked both in the primary literature and in software documentation. As noted by Weininger later in the <a href="https://doi.org/10.1021/ci00057a005">introductory paper</a>:</p>
+<blockquote>
+  <p>SMILES algorithms detect accurately the vast majority of aromatic compounds and ions. The system will accept either aromatic or nonaromatic input specifications; it will detect aromaticity and will convert the input structure accordingly. This is accomplished with an extended version of rule to identify aromatic molecules and ions.[reference an undergraduate organic chemistry textbook] <strong>To qualify as aromatic, all atoms in the ring must be sp2 hybridized and the number of available “excess” π electrons must satisfy Hückel’s 4N+2 criterion.</strong>[my emphasis] As an example, benzene is written clcccccl, but an entry of Cl=CC=CC=Cl (cyclo- hexatriene) - the Kekulé form - leads to detection of aromaticity and results in an internal structural conversion to aromatic representation. Entries of clcccl and clcccccccl will produce the correct antiaromatic structures for cyclobutadiene and cyclooctatetraene, Cl=CC=Cl and C1= CC=CC=CC=Cl, respectively. In such cases the SMILES system looks for a structure that preserves the implied sp2 hybridization, the implied hydrogen count, and the specified formal charge if any. Some inputs, however, may be not only formally incorrect but also nonsensical such as clccccl. Here clccccl is not the same as Cl=CCC=Cl (which is a valid SMILES for cyclopentadiene) since one of the carbon atoms is sp3 with two attached hydrogens. In such a structure, alternating single- and double-bond assignments cannot be made. The SMILES system will flag this as an “impossible” input.</p>
+</blockquote>
+<p>There's a lot to parse here (including incompatible statements about aromaticity and antiaromaticity), but the bolded part is the most important. Setting the <code>aromatic</code> flag is a promise by the writer that the atom is part of a cycle that obeys Hückel's rule.</p>
+<p>Ten years later, Weininger <a href="http://doi.wiley.com/10.1002/9783527618279.ch5">reiterated</a> the same association between Hückel's rule and the <code>aromatic</code> flag:</p>
+<blockquote>
+  <p>How does SMILES determine “aromaticity ”?</p>
+  <p>Unfortunately it is not as trivial as “alternating single and double bonds”, but it is not rocket science, either. The SMILES algorithm uses an extended version of Hueckel’s rule to identify aromatic molecules and ions. To qualify as aromatic all atoms in a ring must be sp2 hybridized and the number of available “shared" π electrons must satisfy Hückel’s 4 N +2 criterion.</p>
+</blockquote>
+<p>Similar statements can be found in the <a href="https://www.daylight.com/dayhtml/doc/theory/theory.smiles.html">Daylight documentation</a>.</p>
+<p><a href="http://opensmiles.org/opensmiles.html">OpenSMILES</a> was an effort to resolve some of the ambiguities in the SMILES primary literature and documentation. Unfortunately, it adopted the same approach to the <code>aromatic</code> flag as its predecessors:</p>
+<blockquote>
+  <p>In an aromatic system, all of the aromatic atoms must be sp2 hybridized, and the number of π electrons must meet Huckel’s 4n+2 criterion When parsing a SMILES, a parser must note the aromatic designation of each atom on input, then when the parsing is complete, the SMILES software must verify that electrons can be assigned without violating the valence rules, consistent with the sp2 markings, the specified or implied hydrogens, external bonds, and charges on the atoms.</p>
+</blockquote>
+<p><a href="https://iupac.org/project/2019-002-2-024/">SMILES+</a> is an IUPAC initiative to formally specify SMILES. In more than two years of development, it has not changed the language around the <code>aromatic</code> flag used in OpenSMILES and inherited from the primary literature.</p>
+<p>Despite multiple citations and ample opportunity to clarify, no source address the underlying problem of how to fill in the substantial blanks in applying Hückel's rule as applied to SMILES.</p>
+<h2 id="movingforward">Moving Forward</h2>
+<p>Having built an essential SMILES feature on the shaky ground of Hückel's rule, three paths forward are now open: (1) do nothing; (2) refine Hückel's rule; or (3) replace Hückel's rule with something better.</p>
+<p>Doing nothing is always an option. The current status quo has persisted for decades and may continue to work for several more. However, leaving this issue open will undermine any attempts to standardize SMILES, just as it did with OpenSMILES.</p>
+<p>Alternatively, we can think of ways to adapt Hückel's rule. For example, Platt <a href="https://doi.org/10.1063/1.1740414">introduced</a> a "perimeter rule" as a way to deal with fused benzenoid systems:</p>
+<blockquote>
+  <p>We define this group of hydrocarbons as follows. Every planar conjugated system has certain carbon atoms at the edge of the system which we may call "perimeter carbons." In a cata-condensed system or in a polyene, every carbon is on the perimeter (Fig. 6, hexatriene, anthracene). In a pericondensed system such as pyrene, there are additional carbons inside. If the perimeter carbons were removed, some or all of these additional carbons would lie on the new perimeter. These we may call "second-perimeter carbons." If the system is large enough, we may remove these carbons also, and have "third-perimeter carbons" within, and so on.</p>
+</blockquote>
+<p>As <a href="https://doi.org/10.1021/cr9903656">noted by Randić</a>, however, counterexamples to this approach are not hard to find.</p>
+<p>Mostly forgotten by organic chemistry and cheminformatics, <a href="https://doi.org/10.3389/fchem.2013.00022">Clar's Sextet Rule</a> offers another approach. As noted by Solà in a 2013 review:</p>
+<blockquote>
+  <p>Clar's rule states that the Kekulé resonance structure with the largest number of disjoint aromatic π-sextets, i.e., benzene-like moieties, is the most important for characterization of properties of polycyclic aromatic hydrocarbons (PAHs). Aromatic π-sextets are defined as six π-electrons localized in a single benzene-like ring separated from adjacent rings by formal CC single bonds.</p>
+</blockquote>
+<p>Unfortunately Clar's Rule creates a situation not unlike the one arising from a <a href="/articles/2020/08/31/a-smallest-set-of-smallest-rings/">Smallest Set of Smallest Rings</a>: non-uniqueness. Multiple Clar structures are possible for some molecules.</p>
+<p>In their current form, Clar's sextet and Platt's perimeter may alleviate some friction between SMILES and Hückel's rule, but the issues of electron counting, geometry, and hybridization remain.</p>
+<h2 id="replacinghckelsrule">Replacing Hückel's Rule</h2>
+<p>An alternative to tweaking Hückel's rule is to replace it altogether. Cutting the cord has the advantage of specificity. Rules for setting the <code>aromatic</code> flag could reflect the needs of SMILES itself, rather than those of other applications as is currently the case.</p>
+<p>The first step is to recall the original purpose of the <code>aromatic</code> flag: to enable canonicalization. Unless a bonding arrangement interferes with canonicalization, there's little reason for automated writers to set the <code>aromatic</code> flag at all. And as <a href="/articles/2021/06/30/writing-aromatic-smiles/">noted previously</a>, setting the <code>aromatic</code> flag isn't even necessary for canonicalization. Pure valence bond representations can be canonicalized using similar procedures to those used when setting the <code>aromatic</code> flag.</p>
+<p>Nevertheless, some writers will insist on setting the <code>aromatic</code> flag. The question then becomes, what specific guidance for doing so will ensure that the resulting string can be faithfully interpreted by all SMILES readers?</p>
+<p>This is where the delocalization subgraph can come in. Think of it as a way to encode a <em><a href="/articles/2019/04/02/the-maximum-matching-problem/">perfect matching</a></em>, without specifying one in particular. As explained previously, a perfect matching is a subgraph in which every node has degree one. Chemists will immediately recognize the connection to electron delocalization in the sense that the edges of a perfect matching over a delocalization subgraph become double bonds. Moreover, this process is reversible.</p>
+<figure>
+  <img alt="Matchings" src="/images/posts/20210714/matchings.png">
+  <figcaption>
+    <strong>Matchings.</strong> A matching is a subgraph in which every node has degree one. A perfect matching corresponds to the chemical concept of "kekulization" without the introduction of radicals. Open circles represent matched nodes, and closed circles represent unmatched nodes. Hashed edges are matched.
+  </figcaption>
+</figure>
+<p>This just leaves the problem of constructing a delocalization subgraph from a valence bond graph. Only cyclic subgraphs cause the kind of <a href="/articles/2021/06/17/delocalization-induced-molecular-equality/">electron delocalization</a> relevant to SMILES canonicalization. So a reasonable starting point would be to start with the set of all cycles.</p>
+<p>The only cycles of interest would be those consisting entirely of alternating single and double bonds. It turns out that this concept maps directly to the <em>conjugated circuit</em>. As explained in <a href="https://doi.org/10.1021/cr9903656">Milan Randić's landmark 2003 review on the topic</a>:</p>
+<blockquote>
+  <p>Conjugated circuits are those circuits within an individual Kekule ́ valence structure in which there is a regular alternation of CC double and CC single bonds.</p>
+</blockquote>
+<p>Conjugated circuits have been the topic of <a href="https://doi.org/10.1016/0097-8485(90)80038-4">much theoretical study</a>. For the purposes of SMILES, however, the definition alone suffices. Gone are the useless (and almost universally ignored) constraints around 3D coordinates, hybridization models, singular cycles, and electron counting imposed by Hückel's rule. In its place is a procedure requiring just two pieces of of information already carried by all molecular graphs:</p>
+<ol>
+<li>The set of all cycles.</li>
+<li>A method to identify single/double bond alternation.</li>
+</ol>
+<p>An algorithm for setting the <code>aromatic</code> flag given a Kekulé valence bond graph could be developed as follows. For each cycle in the set of all cycles, check for single/double bond alternation. If found, add all atoms of the cycle to the delocalization subgraph. "Alternation" can be grounded mathematically through the concept of <a href="/articles/2020/08/31/a-smallest-set-of-smallest-rings/">symmetric difference</a>, which coincidentally pops up in the context of cycle basis.</p>
+<h2 id="chemicalmeaning">Chemical Meaning</h2>
+<p>Why does any of this matter? Clearly there's enough consensus around how to apply Hückel's rule in SMILES to have gotten us this far. Why not let things be?</p>
+<p>As mentioned previously, standardization is one reason. Aromaticity was perhaps the <a href="https://sourceforge.net/p/blueobelisk/mailman/blueobelisk-smiles/">single most-discussed topic</a> in the OpenSMILES effort. Ultimately, the problems caused by linking the <code>aromatic</code> flag to Hückel's rule could not be resolved. Any future attempts at standardization are likely to meet a similar fate until a better-suited model for the <code>aromatic</code> flag can be found.</p>
+<p>A secondary problem is <em>how</em> SMILES are being used in practice. Consider this admittedly small survey I recently ran on Twitter:</p>
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">I use aromatic SMILES mainly to:</p>— Rich Apodaca (@rapodaca) <a href="https://twitter.com/rapodaca/status/1409973975942238208?ref_src=twsrc%5Etfw">June 29, 2021</a></blockquote>
+<script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<p>The third option in my survey was meant to ask if the <code>aromatic</code> flag was specifically being used to convey information not available through the Kekulé valence bond graph. Half of respondent's said "yes." Yet as we've seen, such a use directly contradicts both the letter and spirit of the rules for setting the <code>aromatic</code> flag. It's possible that the question was misunderstood, but I don't think so because this view was also expressed during the OpenSMILES discussions. Consider this passage from <a href="https://sourceforge.net/p/blueobelisk/mailman/message/843610/">the mailing list</a>:</p>
+<blockquote>
+  <p>… Dave [Weininger] seems to be emphasizing canonicalization in answering this question [about the purpose of the aromatic flag, quoted earlier], but having worked with him for six years, I heard him explain aromaticity many times, and the purpose was not for canonical SMILES.  It was, as this quote says, to reflect the underlying uniformity of the bonds in aromatic systems (Dave calles [sic] it "symmetry" in this quote, but that's a bit inaccurate).  Canonical SMILES are just one reflection of that underlying uniformity.</p>
+</blockquote>
+<p>The problem with an ambiguous specification is that it encourages, even forces, users and software developers to find their own meaning.</p>
+<p>All of which brings us to interpretation — in particular <a href="/articles/2021/02/10/fast-hydrogen-counting-hydrogens-in-smiles/">the assignment of implicit hydrogens</a>. The <code>aromatic</code> flag can directly influence implicit hydrogen count. For example, the rules for computing atomic hydrogen counts in benzene (<code>c1ccccc1</code>) are different from the rules for computing atomic hydrogen counts in cyclohexane (<code>C1CCCCCC1</code>). In the former case, we must account for one implicit degree of unsaturation. The math happens to be easy in the case of benzene vs. cyclohexane. But disagreements about the meaning of the <code>aromatic</code> flag (or lack of explicit guidance around how to process it) will lead to <a href="https://baoilleach.blogspot.com/2020/10/the-smiles-reading-benchmark-two-years.html">different hydrogen counts</a> in the more complex cases likely to be seen in the wild.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Hückel's rule has served chemistry well, but it is poorly-suited as the foundation for assigning and interpreting the SMILES <code>aromatic</code> flag. Until this situation is corrected, it will be impossible to describe SMILES at the level of detail needed for high compatibility across software implementations. Fortunately, it's possible to replace Hückel's rule with an alternative better suited to the demands of a molecular representation format.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

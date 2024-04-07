@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE CDXML SYSTEM "http://www.cambridgesoft.com/xml/cdxml.dtd" >
+<CDXML
+ CreationProgram="ChemDraw 12.0.3.1216"
+ Name="methanol.cdxml"
+ BoundingBox="164.7 173.75 213.1 207.9"
+ WindowPosition="0 0"
+ WindowSize="0 0"
+ WindowIsZoomed="yes"
+ FractionalWidths="yes"
+ InterpretChemically="yes"
+ ShowAtomQuery="yes"
+ ShowAtomStereo="no"
+ ShowAtomEnhancedStereo="yes"
+ ShowAtomNumber="no"
+ ShowBondQuery="yes"
+ ShowBondRxn="yes"
+ ShowBondStereo="no"
+ ShowTerminalCarbonLabels="no"
+ ShowNonTerminalCarbonLabels="no"
+ HideImplicitHydrogens="no"
+ Magnification="250"
+ LabelFont="51232"
+ LabelSize="10"
+ LabelFace="96"
+ CaptionFont="51232"
+ CaptionSize="10"
+ HashSpacing="2.5"
+ MarginWidth="1.6"
+ LineWidth="0.6"
+ BoldWidth="2"
+ BondLength="14.4"
+ BondSpacing="18"
+ ChainAngle="120"
+ LabelJustification="Auto"
+ CaptionJustification="Left"
+ AminoAcidTermini="HOH"
+ ShowSequenceTermini="yes"
+ ShowSequenceBonds="yes"
+ PrintMargins="36 36 36 36"
+ MacPrintInfo="0003000002D002D0000000001DFE16F6FF86FF881E7617700367052803FC00020000004800480000000002D80228000100000064000000010003030300000001270F000100010000000000000000000000006800001901900000000000200000000000000000000000000000000000000000000000000000"
+ color="0"
+ bgcolor="1"
+><colortable>
+<color r="1" g="1" b="1"/>
+<color r="0" g="0" b="0"/>
+<color r="1" g="0" b="0"/>
+<color r="1" g="1" b="0"/>
+<color r="0" g="1" b="0"/>
+<color r="0" g="1" b="1"/>
+<color r="0" g="0" b="1"/>
+<color r="1" g="0" b="1"/>
+</colortable><fonttable>
+<font id="51232" charset="x-mac-roman" name="Helvetica"/>
+</fonttable><page
+ id="25"
+ BoundingBox="0 0 540 719.9"
+ HeaderPosition="36"
+ FooterPosition="36"
+ PrintTrimMarks="yes"
+ HeightPages="1"
+ WidthPages="1"
+><fragment
+ id="3"
+ BoundingBox="164.7 177.82 209.31 207.9"
+><n
+ id="2"
+ p="180 189.95"
+ Z="19"
+/><n
+ id="4"
+ p="192.47 182.75"
+ Z="20"
+ Element="8"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="188.97 186.45"
+ BoundingBox="188.97 177.82 196.77 186.45"
+ LabelJustification="Left"
+ LabelAlignment="Left"
+><s font="51232" size="10" face="96">O</s></t></n><n
+ id="6"
+ p="167.57 182.77"
+ Z="22"
+ Element="1"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="164.74 186.37"
+ BoundingBox="164.74 177.97 171.94 186.37"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">H</s></t></n><n
+ id="8"
+ p="180 204.3"
+ Z="24"
+ Element="1"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="177.17 207.9"
+ BoundingBox="177.17 199.5 184.38 207.9"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">H</s></t></n><n
+ id="12"
+ p="167.53 197.15"
+ Z="26"
+ Element="1"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="164.7 200.75"
+ BoundingBox="164.7 192.35 171.9 200.75"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">H</s></t></n><n
+ id="19"
+ p="204.94 189.95"
+ Z="33"
+ Element="1"
+ NumHydrogens="0"
+ NeedsClean="yes"
+ AS="N"
+><t
+ p="202.11 193.55"
+ BoundingBox="202.11 185.15 209.31 193.55"
+ LabelJustification="Left"
+><s font="51232" size="10" face="96">H</s></t></n><b
+ id="5"
+ Z="21"
+ B="2"
+ E="4"
+ BS="N"
+/><b
+ id="7"
+ Z="23"
+ B="2"
+ E="6"
+ BS="N"
+/><b
+ id="9"
+ Z="25"
+ B="2"
+ E="8"
+ BS="N"
+/><b
+ id="13"
+ Z="27"
+ B="2"
+ E="12"
+ BS="N"
+/><b
+ id="20"
+ Z="34"
+ B="4"
+ E="19"
+ BS="N"
+/></fragment><t
+ id="14"
+ p="178 187.94"
+ BoundingBox="178 182.75 181.6 189.25"
+ Z="28"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="6.45">5</s></t><t
+ id="15"
+ p="170.25 192.69"
+ BoundingBox="170.25 187.44 173.85 193.94"
+ Z="29"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="6.45">2</s></t><t
+ id="16"
+ p="172 178.94"
+ BoundingBox="172 173.75 175.6 180.25"
+ Z="30"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="6.45">1</s></t><t
+ id="17"
+ p="185.25 202.19"
+ BoundingBox="185.25 196.94 188.85 203.44"
+ Z="31"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="6.45">3</s></t><t
+ id="18"
+ p="196.5 180.44"
+ BoundingBox="196.5 175.19 200.1 181.69"
+ Z="32"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="6.45">6</s></t><t
+ id="21"
+ p="209.5 188.69"
+ BoundingBox="209.5 183.5 213.1 190"
+ Z="35"
+ Warning="ChemDraw can’t interpret this label."
+ LineHeight="auto"
+><s font="51232" size="6.45">4</s></t></page></CDXML>

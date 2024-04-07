@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiling C to WebAssembly and Running It - without Emscripten | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2019/10/16/compiling-c-to-webassembly-and-running-it-without-emscripten/">
+      <meta property="og:title" content="Compiling C to WebAssembly and Running It - without Emscripten">
+      <meta property="og:description" content="The tools for deploying C code to Web browsers are rapidly evolving. It&#x27;s now possible to compile complex libraries to WebAssembly with nothing but LLVM.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20191016/summary.png">
+      <meta content="The tools for deploying C code to Web browsers are rapidly evolving. It&#x27;s now possible to compile complex libraries to WebAssembly with nothing but LLVM." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Compiling C to WebAssembly and Running It - without Emscripten</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2019-10-16T17:00:00Z">2019-10-16T17:00:00Z</time>
+      </header>
+      <p>I <a href="/articles/2019/05/15/compiling-inchi-to-webassembly-part-1/">recently showed</a> how to compile a complex C application to WebAssembly using Emscripten. Although effective, this approach comes at the cost of complexity. A lot of JavaScript glue code is produced, and an external tool chain is required. The former obscures the underlying principles, which makes improvement and extension difficult. The latter may not always be possible.</p>
+<p>This article shows how to compile C functions to WebAssembly without Emscripten, and then execute the result in a browser. Only a recent LLVM installation is needed. Standard library functions are available with some add-ons.</p>
+<h2 id="credits">Credits</h2>
+<p>To my knowledge, the full procedure given in this article has never been described before. It was constructed from various articles describing one or more pieces of what you'll find here. Two articles from earlier this year were especially helpful:</p>
+<ul>
+<li><a href="https://dassur.ma/things/c-to-webassembly/">Compiling C to WebAssembly without Emscripten</a></li>
+<li><a href="https://00f.net/2019/04/07/compiling-to-webassembly-with-llvm-and-clang/">Compiling C to WebAssembly using clang/LLVM and WASI</a></li>
+</ul>
+<h2 id="installingllvm">Installing LLVM</h2>
+<p>Installation of LLVM on most unix systems should be straightforward. Unfortunately, macOS users may need extra steps. Mojave ships with a partial LLVM toolchain, but it's not complete enough to compile WebAssembly. This problem can be solved by the installation of a full, parallel LLVM suite through Homebrew. Using this approach will preserve Mojave's copy of LLVM for internal use, while allowing you to compile C to WebAssembly when needed.</p>
+<p>Begin by installing the binaries:</p>
+<pre><code class="hljs bash language-bash">brew install llvm
+</code></pre>
+<p>Activate the installation with:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> PATH=/usr/<span class="hljs-built_in">local</span>/opt/llvm/bin:<span class="hljs-variable">$PATH</span>
+</code></pre>
+<p>Finally, verify the activation with:</p>
+<pre><code class="hljs bash language-bash">llc --version
+</code></pre>
+<p>This should produce output containing the lines:</p>
+<pre><code class="hljs bash language-bash">...
+    wasm32     - WebAssembly 32-bit
+    wasm64     - WebAssembly 64-bit
+...
+</code></pre>
+<h2 id="compilingasmalllibrary">Compiling a Small Library</h2>
+<p>As a test of what's now possible, consider the following function that returns the sum of two arguments:</p>
+<pre><code class="hljs c language-c"><span class="hljs-comment">// add.c</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">add</span> <span class="hljs-params">(<span class="hljs-keyword">int</span> first, <span class="hljs-keyword">int</span> second)</span>
+</span>{
+  <span class="hljs-keyword">return</span> first + second;
+}
+</code></pre>
+<p>When saved in a file called <code>add.c</code>, this function is compiled to WebAssembly using the command:</p>
+<pre><code class="hljs bash language-bash">clang --target=wasm32 --no-standard-libraries -Wl,--<span class="hljs-built_in">export</span>-all -Wl,--no-entry -o add.wasm add.c
+</code></pre>
+<p>The options passed to <code>clang</code> are:</p>
+<ul>
+<li><code>--target=wasm32</code> Set the build target to wasm.</li>
+<li><code>--no-standard-libraries</code> Do not use libc (more on this later).</li>
+<li><code>-Wl,--export-all</code> Export all symbols (i.e., <code>add</code>) from the compiled wasm file so that they can be used from JavaScript.</li>
+<li><code>-Wl,--no-entry</code> Don't check for a <code>main</code> function.</li>
+<li><code>-o</code> Set the output destination.</li>
+</ul>
+<p>Options preceded by <code>-Wl,</code> are passed from the LLVM compiler to the linker.</p>
+<p>Running the <code>clang</code> command should produce the 334-byte file <code>add.wasm</code> in your working directory. It can be run with the HTML file shown below. Save it into your working directory as <code>add.html</code>.</p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-comment">&lt;!-- add.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
+      (<span class="hljs-keyword">async</span>() =&gt; {
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'add.wasm'</span>);
+        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
+        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes);
+
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'The answer is: '</span> + instance.exports.add(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>));
+      })();
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>Your browser's developer tools console should print the message: "The answer is: 3".</p>
+<p>Your browser will probably complain if you try to load the HTML file directly from disk. Instead, it must be delivered through a Web server. A convenient option is Python's <a href="https://docs.python.org/2/library/simplehttpserver.html">SimpleHTTPServer</a>, which can be invoked with:</p>
+<pre><code class="hljs bash language-bash">python -m SimpleHTTPServer
+</code></pre>
+<p>The page can then be viewed from <a href="http://localhost:8000/add.html">localhost:8000/add.html</a>.</p>
+<p>To recap, a single-function library was compiled with <code>clang</code> directly to WebAssembly. The result was executed by invoking the function attached to the <code>exports</code> property of the WebAssembly instance object.</p>
+<p>In principle, any C function, regardless of its complexity, can be compiled and used in the same way. In practice, however, C libraries rarely stand alone. Most require the C standard library (libc), which the simple approach above explicitly excluded.</p>
+<p>A working libc is in fact one of the services provided by Emscripten. Because we're not using Emscripten, we'll need to supply our own copy of libc.</p>
+<p>This is where WASI comes in.</p>
+<h2 id="wasi">WASI</h2>
+<p>In early 2019, the Mozilla Project announced the <a href="https://wasi.dev">WebAssembly System Interface (WASI)</a>, "a modular system interface for WebAssembly." Its main goal is to support WebAssembly execution outside of the browser. However, WASI provides something useful for in-browser use as well: a well-defined method for including libc.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/fh9WXPu0hw8" allowfullscreen=""></iframe>
+</div>
+<p>Recent versions of LLVM now support the WebAssembly/WASI compile target. With it, C source files depending on libc can be compiled directly to WebAssembly, provided that the environment supplies libc as one or more modules.</p>
+<p>For browsers, certain kinds of WASI compatibility can be supplied by <a href="https://github.com/wasmerio/wasmer-js/tree/master/packages/wasi">Wasmer-JS</a>. Although not required for the examples presented here, I have encountered more complicated situations calling for this library.</p>
+<h2 id="wasilibc">wasi-libc</h2>
+<p>As a demonstration of what's now possible, consider the following C function <code>copy</code>. It accepts two buffers as arguments, an input and an output, returning the length of the string that was copied from input to output. Two libc functions are used: <code>strncpy</code> and <code>strlen</code>.</p>
+<pre><code class="hljs c language-c"><span class="hljs-comment">// copy.c</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">copy</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *input, <span class="hljs-keyword">char</span> *output)</span>
+</span>{
+    <span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> length = <span class="hljs-built_in">strlen</span>(input);
+
+    <span class="hljs-built_in">strncpy</span>(output, input, length);
+
+    <span class="hljs-keyword">return</span> length;
+}
+</code></pre>
+<p>Attempting to compile this source file like we did before will result in an error:</p>
+<pre><code class="hljs bash language-bash">clang --target=wasm32 --no-standard-libraries -Wl,--<span class="hljs-built_in">export</span>-all -Wl,--no-entry -o copy.wasm copy.c
+src/copy.c:2:10: fatal error: <span class="hljs-string">'string.h'</span> file not found
+<span class="hljs-comment">#include &lt;string.h&gt;</span>
+         ^~~~~~~~~~
+1 error generated.
+</code></pre>
+<p>We've specifically disallowed libc with the <code>--no-standard-libraries</code> flag. To continue we'll need to replace LLVM's libc with one designed to work with WebAssembly and WASI. This can be accomplished with <a href="https://github.com/CraneStation/wasi-libc">wasi-libc</a>.</p>
+<p>Clone the wasi-libc repository into a separate directory and compile it with:</p>
+<pre><code class="hljs bash language-bash">git <span class="hljs-built_in">clone</span> https://github.com/CraneStation/wasi-libc.git
+<span class="hljs-built_in">cd</span> wasi-libc
+make install INSTALL_DIR=/tmp/wasi-libc
+</code></pre>
+<p>The install directory can be set to any convenient location. On macOS, ensure the correct version of <code>clang</code> has been activated prior to using make:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> PATH=/usr/<span class="hljs-built_in">local</span>/opt/llvm/bin:<span class="hljs-variable">$PATH</span>
+</code></pre>
+<p>We can now try to compile <code>copy.c</code> with a slightly modified invocation of clang:</p>
+<pre><code class="hljs bash language-bash">clang --target=wasm32-unknown-wasi --sysroot /tmp/wasi-libc -nostartfiles -Wl,--import-memory -Wl,--no-entry -Wl,--<span class="hljs-built_in">export</span>-all -o copy.wasm copy.c
+</code></pre>
+<p>Unfortunately, this will probably fail with an error similar to:</p>
+<pre><code class="hljs bash language-bash">wasm-ld: error: cannot open /usr/<span class="hljs-built_in">local</span>/Cellar/llvm/9.0.0/lib/clang/9.0.0/lib/wasi/libclang_rt.builtins-wasm32.a: No such file or directory
+clang-9: error: linker <span class="hljs-built_in">command</span> failed with <span class="hljs-built_in">exit</span> code 1 (use -v to see invocation)
+</code></pre>
+<p>The problem can be resolved by adding the missing file to the path indicated by the error. It may be necessary to create missing directories. Conveniently, the precompiled WebAssembly binary <a href="https://github.com/jedisct1/libclang_rt.builtins-wasm32.a">libclang_rt.builtins-wasm32.a</a> can be directly downloaded. This file is itself compiled from the <a href="https://github.com/CraneStation/wasi-sdk">WASI SDK</a> source.</p>
+<h2 id="compilingwithstandardlibrarydependency">Compiling with Standard Library Dependency</h2>
+<p>Now all the pieces should be in place to successfully compile:</p>
+<pre><code class="hljs bash language-bash">clang \
+--target=wasm32-unknown-wasi \
+--sysroot /tmp/wasi-libc \
+-nostartfiles \
+-Wl,--import-memory \
+-Wl,--no-entry \
+-Wl,--<span class="hljs-built_in">export</span>-all \
+-o copy.wasm \
+copy.c
+</code></pre>
+<p>Changed or new parameters include:</p>
+<ul>
+<li><code>target=wasm32-unknown-wasi</code> Set the build target to WASI.</li>
+<li><code>sysroot</code> Set the top-level directory for libc.</li>
+<li><code>-Wl,--import-memory</code> Import memory from JavaScript, rather than creating it internally.</li>
+</ul>
+<p>After issuing the command, a new 1,409-byte file, <code>copy.wasm</code>, should have been created in your working directory.</p>
+<h2 id="webassemblyjavascriptandmemory">WebAssembly, JavaScript, and Memory</h2>
+<p>The newly-compiled <code>copy</code> function can be tested with the following HTML:</p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-comment">&lt;!-- copy.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
+      <span class="hljs-comment">// allow use of async/await</span>
+      (<span class="hljs-keyword">async</span> () =&gt; {
+        <span class="hljs-comment">// Build the WebAssembly instance.</span>
+        <span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> WebAssembly.Memory({ <span class="hljs-attr">initial</span>: <span class="hljs-number">2</span> });
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'./copy.wasm'</span>);
+        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
+        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, {
+          <span class="hljs-attr">env</span>: { memory }
+        });
+
+        <span class="hljs-comment">// Text to copy.</span>
+        <span class="hljs-keyword">const</span> text = <span class="hljs-string">'Hello from JavaScript!'</span>;
+
+        <span class="hljs-comment">// Configure shared memory.</span>
+        <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
+        <span class="hljs-keyword">const</span> pInput = instance.exports.__heap_base;
+        <span class="hljs-keyword">const</span> pOutput = pInput + <span class="hljs-number">1024</span>;
+
+        encode(view, pInput, text);
+
+        <span class="hljs-comment">// Read the result.</span>
+        <span class="hljs-keyword">const</span> bytesCopied = instance.exports.copy(pInput, pOutput, text.length);
+
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'copy length'</span>, bytesCopied);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'copy'</span>, decode(view, pOutput));
+      })();
+
+      <span class="hljs-comment">// Encode string into memory starting at address base.</span>
+      <span class="hljs-keyword">const</span> encode = <span class="hljs-function">(<span class="hljs-params">memory, base, string</span>) =&gt;</span> {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; string.length; i++) {
+          memory[base + i] = string.charCodeAt(i);
+        }
+
+        memory[base + string.length] = <span class="hljs-number">0</span>;
+      };
+
+      <span class="hljs-comment">// Decode a string from memory starting at address base.</span>
+      <span class="hljs-keyword">const</span> decode = <span class="hljs-function">(<span class="hljs-params">memory, base</span>) =&gt;</span> {
+        <span class="hljs-keyword">let</span> cursor = base;
+        <span class="hljs-keyword">let</span> result = <span class="hljs-string">''</span>;
+
+        <span class="hljs-keyword">while</span> (memory[cursor] !== <span class="hljs-number">0</span>) {
+          result += <span class="hljs-built_in">String</span>.fromCharCode(memory[cursor++]);
+        }
+
+        <span class="hljs-keyword">return</span> result;
+      };
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>In addition to testing the copy function, the example above illustrates how WebAssembly and JavaScript interact. The focus of this interaction is a block of memory accessible to both environments (called <code>view</code> in the example). From the JavaScript side, this memory can be manipulated as a typed array. From the C side, this array looks like regular memory. For details, see this <a href="https://hacks.mozilla.org/2017/07/memory-in-webassembly-and-why-its-safer-than-you-think/">essential introduction</a> by Mozilla.</p>
+<p>I may come as a surprise, but WebAssembly functions only accept integer arguments. This raises the question of how complex data types should be shuttled back and forth. As the example demonstrates, an integer argument can be used as a pointer to a region of shared JavaScript/WebAssembly memory from which strings and more complex data types can be encoded/decoded.</p>
+<h2 id="memoryallocation">Memory Allocation</h2>
+<p>You probably noticed that the previous example cheated somewhat with memory allocation. Every WebAssembly module instance has a property called <code>__heap_base</code> that points to the start of the heap. The previous example simply passed this index as the address of the input buffer, and an offset as the address of the output buffer. Conflict could arise should the WebAssembly module and JavaScript compete for the same regions of memory.</p>
+<p>Fortunately, a WebAssembly module compiled from C that manages memory with <code>malloc</code> and/or <code>free</code> will expose these function to the JavaScript environment. Your JavaScript code can then use <code>malloc</code> to obtain a safe pointer to WebAssembly shared memory, and <code>free</code> to release it.</p>
+<p>The following code allows this idea to be tested. It accepts a pointer to a character array as input and returns a pointer to an internally-allocated character array as output.</p>
+<pre><code class="hljs c language-c"><span class="hljs-comment">// malloc_copy.c</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-keyword">char</span>* <span class="hljs-title">malloc_copy</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *input)</span>
+</span>{
+    <span class="hljs-keyword">char</span> *result = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">1024</span>);
+
+    <span class="hljs-built_in">strncpy</span>(result, input, <span class="hljs-built_in">strlen</span>(input));
+
+    <span class="hljs-keyword">return</span> result;
+}
+</code></pre>
+<p>This source file can be compiled with:</p>
+<pre><code class="hljs bash language-bash">clang \
+--target=wasm32-unknown-wasi \
+--sysroot /tmp/wasi-libc \
+-nostartfiles \
+-Wl,--import-memory \
+-Wl,--no-entry \
+-Wl,--<span class="hljs-built_in">export</span>-all \
+-o malloc_copy.wasm \
+malloc_copy.c
+</code></pre>
+<p>This should produce a 16 kB wasm file, <code>malloc_copy.wasm</code>, which can be executed with the following HTML:</p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-comment">&lt;!-- malloc_copy.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
+      <span class="hljs-comment">// allow use of async/await</span>
+      (<span class="hljs-keyword">async</span> () =&gt; {
+        <span class="hljs-comment">// Build the WebAssembly instance.</span>
+        <span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> WebAssembly.Memory({ <span class="hljs-attr">initial</span>: <span class="hljs-number">2</span> });
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'./malloc_copy.wasm'</span>);
+        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
+        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, {
+          <span class="hljs-attr">env</span>: { memory }
+        });
+
+        <span class="hljs-comment">// Text to copy.</span>
+        <span class="hljs-keyword">const</span> text = <span class="hljs-string">'Hello from JavaScript!'</span>;
+
+        <span class="hljs-comment">// Configure shared memory.</span>
+        <span class="hljs-keyword">const</span> view1 = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
+        <span class="hljs-keyword">const</span> pInput = instance.exports.malloc(<span class="hljs-number">1024</span>);
+        <span class="hljs-comment">// malloc causes memory to grow, invalidating old view</span>
+        <span class="hljs-keyword">const</span> view2 = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
+
+        encode(view2, pInput, text);
+
+        <span class="hljs-keyword">const</span> pOutput = instance.exports.malloc_copy(pInput, text.length);
+
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'copy'</span>, decode(view2, pOutput));
+
+        <span class="hljs-comment">// Should free pOutput and pInput</span>
+      })();
+
+      <span class="hljs-comment">// Encode string into memory starting at address base.</span>
+      <span class="hljs-keyword">const</span> encode = <span class="hljs-function">(<span class="hljs-params">memory, base, string</span>) =&gt;</span> {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; string.length; i++) {
+          memory[base + i] = string.charCodeAt(i);
+        }
+
+        memory[base + string.length] = <span class="hljs-number">0</span>;
+      };
+
+      <span class="hljs-comment">// Decode a string from memory starting at address base.</span>
+      <span class="hljs-keyword">const</span> decode = <span class="hljs-function">(<span class="hljs-params">memory, base</span>) =&gt;</span> {
+        <span class="hljs-keyword">let</span> cursor = base;
+        <span class="hljs-keyword">let</span> result = <span class="hljs-string">''</span>;
+
+        <span class="hljs-keyword">while</span> (memory[cursor] !== <span class="hljs-number">0</span>) {
+          result += <span class="hljs-built_in">String</span>.fromCharCode(memory[cursor++]);
+        }
+
+        <span class="hljs-keyword">return</span> result;
+      };
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>The appearance of <code>view2</code> deserves explanation. WebAssembly allows an instance's memory to grow during execution. Calling <code>malloc</code> from JavaScript triggers a resize, which invalidates <code>view1</code>. Any attempt to read or write it will result in the error:</p>
+<pre><code class="hljs bash language-bash">Unhandled Promise Rejection: TypeError: Underlying ArrayBuffer has been detached from the view
+</code></pre>
+<p>The instance's memory can be made readable and writable again by creating a new view, <code>view2</code>.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>It's now possible to compile C source files to WebAssembly with a stock LLVM toolchain devoid of Emscripten. With some extra effort, the C standard library can be included. Data can be passed into and out of a WebAssembly instance by treating pointers as indexes into a JavaScript typed array view.</p>
+<p>Unlike Emscripten, this approach to compiling WebAssembly introduces no glue JavaScript code. This means paying for only what's used. On the other hand, the approach does require some thought and work to supply the missing integration points. Fortunately, these are not too difficult to implement.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

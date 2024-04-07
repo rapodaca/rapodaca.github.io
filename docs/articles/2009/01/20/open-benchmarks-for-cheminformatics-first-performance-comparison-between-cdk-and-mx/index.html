@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Open Benchmarks for Cheminformatics: First Performance Comparison Between CDK and MX | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Open Benchmarks for Cheminformatics: First Performance Comparison Between CDK and MX</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-01-20T00:00:00.000Z">2009-01-20T00:00:00.000Z</time>
+      </header>
+      <p>The previous article in this series discussed <a href="/articles/2009/01/14/open-benchmarks-for-cheminformatics-working-with-japex">Japex in the context of creating open cheminformatics benchmarks</a>. If you're not familiar with it, <a href="https://japex.dev.java.net/">Japex</a> is a microbenchmarking framework written in Java that does for benchmarking what Ant does for building projects. Among its many interesting features is the ability to generate bar charts for performance comparisions.</p>
+<p>Recently I finished building <a href="http://github.com/rapodaca/cheminfbenchmark/commit/106b561b9f7df7316bf31a3f25ef619e845d3efd">the first direct performance comparison</a> between <a href="http://cdk.sf.net">CDK</a> and <a href="http://metamolecular.com/mx/">MX</a>, two open source cheminformatics toolkits. The chart below summarizes the test.</p>
+<p><img src="/images/posts/20090119/benchmark/testcase0.jpg" alt="Benchmark" title="Benchmark"></p>
+<p>You can <a href="/images/posts/20090119/benchmark/index.html">read the full report for yourself here</a>. This test compares the relative speed of loading <a href="http://github.com/rapodaca/cheminfbenchmark/raw/9e7915b35c8da460ed6efed4f931ede6751d5baf/data/pubchem_sample_33.sdf">a 33-record SD file</a> and summing the calculated molecular masses from each record. As you can see, CDK is about 19% faster than MX on the system I looked at.</p>
+<p>It should be pointed out that I'm no expert with Japex, so it's possible that I've introduced a source of error into this comparison that could affect the outcome.</p>
+<p>Benchmarking is clearly a process, not an endpoint. In the months ahead, expect to see many more benchmarking comparisons, both between MX and other toolkits, and within MX itself.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

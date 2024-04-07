@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns:extrep="http://www.sun.com/japex/extendedTestSuiteReport" xmlns:suite="http://www.sun.com/japex/testSuite" xmlns:rep="http://www.sun.com/japex/testSuiteReport" xmlns="http://www.w3.org/1999/xhtml">
+<link href="report.css" type="text/css" rel="stylesheet"/>
+<body>
+<table border="0" cellpadding="2">
+<tr>
+<td valign="middle" width="90">
+<p>
+<a href="https://japex.dev.java.net">
+<img src="small_japex.gif" align="middle" border="0"/>
+</a>
+</p>
+</td>
+<td valign="middle">
+<h1>Japex Report: CheminfoBench</h1>
+</td>
+</tr>
+</table>
+<h2>Global Parameters</h2>
+<ul>
+<li>configFile: <a href="mx-cdk-substructure.xml">mx-cdk-substructure.xml</a>
+</li>
+<li>chartType: barchart</li>
+<li>classPath: build/classes</li>
+<li>dateTime: 22 Jan 2009/07:34:59 PST</li>
+<li>hostName: jupiter</li>
+<li>numberOfCpus: 2</li>
+<li>numberOfThreads: 1</li>
+<li>osArchitecture: i386</li>
+<li>osName: Linux</li>
+<li>plotDrivers: false</li>
+<li>plotGroupSize: 5</li>
+<li>reportsDirectory: build/reports</li>
+<li>resultAxis: normal</li>
+<li>resultAxisX: normal</li>
+<li>resultUnit: ms</li>
+<li>runIterations: 10</li>
+<li>runsPerDriver: 1</li>
+<li>version: 1.1.0</li>
+<li>vmInfo: Sun Microsystems Inc. 1.5.0_16-b02</li>
+<li>warmupIterations: 10</li>
+<li>warmupsPerDriver: 0</li>
+</ul>
+<h2>Result Summary 
+        (ms)</h2>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th width="15%">
+<b>driver</b>
+</th>
+<th>
+<b>resultAritMean</b>
+</th>
+<th>
+<b>resultGeomMean</b>
+</th>
+<th>
+<b>resultHarmMean</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">CDK-1.2.x</td>
+<td align="right">
+<nobr>277.225</nobr>
+</td>
+<td align="right">
+<nobr>277.225</nobr>
+</td>
+<td align="right">
+<nobr>277.225</nobr>
+</td>
+</tr>
+<tr>
+<td align="right">mx-0.108.1</td>
+<td align="right">
+<nobr>58.842</nobr>
+</td>
+<td align="right">
+<nobr>58.842</nobr>
+</td>
+<td align="right">
+<nobr>58.842</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<br/>
+<center>
+<img src="result.jpg"/>
+</center>
+<br/>
+<br/>
+<h2>Driver: CDK-1.2.x</h2>
+<p>
+<ul>
+<li>classPath: build/classes
+./lib/cdk-1.2.x-20090116.jar</li>
+<li>driverClass: net.openmolecules.benchmark.driver.CDKSubstructureBench</li>
+<li>description: Finds all substructures in a set of hydrogen-suppressed structures.</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>inputFile</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">Read 416-Record PubChem SD File and Find All Substructure Matches to Benzene in Each Hydrogen-Suppressed Structure</td>
+<td align="right">
+<nobr>data/pubchem_416_benzenes.sdf</nobr>
+</td>
+<td align="right">
+<nobr>10.000</nobr>
+</td>
+<td align="right">
+<nobr>2.772</nobr>
+</td>
+<td align="right">
+<nobr>277.225</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Driver: mx-0.108.1</h2>
+<p>
+<ul>
+<li>classPath: build/classes
+./lib/mx-0.108.1.jar</li>
+<li>driverClass: net.openmolecules.benchmark.driver.MXSubstructureBench</li>
+<li>description: Finds all substructures in a set of hydrogen-suppressed structures.</li>
+</ul>
+</p>
+<table width="80%" border="1">
+<thead>
+<tr>
+<th>
+<b>testCase</b>
+</th>
+<th>
+<b>inputFile</b>
+</th>
+<th>
+<b>resultIterations</b>
+</th>
+<th>
+<b>resultTime</b>
+</th>
+<th>
+<b>resultValue</b>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">Read 416-Record PubChem SD File and Find All Substructure Matches to Benzene in Each Hydrogen-Suppressed Structure</td>
+<td align="right">
+<nobr>data/pubchem_416_benzenes.sdf</nobr>
+</td>
+<td align="right">
+<nobr>10.000</nobr>
+</td>
+<td align="right">
+<nobr>0.588</nobr>
+</td>
+<td align="right">
+<nobr>58.842</nobr>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>
+<h2>Results Per Test</h2>
+<br/>
+<center>
+<img src="testcase0.jpg"/>
+</center>
+<br/>
+<br/>
+<br/>
+<small>
+<hr/>
+<font size="-2">
+                        Generated using <a href="https://japex.dev.java.net">Japex</a> version 
+                        1.1.0</font>
+</small>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The RDKit/Postgres Ordered Substructure Search Problem | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/08/11/the-rdkit-postgres-ordered-substructure-search-problem/">
+      <meta property="og:title" content="The RDKit/Postgres Ordered Substructure Search Problem">
+      <meta property="og:description" content="Diagnosis and partial solution to a thorny performance issue affecting simple queries.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20210811/summary.png">
+      <meta content="Diagnosis and partial solution to a thorny performance issue affecting simple queries." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The RDKit/Postgres Ordered Substructure Search Problem</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-08-11T15:00:00Z">2021-08-11T15:00:00Z</time>
+      </header>
+      <p><a href="/articles/2021/07/28/rdkit-postgres-cartridge/">The RDKit Postgres extension</a> ("the extension") enables fast chemical substructure queries in plain SQL. Convenience is the main selling point of this utility, which allows low-level data processing to stay within the database layer of an application. While evaluating RDKit for use in a revamped commercial product, I uncovered an easily-detected, show-stopping performance issue that to my knowledge has never been documented before. This article summarizes what I found, and presents a workaround that may or may not be suitable for production environments.</p>
+<p>Before we begin, a disclaimer: I don't know what I don't know. It's quite possible that I'm missing something too obvious to document. Or that I'm misunderstanding the issues entirely. Keep these points (and <a href="https://en.wikipedia.org/wiki/Ward_Cunningham#%22Cunningham's_Law%22">Cunningham's Law</a>) in mind when reading the following account.</p>
+<h2 id="thegoal">The Goal</h2>
+<p>The goal of this study was to use the extension to search a collection of 100,000 small molecules by substructure, ordering the results by increasing molecular weight. Such a query could be used with a large database backing an online structure search system in which some scalar, such as molecular weight, is associated with relevance. Sorting allows the most relevant hits to appear first, which can be crucial when techniques such as <a href="https://use-the-index-luke.com/no-offset">keyset pagination</a> are used.</p>
+<h2 id="thesystem">The System</h2>
+<p>A table having 100,000 rows was prepared using a procedure similar to the one <a href="/articles/2021/07/28/rdkit-postgres-cartridge/">previously reported</a> and described in detail at the end of this article. The specifications for the DBMS itself were:</p>
+<ul>
+<li>Postgres 12.3</li>
+<li>RDKit extension 0.74.0 compiled for Linux</li>
+<li>database run in Docker from <a href="https://hub.docker.com/r/mcs07/postgres-rdkit">this image</a></li>
+<li>stock install with no customizations</li>
+</ul>
+<p>The table contained the following columns and indexes:</p>
+<pre><code class="hljs sql language-sql">\d molecules
+<span class="hljs-comment">--                              Table "public.molecules"</span>
+<span class="hljs-comment">--  Column |   Type    | Collation | Nullable |                Default                </span>
+<span class="hljs-comment">-- --------+-----------+-----------+----------+---------------------------------------</span>
+<span class="hljs-comment">--  id     | integer   |           | not null | nextval('molecules_id_seq'::regclass)</span>
+<span class="hljs-comment">--  mol    | mol       |           | not null | </span>
+<span class="hljs-comment">--  mw     | numeric   |           | not null | </span>
+<span class="hljs-comment">--  fp     | bit(1024) |           |          | </span>
+<span class="hljs-comment">-- Indexes:</span>
+<span class="hljs-comment">--     "molecules_pkey" PRIMARY KEY, btree (id)</span>
+<span class="hljs-comment">--     "molecules_mol" gist (mol)</span>
+<span class="hljs-comment">--     "molecules_mw" btree (mw)</span>
+</code></pre>
+<p>Query timings were those reported Postgres:</p>
+<pre><code class="hljs sql language-sql">\timing
+<span class="hljs-comment">-- Timing is on.</span>
+</code></pre>
+<h2 id="orderedandunorderedsubstructuresearch">Ordered and Unordered Substructure Search</h2>
+<p>Substructure-only queries were uniformly fast, typically executing within 10 ms regardless of the SMILES used. Benzene was tested as a particularly tough case in that <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases/">fingerprint prescreening</a> is likely to filter few candidates.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">25</span>;
+<span class="hljs-comment">--                            mol                            |   mw    </span>
+<span class="hljs-comment">-- ----------------------------------------------------------+---------</span>
+<span class="hljs-comment">--  CCNC(=O)C1(Cc2cccc(-c3ccccc3)c2)CCN(C(=O)CC)CC1          | 378.516</span>
+<span class="hljs-comment">--  CCNC(=O)C1(Cc2cccc(-c3ccccc3)c2)CCN(C(=O)C(C)C)CC1       | 392.543</span>
+<span class="hljs-comment">-- ...</span>
+<span class="hljs-comment">-- Time: 8.541 ms</span>
+</code></pre>
+<p>Surprisingly, the same query with an <code>ORDER BY</code> clause increased the time to completion by over 200-fold:</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<span class="hljs-comment">--            mol           |   mw    </span>
+<span class="hljs-comment">-- -------------------------+---------</span>
+<span class="hljs-comment">--  C=C=Cc1ccccc1           | 116.163</span>
+<span class="hljs-comment">--  C=Cc1cccc(O)c1          | 120.151</span>
+<span class="hljs-comment">-- ...</span>
+<span class="hljs-comment">-- Time: 1975.443 ms (00:01.975)</span>
+</code></pre>
+<p>In general, the more feature-rich the query SMILES, the faster the query. This didn't always correlate with molecular weight. For example, a search for acyl chlorides (<code>C(=O)Cl</code>) finished with comparable times in unordered and ordered form (5.96 ms and 6.30 ms, respectively).</p>
+<p>The slow ordered query response for benzene and other simple substructures appears to scale linearly with the number of records. Given a table of 1M rows (10x larger), the ordered benzene query returned in 25 seconds (10x slower), whereas the unordered benzene query returned in fewer than 10 ms. Response times longer than one second represent the upper bound of acceptable performance for the system I'm looking at. Such poor performance for ordered substructure queries is unexpected in light of the fast responses seen across the board with unordered queries.</p>
+<p>Something is causing Postgres to do the wrong thing, but what is it?</p>
+<h2 id="diagnosisattempts">Diagnosis Attempts</h2>
+<p>Postgres comes with a suite of tools for diagnosing performance issues. In particular, <a href="https://www.postgresql.org/docs/12/sql-explain.html"><code>EXPLAIN ANALYZE</code></a> can give insights into specific steps used to execute a query, including the indexes and algorithms used.</p>
+<p>For example, running <code>EXPLAIN ANALYZE</code> on an unordered benzene substructure query revealed that Postgres used the RDKit index as expected:</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">25</span>;
+<span class="hljs-comment">--                                                               QUERY PLAN                                                              </span>
+<span class="hljs-comment">-- --------------------------------------------------------------------------------------------------------------------------------------</span>
+<span class="hljs-comment">--  Limit  (cost=0.28..106.72 rows=25 width=403) (actual time=0.608..1.551 rows=25 loops=1)</span>
+<span class="hljs-comment">--    -&gt;  Index Scan using molecules_mol on molecules  (cost=0.28..426.03 rows=100 width=403) (actual time=0.607..1.544 rows=25 loops=1)</span>
+<span class="hljs-comment">--          Index Cond: (mol @&gt; 'c1ccccc1'::mol)</span>
+<span class="hljs-comment">--  Planning Time: 0.081 ms</span>
+<span class="hljs-comment">--  Execution Time: 1.698 ms</span>
+<span class="hljs-comment">-- (5 rows)</span>
+</code></pre>
+<p>The <a href="https://www.postgresql.org/docs/9.3/index-scanning.html">Index Scan</a> node tells us that that <code>molecules_mol</code> index is being used, as expected.</p>
+<p>A different kind of report resulted from running <code>EXPLAIN ANALYZE</code> on the same substructure query, but ordered by molecular weight:</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<span class="hljs-comment">--                                                                 QUERY PLAN                                                                 </span>
+<span class="hljs-comment">-- -------------------------------------------------------------------------------------------------------------------------------------------</span>
+<span class="hljs-comment">--  Limit  (cost=388.74..388.80 rows=25 width=403) (actual time=1925.578..1925.582 rows=25 loops=1)</span>
+<span class="hljs-comment">--    -&gt;  Sort  (cost=388.74..388.99 rows=100 width=403) (actual time=1925.576..1925.578 rows=25 loops=1)</span>
+<span class="hljs-comment">--          Sort Key: mw</span>
+<span class="hljs-comment">--          Sort Method: top-N heapsort  Memory: 41kB</span>
+<span class="hljs-comment">--          -&gt;  Bitmap Heap Scan on molecules  (cost=25.05..385.92 rows=100 width=403) (actual time=48.888..1879.645 rows=66316 loops=1)</span>
+<span class="hljs-comment">--                Recheck Cond: (mol @&gt; 'c1ccccc1'::mol)</span>
+<span class="hljs-comment">--                Rows Removed by Index Recheck: 3752</span>
+<span class="hljs-comment">--                Heap Blocks: exact=5366</span>
+<span class="hljs-comment">--                -&gt;  Bitmap Index Scan on molecules_mol  (cost=0.00..25.03 rows=100 width=0) (actual time=48.138..48.138 rows=70068 loops=1)</span>
+<span class="hljs-comment">--                      Index Cond: (mol @&gt; 'c1ccccc1'::mol)</span>
+<span class="hljs-comment">--  Planning Time: 0.109 ms</span>
+<span class="hljs-comment">--  Execution Time: 1925.723 ms</span>
+<span class="hljs-comment">-- (12 rows)</span>
+</code></pre>
+<p>Although both columns, <code>mol</code> and <code>mw</code> are indexed, Postgres only uses the one on <code>mol</code>. The index on <code>mw</code>, which otherwise would be used for sorting efficiently, is ignored. In its place, the query planner opts for a much less efficient "top-N heapsort". The use of heapsort instead of an index scan causes the slowdown, as we'll soon see.</p>
+<p>Understanding complex query plans like this can take some practice. Fortunately, there are some good resources. One of them, an online course from the University of Tübingen, deals with understanding a query plan similar to what see above.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/UXKYAZOWDgk" allowfullscreen=""></iframe>
+</div>
+<p>Important takeaways from the query plan:</p>
+<ul>
+<li>There are no "lossy" heap blocks, meaning that the bitmap created from the index scan fits entirely into working memory (<code>work_mem</code>). Fiddling with this parameter, as is often recommended, will not help.</li>
+<li>The Bitmap Index Scan has to deal with 70,068 rows, which is over half of them.</li>
+<li>The heapsort has to deal with 66,316 rows.</li>
+</ul>
+<p>We gain additional insights from the query plan for the substructure search on acyl chlorides (<code>C(=O)Cl</code>).</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'C(=O)Cl'</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<span class="hljs-comment">--                                                               QUERY PLAN                                                              </span>
+<span class="hljs-comment">-- --------------------------------------------------------------------------------------------------------------------------------------</span>
+<span class="hljs-comment">--  Limit  (cost=388.74..388.80 rows=25 width=403) (actual time=0.747..0.750 rows=17 loops=1)</span>
+<span class="hljs-comment">--    -&gt;  Sort  (cost=388.74..388.99 rows=100 width=403) (actual time=0.746..0.747 rows=17 loops=1)</span>
+<span class="hljs-comment">--          Sort Key: mw</span>
+<span class="hljs-comment">--          Sort Method: quicksort  Memory: 30kB</span>
+<span class="hljs-comment">--          -&gt;  Bitmap Heap Scan on molecules  (cost=25.05..385.92 rows=100 width=403) (actual time=0.261..0.722 rows=17 loops=1)</span>
+<span class="hljs-comment">--                Recheck Cond: (mol @&gt; 'O=CCl'::mol)</span>
+<span class="hljs-comment">--                Heap Blocks: exact=14</span>
+<span class="hljs-comment">--                -&gt;  Bitmap Index Scan on molecules_mol  (cost=0.00..25.03 rows=100 width=0) (actual time=0.204..0.204 rows=17 loops=1)</span>
+<span class="hljs-comment">--                      Index Cond: (mol @&gt; 'O=CCl'::mol)</span>
+<span class="hljs-comment">--  Planning Time: 0.096 ms</span>
+<span class="hljs-comment">--  Execution Time: 0.841 ms</span>
+<span class="hljs-comment">-- (11 rows)</span>
+</code></pre>
+<p>Regardless of the substructure query, the planner has decided to favor an outer sort over an index scan to deliver the ordering required by substructure queries. Given a sufficiently precise query (and correspondingly dense fingerprint), that works out well. However, in the case of vague queries with sparse fingerprints, it does not.</p>
+<p>Before explaining the workaround, a few words on things that didn't work are in order.</p>
+<h2 id="thingsthatdidntwork">Things that Didn't Work</h2>
+<p>Advice for optimizing Postgres queries often involves increasing memory. Two setting are usually involved:</p>
+<ul>
+<li><code>work_mem</code>. As noted previously, one thing held in working memory is bitmaps. The query planner has already told us that there is plenty of this kind of memory. Unsurprisingly, adjusting <code>work_mem</code> upward had no effect.</li>
+<li><code>shared_buffers</code>. As noted by <a href="https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server">the Wiki</a>, this setting "determines how much memory is dedicated to PostgreSQL to use for caching data."</li>
+</ul>
+<p>To explore the possibility that increasing <code>shared_buffers</code> might persuade Postgres to start using the <code>mw</code> index, <code>shared_buffers</code> was adjusted upward from the default of 128 MB to 2048 MB. This had no effect on the query plan or execution time.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> shared_buffers <span class="hljs-keyword">to</span> <span class="hljs-string">'2048MB'</span>;
+<span class="hljs-comment">-- exit, then restart</span>
+</code></pre>
+<p>Perhaps the query planner needs a two-column index on <code>mw</code> and <code>mol</code>. Although the documentation makes it clear that this should not be necessary, various sources suggest that it could be. Regardless, setting a two column index did not lead to faster queries. Doing this was a little tricky because <code>mw</code> requires a b-tree index whereas <code>mol</code> requires a GIST index. The two types can't ordinarily be mixed in a multicolumn index. However, this can be corrected by installing the <a href="https://www.postgresql.org/docs/9.1/btree-gist.html">btree_gist extension</a>.</p>
+<h2 id="aworkaround">A Workaround</h2>
+<p>If the query planner insists of sorting, is there a way to disable it? It turns out that Postgres supports the boolean parameter <code>enable_sort</code>. According to the <a href="https://www.postgresql.org/docs/9.5/runtime-config-query.html">documentation</a>, <code>enable_sort</code>:</p>
+<blockquote>
+  <p>Enables or disables the query planner's use of explicit sort steps. It is impossible to suppress explicit sorts entirely, but turning this variable off discourages the planner from using one if there are other methods available. The default is on.</p>
+</blockquote>
+<p>This parameter defaults to "on". It can be turned off as follows:</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-comment">-- https://stackoverflow.com/a/63796329/54426</span>
+<span class="hljs-keyword">set</span> enable_sort=<span class="hljs-keyword">off</span>;
+</code></pre>
+<p>The effect was dramatic, and similar response times were seen with or without the <code>ORDER BY</code> clause:</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<span class="hljs-comment">--            mol           |   mw    </span>
+<span class="hljs-comment">-- -------------------------+---------</span>
+<span class="hljs-comment">--  C=C=Cc1ccccc1           | 116.163</span>
+<span class="hljs-comment">--  C=Cc1ccccc1O            | 120.151</span>
+<span class="hljs-comment">--  ...</span>
+<span class="hljs-comment">--  Time: 14.705 ms</span>
+</code></pre>
+<p>Instead of a sort, the planner now uses both indexes as expected:</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<span class="hljs-comment">--                                                               QUERY PLAN                                                               </span>
+<span class="hljs-comment">-- ---------------------------------------------------------------------------------------------------------------------------------------</span>
+<span class="hljs-comment">--  Limit  (cost=0.42..6145.87 rows=25 width=403) (actual time=2.043..6.476 rows=25 loops=1)</span>
+<span class="hljs-comment">--    -&gt;  Index Scan using molecules_mw on molecules  (cost=0.42..24582.23 rows=100 width=403) (actual time=2.041..6.466 rows=25 loops=1)</span>
+<span class="hljs-comment">--          Filter: (mol @&gt; 'c1ccccc1'::mol)</span>
+<span class="hljs-comment">--          Rows Removed by Filter: 355</span>
+<span class="hljs-comment">--  Planning Time: 0.092 ms</span>
+<span class="hljs-comment">--  Execution Time: 6.528 ms</span>
+<span class="hljs-comment">-- (6 rows)</span>
+</code></pre>
+<p>As an aside, the above query plan was also returned without adjusting <code>enable_sort</code> when the number of rows was 10,000 instead of the 100,000 used here. It's possible that adjusting some other, less-invasive Postgres operational parameter would address the ordered substructure query problem in a better way.</p>
+<p>Globally setting <code>enable_sort</code> is probably not a good idea, but fortunately, it can be set on a per-transaction basis. After completion of the transaction, <code>enable_sort</code> is restored to its default setting of "off".</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">BEGIN</span>;
+<span class="hljs-keyword">SET</span> <span class="hljs-keyword">LOCAL</span> enable_sort = <span class="hljs-keyword">off</span>;
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<span class="hljs-keyword">COMMIT</span>;
+<span class="hljs-comment">-- BEGIN</span>
+<span class="hljs-comment">-- Time: 2.565 ms</span>
+<span class="hljs-comment">-- SET</span>
+<span class="hljs-comment">-- Time: 4.357 ms</span>
+<span class="hljs-comment">--            mol           |   mw    </span>
+<span class="hljs-comment">-- -------------------------+---------</span>
+<span class="hljs-comment">--  C=C=Cc1ccccc1           | 116.163</span>
+<span class="hljs-comment">--  C=Cc1ccccc1O            | 120.151</span>
+<span class="hljs-comment">-- ...</span>
+<span class="hljs-comment">-- Time: 11.117 ms</span>
+<span class="hljs-comment">-- COMMIT</span>
+<span class="hljs-comment">-- Time: 3.667 ms</span>
+
+<span class="hljs-keyword">show</span> enable_sort;
+<span class="hljs-comment">--  enable_sort </span>
+<span class="hljs-comment">-- -------------</span>
+<span class="hljs-comment">--  on</span>
+<span class="hljs-comment">-- (1 row)</span>
+</code></pre>
+<p>What about larger databases? The workaround does the trick there as well. In a similarly-constructed database of 1M eMolecules records, unsetting <code>enable_sort</code> results in queries on the order of 10-20 ms compared to queries in the 20-30 second range without the workaround.</p>
+<p>It's possible that the problem lies with the RDKit extension itself. My reading of the documentation suggests that it is the duty of extensions to provide the planner with the information needed to estimate costs. This takes the form of a "Scan Provider." Perhaps the extension's Scan Provider is faulty, or not implemented. <a href="https://wiki.postgresql.org/wiki/CustomScanInterface">The Wiki</a> has this to say on the topic:</p>
+<blockquote>
+  <p>Prior to query execution, the PostgreSQL planner constructs a plan tree that usually consists of built-in plan nodes (IE: SeqScan, HashJoin, etc). The custom-scan interface allows extensions to create a custom-scan provider that implements its own logic, in addition to the built-in nodes, for scanning relations. If a custom-scan node is chosen by the planner, callback functions associated with this custom-scan node shall be invoked during query execution. The custom-scan provider is responsible for returning equivalent result set as built-in logic would, but it is free to scan the relation according to its own logic.</p>
+  <p>This chapter explains how to write a custom-scan provider.</p>
+</blockquote>
+<h2 id="otherwork">Other Work</h2>
+<p>Perhaps the most surprising thing about the ordered substructure query problem is that it has never been documented before, at least to my knowledge. I did find hints, but nothing like what's outlined here — not even a recognition of the problem.</p>
+<ul>
+<li><a href="http://rdkit.blogspot.com/2013/11/substructure-fingerprints-and-cartridge.html">Substructure fingerprints and the PostgreSQL cartridge</a>. A blog post from 2013 discussing the performance gains from using fingerprint indexes. However, no discussion of sorting appears.</li>
+<li><a href="http://rdkit.blogspot.com/2013/11/substructure-fingerprints-and-chembl.html">Substructure fingerprints and the PostgreSQL cartridge 2: Application to ChEMBL</a>. Follow up post that also never mentions sorting substructure queries.</li>
+<li><a href="https://sourceforge.net/p/rdkit/mailman/rdkit-discuss/thread/CAKwxoo6m9y2cb65qiotPFwMxCBTP5S%3D2BLQ08XPe-wAUbYNgyw%40mail.gmail.com/#msg32604355">[Rdkit-discuss] Need for speed -- postgresql / rdkit use of indices(/indexes)</a>. An email thread from 2014 discussing slow queries with structures like benzene on unlimited, unordered, large databases. Discusses query plan, the abandonment of indexes, and moderately successful interventions.</li>
+</ul>
+<h2 id="resources">Resources</h2>
+<p>For understanding Postgres indexes, query plans, and performance, I can recommend these resources:</p>
+<ul>
+<li><a href="https://github.com/evgeniy-khist/postgresql-performance-essentials">PostgreSQL Performance Essentials in 1 Hour</a></li>
+<li><a href="https://www.youtube.com/watch?v=pq8KHeqS2NU">University of Tübingen DB 2 Course (Internals of Relational Database Systems)</a></li>
+</ul>
+<h2 id="buildingthedatabase">Building the Database</h2>
+<p>The database was built from a subset of the <a href="https://downloads.emolecules.com/free/">eMolecules public download files</a>. First, obtain the raw data:</p>
+<pre><code class="hljs bash language-bash">wget https://downloads.emolecules.com/free/2021-07-01/version.smi.gz
+</code></pre>
+<p>With an unmodified instance of the extension running on Postgres in a Docker container, create the database, extension, and raw data table. Then populate this table with the first 100,000 entries from the eMolecules set.</p>
+<pre><code class="hljs bash language-bash">createdb emolecules
+psql -c <span class="hljs-string">'create extension rdkit'</span> emolecules
+psql -c <span class="hljs-string">'create table raw_data(id SERIAL, smiles text, version_id integer, parent_id integer);'</span> emolecules
+zcat &lt; ./version.smi.gz | sed <span class="hljs-string">'1d; s/\\/\\\\/g'</span> | head -n 1000000 | psql -c <span class="hljs-string">"copy raw_data (smiles,version_id,parent_id) from stdin with delimiter ' '"</span> emolecules
+</code></pre>
+<p>Log into Postgres, then place the processed raw data into a new table, <code>molecules</code>.</p>
+<pre><code class="hljs">psql emolecules
+psql (13.3,<span class="hljs-built_in"> server </span>12.3 (Debian 12.3-1.pgdg100+1))<span class="hljs-built_in">
+Type </span><span class="hljs-string">"help"</span> <span class="hljs-keyword">for</span> help.
+
+<span class="hljs-attribute">emolecules</span>=# select count(*) <span class="hljs-keyword">from</span> raw_data;
+  count  
+---------
+ 1000000
+(1 row)
+</code></pre>
+<p>Now create the <code>molecules</code> table.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> molecules (<span class="hljs-keyword">id</span> <span class="hljs-built_in">SERIAL</span> PRIMARY <span class="hljs-keyword">KEY</span>,
+                        mol mol <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+                        mw <span class="hljs-built_in">NUMERIC</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+                        fp <span class="hljs-built_in">bit</span>(<span class="hljs-number">1024</span>)
+                       );
+</code></pre>
+<p>Populate the <code>molecules</code> table with source data from the <code>raw_data</code> table.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> molecules
+<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">nextval</span>(<span class="hljs-string">'molecules_id_seq'</span>),
+       mols.mol <span class="hljs-keyword">as</span> mol,
+       mol_amw(mols.mol) <span class="hljs-keyword">as</span> mw,
+       <span class="hljs-keyword">right</span>(bfp_to_binary_text(rdkit_fp(mols.mol))::<span class="hljs-built_in">text</span>, <span class="hljs-number">-1</span>)::<span class="hljs-built_in">bit</span>(<span class="hljs-number">1024</span>) <span class="hljs-keyword">as</span> fp
+  <span class="hljs-keyword">FROM</span> (<span class="hljs-keyword">SELECT</span> mol_from_smiles(smiles::cstring) <span class="hljs-keyword">as</span> mol
+          <span class="hljs-keyword">FROM</span> raw_data
+         <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">100000</span>
+       ) <span class="hljs-keyword">as</span> mols
+ <span class="hljs-keyword">WHERE</span> mol <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>;
+</code></pre>
+<p>This takes a few minutes. On completion, 100,000 records will be present in the <code>molecules</code> table.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">select</span> <span class="hljs-keyword">count</span>(*) <span class="hljs-keyword">from</span> molecules;
+<span class="hljs-comment">--  count  </span>
+<span class="hljs-comment">-- --------</span>
+<span class="hljs-comment">--  100000</span>
+<span class="hljs-comment">-- (1 row)</span>
+</code></pre>
+<p>Finally, create indexes on the <code>mol</code> (molecule) and <code>mw</code> (molecular weight) columns.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">INDEX</span> molecules_mol <span class="hljs-keyword">ON</span> molecules <span class="hljs-keyword">USING</span> gist(mol);
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">INDEX</span> molecules_mw <span class="hljs-keyword">on</span> molecules <span class="hljs-keyword">USING</span> btree(mw);
+</code></pre>
+<p>The procedure can be repeated with a higher <code>LIMIT</code> to insert more rows into the <code>molecules</code> table.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The RDKit Postgres extension can be an extremely useful tool for building data-centric applications. For simple unordered structure queries of the kind presented in tutorials, it performs uniformly well. However, in some situations, the interaction between the extension and the query planner can lead to surprisingly bad performance. This article highlighted one such case. The problem was diagnosed and resolved through a workaround. However, the generality of this solution remains to be seen. It's possible that a more robust solution will require changes to the extension itself, or a different approach altogether.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

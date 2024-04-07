@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JavaScript for Cheminformatics - Cross-Compiling Java to JavaScript with GWT Revisited | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>JavaScript for Cheminformatics - Cross-Compiling Java to JavaScript with GWT Revisited</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-01-06T00:00:00.000Z">2009-01-06T00:00:00.000Z</time>
+      </header>
+      <p>Wouldn't it be great to be able to cross-compile your Java cheminformatics source code to plain old JavaScript files to be used in your Web applications without plugins? JavaScript is the most widely-deployed runtime environment in existence; on today's Web it's one of the few things you can count on being there. Java is one of the most advanced programming languages in existence, with a mountain of developer tools and libraries.</p>
+<p>All of which makes the <a href="/articles/2008/12/09/javascript-for-cheminformatics-cross-compiling-java-to-javascript-with-gwt">development of software in Java and its deployment via JavaScript</a> an attractive option. Until recently, very few examples of <a href="/articles/2008/07/15/javascript-for-cheminformatics">using JavaScript for low-level cheminformatics functionality</a> were available. This is starting to change.</p>
+<h2 id="demonstrations">Demonstrations</h2>
+<p>Last month, <a href="http://chemhack.com/">Duan Lian</a> showed that cross-compiling Java cheminformatics libraries to JavaScript is indeed now possible. His two proofs of concept give hints as to what may soon become routine:</p>
+<ul>
+<li><a href="http://code.google.com/p/mx-gwt/">MX-GWT</a> An <a href="http://chemhack.com/mx-gwt/">online demo</a> shows that molecular weight can be calculated from a molfile without any plugins.</li>
+<li><a href="http://chemhack.com/mx-gwt/demo-molecule-structure-rendering/">Demo Molecule Structure Rendering</a> This remarkable online demo uses a pure-JavaScript cheminformatics toolkit to render color 2D chemical structures from molfiles independent of a Java runtime.</li>
+</ul>
+<p>Both of these demos make use of <a href="http://code.google.com/p/mx-java/">MX</a>, the lightweight, platform-independent, cross-language (<a href="/articles/2008/11/24/getting-started-with-mx">link</a>, <a href="/articles/2008/12/01/open-source-cheminformatics-in-python-with-mx">link</a>) cheminformatics toolkit. Using the <a href="http://code.google.com/webtoolkit/">Google Web Toolkit</a> (GWT), Duan compiled MX into pure JavaScript that can be run in a browser without any plugins.</p>
+<h2 id="stillmoredemonstrations">Still More Demonstrations</h2>
+<p>Recently, <a href="http://baoilleach.blogspot.com/">Noel O'Boyle</a> upped the ante by demonstrating a <a href="http://www.redbrick.dcu.ie/~noel/blog/molecproc/">spinning 3D molecular model created in pure JavaScript</a>. His demonstration doesn't yet parse a molfile but rather manually creates the graphical representation.</p>
+<p>In a <a href="https://www.blogger.com/comment.g?blogID=7844526396210378482&amp;postID=4314630511708329016">comment</a> on Noel's work, Richard Hall announced a <a href="http://gist.github.com/43774">simple 2D molecular renderer in pure JavaScript</a>.</p>
+<p>What all of these demonstrations could benefit from is a robust, low-level, pure-JavaScript cheminformatics toolkit.</p>
+<h2 id="theproblemsimplejavatojavascriptcrosscompilation">The Problem: Simple Java to JavaScript Cross-Compilation</h2>
+<p>When used in its most popular mode, GWT isn't just a Java to JavaScript cross-compiler; it's a full-blown method for developing Web sites complete with GUI APIs, HTML and JavaScript output, and a complete project structure.</p>
+<p>In other words, GWT is overkill for the job at hand, which is simply to convert a Java library consisting of a set of source files into one or more JavaScript files.</p>
+<p>I've been trying to understand how to access GWT's low-level JavaScript cross-compiler functionality without the rest of the GWT, with mixed success. The good news is this appears to be one of the ways the creators of GWT envisioned it to be used; the bad news is I've found no documentation describing exactly how to do it.</p>
+<p>Surprisingly, getting this seemingly obvious use case to work is anything but <a href="http://rhjr.net/dto/">obvious</a>. Most documentation dives right into using GWT to build fancy websites. What's needed here is far more basic.</p>
+<p>What would be most helpful would be a step-by-step procedure for compiling a simple HelloWorld.java class into a HelloWorld.js JavaScript file, preferably using only command-line tools:</p>
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HelloWorld</span>
+</span>{
+  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">sayHello</span><span class="hljs-params">()</span>
+  </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"hello"</span>;
+  }
+}
+</code></pre>
+<p>The result could then be used in client-side JavaScript by including the <strong>HelloWorld.js</strong> file and invoking the <code>HelloWorld.sayHello</code> method.</p>
+<p>If you have any experience in this area, I'd be very interested to hear about it. If no guides to solving this simple problem exist, then the first may appear here!</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>A reliable method for cross-compiling Java libraries into JavaScript libraries with GWT would open many new avenues for cheminformatics Web applications. Future articles may detail how this can be accomplished.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

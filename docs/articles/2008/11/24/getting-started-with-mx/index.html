@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Getting Started with MX | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Getting Started with MX</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-11-24T00:00:00.000Z">2008-11-24T00:00:00.000Z</time>
+      </header>
+      <p>Recently, MX was <a href="/articles/2008/11/21/introducing-mx-lightweight-and-free-cheminformatics-tools-for-java">introduced</a> as a lightweight and free cheminformatics toolkit written in Java. There's nothing like real code examples for getting up to speed with a new library. Creating those examples in an environment that makes experimentation easy is even better. This article introduces the basics of MX using the popular Java scripting environment <a href="http://jruby.codehaus.org/">JRuby</a>.</p>
+<h2 id="downloadandinstallingjruby">Download and Installing JRuby</h2>
+<p>If you've never worked with Ruby or JRuby before, you're in for a pleasant surprise; the installation is practically effortless. Here are the steps:</p>
+<ol>
+<li>Download the <a href="http://dist.codehaus.org/jruby/jruby-bin-1.1.5.tar.gz">JRuby binary tarball</a>.</li>
+<li>Untar the JRuby package.</li>
+<li>Set your path to point to the JRuby bin directory.</li>
+</ol>
+<p>On Unix-based systems, create and enter a working directory, then execute the following commands:</p>
+<pre><code class="hljs bash language-bash">wget http://dist.codehaus.org/jruby/jruby-bin-1.1.5.tar.gz
+tar xvf jruby-bin-1.1.5.tar.gz
+<span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:./jruby-1.1.5/bin/
+</code></pre>
+<p>You can test your JRuby installation with:</p>
+<pre><code class="hljs bash language-bash">jruby -v
+jruby 1.1.5 (ruby 1.8.6 patchlevel 114) (2008-11-03 rev 7996) [i386-java]
+</code></pre>
+<h2 id="downloadthemxjarfile">Download the MX Jarfile</h2>
+<p>Installing MX consists of just <a href="http://mx-java.googlecode.com/files/mx-0.103.0.jar">downloading the jarfile</a>. If you're on a Unix system and still in your working directory:</p>
+<pre><code class="hljs bash language-bash">wget http://mx-java.googlecode.com/files/mx-0.103.0.jar
+</code></pre>
+<h2 id="hellobenzene">Hello, Benzene</h2>
+<p>Let's create a benzene molecule using MX:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'mx-0.103.0.jar'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; import com.metamolecular.mx.io.Molecules
+=&gt; Java::ComMetamolecularMxIo::Molecules
+irb(main):003:0&gt; benzene = Molecules.createBenzene
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0x9770a3 @java_object=com.metamolecular.mx.model.DefaultMolecule@1536eec&gt;</span>
+irb(main):004:0&gt; benzene.countAtoms
+=&gt; 6
+</code></pre>
+<p>Here, we've used one of the precompiled molecules available through the static methods of the <code>Molecules</code> class.</p>
+<p>We can also create a <code>Molecule</code> from a molfile in a single line of code using <code>MoleculeKit</code>. Let's grab the <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=3386&amp;loc=ec_rcs">fluoxetine molfile</a> from PubChem and convert it into a molecule:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'mx-0.103.0.jar'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; import com.metamolecular.mx.model.MoleculeKit
+=&gt; Java::ComMetamolecularMxModel::MoleculeKit
+irb(main):003:0&gt; require <span class="hljs-string">'open-uri'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):004:0&gt; molfile = open(<span class="hljs-string">'http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=3386&amp;disopt=DisplaySDF'</span>).<span class="hljs-built_in">read</span>
+=&gt; <span class="hljs-string">"3386\n  -OEChem-11240812312D\n\n 40 41 ..."</span>
+irb(main):005:0&gt; fluoxetine = MoleculeKit.readMolfile molfile, <span class="hljs-literal">true</span>
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0x2b1682 @java_object=com.metamolecular.mx.model.DefaultMolecule@b655a&gt;</span>
+irb(main):006:0&gt; fluoxetine.countAtoms
+=&gt; 22
+</code></pre>
+<p>Here, we've used the ability of <code>MoleculeKit</code> to remove non-stereogenic explicit hydrogens ('virtualizing' them) by setting the second argument of <code>readMolfile</code> to <code>true</code>.</p>
+<h2 id="substructuresearch">Substructure Search</h2>
+<p>Substructure searches are done through an instance of a class implementing the <code>Matcher</code> interface. Currenly, only one such class exists, <code>DefaultMatcher</code>, so we'll use it.</p>
+<p>Let's verify that benzene is a substructure of toluene:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'mx-0.103.0.jar'</span>                     
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; import com.metamolecular.mx.io.Molecules     
+=&gt; Java::ComMetamolecularMxIo::Molecules
+irb(main):003:0&gt; import com.metamolecular.mx.map.DefaultMapper
+=&gt; Java::ComMetamolecularMxMap::DefaultMapper
+irb(main):004:0&gt; benzene = Molecules.createBenzene            
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0xee260b @java_object=com.metamolecular.mx.model.DefaultMolecule@1f68272&gt;</span>
+irb(main):005:0&gt; toluene = Molecules.createToluene            
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0xffa6eb @java_object=com.metamolecular.mx.model.DefaultMolecule@1e8c585&gt;</span>
+irb(main):006:0&gt; mapper = DefaultMapper.new benzene
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxMap::DefaultMapper:0xf0cb3c @java_object=com.metamolecular.mx.map.DefaultMapper@aefcbb&gt;</span>
+irb(main):007:0&gt; mapper.hasMap toluene
+=&gt; <span class="hljs-literal">true</span>
+</code></pre>
+<p>It worked as expected.</p>
+<p><code>Mapper</code> allows us to answer both simple questions like 'Is A a substructure of B?'. It also allows us to answer more complex questions like 'Give me all the matching substructures of A in B'.
+For more information, see <a href="/articles/2008/11/17/substructure-search-from-scratch-in-java-part-1-the-atom-mapping-problem">this article</a> describing the design of the <code>Mapper</code> interface.</p>
+<h2 id="getinvolved">Get Involved</h2>
+<p>Want to know more? Want to report a bug? Want to add your own must-have feature? Want the latest MX?</p>
+<p>You can get involved with MX four ways:</p>
+<ul>
+<li>By <a href="http://code.google.com/p/mx-java/downloads/list">downloading the source</a></li>
+<li>By joining the <a href="http://groups.google.com/group/mx-java">Google group</a></li>
+<li>By <a href="http://code.google.com/p/mx-java/issues/list">reporting a bug or feature request</a></li>
+<li>By <a href="http://github.com/rapodaca/mx/tree/master">developing your own fork</a></li>
+</ul>
+<h2 id="conclusions">Conclusions</h2>
+<p>MX was designed to make simple things simple. In this article we've seen how combining MX with JRuby leads to an environment in which the simple MX API can be explored quickly and easily. Future articles will discuss other ways to use the MX/JRuby combination.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

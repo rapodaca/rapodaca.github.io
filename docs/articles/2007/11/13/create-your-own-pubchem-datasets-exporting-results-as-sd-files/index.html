@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Create Your Own PubChem Datasets - Exporting Results As SD Files | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Create Your Own PubChem Datasets - Exporting Results As SD Files</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-11-13T00:00:00.000Z">2007-11-13T00:00:00.000Z</time>
+      </header>
+      <p>Recently, <a href="/articles/2007/11/12/parsing-sd-files-with-ruby-and-rubidium">I needed to create a subset</a> of the PubChem database in Structure Data File (SD File) format. Although it's far from obvious how to do this, the capability does exist. In this article, I'll give a step-by-step procedure for creating custom datasets in SD File format from arbitrary PubChem structure queries.</p>
+<h2 id="createandexecutethequery">Create and Execute the Query</h2>
+<p>Let's say we want to create a dataset in SD File format containing all N-Boc-protected piperidines registered in PubChem.</p>
+<p>From the main <a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem site</a>, choose the <a href="http://pubchem.ncbi.nlm.nih.gov/search/">Structure Search</a> link. Then click the "Sketch" button.</p>
+<p>Next, draw your molecule in the 2D structure editor:</p>
+<p><img src="/images/posts/20071113/draw.png" alt="Draw" title="Draw"></p>
+<p>Then click the "Done" button.</p>
+<p>Before starting the query (by clicking the "Search" button), be sure to select the "Substructure" option under "Search Type."</p>
+<h2 id="exportingtheresults">Exporting the Results</h2>
+<p>You should now be looking at a screen containing the first few hits of a 7700+ hitset. But how do we export these results in SD Format?</p>
+<p>Next to a field labeled "Display", you'll see a drop-down box containing several different options. Choose the one labeled "PubChem Download."</p>
+<p><img src="/images/posts/20071113/export.png" alt="Export" title="Export"></p>
+<p>You'll be redirected to a download page from which you can select output formats, including SDF, or SD File. You can also select a compression type (datasets of even 2000 records can be quite large uncompressed). For this example, we'll select SDF format with GZip compression.</p>
+<p>Clicking on the "Download" button takes us to a status page that eventually informs us when our download has been processed. You should then get a "Save File" dialog or something similar. If not, you should see a link to the compressed SD file.</p>
+<p>Downloading the results file completes the process.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

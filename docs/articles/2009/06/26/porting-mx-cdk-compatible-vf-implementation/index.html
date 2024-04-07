@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Porting MX - CDK-Compatible VF Implementation | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Porting MX - CDK-Compatible VF Implementation</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-06-26T00:00:00.000Z">2009-06-26T00:00:00.000Z</time>
+      </header>
+      <p><a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">Substructure search</a> is a fundamental cheminformatics operation, and an especially important component in chemical structure databases. Although a few algorithms for atom-by-atom comparison of two structures are available, one of the fastest is <a href="/articles/2008/11/17/substructure-search-from-scratch-in-java-part-1-the-atom-mapping-problem">VF</a>, which is implemented in <a href="http://metamolecular.com/mx">MX</a>, a lightweight cheminformatics toolkit.</p>
+<p>A recent post discussed the <a href="/articles/2009/06/16/if-the-wheel-doesnt-work-reinvent-it">limitations of directly porting the C++ implementation of VF into Java</a> and why a Java-centric, de novo implementation was created for MX instead.</p>
+<p>I'm now happy to report that <a href="http://www.ebi.ac.uk/~asad/Asad.html">Syed Asad Rahman</a> of the <a href="http://www.ebi.ac.uk/">European Bioinformatics Institute</a> has created a <a href="http://github.com/asad/VFLib/tree/master">preliminary implementation of VF</a> for the Chemistry Development Kit (<a href="http://cdk.sf.net">CDK</a>) by porting the MX mapping package.</p>
+<p>Looking through Asad's work, one of the most striking things is the isolation of CDK-specific code into a few key areas, a trait shared by the original MX implementation. Another is the readability of the code. Both features should greatly simplify further optimization work.</p>
+<p>If you've been looking for a fast substructure search engine for your cheminformatics work, I recommend checking out both <a href="http://metamolecular.com/mx">MX</a> and the <a href="http://github.com/asad/VFLib/tree/master">CDK port</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scanner-Driven Parser Development | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2019/01/22/scanner-driven-parser-development/">
+      <meta property="og:title" content="Scanner-Driven Parser Development">
+      <meta property="og:description" content="Writing a parser shouldn&#x27;t require unnecessary detours into linguistic theory or unproductive coding dead-ends. Find out how to start and finish a parser quickly with this in-depth guide.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20190122/summary.png">
+      <meta content="Writing a parser shouldn&#x27;t require unnecessary detours into linguistic theory or unproductive coding dead-ends. Find out how to start and finish a parser quickly with this in-depth guide." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Scanner-Driven Parser Development</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2019-01-22T15:30:00.000Z">2019-01-22T15:30:00.000Z</time>
+      </header>
+      <p>Writing a parser from scratch can be a daunting task. For a beginner, the topic may seem barricaded behind a thick wall of theory and vocabulary. Getting to the heart of the matter, running code, can take a lot of time and effort. This article describes a shift in thinking that can significantly reduce the time needed to get started and finish. The examples are written in JavaScript, but the underlying principles can can be adapted to any programming language.</p>
+<h2 id="parsinginanutshell">Parsing in a Nutshell</h2>
+<p>For the purposes of this article, a parser is a function that accepts a string conforming to some set of rules as input and returns an object representing the string's syntax as output. Input strings are evaluated one character at a time from left-to-right until either all characters are consumed or an invalid character is found.</p>
+<p>The following function template captures the essence of a parser:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> </span>string input to be parsed
+ * <span class="hljs-doctag">@returns <span class="hljs-type">{*}</span> </span>representation of string's syntax
+ * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid string
+ */</span>
+<span class="hljs-keyword">const</span> parse = <span class="hljs-function">(<span class="hljs-params">string</span>) =&gt;</span> {
+  <span class="hljs-comment">// parse string, return representation</span>
+};
+</code></pre>
+<p>Writing a parser boils down to completing the body of a <code>parse</code> function consistent with a set of predefined rules.</p>
+<h2 id="embraceconstraints">Embrace Constraints</h2>
+<p>Like most problems, writing a parser becomes much easier by embracing some well-chosen constraints. Scanner-Driven Development requires two:</p>
+<ol>
+<li>Characters are read left-to-right, one at a time.</li>
+<li>Only one character of lookahead is allowed.</li>
+</ol>
+<p>The second point deserves some explanation. <em>Lookahead</em> refers to how many characters beyond the current reading position your parser will be allowed to "peek," or read without consuming characters. Restricting lookahead to one character simplifies the <code>parse</code> function by reducing the need to <em>backtrack</em>. Backtracking is a procedure that restores a parser to some previous state after following a dead end. One character lookahead allows the program's stack frame to be used for backtracking without maintaining additional state.</p>
+<h2 id="aminimalscanner">A Minimal Scanner</h2>
+<p>The centerpiece of Scanner-Driven Parser Development is a <em>Scanner</em>. A Scanner wraps a string, dividing it into two regions with a cursor. Before the cursor, characters are completely inaccessible. After the cursor, characters can be read either with or without advancing the cursor.</p>
+<p>Some languages (such as <a href="http://ruby-doc.org/stdlib-2.5.3/libdoc/strscan/rdoc/StringScanner.html">Ruby</a>) include a <code>Scanner</code> class. Although JavaScript has none, a minimal <code>Scanner</code> is easy to implement:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> Scanner = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+  <span class="hljs-keyword">constructor</span> (string) {
+    <span class="hljs-keyword">this</span>._string = string;
+    <span class="hljs-keyword">this</span>._cursor = <span class="hljs-number">0</span>;
+  }
+
+  <span class="hljs-comment">/**
+   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span></span>
+   */</span>
+  <span class="hljs-keyword">get</span> cursor () {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._cursor;
+  }
+
+  <span class="hljs-comment">/**
+   * Returns the next character, or '' if done without advancing the cursor.
+   *
+   * <span class="hljs-doctag">@return <span class="hljs-type">{string}</span> </span>a single character or ''
+   */</span>
+  peek () {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._string[<span class="hljs-keyword">this</span>._cursor];
+  }
+
+  <span class="hljs-comment">/**
+   * Returns the next character, or '' if done. Advances the cursor.
+   *
+   * <span class="hljs-doctag">@return <span class="hljs-type">{string}</span> </span>a single character or ''
+   */</span>
+  pop () {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._string[<span class="hljs-keyword">this</span>._cursor++];
+  }
+};
+</code></pre>
+<h2 id="usingascanner">Using a Scanner</h2>
+<p>Rather than using a string directly to implement the <code>parse</code> function, commit yourself to only interacting with a string through a <code>Scanner</code> instance. Here are some example uses:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(<span class="hljs-string">'abc'</span>);
+
+scanner.cursor;  <span class="hljs-comment">// =&gt; 0</span>
+scanner.peek();  <span class="hljs-comment">// =&gt; 'a'</span>
+scanner.pop();   <span class="hljs-comment">// =&gt; 'a'</span>
+scanner.peek();  <span class="hljs-comment">// =&gt; 'b'</span>
+scanner.pop();   <span class="hljs-comment">// =&gt; 'b'</span>
+scanner.peek();  <span class="hljs-comment">// =&gt; 'c'</span>
+scanner.cursor;  <span class="hljs-comment">// =&gt; 2</span>
+</code></pre>
+<p>Here's a more complex example:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(<span class="hljs-string">'abc'</span>);
+<span class="hljs-keyword">let</span> char = scanner.peek();
+
+<span class="hljs-keyword">while</span> (char) {
+  <span class="hljs-built_in">console</span>.log(scanner.pop());
+
+  char = scanner.peek();
+}
+</code></pre>
+<p>Notice that <code>Scanner</code> can only return the character immediately following the cursor. <code>Scanner</code> moves forward over the characters of a string, never backward.</p>
+<p>Given a <code>Scanner</code>, the original goal for the <code>parse</code> function can be recast as follows:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> parse = <span class="hljs-function">(<span class="hljs-params">string</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(string);
+
+  <span class="hljs-comment">// parse string using only scanner, then return result</span>
+};
+</code></pre>
+<h2 id="grammarandsyntaxdiagrams">Grammar and Syntax Diagrams</h2>
+<p>Before writing the <code>parse</code> function, a <em>formal grammar</em> (aka "grammar") will be needed. Think of a grammar as a blueprint for the functions to be written. Grammars can be represented in many ways, one of the most popular of which is <a href="https://en.wikipedia.org/wiki/Backus–Naur_form">Backus-Naur Form</a> (BNF).</p>
+<p>I find the equivalent <a href="https://en.wikipedia.org/wiki/Syntax_diagram">Syntax Diagram</a> to be more readable. One of the best-known examples defines <a href="https://www.json.org">JSON</a>. Here's a fragment that explains how to produce a JSON "number:"</p>
+<p><img src="/images/posts/20190122/number.gif" alt="JSON Number" title="JSON Number"></p>
+<p>This image depicts a "production rule." A grammar is simply a collection of production rules that may refer to each other or even themselves. Each production rule describes how to produce one element of a grammar or alternatively how to <em>parse</em> a single element.</p>
+<p>To interpret a syntax diagram, begin at the leftmost single/double vertical line and proceed to the rightmost single/double vertical line. Any item lying on a horizontal line is mandatory. Branches may be followed in their direction of curvature.</p>
+<p>For example, starting at the leftmost side of the "number" production rule, we encounter a branch. Following it adds a negative sign to the number. Next comes another branch. Following it adds a non-zero digit (1…9) followed by an optional digit (0…9). But rather than doing that, we can instead append a zero digit. Next, we can add an optional decimal point followed by at least one digit. Finally, we can optionally add an exponent using either a lower- or upper-case letter "E."</p>
+<p>A few tools can generate syntax diagrams, including:</p>
+<ul>
+<li><a href="http://www.bottlecaps.de/rr/ui">Railroad Diagram Generator</a></li>
+<li><a href="https://github.com/tabatkins/railroad-diagrams">Railroad Diagrams</a></li>
+<li><a href="https://lukaslueg.github.io/macro_railroad_wasm_demo/">Macro Railroad</a></li>
+<li><a href="https://karmin.ch/ebnf/index#download_and_install">EBNFParser &amp; Syntax Diagram Reader</a></li>
+</ul>
+<h2 id="implementingparse">Implementing <code>parse</code></h2>
+<p>Using a grammar and <code>Scanner</code>, the <code>parse</code> function can be implemented with the following procedure:</p>
+<ol>
+<li>Find the topmost production rule <code>R</code>.</li>
+<li>Create a function named for <code>R</code> that uses a <code>Scanner</code> to parse the remainder of the string according to <code>R</code>.</li>
+<li>Use loops, quantifiers, and conditional branches as required by <code>R</code>.</li>
+<li>If you encounter a production rule without an implementation, create a function body for it and invoke it.</li>
+<li>Continue until all production rules have been implemented.</li>
+</ol>
+<h2 id="examplejson">Example: JSON</h2>
+<p>Consider writing a simple JSON parser. If the input string is valid, it returns an array containing the input characters. Otherwise an error is thrown. Whitespace is not allowed.</p>
+<p><img src="/images/posts/20190122/object.gif" alt="JSON Object" title="JSON Object"></p>
+<p>The topmost production rule given for JSON is "object." Following Step (1), we begin by creating an empty function body called <code>parseObject</code> and invoke it from <code>parse</code>:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> parse = <span class="hljs-function">(<span class="hljs-params">string</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(string);
+  <span class="hljs-keyword">const</span> result = [ ];
+
+  <span class="hljs-keyword">if</span> (!parseObject(scanner, result)) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">`invalid character at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
+  }
+
+  <span class="hljs-keyword">return</span> result;
+};
+
+<span class="hljs-keyword">const</span> parseObject = <span class="hljs-function">(<span class="hljs-params">scanner</span>) =&gt;</span> { }; <span class="hljs-comment">// TODO</span>
+</code></pre>
+<p>Following Step (3), we implement <code>parseObject</code>:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> parseObject = <span class="hljs-function">(<span class="hljs-params">scanner, characters</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (scanner.peek() === <span class="hljs-string">'{'</span>) {
+    characters.push(scanner.pop());
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+
+  <span class="hljs-keyword">const</span> parseKeyValue = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">if</span> (!parseString(scanner, characters)) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+
+    <span class="hljs-keyword">if</span> (scanner.peek() === <span class="hljs-string">':'</span>) {
+      characters.push(scanner.pop());
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">`expected : at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
+    }
+
+    <span class="hljs-keyword">if</span> (!parseValue(scanner, characters)) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">`expected value at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
+    }
+  };
+
+  parseKeyValue();
+
+  <span class="hljs-keyword">while</span> (scanner.peek() === <span class="hljs-string">','</span>) {
+    characters.push(scanner.pop());
+    parseKeyValue();
+  }
+
+  <span class="hljs-keyword">if</span> (scanner.peek() === <span class="hljs-string">'}'</span>) {
+    characters.push(scanner.pop());
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">`expected } at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
+  }
+
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+};
+
+<span class="hljs-keyword">const</span> parseString = <span class="hljs-function">(<span class="hljs-params">scanner, characters</span>) =&gt;</span> { }; <span class="hljs-comment">// TODO</span>
+<span class="hljs-keyword">const</span> parseValue = <span class="hljs-function">(<span class="hljs-params">scanner, characters</span>) =&gt;</span> { }; <span class="hljs-comment">// TODO</span>
+</code></pre>
+<p>Several points are worth noting:</p>
+<ul>
+<li>The function <code>parseObject</code> mirrors the grammar it recognizes.</li>
+<li>Each call to <code>peek</code> that returns an expected character is followed by a call to <code>pop</code> that consumes it.</li>
+<li>If the first element of a production rule is detected, but any subsequent mandatory element is not, an error is thrown.</li>
+<li>If the first element of a production rule is not found, <code>false</code> is returned.</li>
+<li>The result object may be updated in the process of parsing a production rule.</li>
+<li>We always know the current cursor position, so it's easy to include it in error messages.</li>
+</ul>
+<p>These same principles apply to the implementation of <code>parseString</code>, <code>parseValue</code>, and the remaining production rules.</p>
+<p>In practice, an array of characters will be insufficient to represent the syntax of an input string. Use a representation that best fits the problem at hand.</p>
+<p>Not all grammars will be compatible with the simple method outlined here. The trick is to configure the grammar to be compatible with the method. The name "Scanner-Driven Parser Development" reflects the fact that this method forces the grammar to be moulded around the parser, not the other way around.</p>
+<h2 id="supportingregularexpressions">Supporting Regular Expressions</h2>
+<p>It will often be more convenient to consume characters, not one at a time, but as a group. <code>Scanner</code> can support this functionality by adding a new method, <code>scan</code>:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> Scanner = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+<span class="hljs-comment">// ...</span>
+
+  <span class="hljs-comment">/**
+   * Returns the string match for `regex` starting
+   * from the current cursor. Advances cursor if a
+   * match is found. Returns `undefined` otherwise.
+   * 
+   * <span class="hljs-doctag">@param <span class="hljs-type">{RegExp}</span> <span class="hljs-variable">regex</span></span>
+   * <span class="hljs-doctag">@return <span class="hljs-type">{string|undefined}</span></span>
+   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given regex global flag not set
+   */</span>
+  scan (regex) {
+    <span class="hljs-keyword">if</span> (!regex.global) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'regex global flag must be set'</span>);
+    }
+
+    regex.lastIndex = <span class="hljs-keyword">this</span>._cursor;
+    <span class="hljs-keyword">const</span> match = regex.exec(<span class="hljs-keyword">this</span>._string);
+
+    <span class="hljs-keyword">if</span> (match === <span class="hljs-literal">null</span> || match.index !== <span class="hljs-keyword">this</span>._cursor) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
+    }
+
+    <span class="hljs-keyword">this</span>._cursor = regex.lastIndex;
+
+    <span class="hljs-keyword">return</span> match[<span class="hljs-number">0</span>];
+  }
+
+<span class="hljs-comment">// ...</span>
+};
+</code></pre>
+<p>The <code>global</code> flag must be set for regular expressions passed to <code>scan</code>. The reason has to do with <a href="http://2ality.com/2013/08/regexp-g.html">how JavaScript treats the <code>lastIndex</code> property</a>.</p>
+<p>This new version allows text to be matched by pattern:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(<span class="hljs-string">'hello, world'</span>);
+
+scanner.match(<span class="hljs-regexp">/h[aeiou]/g</span>); <span class="hljs-comment">// =&gt; 'he'</span>
+scanner.match(<span class="hljs-regexp">/llo/g</span>);      <span class="hljs-comment">// =&gt; 'llo'</span>
+scanner.match/[a-z]/g);     <span class="hljs-comment">// =&gt; undefined</span>
+scanner.match/[^a-z]/g);    <span class="hljs-comment">// =&gt; ','</span>
+scanner.match(<span class="hljs-regexp">/\s+/g</span>);      <span class="hljs-comment">// =&gt; ' '</span>
+scanner.match(<span class="hljs-regexp">/world/g</span>);    <span class="hljs-comment">// =&gt; 'world'</span>
+scanner.peek();             <span class="hljs-comment">// =&gt; ''</span>
+</code></pre>
+<p>The same functionality is available through <code>peek</code> and <code>pop</code>, but <code>scan</code> collapses what would otherwise require multiple operations into one.</p>
+<h2 id="theory">Theory</h2>
+<p>Grammars can be classified in a number of ways. The major axis separates context-free grammars (CFGs) from everything else. A CFG consists of a set of production rules with <a href="https://softwareengineering.stackexchange.com/q/253454">single nonterminals on their left-hand sides</a>. A <em>terminal</em> is a character from the grammar's alphabet, and as such contains no productions. A <em>nonterminal</em> is a pattern composed of <em>terminals</em> and <em>non-terminals</em>.</p>
+<p>CFGs are in turn classified along three axes:</p>
+<ol>
+<li>whether they are read left-to-right or right-to-left;</li>
+<li>whether they are left-associative or right-associative; and</li>
+<li>the maximum number of lookahead characters that are required.</li>
+</ol>
+<p>A shorthand notion for CFGs is used in which the first character (L or R) denotes the read direction, the second character denotes the direction of <a href="https://en.wikipedia.org/wiki/Operator_associativity">operator associativity</a> (L or R), and the last character represents the number of lookahead characters (which may be in parentheses). For example, JSON is an example of an LL(1) grammar. Similarly, any LL(1) grammar can be parsed using a Scanner-driven approach.</p>
+<p>Although the examples here don't make use of it, CFG nonterminals can be <em>recursive</em>. That is, a production rule can refer to itself. However, to avoid infinite recursion, the self-reference may not be the leftmost element. Should a grammar exhibit left-recursion, it can often be removed through a process called "refactoring."</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/3_VCoBfrt9c" allowfullscreen=""></iframe>
+</div>
+<p>In some cases, the simple error reporting method used in this article's examples won't be enough. For example, it might be important to parse the entire string, reporting <em>all</em> errors found, rather than aborting at the first one. If so, then "Panic Mode" error recovery may be worth supporting. In Panic Mode, the parser will either log an error and simply continue, or backtrack to a known synchronization point.</p>
+<p>For an excellent practical introduction to parsers with a helpful dash of theory, see <a href="http://www.craftinginterpreters.com/parsing-expressions.html">Crafting Interpreters</a>.</p>
+<h2 id="parsergenerators">Parser Generators</h2>
+<p>The systematic way in which an LL(1) parser can be written raises the obvious question of automation. Can software write the parser for us? The answer is "yes!"</p>
+<p><a href="https://en.wikipedia.org/wiki/Comparison_of_parser_generators">Parser Generators</a> accept as input a grammar which can often be defined in some variant of BNF, and returns a program that will parse strings using the grammar. Some examples of JavaScript-based parser generators include:</p>
+<ul>
+<li><a href="https://pegjs.org">PEG.js</a></li>
+<li><a href="https://nearley.js.org">Nearly</a></li>
+<li><a href="http://zaa.ch/jison/">Jison</a></li>
+</ul>
+<p>Parser generators can be used with good results, but they also come with <a href="https://mortoray.com/2012/07/20/why-i-dont-use-a-parser-generator/">sometimes hidden costs</a>:</p>
+<ul>
+<li>they output source code, which must be treated differently than a project's other source code;</li>
+<li>they can produce stack traces that make debugging a challenge; and</li>
+<li>they vary greatly in their support for generating custom representations of the string being parsed.</li>
+</ul>
+<p>These drawbacks may not matter in your project. Regardless, you'll be better positioned to use a parser generator if you first take the time to practice a few hand-crafted parsers using Scanner-Driven Development.</p>
+<p>A variation on the parser generator theme is <a href="https://github.com/dmaevsky/rd-parse">rd-parse</a>. Rather than producing source code, this library allows production rules to be defined in JavaScript. Debugging and producing a syntax representation with rd-parse can nevertheless be challenging.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Parsers developed with a <code>Scanner</code> end up resembling their underlying grammar, making them easier to write, understand, and maintain than parsers written with alternative approaches. Provided that the language to be parsed can be represented in LL(1) form, Scanner-Driven Parser Development leads to running code quickly while avoiding unnecessary detours into theory.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

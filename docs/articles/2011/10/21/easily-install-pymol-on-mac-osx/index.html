@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Easily Install PyMOL on Mac OSX | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Easily Install PyMOL on Mac OSX</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2011-10-21T00:00:00.000Z">2011-10-21T00:00:00.000Z</time>
+      </header>
+      <p><img src="/images/posts/pymol-install.png" alt="Install Pymol" title="Install Pymol"></p>
+<p><a href="http://www.pymol.org/">PyMOL</a> is a very popular 3-D molecular visualization tool. It also happens to be a great bargain. PyMOL is free, as in open source.</p>
+<p>Unfortunately, all attempts to install PyMOL on an OS X system (as per the INSTALL file) led to errors:</p>
+<pre><code class="hljs bash language-bash">sudo python setup.py build install
+running build
+running build_py
+package init file <span class="hljs-string">'modules/web/javascript/__init__.py'</span> not found (or not a regular file)
+package init file <span class="hljs-string">'modules/web/javascript/__init__.py'</span> not found (or not a regular file)
+running build_ext
+building <span class="hljs-string">'pymol._cmd'</span> extension
+gcc-4.2 -fno-strict-aliasing -fno-common -dynamic -DNDEBUG -g -fwrapv -Os -Wall -Wstrict-prototypes -DENABLE_DTRACE -arch i386 -arch ppc -arch x86_64 -pipe -D_PYMOL_MODULE -D_PYMOL_LIBPNG -D_PYMOL_FREETYPE -Iov/src -Ilayer0 -Ilayer1 -Ilayer2 -Ilayer3 -Ilayer4 -Ilayer5 -I/usr/X11R6/include -I/Users/rich/Downloads/pymol/ext/include -I/Users/rich/Downloads/pymol/ext/include/GL -I/Users/rich/Downloads/pymol/ext/include/freetype2 -Imodules/cealign/src -Imodules/cealign/src/tnt -I/System/Library/Frameworks/Python.framework/Versions/2.6/include/python2.6 -c ov/src/OVContext.c -o build/temp.macosx-10.6-universal-2.6/ov/src/OVContext.o
+/usr/libexec/gcc/powerpc-apple-darwin10/4.2.1/as: assembler (/usr/bin/../libexec/as/ppc/as or /usr/bin/../<span class="hljs-built_in">local</span>/libexec/as/ppc/as) <span class="hljs-keyword">for</span> architecture ppc not installed
+Installed assemblers are:
+/usr/bin/../libexec/as/x86_64/as <span class="hljs-keyword">for</span> architecture x86_64
+/usr/bin/../libexec/as/i386/as <span class="hljs-keyword">for</span> architecture i386
+/usr/bin/../libexec/as/arm/as <span class="hljs-keyword">for</span> architecture arm
+ov/src/OVContext.c:28: fatal error: error closing -: Broken pipe
+compilation terminated.
+lipo: can<span class="hljs-string">'t open input file: /var/tmp//ccWpUaKz.out (No such file or directory)
+error: command '</span>gcc-4.2<span class="hljs-string">' failed with exit status 1
+</span></code></pre>
+<p>This appears to have something to do with more recent version of OS X build tools lacking Power PC architecture dependencies. A <a href="http://superuser.com/questions/259278/python-2-6-1-pycrypto-2-3-pypi-package-broken-pipe-during-build">question on Superuser</a> prompted me to try this solution:</p>
+<pre><code class="hljs bash language-bash">ARCHFLAGS=<span class="hljs-string">"-arch i386 -arch x86_64"</span> python setup.py build
+</code></pre>
+<p>After an encouraging period where a lot seemed to be happening, the build process terminated with the same complaint from lipo.</p>
+<p>Fortunately, there is another way. <a href="http://guide.macports.org/#installing">MacPorts</a> makes it very easy to install the most recent version of PyMOL (1.4.1) and all of its dependencies with:</p>
+<pre><code class="hljs bash language-bash">sudo port install pymol
+</code></pre>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

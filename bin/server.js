@@ -12,5 +12,5 @@ bs.watch([ 'src', 'views' ]).on('change', (e) => {
 })
 
 bs.init({
-  server: 'build'
+  server: 'docs'
 });

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Molecular Language for Modern Chemistry: FlexMol and Axial Chirality | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Molecular Language for Modern Chemistry: FlexMol and Axial Chirality</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-01-09T00:00:00.000Z">2007-01-09T00:00:00.000Z</time>
+      </header>
+      <p>A <a href="http://depth-first.com/articles/2007/01/08/the-axial-chirality-problem">recent article</a> introduced FlexMol as a molecular language with the unique capability of encoding axial chirality. <a href="http://depth-first.com/articles/2007/01/02/a-molecular-language-for-modern-chemistry-flexmol-and-alkene-geometrical-isomerism">A previous article</a> showed how E/Z geometrical isomerism is encoded with FlexMol. Using the popular chiral reagent and ligand 1,1'-bi-2-naphthol (BINOL) as an example, this tutorial will illustrate in detail how axial chirality is encoded in FlexMol.</p>
+<h2 id="configurationorconformation">Configuration or Conformation?</h2>
+<p>In contrast to configurational stereoisomers, conformational stereoisomers can be interconverted through bond rotations. So we'll need to use a <code>conformationWheel</code> to represent stereochemistry in BINOL - <a href="http://depth-first.com/articles/2007/01/02/a-molecular-language-for-modern-chemistry-flexmol-and-alkene-geometrical-isomerism">just as we did with 2-butene</a>. For more rigorous definitions of these concepts, see the original <a href="http://dx.doi.org/10.1021/ci00027a001">specification by Dietz</a>.</p>
+<h2 id="rbinol">(<em>R</em>)-BINOL</h2>
+<p>A FlexMol representation and associated atom numbering scheme (<em>R</em>)-BINOL are show below:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!-- (R)-BINOL --&gt;</span>
+<span class="hljs-meta">&lt;?xml version="1.0" standalone="yes"?&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">molecule</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">constitution</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atoms</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"0"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"0"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C4"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C5"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C6"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C7"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C8"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"0"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C9"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"0"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C10"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"0"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C11"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"0"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C12"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C13"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C14"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C15"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C16"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C17"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C18"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"0"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C19"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"0"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"O20"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"O"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"O22"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"O"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">atoms</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">bonding</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C4"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C4"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C5"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C5"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C6"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C6"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C7"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C7"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C8"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C8"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C9"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C9"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bondingSystem</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"10"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">connections</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C4"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C5"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C5"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C6"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C6"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C7"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C7"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C8"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C8"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C9"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C9"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">connections</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">bondingSystem</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C10"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C11"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C11"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C12"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C12"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C13"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C13"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C14"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C14"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C15"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C10"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C15"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C10"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C16"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C16"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C17"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C17"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C18"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C18"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C19"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C19"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C11"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bondingSystem</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"10"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">connections</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C10"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C11"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C11"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C12"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C12"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C13"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C13"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C14"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C14"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C15"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C10"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C15"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C10"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C16"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C16"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C17"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C17"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C18"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C18"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C19"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C19"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C11"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">connections</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">bondingSystem</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C9"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C19"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C8"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"O20"</span> <span class="hljs-attr">bondingElectron</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C18"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"O21"</span> <span class="hljs-attr">bondingElectron</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">bonding</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">constitution</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">conformation</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">conformationWheel</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">gammaSequence</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C19"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C9"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">connections</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C9"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C19"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">connections</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">gammaSequence</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"C11"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"C1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"C18"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"C8"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">conformationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">conformation</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">molecule</span>&gt;</span>
+</code></pre>
+<p><img src="/images/posts/20070109/r_binol.png" alt="(R-Binol)" title="(R)-Binol"></p>
+<p>We've elected to represent BINOL's two pi-systems as ten-atom, ten-electron <code>bondingSystems</code>. We could have just as easily represented each naphthalene ring using alternating single/double <code>bonds</code> containing two and four electrons, respectively. For an explanation of multi-atom pi-system bonding in FlexMol, see <a href="http://depth-first.com/articles/2006/12/20/a-molecular-language-for-modern-chemistry-getting-started-with-flexmol">this article</a>.</p>
+<p>The stereochemically-relevant part of this document is contained within the <code>conformation</code> element. A <code>gammaSequence</code>, or conformational axis, is defined along with four non-empty <code>halfPlanes</code>. Notice how the basic structure of this <code>conformation</code> element closely resembles <a href="http://depth-first.com/articles/2007/01/02/a-molecular-language-for-modern-chemistry-flexmol-and-alkene-geometrical-isomerism">the one for 2-butene</a>.</p>
+<p>To better visualize the the <code>conformation</code> element of (<em>R</em>)-BINOL, consider the following diagram:</p>
+<p><img src="/images/posts/20070109/r_binol_planes.png" alt="Binol Planes" title="Binol Planes"></p>
+<p>The <code>conformationWheel</code> defines a conformational axis vector from atom C19 to atom C9. Arranged about this axis in a clockwise fashion are four non-empty <code>halfPlanes</code>. Picking an arbitrary <code>halfPlane</code> to start with, atom C11 is positioned first in the lower half. This is then followed by the next <code>halfPlane</code>, which contains atom C1 in its upper half. The next <code>halfPlane</code> contains atom C18 in the lower half. Finally, atom C8 is located in the last <code>halfPlane</code>'s upper half.</p>
+<p>This procedure completely specifies the axial chirality of (<em>R</em>)-BINOL. Notice how no arbitrary stereodescriptors or chiral templates were used. Of course, we could derive the Cahn-Ingold-Prelog stereodescriptor of (<em>R</em>), given the right software.</p>
+<p>Many representations of the same chiral axis are possible, just as each connection table can be represented in many different ways. For example, we could have started the <code>conformation</code> element with the <code>halfPlane</code> containing atom C1. In this case, the ordering of atoms would be C1, C18, C8, C11. Similarly, the orientation of our chiral axis could have been defined from atom C9 to atom C19. In this case the ordering of <code>halfPlanes</code> would be reversed, and the upper/lower designations would be inverted.</p>
+<h2 id="sbinol">(<em>S</em>)-BINOL</h2>
+<p>How is (<em>S</em>)-BINOL encoded in FlexMol? As you might expect, completely analogously to the (<em>R</em>) enantiomer:</p>
+<pre class="prettyprint"><!-- snip -->
+<conformation>
+  <conformationwheel>
+    <gammasequence source="C19" target="C9">
+      <connections>
+        <atompair source="C9" target="C19"></atompair>
+      </connections>
+    </gammasequence>
+    <halfplane>
+      <lower atom="C11"></lower>
+    </halfplane>
+    <halfplane>
+      <upper atom="C8"></upper>
+    </halfplane>
+    <halfplane>
+      <lower atom="C18"></lower>
+    </halfplane>
+    <halfplane>
+      <upper atom="C1"></upper>
+    </halfplane>
+  </conformationwheel>
+</conformation>
+<!-- snip -->
+</pre>
+<p><img src="/images/posts/20070109/s_binol.png" alt="(S)-Binol" title="(S)-Binol"></p>
+<p>As with (<em>R</em>)-BINOL, we can create a diagram representing the <code>conformationWheel</code> of (<em>S</em>)-BINOL:</p>
+<p><img src="/images/posts/20070109/s_binol_planes.png" alt="S-Binol Planes" title="S-Binol Planes"></p>
+<h2 id="conclusions">Conclusions</h2>
+<p>FlexMol completely encodes axial chirality using just a few basic XML elements, rather than chiral templates or stereodescriptors. These were, in fact, the same elements used to encode alkene geometrical isomerism. This modular approach to stereoisomerism results in an extensible system. Future articles will discuss other forms of stereoisomerism that can be represented in FlexMol, including the all-important tetrahedral stereogenic center. </p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

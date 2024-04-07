@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>MX Snippets Part 1: Generate Molecular Fingerprints From the Command Line | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>MX Snippets Part 1: Generate Molecular Fingerprints From the Command Line</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-01-11T00:00:00.000Z">2010-01-11T00:00:00.000Z</time>
+      </header>
+      <p><a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">Molecular fingerprints</a> play an important role in cheminformatics. <a href="http://metamolecular.com/mx">MX</a>, the high-performance cheminformatics toolkit written in Java, comes complete with the ability to generate molecular fingerprints. This article, the first of a new series discussing MX through compilable snippets of Java code, shows how to interactively test fingerprints in MX through a simple command-line utility.</p>
+<h2 id="whattheprogramdoes">What the Program Does</h2>
+<p>From the command line, the program accepts a SMILES string as input and returns the indices of all bits set using the MX PathFingerprinter:</p>
+<pre><code class="hljs bash language-bash">$ java -cp .:mx-1.0-beta-2.jar FPTest
+&gt; CCCCC
+{185, 293, 595, 742, 927}
+&gt; CCCCCC
+{185, 293, 338, 595, 742, 927}
+&gt; C1CCCCC1 
+{185, 194, 293, 338, 595, 742, 927}
+&gt; <span class="hljs-built_in">exit</span>
+</code></pre>
+<p>After entering a SMILES string, the program prints out the indices of all of the bits set in a 1024-bit fingerprint. As you can see, each fingerprint in the progression pentane&nbsp;&gt;hexane&nbsp;&gt;cyclohexane is a superset of its predecessors. This is, of course, the feature that makes fingerprints so useful for <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">substructure search</a>.</p>
+<p>Note: the MX SMILES parser is only partially implemented at the moment and will not accept isotopes, stereochemistry, or lower-case atom labels.</p>
+<h2 id="createaworkspace">Create a Workspace</h2>
+<p>Create a workspace and download the <a href="http://cloud.github.com/downloads/metamolecular/mx/mx-1.0-beta-2.jar">MX jarfile</a>:</p>
+<pre><code class="hljs bash language-bash">$ mkdir fptest
+$ <span class="hljs-built_in">cd</span> fptest
+$ wget http://cloud.github.com/downloads/metamolecular/mx/mx-1.0-beta-2.jar
+</code></pre>
+<h2 id="thecode">The Code</h2>
+<p>Create a file called 'FPTest.java' containing:</p>
+<pre><code class="hljs java language-java"><span class="hljs-keyword">import</span> java.io.BufferedReader;
+<span class="hljs-keyword">import</span> java.io.InputStreamReader;
+<span class="hljs-keyword">import</span> java.io.IOException;
+<span class="hljs-keyword">import</span> java.util.BitSet;
+<span class="hljs-keyword">import</span> com.metamolecular.mx.io.daylight.SMILESReader;
+<span class="hljs-keyword">import</span> com.metamolecular.mx.model.Molecule;
+<span class="hljs-keyword">import</span> com.metamolecular.mx.fingerprint.PathFingerprinter;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">FPTest</span> </span>{
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> PathFingerprinter fingerprinter = <span class="hljs-keyword">new</span> PathFingerprinter();
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>{
+    <span class="hljs-keyword">try</span> {
+      BufferedReader in = <span class="hljs-keyword">new</span> BufferedReader(<span class="hljs-keyword">new</span> InputStreamReader(System.in));
+      String str = <span class="hljs-string">""</span>;
+      <span class="hljs-keyword">while</span> (str != <span class="hljs-keyword">null</span>) {
+          System.out.print(<span class="hljs-string">"&gt; "</span>);
+          str = in.readLine();
+          processInput(str);
+      }
+    } <span class="hljs-keyword">catch</span> (IOException e) {
+    }
+  }
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">processInput</span><span class="hljs-params">(String input)</span> </span>{
+    <span class="hljs-keyword">if</span> (<span class="hljs-string">"exit"</span>.equals(input)) {
+      System.exit(<span class="hljs-number">0</span>);
+    }
+    Molecule molecule = SMILESReader.read(input);
+    BitSet fp = fingerprinter.getFingerprint(molecule);
+    System.out.println(fp);
+  }
+}
+</code></pre>
+<h2 id="compile">Compile</h2>
+<pre><code class="hljs bash language-bash">javac -cp mx-1.0-beta-2.jar FPTest.java
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>A good fingerprint generator is a powerful item in any cheminformatics toolbox. This tutorial has shown a simple method for getting started with fingerprints using MX.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Simple Installation of Rubidium | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Simple Installation of Rubidium</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-11-21T00:00:00.000Z">2007-11-21T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://rbtk.rubyforge.org/">Rubidium</a> is a Ruby cheminformatics scripting environment. Previously, <a href="/articles/2007/11/12/parsing-sd-files-with-ruby-and-rubidium">a problem</a> was reported with the RubyForge gem repository that prevented the simple installation of the Rubidium gem. After filing a <a href="http://rubyforge.org/tracker/index.php?func=detail&amp;aid=15665&amp;group_id=5&amp;atid=101">bug report</a>, the problem was resolved.</p>
+<p>The problem, which led to a 404 being issued when trying to install the gem from the remote RubyGems repository, was a variant of a <a href="http://rubyforge.org/tracker/index.php?func=detail&amp;aid=15417&amp;group_id=5&amp;atid=102">known RubyForge issue</a>.</p>
+<p>You can now install Rubidium like this:</p>
+<pre><code class="hljs bash language-bash">$ jruby -S gem install rbtk
+</code></pre>
+<p>Installation takes a few minutes due to the large size of the included <a href="http://cdk.sf.net">Chemistry Development Kit</a> jarfile.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

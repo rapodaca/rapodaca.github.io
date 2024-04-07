@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Plugging Into OPSIN - How to Synchronize Git and Mercurial Repositories | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Plugging Into OPSIN - How to Synchronize Git and Mercurial Repositories</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-12-14T00:00:00.000Z">2010-12-14T00:00:00.000Z</time>
+      </header>
+      <p>A previous post <a href="/articles/2010/12/13/open-source-name-to-structure-conversion-of-iupac-nomenclature-opsin-revisited/">discussed OPSIN</a>, the open source IUPAC nomenclature parser, and some of its recent improvements. OPSIN is an open source project, meaning when the software fails to solve a particular problem, changes can be made on the spot and distributed to the community. If you agree that an open, free tool for parsing arbitrary IUPAC names is good for chemistry and you personally, your next question might be 'how do I get started'? In this article, I'll answer that question by showing one way to synchronize your own changes with OPSIN's public source code repository.</p>
+<h2 id="themercurialdilemma">The Mercurial Dilemma</h2>
+<p>OPSIN's most recent updates are being shared through <a href="http://bitbucket.org/dan2097/opsin">Bitbucket</a>, a Web-based source code repository that uses <a href="http://mercurial.selenic.com/">Mercurial</a>. <a href="http://bitbucket.org/dan2097">Daniel Lowe</a> is its maintainer. Mercurial is a distributed <a href="http://en.wikipedia.org/wiki/Revision_control">version control</a> system that enables loosely-connected developer teams to work together efficiently.</p>
+<p>Mercurial has many things in common with <a href="http://git-scm.com/">Git</a>, the version control system that I prefer and have <a href="/articles/2008/11/25/goodbye-subversion-hello-git-and-github/">used for some time</a>. Unfortunately, Mercurial isn't something I want to take the time and effort to learn and use regularly, especially since it's so similar to Git.</p>
+<p>We want a way to tweak the OPSIN source locally, push our finished changes out to the OPSIN project for merging, and pull in the latest changes from the OPSIN project so that we can take advantage of the most recent features and bugfixes.</p>
+<p>How can a Git user push and pull changes to and from the OPSIN Mercurial repository? Read the next section to get the nitty-gritty, or skip down to see the easy way.</p>
+<h2 id="hggit">Hg-Git</h2>
+<p><a href="http://hg-git.github.com/">Hg-Git</a> is a tool the bridges the gap. From the documentation:</p>
+<p><a href="http://hg-git.github.com/"><img src="/images/posts/hg-git.png" alt="hg-git" title="hg-git"></a></p>
+<blockquote>
+  <p>This is the Hg-Git plugin for Mercurial, adding the ability to push to and pull from a Git server repository from Mercurial. This means you can collaborate on Git based projects from Mercurial, or use a Git server as a collaboration point for a team with developers using both Git and Mercurial.</p>
+</blockquote>
+<p>Getting Mercurial and Hg-Git up and running on my Snow Leopard system was not trivial. The trick was to <a href="http://stackoverflow.com/questions/1461374/installing-mercurial-on-mac-os-x-10-6-snow-leopard">install Mercurial from source </a> and then <a href="http://stackoverflow.com/questions/2360944/how-do-i-correctly-install-dulwich-to-get-hg-git-working-on-windows/2733516#2733516">manually install Hg-Git</a>.</p>
+<p>With these prerequisites out of the way, I needed to set up two public forks to host OPSIN code. The first is <a href="http://github.com/metamolecular/opsin">Metamolecular's OPSIN fork on GitHub</a>, running Git. The second is <a href="http://bitbucket.org/metamolecular/opsin/">Metamolecular's OPSIN fork on Bitbucket</a> running Mercurial. OPSIN developers can pull changes from our Bitbucket repository directly using Mercurial, and we can work exclusively with Git.</p>
+<p>That's it for the public-facing side. Now, on to how this coordination works behind the scenes. We need a local hybrid Git/Mercurial repository ('opsin-hg') that can push/pull changes to/from either Git or Mercurial remote repositories. From <a href="http://hg-git.github.com/">the documentation</a>.</p>
+<pre><code class="hljs bash language-bash">hg <span class="hljs-built_in">clone</span> https://metamolecular@bitbucket.org/dan2097/opsin
+mv opsin opsin-hg
+<span class="hljs-built_in">cd</span> opsin-hg
+hg bookmark -r
+</code></pre>
+<p>Now we push the contents of opsin-hg to our public <a href="http://github.com/metamolecular/opsin">OSPIN GitHub</a> and <a href="http://bitbucket.org/metamolecular/opsin/">OPSIN Bitbucket</a> repos:</p>
+<pre><code class="hljs bash language-bash">hg push git+ssh://git@github.com/metamolecular/opsin.git
+hg push ssh://hg@bitbucket.org/metamolecular/opsin
+</code></pre>
+<p>At this point, we have two exact copies of the OPSIN code, one on GitHub and one on Bitbucket.</p>
+<p>If our Github repo accumulates changes we want to push to bitbucket, we can do so with:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> opsin-hg
+hg pull git+ssh://git@github.com/metamolecular/opsin.git
+hg update
+hg push ssh://hg@bitbucket.org/metamolecular/opsin
+</code></pre>
+<p>You may be thinking that we can use the opsin-hg repo directly using Git commands, but we can't, as far as I know. opsin-hg simply knows how to work with remote Hg and Git repos. We can't issue git commands to opsin-hg because it's not actually a Git repo. We need to create one.</p>
+<h2 id="usingthemetamolecularopsingithubfork">Using the Metamolecular OPSIN GitHub Fork</h2>
+<p>We've created an exact <a href="http://github.com/metamolecular/opsin">copy of the OPSIN Bitbucket repository hosted on GitHub</a> that uses Git and which contains the <a href="https://github.com/metamolecular/opsin/commits/master">entire commit history for the OPSIN project</a>, in addition to changes made by us. Using it is now as simple as creating a local fork:</p>
+<pre><code class="hljs bash language-bash">git <span class="hljs-built_in">clone</span> git://github.com/metamolecular/opsin.git
+<span class="hljs-built_in">cd</span> opsin
+</code></pre>
+<p>You can now branch, edit, tag, and merge just like you would with any other Git repository. If you want to spare yourself the trouble of maintaining a Bitbucket account and learning Hg, you can send a pull request for your own GitHub OPSIN fork or another public Git repository. We'll merge the changes for you and pass them on to our Bitbucket repository. The OPSIN team can then merge those changes.</p>
+<p>Likewise, as updates are merged into OPSIN from other sources, we'll pull those changes and push them out to our GitHub repo.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Free, effective parsing of IUPAC nomenclature is a fundamental enabler of chemistry's digital future, and OPSIN is the only software capable of filling this need. As such, OPSIN lends itself very well to an open, distributed development model in which a number of individuals and organizations contribute. This article has shown one way to put this idea into practice.</p>
+<p>Future articles will show how to get started using the OPSIN source, and the changes we're making to it.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

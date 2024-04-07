@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Run Babel Anywhere Java Runs with JBabel | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Run Babel Anywhere Java Runs with JBabel</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-12-10T00:00:00.000Z">2007-12-10T00:00:00.000Z</time>
+      </header>
+      <p>A recent series of D-F articles have discussed the use of <a href="http://nestedvm.ibex.org/">NestedVM</a> to compile cheminformatics programs written in C/C++ to pure java binaries that can be run on any system with a JVM. More specifically, an attempt to compile <a href="http://openbabel.sf.net">OpenBabel's</a> <code>babel</code> program to bytecode was only <a href="/articles/2007/11/26/compiling-open-babel-to-pure-java-bytecode-with-nestedvm-building-a-runnable-classfile-that-almost-works">partially successful</a>. With the <a href="http://sourceforge.net/mailarchive/forum.php?thread_name=819391.60947.qm%40web34201.mail.mud.yahoo.com&amp;forum_name=openbabel-discuss">help of Geoff Hutchison</a>, the problem was resolved. This article introduces JBabel, a platform-independent, pure Java implementation of OpenBabel's <code>babel</code> program.</p>
+<h2 id="alittleaboutjbabel">A Little About JBabel</h2>
+<p>JBabel was compiled from the <a href="http://sourceforge.net/project/showfiles.php?group_id=40728&amp;package_id=32894&amp;release_id=521581">Open Babel 2.1.1 source release</a> and can be <a href="http://sourceforge.net/project/showfiles.php?group_id=144794&amp;package_id=255103">downloaded from SourceForge</a>. The same jarfile was successfully tested on Linux, Windows and Mac OS X. You can verify JBabel works on your platform with the following command:</p>
+<pre><code class="hljs bash language-bash">java -jar jbabel-20071209.jar -Hsmi
+smi  SMILES format
+A linear text format <span class="hljs-built_in">which</span> can describe the connectivity
+and chirality of a molecule
+Write Options e.g. -xt
+  n no molecule name
+  t molecule name only
+  r radicals lower <span class="hljs-keyword">case</span> eg ethyl is Cc
+</code></pre>
+<p>This version of JBabel was compiled with support for three formats:</p>
+<ul>
+<li>SMILES (smi). Non-canonical SMILES.</li>
+<li>MDL (mol). Molfiles and SD Files.</li>
+<li>Canonical SMILES (can). Canonical SMILES implementation <a href="/articles/2006/11/06/stone-soup">donated by eMolecules</a>.</li>
+</ul>
+<p>I'll discuss exactly how support for these formats was added in a subsequent post. More formats will be added in the future. For now, let's just try JBabel out.</p>
+<h2 id="testingjbabel">Testing JBabel</h2>
+<p>One way to use JBabel is interactively from the command line - just leave out an input or output file parameter. For example, if you wanted to get the eMolecules canonical SMILES for <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=68617">sertraline</a>, you might do something like this (be sure to use two returns to begin processing):</p>
+<pre><code class="hljs bash language-bash">java -jar jbabel-20071209.jar -ismi -ocan
+CN[C@H]1CC[C@H](C2=CC=CC=C12)C3=CC(=C(C=C3)Cl)Cl
+
+CN[C@H]1CC[C@H](c2ccc(Cl)c(Cl)c2)c2ccccc12
+1 molecule converted
+34 audit <span class="hljs-built_in">log</span> messages
+</code></pre>
+<p>This canonical SMILES can be converted into a molfile with the following:</p>
+<pre><code class="hljs bash language-bash">$ java -jar jbabel-20071209.jar -ismi -omol
+CN[C@H]1CC[C@H](c2ccc(Cl)c(Cl)c2)c2ccccc12
+
+
+ OpenBabel12090723182D
+
+ 22 24  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 C   0  0  0  0  0
+
+...
+</code></pre>
+<p>To convert using input and output files, we could use a medium-sized dataset such as the <a href="http://rubyforge.org/frs/download.php/27768/pubchem_benzodiazepine_20071110.sdf.gz">PubChem benzodiazepine dataset</a> prepared for <a href="http://rbtk.rubyforge.org/">Rubidium</a>:</p>
+<pre><code class="hljs bash language-bash">java -jar jbabel-20071209.jar -imol pubchem_benzodiazepine_20071110.sdf -ocan pubchem_benzodiazepine_20071110.smi
+==============================
+*** Open Babel Warning  <span class="hljs-keyword">in</span> ReadMolecule
+  WARNING: Problems reading a MDL file
+Cannot <span class="hljs-built_in">read</span> title line
+
+2117 molecules converted
+</code></pre>
+<p>This test, which parses 2117 records, required four minutes forty-five seconds on my system. For comparison, the natively compiled binary did the same thing in about thirteen seconds. Clearly, the JBabel performance hit is substantial.</p>
+<h2 id="uses">Uses</h2>
+<p>Although it's very unlikely that JBabel will ever be useful in performance-critical situations, its portability makes it attractive for other uses. Examples include:</p>
+<ul>
+<li>application development in heterogeneous computing environments;</li>
+<li>use on systems in which native compilation may be difficult, such as those with unusual configurations or operating systems;</li>
+<li>cases in which native binaries work poorly or not at all, such as in applets and Java applications;</li>
+<li>situations in which performance is a minor consideration, such as in end-user applications that process only a few molecules at a time, or during application prototyping</li>
+</ul>
+<h2 id="conclusions">Conclusions</h2>
+<p>This article has described JBabel, the first portable binary version of OpenBabel's <code>babel</code> molecular file format interconversion program. The next article in this series will describe in detail the steps that were used to compile it.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,80 @@
+<?xml version="1.0" standalone="yes"?>
+
+<molecule>
+  <constitution>
+    <atoms>
+      <atom id="1" symbol="C" hydrogens="3" ionization="4"></atom>
+      <atom id="2" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="3" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="4" symbol="C" hydrogens="3" ionization="4"></atom>
+      <atom id="5" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="6" symbol="O" hydrogens="0" ionization="2"></atom>
+      <atom id="7" symbol="N" hydrogens="0" ionization="3"></atom>
+      <atom id="8" symbol="C" hydrogens="3" ionization="4"></atom>
+      <atom id="9" symbol="I" hydrogens="0" ionization="1"></atom>
+      <atom id="10" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="11" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="12" symbol="C" hydrogens="0" ionization="4"></atom>
+      <atom id="13" symbol="C" hydrogens="3" ionization="4"></atom>
+      <atom id="14" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="15" symbol="C" hydrogens="1" ionization="4"></atom>
+      <atom id="16" symbol="C" hydrogens="1" ionization="4"></atom>
+    </atoms>
+    <bonding>
+      <bond source="1" target="2" bondingElectrons="2"></bond>
+      <bond source="2" target="3" bondingElectrons="4"></bond>
+      <bond source="3" target="4" bondingElectrons="2"></bond>
+      <bond source="3" target="5" bondingElectrons="2"></bond>
+      <bond source="5" target="6" bondingElectrons="4"></bond>
+      <bond source="5" target="7" bondingElectrons="2"></bond>
+      <bond source="7" target="8" bondingElectrons="2"></bond>
+      <bond source="7" target="11" bondingElectrons="2"></bond>
+      <bond source="9" target="10" bondingElectrons="2"></bond>
+      <bond source="10" target="11" bondingElectrons="2"></bond>
+      <bond source="11" target="12" bondingElectrons="4"></bond>
+      <bond source="12" target="13" bondingElectrons="2"></bond>
+      <bond source="12" target="15" bondingElectrons="2"></bond>
+      <bond source="15" target="16" bondingElectrons="4"></bond>
+      <bond source="16" target="14" bondingElectrons="2"></bond>
+      <bond source="14" target="10" bondingElectrons="4"></bond>
+    </bonding>
+  </constitution>
+  <conformation>
+    <!-- the chiral axis -->
+    <conformationWheel>
+      <gammaSequence source="11" target="7">
+        <connections>
+          <atomPair source="11" target="7"></atomPair>
+        </connections>
+      </gammaSequence>
+      <halfPlane>
+        <lower atom="10"></lower>
+      </halfPlane>
+      <halfPlane>
+        <upper atom="5"></upper>
+      </halfPlane>
+      <halfPlane>
+        <lower atom="12"></lower>
+      </halfPlane>
+      <halfPlane>
+        <upper atom="8"></upper>
+      </halfPlane>
+    </conformationWheel>
+    <!-- the olefin axis -->
+    <conformationWheel>
+      <gammaSequence source="3" target="2">
+        <connections>
+          <atomPair source="3" target="2"></atomPair>
+        </connections>
+      </gammaSequence>
+      <halfPlane>
+        <lower atom="4"></lower>
+        <upper atom="1"></upper>
+      </halfPlane>
+      <halfPlane>
+        <lower atom="5"></lower>
+      </halfPlane>
+    </conformationWheel>
+  </conformation>
+</molecule>
+

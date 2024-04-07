@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building ChemWriter 2 - Pivotal Tracker for Project Management | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building ChemWriter 2 - Pivotal Tracker for Project Management</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-11-19T00:00:00.000Z">2010-11-19T00:00:00.000Z</time>
+      </header>
+      <div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/mTYcHg51sWY" allowfullscreen=""></iframe>
+</div>
+<p>If you're involved a software project of any scale, you face the problem of collecting and acting on the numerous bugs, chores, and feature requests relating to it - and doing so in a way that promotes team collaboration. You also face the problem of estimating completion time for various phases of the project.</p>
+<p>I have to admit that my solutions to these problems have been pretty pathetic in the past: PostIts, crude databases, and the like. Using systems like this, it's easy for things to fall through the cracks and even to lose track of what you're currently doing as new, higher-priority tasks come in.</p>
+<p>Several months ago, I was introduced to a tool that solves all of these problems: <a href="http://pivotaltracker.com">Pivotal Tracker</a> (or just "Tracker"). Tracker is free, Web-based a project management tool designed around the principles of <a href="http://depth-first.com/articles/2010/09/12/scrum-in-under-ten-minutes/">Scrum</a>. There are two key benefits of this approach:</p>
+<ol>
+<li>Tracker forces you to think about the delivery of complex features in terms of smaller, more manageable features (stories).</li>
+<li>Tracker provides the same detailed project perspective to all team members - updated in real-time, enabling them to act with less top-level control.</li>
+<li>Tracker offers simple yet powerful project delivery forecasting tools.</li>
+</ol>
+<p>We've been using Tracker in the development of <a href="http://chemwriter.com">ChemWriter 2</a> for the last couple of months now. Although Tracker's unique take on project management took some getting used to, it's become an invaluable resource. Within no time at all, our Tracker system has filled in quite nicely:</p>
+<p><img src="/images/posts/chemwriter-tracker.png" alt="ChemWriter Tracker" title="ChemWriter Tracker"></p>
+<p>One of the hard things about using Tracker is estimating how much work will be involved in delivering a feature. For example, very recently we added a feature to ChemWriter 2 that makes it possible to join a sprouted atom by dragging it over an existing molecule atom (<a href="http://chemwriter.com/signups/new">check out the free preview</a> to see this and other features in action). Given that much of the related work consisted of porting existing Java code from ChemWriter 1.x into JavaScript, I assigned a low score. It turned out that the stark difference in rendering between ChemWriter 2 and ChemWriter 1.x made the task take about 5 times longer than originally estimated.</p>
+<p>If you already use a software project management tool, Pivotal Tracker might not offer much beyond a streamlined approach to issue tracking. But if you're starting a new project, or are working on a project without the benefit a real project management tool, it might be worth trying Pivotal Tracker.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

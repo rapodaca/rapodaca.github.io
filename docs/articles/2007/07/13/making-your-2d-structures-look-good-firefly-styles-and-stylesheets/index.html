@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Making Your 2D Structures Look Good: Firefly, Styles and Stylesheets | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Making Your 2D Structures Look Good: Firefly, Styles and Stylesheets</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-07-13T00:00:00.000Z">2007-07-13T00:00:00.000Z</time>
+      </header>
+      <p>Chemists can be <a href="http://depth-first.com/articles/2007/07/11/waldorf-salad">very discerning</a> when it comes to chemical structure aesthetics. This is not surprising, given the <a href="http://depth-first.com/articles/2007/03/30/the-aesthetics-of-chemical-structure-diagrams">central role</a> played by 2D chemical structures in the day-to-day work of many chemists. For example, consider the <a href="http://en.wikipedia.org/wiki/Wikipedia_talk:WikiProject_Chemistry/Structure_drawing_workgroup/Archive_Apr_2007">Wikipedia Chemistry/Structure drawing workgroup's ongoing discussion</a> about achieving a consistent look for chemical structures on the online encyclopedia.</p>
+<p>Several articles have discussed <a href="http://depth-first.com/articles/tag/firefly">Firefly</a>, a 2D chemical structure editor specifically designed for the Web. With major work on the rendering engine and structure manipulation interface complete, recent efforts have turned toward exposing drawing settings through a graphical user interface. Here I'll provide some screenshots of an interface prototype along with sample structures. I'll also briefly discuss the larger question of making 2D structure drawing styles portable.</p>
+<p>Drawing styles are edited through a tabbed dialog containing a live preview window that uses the current structure or a default structure if none is available. The dialog is resizable, enabling users to immediately see the effects of changes on structures of varying sizes. Although this dialog could be bundled and deployed with the editor, its large footprint makes it more appropriate for use as an optional feature or as a standalone configuration tool in a Web application.</p>
+<p><img src="/images/posts/20070713/dialog.png" alt="Dialog" title="Dialog"></p>
+<p>Changes can be rolled back entirely ("Reset"), canceled ("Cancel"), or accepted ("OK").</p>
+<p>Let's say we'd like to apply a black background with white bonds, as used in some Power Point presentations:</p>
+<p><img src="/images/posts/20070713/black_background.png" alt="Black Background" title="Black Background"></p>
+<p>After applying this change, we decide that we'd rather not use atom coloring:</p>
+<p><img src="/images/posts/20070713/no_colors.png" alt="No Colors" title="No Colors"></p>
+<p>After looking at this structure for a few seconds, we decide that narrower stereo bonds are needed:</p>
+<p><img src="/images/posts/20070713/thin_stereo.png" alt="Thin Stereo" title="Thin Stereo"></p>
+<p>After some experimentation, we find a more appropriate non-stereo bond width and double bond offset:</p>
+<p><img src="/images/posts/20070713/thin_lines.png" alt="Thin Lines" title="Thin Lines"></p>
+<p>What about a Serif font? No, I don't think so:</p>
+<p><img src="/images/posts/20070713/serif_font.png" alt="Serif Font" title="Serif Font"></p>
+<p>But we could certainly reduce the size of the atom labels:</p>
+<p><img src="/images/posts/20070713/small_labels.png" alt="Small Labels" title="Small Labels"></p>
+<p>On second thought, the original atom sizes were fine, although changing font may require us to reconsider the atom label heights:</p>
+<p><img src="/images/posts/20070713/thin_lines.png" alt="Thin Lines" title="Thin Lines"></p>
+<p>As you can see, the possibilities for customization are nearly endless. In practice, however, most chemists will adopt only two structure drawing styles that they re-use as needed: one for reports and manuscripts; and one for presentations. It will be interesting to see whether a third style makes it's way into the standard repertoire: Web.</p>
+<p>Each chemist will want a way to save their styles, possibly share them, and easily apply them. Although a few systems for doing so are feasible, the most practical approach would be a <a href="http://en.wikipedia.org/wiki/Stylesheet_language">stylesheet</a>. Applying a stylesheet to any structure diagram would change its appearance, offering a simple mechanism to achieve a consistent look across documents.</p>
+<p>Developing a universal (cross-editor) stylesheet system would be no easy task, given the wildly divergent capabilities of 2D structure rendering software. Despite the technical difficulty, the payoff for users is obvious.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

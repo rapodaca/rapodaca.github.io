@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fast Substructure Search Using Open Source Tools Part 2 - Fingerprint Screen With SQL | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Fast Substructure Search Using Open Source Tools Part 2 - Fingerprint Screen With SQL</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-10-03T00:00:00.000Z">2008-10-03T00:00:00.000Z</time>
+      </header>
+      <p>The <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">previous article in this series</a> discussed the configuration of a MySQL database for fast substructure search with binary fingerprints. This article first shows how to populate this database with real fingerprint data for two molecules. Then it shows how to formulate standard SQL queries to screen the database for substructures.</p>
+<p>All articles in this series:</p>
+<ul>
+<li><a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">Part 1: Fingerprints and Databases</a></li>
+<li>Part 2: Fingerprint Screen With SQL</li>
+<li><a href="/articles/2008/10/06/fast-substructure-search-using-open-source-tools-part-3-a-crud-api-for-fingerprints-in-ruby">Part 3: A CRUD API for Fingerprints in Ruby</a></li>
+<li><a href="/articles/2008/10/15/fast-substructure-search-using-open-source-tools-part-4-creating-fingerprints-from-chemical-structures">Part 4: Creating Fingerprints from Chemical Structures</a></li>
+<li><a href="/articles/2008/10/21/fast-substructure-search-using-open-source-tools-part-5-relating-molecules-to-fingerprints-with-sql">Part 5: Relating Molecules to Fingerprints with SQL</a></li>
+<li><a href="/articles/2008/10/29/fast-substructure-search-using-open-source-tools-part-6-modelling-a-one-to-many-relationship-between-fingerprints-and-compounds-in-ruby">Part 6: Modelling a One-To-Many Relationship Between Fingerprints and Compounds in Ruby</a></li>
+</ul>
+<h2 id="creatingthefingerprintswithopenbabel">Creating the Fingerprints with Open Babel</h2>
+<p>The <code>babel</code> command line utility will, among it many conversions, return a fingerprint when given a valid SMILES string.  For example, we can create the fingerprint for benzene like this:</p>
+<pre><code class="hljs bash language-bash">babel -ismi -ofpt
+c1ccccc1
+&gt;   6 bits <span class="hljs-built_in">set</span> 
+00000000 00000000 00000000 00000200 00000000 00000000 
+00000000 00000000 00000000 00000840 00000000 00008000 
+00000000 00000000 00000000 00000000 00000000 00000000 
+00000000 00000000 00000000 08000000 00000000 00000000 
+00000000 00000000 00000000 00000000 00000000 00020000 
+00000000 00000000 
+1 molecule converted
+12 audit <span class="hljs-built_in">log</span> messages
+</code></pre>
+<p>Similarly, we create the fingerprint for phenol like this:</p>
+<pre><code class="hljs bash language-bash">babel -ismi -ofpt
+c1ccccc1O 
+&gt;   12 bits <span class="hljs-built_in">set</span> 
+00000000 00000008 20000000 00000200 00000000 00000000 
+02000000 00000000 00000000 00000840 00000000 00008000 
+00000002 00000000 00000000 00000008 00000000 00000000 
+00000000 00020000 00000000 08000000 00000000 00000000 
+00000000 00000000 00000000 00000000 00000000 00020000 
+00000000 00000000 
+1 molecule converted
+19 audit <span class="hljs-built_in">log</span> messages
+</code></pre>
+<p>The exact meaning of these fingerprints is interesting, but not relevant. Without getting into the details of the Open Babel fingerprint formats, which are discussed in detail <a href="http://www.dalkescientific.com/writings/diary/archive/2008/06/27/generating_fingerprints_with_openbabel.html">elsewhere</a>, the output contains the binary fingerprint of each molecule as an array of 32-bit hexadecimal numbers.</p>
+<h2 id="addingfingerprintstothedatabase">Adding Fingerprints to the Database</h2>
+<p>To use Open Babel's fingerprints with out database, we need to convert the 32-bit hexadecimal numerical output to 64-bit decimal format. This is not difficult and most programming environments make this very simple. For example, the following Ruby code will convert the third and fourth 32-bit hexadecimal numbers in the benzene fingerprint into a 64-bit decimal number:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; <span class="hljs-string">"0000000000000200"</span>.hex
+=&gt; 512
+</code></pre>
+<p>Performing this conversion for every pair of 32-bit hex numbers in each fingerprint gives a set of numbers we can place directly into our database:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; <span class="hljs-comment"># Add benzene decimal fingerprint.</span>
+mysql&gt; insert into fingerprints
+(fp0,fp1,fp2,fp3,fp4,fp5,fp6,fp7,fp8,fp9,fp10,fp11,fp12,fp13,fp14,fp15)
+values
+(0, 512, 0, 0, 2112, 32768, 0, 0, 0, 0, 134217728, 0, 0, 0, 131072, 0);
+</code></pre>
+<p>Similarly,</p>
+<pre><code class="hljs bash language-bash">mysql&gt; <span class="hljs-comment"># Add phenol decimal fingerprint.</span>
+mysql&gt; insert into fingerprints
+(fp0,fp1,fp2,fp3,fp4,fp5,fp6,fp7,fp8,fp9,fp10,fp11,fp12,fp13,fp14,fp15)
+values
+(8, 2305843009213694464, 0, 144115188075855872, 2112, 32768, 8589934592, 8, 0, 131072, 134217728, 0, 0, 0, 131072, 0);
+</code></pre>
+<p>Our table is now ready to be queried:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; select * from fingerprints;
++----+------+---------------------+------+--------------------+------+-------+------------+------+------+--------+-----------+------+------+------+--------+------+
+| id | fp0  | fp1                 | fp2  | fp3                | fp4  | fp5   | fp6        | fp7  | fp8  | fp9    | fp10      | fp11 | fp12 | fp13 | fp14   | fp15 |
+
+
++----+------+---------------------+------+--------------------+------+-------+------------+------+------+--------+-----------+------+------+------+--------+------+
+|  1 |    0 |                 512 |    0 |                  0 | 2112 | 32768 |          0 |    0 |    0 |      0 | 134217728 |    0 |    0 |    0 | 131072 |    0 | 
+|  2 |    8 | 2305843009213694464 |    0 | 144115188075855872 | 2112 | 32768 | 8589934592 |    8 |    0 | 131072 | 134217728 |    0 |    0 |    0 | 131072 |    0 | 
++----+------+---------------------+------+--------------------+------+-------+------------+------+------+--------+-----------+------+------+------+--------+------+
+2 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<h2 id="queryingthedatabase">Querying the Database</h2>
+<p>With a table of fingerprints in hand, we can begin formulating queries. To do so, we'll use MySQL's built-in support for <a href="http://dev.mysql.com/doc/refman/5.0/en/bit-functions.html">binary arithmetic</a>.</p>
+<p>A molecule with fingerprint A can represent a substructure of another molecule with fingerprint B if all of the bits in B are also present in A. Mathematically, we'd say that:</p>
+<p>B<sub>i</sub> &amp; A<sub>i</sub> = B<sub>i</sub></p>
+<p>for all bits i in A and B.</p>
+<p>Let's say we have a two-bit fingerprint consisting of 01 and 11 (binary) in our database. We can use MySQL to test whether the molecule from which the second fingerprint was derived could be a substructure of the molecule from which the first fingerprint was derived with this syntax:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; select 1&amp;3;
++-----+
+| 1&amp;3 |
++-----+
+|   1 | 
++-----+
+1 row <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<p>The answer is yes, there could be a substructure match because 1&amp;3 = 1.</p>
+<p>We're now ready to perform our first substructure screen using SQL. This consists of selecting all rows for which each of the 16 fingerprint components, when anded together with a query fingerprint component, gives back the original component.</p>
+<p>To see if phenol is a substructure of benzene, we could use the following:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; select id from fingerprints <span class="hljs-built_in">where</span> fp0&amp;0=0 and fp1&amp;512=512 and fp2&amp;0=0 and fp3&amp;0=0 and fp4&amp;2112=2112 and fp5&amp;32768=32768 and fp6&amp;0=0 and fp7&amp;0=0 and fp8&amp;0=0 and fp9&amp;0=0 and fp10&amp;134217728=134217728 and fp11&amp;0=0 and fp12&amp;0=0 and fp13&amp;0=0 and fp14&amp;131072=131072 and fp15&amp;0=0;
++----+
+| id |
++----+
+|  1 | 
+|  2 | 
++----+
+2 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<p>Our query results are telling us that phenol is both a substructure of benzene and itself, as expected.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>We now have a database populated with two molecules represented as fingerprints. We can even scan the database for possible substructure matches using nothing more than standard SQL queries. Nevertheless, we've had to use a lot of manual coding to convert hex into decimal and create SQL. We need a library to do this mundane work for us. The next article in this series will discuss a better approach using Ruby.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

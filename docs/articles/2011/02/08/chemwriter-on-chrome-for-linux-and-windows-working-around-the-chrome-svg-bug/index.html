@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ChemWriter on Chrome for Linux and Windows: Working Around the Chrome SVG Bug | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>ChemWriter on Chrome for Linux and Windows: Working Around the Chrome SVG Bug</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2011-02-08T00:00:00.000Z">2011-02-08T00:00:00.000Z</time>
+      </header>
+      <p>I'm happy to report that <a href="http://chemwriter.com">ChemWriter</a> now runs without known issues on Chrome for Linux and Windows.</p>
+<p>As reported here previously, SVG on Chrome for Linux and Windows suffers from <a href="http://code.google.com/p/chromium/issues/detail?id=65238">a known bug that prevents attachment of event listeners to SVG DOM elements under certain conditions</a>. Fortunately, the bug was pinpointed and a <a href="/demos/chrome-bug-65238/chrome-on-linux-windows-svg-event-bug.xhtml">simple XHTML file</a> can be used to reproduce the behavior.</p>
+<p>Although Chrome recently pushed Version 9 to clients, this update unfortunately didn't fix the problem.</p>
+<p>I won't go into how we enabled the workaround here. Suffice it to say - ChemWriter can now be used on all desktop browsers with a significant user base, with custom interfaces for iPad and Android tablets coming soon.</p>
+<p><a href="http://chemwriter.com">ChemWriter</a> is the ergonomic chemical structure editor for the Web. Written entirely with JavaScript, it requires neither Java nor plugins of any kind. Both <a href="http://chemwriter.com/buy">commercial and academic</a> license are available to fit your project.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

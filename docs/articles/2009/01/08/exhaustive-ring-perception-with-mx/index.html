@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Exhaustive Ring Perception With MX | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Exhaustive Ring Perception With MX</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-01-08T00:00:00.000Z">2009-01-08T00:00:00.000Z</time>
+      </header>
+      <p>The <a href="http://code.google.com/p/mx-java/downloads/detail?name=mx-0.108.1-src.tar.gz&amp;can=2&amp;q=#makechanges">latest release</a> of <a href="http://metamolecular.com/mx/">MX</a> now supports exhaustive ring perception. Both a <a href="http://mx-java.googlecode.com/files/mx-0.108.1.jar">platform-independent jarfile</a> and <a href="http://mx-java.googlecode.com/files/mx-0.108.1-src.tar.gz">source distribution</a> can be downloaded.</p>
+<h2 id="background">Background</h2>
+<p>The ability to perceive all rings in a chemical structure is essential for a number of important cheminformatics capabilities including <a href="/articles/2007/04/11/structure-diagram-generation">Structure Diagram Generation</a>, <a href="/articles/2007/11/28/smiles-and-aromaticity-broken">aromaticity detection</a>, and <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">binary fingerprint generation</a>.</p>
+<p>A recent Depth-First article described a <a href="/articles/2008/12/16/exhaustive-ring-perception">ring-perception algorithm</a> that efficiently returns the set of all rings for any molecule. The algorithm, developed by Hanser and coworkers has now been implemented in MX.</p>
+<p><a href="http://code.google.com/p/mx-java/">MX</a> is a platform-independent, cross-language cheminformatics toolkit written in Java and made available to the cheminformatics community by <a href="http://metamolecular.com">Metamolecular, LLC</a>.</p>
+<h2 id="examples">Examples</h2>
+<p>Ring perception can be tested conveniently using either <a href="/articles/2008/11/24/getting-started-with-mx">JRuby</a> or <a href="/articles/2008/12/01/open-source-cheminformatics-in-python-with-mx">Jython</a>. In these examples, we'll use JRuby.</p>
+<p>To find all rings in benzene, we'd use something like:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'mx-0.108.1.jar'</span>                         
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; import com.metamolecular.mx.ring.HanserRingFinder
+=&gt; Java::ComMetamolecularMxRing::HanserRingFinder
+irb(main):003:0&gt; import com.metamolecular.mx.io.Molecules         
+=&gt; Java::ComMetamolecularMxIo::Molecules
+irb(main):004:0&gt; benzene = Molecules.create_benzene               
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0x1971eb3 @java_object=com.metamolecular.mx.model.DefaultMolecule@126ba64&gt;</span>
+irb(main):005:0&gt; finder = HanserRingFinder.new                    
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxRing::HanserRingFinder:0x76f2e8 @java_object=com.metamolecular.mx.ring.HanserRingFinder@1458dcb&gt;</span>
+irb(main):006:0&gt; rings = finder.find_rings benzene                
+=&gt; <span class="hljs-comment">#&amp;lt;Java::JavaUtil::ArrayList:0x1b83048 @java_object=[[com.metamolecular.mx.model.DefaultMolecule$AtomImpl@169dd64, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@145f5e3, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@122d9c, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@170984c, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@11ed166, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@45aa2c, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@169dd64]]&gt;</span>
+irb(main):007:0&gt; rings[0].collect{|atom| atom.get_index}.join(<span class="hljs-string">"-"</span>)
+=&gt; <span class="hljs-string">"5-0-1-2-3-4-5"</span>
+irb(main):008:0&gt; rings.size
+=&gt; 1
+</code></pre>
+<p>Here, we're taking advantage of the Ruby <a href="http://www.ruby-doc.org/core/classes/Array.html#M002205"><code>Array.join</code></a> function to place a dash between each atom index.</p>
+<p>To really push the system, we could find all rings in cubane:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&amp;gt; require <span class="hljs-string">'mx-0.108.1.jar'</span>                         
+=&amp;gt; <span class="hljs-literal">true</span>
+irb(main):002:0&amp;gt; import com.metamolecular.mx.ring.HanserRingFinder
+=&amp;gt; Java::ComMetamolecularMxRing::HanserRingFinder
+irb(main):003:0&amp;gt; import com.metamolecular.mx.io.Molecules         
+=&amp;gt; Java::ComMetamolecularMxIo::Molecules
+irb(main):004:0&amp;gt; cubane = Molecules.create_cubane                 
+=&amp;gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0xe391c4 @java_object=com.metamolecular.mx.model.DefaultMolecule@182a033&amp;gt;</span>
+irb(main):005:0&amp;gt; finder = HanserRingFinder.new                    
+=&amp;gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxRing::HanserRingFinder:0x1458dcb @java_object=com.metamolecular.mx.ring.HanserRingFinder@1603522&amp;gt;</span>
+irb(main):006:0&amp;gt; rings = finder.find_rings cubane                 
+=&amp;gt; <span class="hljs-comment">#collection with many objects</span>
+irb(main):007:0&amp;gt; rings.size                                       
+=&amp;gt; 28
+irb(main):008:0&amp;gt; rings[0].collect{|atom| atom.get_index}.join(<span class="hljs-string">"-"</span>)
+=&amp;gt; <span class="hljs-string">"3-0-1-2-3"</span>
+</code></pre>
+<h2 id="otherimprovements">Other Improvements</h2>
+<p>The MX-0.108.1 release includes some other changes as well.</p>
+<ul>
+<li>Fixes a bug in which multiline SD file data was not read.</li>
+<li>Adds a resources directory containing atomic_system.xml so that the source distribution can compile and all tests will pass.</li>
+</ul>
+<h2 id="conclusions">Conclusions</h2>
+<p>This first implementation of the Hanser algorithm focuses on correctness, readability, and test coverage over performance. Future releases will address performance in the context of a <a href="/articles/2008/12/05/open-benchmarks-for-cheminformatics">open, multi-toolkit cheminformatics benchmark suite</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

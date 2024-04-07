@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building Chempedia: Social Networking Applied to Chemistry | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building Chempedia: Social Networking Applied to Chemistry</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-05-21T00:00:00.000Z">2008-05-21T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://chempedia.com">Chempedia</a> is a free online chemical encyclopedia; it's also a work in progress, the contents of which are being written by numerous volunteers worldwide. A previous article described initial work toward <a href="/articles/2008/05/15/building-chempedia-the-human-element">connecting the people behind Chempedia's content with the compound monographs they're writing</a>. This article will describe new features that take this idea much further.</p>
+<h2 id="contributors">Contributors</h2>
+<p>Chempedia now uses the concept of a "Contributor" as part of its data model. Each Compound Monograph has one associated Contributor, the Wikipedia user who last edited it. In other words, a one-to-many relationship exists between a Contributor and a Monograph.</p>
+<p>Of course, this model is simplistic; Compound Monographs are edited by multiple users over time, and so the relationship should be many-to-many. Nevertheless, for now a one-to-many relationship works well enough.</p>
+<h2 id="learningaboutcontributors">Learning About Contributors</h2>
+<p>You can view a <a href="http://chempedia.com/contributors">complete list of contributors to Chempedia</a>. As you can see, over 1,000 Wikipedia users are currently listed. The number in parentheses appearing after each contributor's username is the number of Monographs for which Wikipedia lists them as the last editor.</p>
+<p>Chempedia contains just over 6,400 Compound Monographs; the fact that 1,000 Wikipedia users contributed to making that happen is remarkable. That such a large number of users contribute relative to the number Monographs may be surprising given the rule of thumb that <a href="/articles/2007/10/05/what-makes-wikipedia-tick">only 2-10% of users are responsible for the majority of the work on community-driven projects</a>. While the majority of work may well be done by a relatively small group of Contributors, these numbers demonstrate a <a href="/articles/2006/08/19/history-of-abstracting-at-chemical-abstracts-service">widespread interest in creating and maintaining information about chemical compounds</a>.</p>
+<p>Chempedia lets you learn more about what an individual Contributor has done. Clicking on a Contributor name takes us to a Contributor summary page showing all of the Monographs on which they are listed as Contributor, as well as their Wikipedia home and talk pages. The latter can be used to take part in discussions.</p>
+<p>A particularly active contributor (one of several) goes by the name of <a href="http://chempedia.com/contributors/1">Edgar181</a>. As of this writing, s/he is listed as the Contributor on 458 Compound monographs, and the last one s/he edited was <a href="http://chempedia.com/monographs/methylparaben">Methylparaben</a>.</p>
+<p>And 1,000 Contributors represents only a lower limit due the the large number of <a href="http://chempedia.com/contributors/2">anonymous contributions</a>, which on Chempedia are lumped together. As you can see, over 1,100 Compound Monographs were last edited by a Wikipedia user who didn't log in.</p>
+<h2 id="thankgoodnessforrobots">Thank Goodness for Robots</h2>
+<p>Quite a few <a href="http://chempedia.com/contributors">Contributors</a> have the letters 'Bot' in their names. A 'Bot is a script designed to do work on Wikipedia that would be tedious and/or error prone if done by humans.</p>
+<p>One of my favorites is <a href="http://chempedia.com/contributors/17">ClueBot</a>. From the <a href="http://en.wikipedia.org/wiki/User:ClueBot">ClueBot Wikipedia user page</a>, this script's purpose in life is to revert Wikipedia vandalism, a job it does with breathtaking efficiency and accuracy.</p>
+<p>For example, one of ClueBot's last pieces of work was to <a href="http://en.wikipedia.org/w/index.php?title=Lysergic_acid_diethylamide&amp;diff=213850493&amp;oldid=213850472">revert an edit</a> made to <a href="http://chempedia.com/monographs/lysergic-acid-diethylamide">Lysergic Acid Diethylamide</a> in which a user tried to include some enthusiastic, but subjective, comments about <a href="http://en.wikipedia.org/wiki/Albert_Hofmann">Albert Hofmann's</a> discovery.</p>
+<p>In less than one minute, ClueBot had not only identified the comment as vandalism (despite the fact that no 'offensive' language was used), but had removed it as well. Amazing.</p>
+<h2 id="connectingcontributorstomonographs">Connecting Contributors to Monographs</h2>
+<p>Chempedia is quickly forming a densely connected network of people and molecules. What can we do with this?</p>
+<p><img src="/images/posts/20080521/edit_status.png" alt="Edit Status" title="Edit Status"></p>
+<p>A new edit status line has been added to Monographs summaries (above). With it, you can easily see the number of edits that have occurred, when the last one happened, and who did it. Links will take you directly to the Wikipedia edit history page and to the Chempedia Contributor page for the last editor.</p>
+<p>For example, the entry for <a href="http://chempedia.com/monographs/modafinil">Modafinil</a> currently lists <a href="http://chempedia.com/contributors/314">Paul gene</a> as the last contributor. Bringing up his Chempedia contributor page, we can see that he's listed as the last Contributor on three other Monographs, all of which are organic compounds of pharmacological interest. Curious about whether this might be one of Paul gene's interests, we click on the <a href="http://en.wikipedia.org/wiki/User:Paul%20gene">User Page</a> link at the top right of the contributor page and find out that this Wikipedia user received a Ph.D., works in academia, and has an interest in pharmacology, immunology, chemistry, kinase inhibitors, and antidepressants.</p>
+<h2 id="newlyeditedmonographs">Newly-Edited Monographs</h2>
+<p>It might be of interest to know when Compound Monographs are edited. This can be done from the <a href="http://chempedia.com/monographs">Browse</a> link at the top-left main menu. On this page Monographs are sorted in descending order according to the last edit timestamp. The most recently-edited monographs appear on the first page, which is currently updated once every 30 minutes or so.</p>
+<h2 id="hotmonographs">Hot Monographs</h2>
+<p>We may also be interested in which Compound Monographs are receiving the most edit activity. We can do that by choosing the <a href="http://chempedia.com/monographs?sortby=activity">Active</a> link at the top-right submenu. As of this writing, <a href="http://chempedia.com/monographs/heroin">Heroin</a> is the most actively edited Monograph, with 10 edits since May 19<sup>th</sup>. Clicking on <a href="http://en.wikipedia.org/w/index.php?title=Heroin&amp;action=history">the link</a> in the edit status line, we can see what all the activity is about.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>None of the technology described here is especially new or innovative; social networking has been part of information systems for several years now and relational databases are designed to make discoveries possible by linking disparate pieces of information. What is new is Chempedia's application of social networking, facilitated by relational databases, to chemistry. I'm unaware of any other chemical information system that takes the possibilities of social networking as far as Chempedia has taken them.</p>
+<p>There's quite a bit more that could be done to link people and molecules on Chempedia, but for now, it's time to move onto some related areas. It turns out that the use of CAS numbers, when used outside of the CAS database system itself, raises all kinds of difficult and interesting questions around trust and authority in which social networking ideas can be applied. But that's a story for another time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

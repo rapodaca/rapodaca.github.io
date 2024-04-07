@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Big Data in Chemistry: Mirroring PubChem the Easy Way | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Big Data in Chemistry: Mirroring PubChem the Easy Way</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-02-08T00:00:00.000Z">2010-02-08T00:00:00.000Z</time>
+      </header>
+      <p>PubChem's massive size presents special challenges when working with this chemical dataset. Synchronization in particular requires special care. Although it's very easy to use a tool such as <a href="http://www.gnu.org/software/wget/">wget</a> to perform a complete, one-time download PubChem's archive files, this approach scales poorly if our goal is to maintain a copy that's always up-to-date. The PubChem dataset's substantial size makes it impractical to download frequently, and especially problematic when an up-to-date local copy is needed quickly.</p>
+<p>This article describes a simple way to create a low-maintenance, low-bandwidth, up-to-date local mirror of PubChem using two Unix tools.</p>
+<h2 id="whatitdoes">What It Does</h2>
+<p>The method described here will create two directories on your filesystem that will exactly mirror the contents of the PubChem Compound and Substance archives, respectively. A simple command, which can either be run as a nightly cron job or on demand, will efficiently bring these local files up-to-date with PubChem whenever it's run.</p>
+<h2 id="step1createaworkspaceandmountpubchemftpsite">Step 1. Create A Workspace and Mount PubChem FTP Site</h2>
+<p>We're going to need a workspace. In this workspace, we'll first create a mountpoint for the PubChem FTP site archives, then we'll mount the archives:</p>
+<pre><code class="hljs bash language-bash">mkdir workspace
+<span class="hljs-built_in">cd</span> workspace
+mkdir -p ftp.ncbi.nlm.nih.gov/pubchem
+curlftpfs ftp.ncbi.nlm.nih.gov/pubchem/ ftp.ncbi.nlm.nih.gov/pubchem/
+</code></pre>
+<p>My Linux distribution (Ubuntu Karmic) gives me the error message:</p>
+<pre><code class="hljs bash language-bash">fusermount: failed to open /etc/fuse.conf: Permission denied
+</code></pre>
+<p>which doesn't seem to matter. The FTP site is mounted, as I can see by listing the top-level entries:</p>
+<pre><code class="hljs bash language-bash">ls ftp.ncbi.nlm.nih.gov/pubchem
+Bioassay  Compound     data_spec     README         Substance
+CACTVS      Compound_3D  publications  specifications
+</code></pre>
+<p>We can unmount the PubChemFTP site with fusermount:</p>
+<pre><code class="hljs bash language-bash">fusermount -u ftp.ncbi.nlm.nih.gov/pubchem/
+</code></pre>
+<h2 id="step2createsynchronizationdirectoriesandtransferfiles">Step 2. Create Synchronization Directories and Transfer Files</h2>
+<p>Next, let's create two directories to hold the PubChem files - one for Compounds and one for Substances:</p>
+<pre><code class="hljs bash language-bash">mkdir substances
+mkdir compounds
+</code></pre>
+<p>Now comes the magic. We'll use <a href="http://samba.anu.edu.au/rsync/">rsync</a> to copy the contents of the mounted FTP archive into each of our local directories. First, we synchronize the Compounds:</p>
+<pre><code class="hljs bash language-bash">rsync -r -t -v --progress --bwlimit=500  --include=<span class="hljs-string">'*/'</span> --include=<span class="hljs-string">'*.sdf.gz'</span> --exclude=<span class="hljs-string">'*'</span> ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/ compounds
+</code></pre>
+<p>This is going to take nearly 24 hours.</p>
+<p>The option <em>--bwlimit</em> sets the maximum bandwidth (in Mb/S). The <em>--include</em> and <em>--exclude</em> options say that we're only interested in gzipped sd files.</p>
+<p>We synchronize Substance records analogously:</p>
+<pre><code class="hljs bash language-bash">rsync -r -t -v --progress --bwlimit=500  --include=<span class="hljs-string">'*/'</span> --include=<span class="hljs-string">'*.sdf.gz'</span> --exclude=<span class="hljs-string">'*'</span> ftp.ncbi.nlm.nih.gov/pubchem/Substance/CURRENT-Full/SDF/ substances
+</code></pre>
+<p>This command will take even longer to run.</p>
+<h2 id="step3thereisnostep3">Step 3. There Is No Step 3</h2>
+<p>That's really all there is to it. Every time we run the rsync command, we'll synchronize our local copy of the PubChem archive with the one on the PubChem FTP server. PubChem ensures that these archives are always current, so every time we synchronize, we'll have up-to-date files.</p>
+<h2 id="whyrsync">Why RSync?</h2>
+<p>RSync ensures that our synchronizations will be as efficient as possible by only downloading the archive files that change. From time to time, old records are updated in PubChem, and these changes appear as a new archive file that replaces an old archive file. The new file gets an updated timestamp. If you check out the <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/">Compounds FTP directory</a> you'll notice several different timestamps reflecting the various updates of existing records. New records appear as new archive files.</p>
+<p>The genius of RSync is that it performs an incremental backup; files that haven't changed since our last update are never downloaded.</p>
+<p>We can even take this incremental backup idea one step further. Although I don't yet know if PubChem supports it, it's possible to <a href="http://beeznest.wordpress.com/2005/02/03/rsyncable-gzip/">create GZip archives optimized for rsync</a>. This uses a variant of the GZip compression algorithm that makes it possible to transmit only the section of a gzip file that's actually changed, keeping network traffic to an absolute minimum.</p>
+<p>This rsyncable archive capability is built into most gzip binary distributions.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Creating and maintaining your own up-to-date, verbatim copy of PubChem is both simple and inexpensive. The trick is to first mount the FTP archive using curlftpfs and then use rsync to perform an incremental backup of the mounted archive. The method described here works equally well as a cron job or an ad hoc command.</p>
+<p><em>Credits: <a href="http://www.wikihow.com/Mirror-an-FTP-Directory-With-Rsync-and-Curlftpfs">Mirror an FTP Directory with RSync and Curlftps</a>; <a href="http://beeznest.wordpress.com/2005/02/03/rsyncable-gzip/">Rsyncable gzip</a></em></p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

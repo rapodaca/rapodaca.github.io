@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Chemistry, The Web, and Netflix | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Chemistry, The Web, and Netflix</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-06-11T00:00:00.000Z">2008-06-11T00:00:00.000Z</time>
+      </header>
+      <p>If you've ever rented movies from <a href="http://netflix.com">Netflix</a>, you've probably noticed the information box that pops up when you hover over a movie image. If you just want a quick peek at what a movie is all about, this simple feature can save a great deal of time and effort in mousing around, clicking, and general navigation annoyance. It turns out that chemical compounds have a lot in common with movies in that they both can be referred to through one or more identifiers and they both have a lot of interesting metadata linked to them. This article shows that what works for Netflix can also work for chemistry.</p>
+<h2 id="theproblem">The Problem</h2>
+<p>Interpreting IUPAC nomenclature and references to compound numbers is a major chore when working with chemistry experimental sections. When paper documents are used, this typically involves flipping pages back and forth many times between the narrative and the experimental section. With Web documents, this is usually either impossible or very inconvenient, and so the PDF is printed to paper.</p>
+<h2 id="ademonstration">A Demonstration</h2>
+<p>The following text is an edited and re-formatted passage taken from <a href="http://www.beilstein-journals.org/bjoc/content/supplementary/1860-5397-4-5-S1.doc">the experimental section</a> of <a href="http://dx.doi.org/10.1186/1860-5397-4-5">a paper</a> published in <a href="http://www.beilstein-journals.org/bjoc/home/home.htm"><em>Beilstein Journal of Organic Chemistry</em></a>. If you hover over any hyperlink for half a second or more, a balloon will pop up showing you the chemical structure of the substance being referred to. Mousing away from the link hides the balloon.</p>
+<p>[Demo Scrubbed]</p>
+<p>This demo has been tested on Internet Explorer 6/7, Firefox 2, and Safari 3.</p>
+<h2 id="technologies">Technologies</h2>
+<p>Although this demonstration is built on numerous Web technologies, two are at the top of the stack: the vector graphics rendering engine of <a href="http://metamolecular.com/chemwriter">ChemWriter</a> and the open source Javascript library <a href="http://www.gmod.org/wiki/index.php/Popup_Balloons">Balloon.js</a>.</p>
+<p>Chemical structures are displayed as lightweight Adobe Flash SWF files, as described in a <a href="/articles/2008/06/10/adobe-flash-for-cheminformatics-fast-scalable-and-attractive-2d-depiction-of-chemical-structures-with-vector-graphics">previous Depth-First article</a>. Software based on ChemWriter converts a molecular connection table into vector graphics commands for the Flash runtime with the help of the open source <a href="http://www.flagstonesoftware.com/transform/">Transform SWF</a> library.</p>
+<h2 id="playingtothewebsstrengths">Playing to the Web's Strengths</h2>
+<p>The Web is a new medium with a completely different set of rules compared to print media. One of its biggest strengths is interactivity: the ability to see something of interest and to immediately be able to find out more about it. One of its biggest weaknesses, even today, is technology standards. It's not enough to create interactivity; that interactivity must also fit within the technical constraints imposed by a medium that is still a work in progress.</p>
+<p>As journal publishers and others grapple with <a href="/articles/2008/05/08/building-a-unique-chemistry-journal-responses-to-questions-from-nature-chemistry">how to approach</a> the inevitable transition to purely Web-based scientific communication, it's important to keep both the strengths and limitations of the Web in mind. To date, nearly all attempts to create Web-based versions of chemistry journals have simply tried to duplicate the form of the print medium. This has resulted, if anything, on an even greater reliance on paper, resulting in valuable information being used well below its full potential.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>This article has demonstrated a simple labor-saving technique in which chemical structures can be visualized by hovering the cursor over specially-designated chemical identifiers. There's quite a bit more that can be done with chemical vector graphics, chemical information, and Web technologies commonly used in consumer services like Netflix. Future articles will discuss some possibilities.</p>
+<p>[Flash content scrubbed]</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

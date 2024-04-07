@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Trey: A Toolkit for V3000 Molfiles and RGfiles | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2022/07/13/trey-a-toolkit-for-v3000-molfiles-and-rgfiles/">
+      <meta property="og:title" content="Trey: A Toolkit for V3000 Molfiles and RGfiles">
+      <meta property="og:description" content="Building a suite of power tools for CTfile manipulation.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20220713/summary.png">
+      <meta content="Building a suite of power tools for CTfile manipulation." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Trey: A Toolkit for V3000 Molfiles and RGfiles</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2022-07-13T21:40:00Z">2022-07-13T21:40:00Z</time>
+      </header>
+      <p>The CTfile (aka "molfile") format can be found throughout cheminformatics and computational chemistry. Two versions are available: V2000 and V3000 (aka "V2K" and "V3K," respectively). The former is widely supported but lacks features that can make it difficult to use in modern settings. The latter supports these features but lacks widespread, robust tooling due in part to more complex semantics and syntax. To bridge this divide a new suite of tools for the low-level manipulation of V3000 molfiles is under construction. This article lifts the covers on it.</p>
+<h2 id="introducingtrey">Introducing Trey</h2>
+<p>Trey is standalone software library for reading, writing, and otherwise manipulating V3000 CTfiles. The name derives from <a href="https://en.wikipedia.org/wiki/Trey">English word</a> meaning "three" in various contexts. As the name suggests, Trey will focus exclusively on V3000 CTfiles. In other words, support for V2000 molfiles is out of scope. A preview of Trey previously appeared <a href="/articles/2022/05/23/a-dedicated-library-for-reading-and-writing-v3000-ctfiles/">here</a>.</p>
+<p>Trey is implemented in <a href="/articles/2020/01/20/cheminformatics-in-rust/">Rust</a>, a language that has been covered from <a href="/articles/">several angles</a> on this blog. To recap, Rust is type safe systems programming language. Like C and C++, memory is managed manually. Unlike those other languages, Rust guarantees code written in it to be free of several classes of pernicious memory errors. Rust's tooling is highly developed, boasting a modern package manager, <a href="https://doc.rust-lang.org/cargo/">Cargo</a>, among many other ergonomic comforts. The Rust community is smaller than that for C and C++ but growing rapidly, with several large organizations now involved including: the Mozilla Foundation; Microsoft; Dropbox; the GNU Compiler Collection; and Linux.</p>
+<p>Trey's source code is <a href="https://github.com/metamolecular/trey/">available on GitHub</a>, can installed through <a href="https://crates.io/crates/trey/">Crates.io</a>, and is licensed under the business-friendly <a href="https://opensource.org/licenses/MIT">MIT License</a>. Trey was factored out of a production software package created by <a href="https://metamolecular.com">my company</a> that translates <a href="/articles/2021/04/07/an-introduction-to-the-chemdraw-cdxml-format/">ChemDraw CDXML</a> to V3000 CTfiles.</p>
+<h2 id="features">Features</h2>
+<p>Trey can currently write correctly-formatted V3000 CTfiles. Both Molfile and RGfile (Rgroup file) formats are supported. The following snippet illustrates how to write a blank connection table.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> trey::ctab::ConnectionTable;
+<span class="hljs-keyword">use</span> trey::write::connection_table <span class="hljs-keyword">as</span> write;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> ctab = ConnectionTable::default();
+
+    <span class="hljs-built_in">assert_eq!</span>(
+        write(&amp;ctab),
+        [
+            <span class="hljs-string">"M  V30 BEGIN CTAB"</span>,
+            <span class="hljs-string">"M  V30 COUNTS 0 0 0 0 0"</span>,
+            <span class="hljs-string">"M  V30 END CTAB"</span>,
+        ]
+    )
+}
+</code></pre>
+<p>This support comes courtesy of a suite of data structures specifically designed to work with V3000 CTfiles. Part of this design is type safety, meaning that Trey makes it difficult, if not impossible, to represent invalid states. Consider the definition for <code>Atom</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Atom</span></span> {
+    <span class="hljs-keyword">pub</span> index: Index,
+    <span class="hljs-keyword">pub</span> kind: AtomKind,
+    <span class="hljs-keyword">pub</span> charge: Charge,
+    <span class="hljs-keyword">pub</span> coordinate: Coordinate,
+    <span class="hljs-keyword">pub</span> atom_atom_mapping: <span class="hljs-built_in">Option</span>&lt;Index&gt;,
+    <span class="hljs-keyword">pub</span> valence: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt;,
+    <span class="hljs-keyword">pub</span> mass: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt;,
+    <span class="hljs-keyword">pub</span> attachment_point: <span class="hljs-built_in">Option</span>&lt;AttachmentPoint&gt;,
+}
+</code></pre>
+<p>An instance of <code>Atom</code> is guaranteed to be valid, regardless of its source, because all of its member values have the same guarantee and these members have been composed in such a way to make invalid states impossible. </p>
+<p>Take <code>Index</code>, for example, which represents the V3000 concept of a unique identifier assigned to atoms and other entities. It's an integer value greater than zero, but without an upper bound. Thanks to the Rust <a href="https://doc.rust-lang.org/rust-by-example/generics/new_types.html">newtype</a> idiom, it's impossible to create an index out of range.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Index</span></span>(<span class="hljs-built_in">String</span>);
+
+<span class="hljs-keyword">impl</span> Index {
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(id: <span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-keyword">Self</span> {
+        id.to_string().try_into().unwrap()
+    }
+}
+</code></pre>
+<p>Similarly, the <code>atom_kind</code> attribute renders invalid data combinations impossible to express. Each variant of <code>AtomKind</code> possesses a different mix of attributes, a Rust capability that figures prominently throughout Trey. In essence, errors that would otherwise be expressed at runtime (or not) are instead caught at compile time. Used consistently, this approach can improve data quality. It's a central theme found throughout Trey's data structures.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">AtomKind</span></span> {
+    Element(Element),
+    PolymerBead,
+    Any,
+    Rgroup(IndexList),
+    ElementList(ElementList),
+}
+</code></pre>
+<h2 id="applications">Applications</h2>
+<p>When complete, Trey will fully support the lossless reading and writing of V3000 CTfiles. It's reasonable to ask what applications might exist for such a standalone library dedicated to a single serialization format.</p>
+<p>Normally, the functionality embodied by Trey would be part of a larger cheminformatics toolkit. Although this is one possible application (see, for example <a href="/articles/2020/06/01/chemcore-a-cheminformatics-toolkit-for-rust/">ChemCore</a>), I think this an unnecessarily restrictive view. There are a few clear applications for standalone molecular (de)serialization tools, and I suspect others would become apparent if cheminformatics were presented with high quality, modular tools.</p>
+<p>Lossless translators offer one opportunity. Consider the problem of translating some serialization format such as <a href="/articles/2022/06/29/introducing-balsa/">Balsa</a> into V3000 Molfile. When implemented within a cheminformatics toolkit, this translation is likely to proceed through the toolkit's native molecular representation. This may or may not be a superset of both formats. If not, needless information loss may be unavoidable. In contrast, lossless end-to-end translation would pair a Balsa reader with Trey's lossless V3000 writer. Incompatible features would necessarily be dropped, but not due to the limitations of any intermediate representation.</p>
+<p>There are also a few situations in which a cheminformatics toolkit is overkill. For example, we might want to merely renumber atom or bond indexes, or otherwise normalize a V3000 representation. Such applications benefit from lean code dedicated to a specific task, especially if done at scale. Likewise, simple calculations like empirical formula, exact molecular mass, and potentially even certain fingerprints could be computed directly and efficiently on native Trey data structures.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Trey is a new dedicated library for the reading, writing, and manipulation of V3000 CTfiles. It currently support high-quality output. Together with <a href="/articles/2022/06/29/introducing-balsa/">Balsa</a>, Trey expands on the idea of format-specific serialization tools loosely coupled through standard language infrastructure.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

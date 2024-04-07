@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hacking DOI - Interconvert Bibliographic References and DOIs with CrossRef and OpenURL | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Hacking DOI - Interconvert Bibliographic References and DOIs with CrossRef and OpenURL</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-05-06T00:00:00.000Z">2008-05-06T00:00:00.000Z</time>
+      </header>
+      <p>Science is in the middle of a transition from print to the internet as the primary medium of communication. This transition, although a boon for many scientists, creates a host of problems for those dealing with scientific information. For example, how would you interconvert a <a href="http://www.doi.org/">DOI</a> and its corresponding bibliographic reference?</p>
+<p>A previous Depth-First article discussed <a href="/articles/2007/06/27/easily-convert-publisher-urls-and-dois-to-bibliographical-citations-synthesis-synlett-ruby-and-mechanize">a screen-scraping method</a> as one solution. Unfortunately, this system relies on an intimate understanding of how individual publishers' Websites work, requires a different implementation for each publisher, and can break at any time without warning.</p>
+<p>This article discusses a far more robust solution to the problem of interconverting bibliographic references and DOIs.</p>
+<h2 id="backgroundopenurlandcrossref">Background: OpenURL and CrossRef</h2>
+<p><a href="http://www.crossref.org/">CrossRef</a> is the official <a href="http://www.doi.org/">DOI</a> link registration agency for scholarly and professional publications. One of the less well-known services offered by CrossRef is a free, Web-based <a href="http://www.crossref.org/openurl_info.html">bidirectional DOI/bibliographic reference converter</a> based on <a href="http://en.wikipedia.org/wiki/OpenURL">OpenURL</a>.</p>
+<h2 id="asimplerubylibrary">A Simple Ruby Library</h2>
+<p>The following Ruby library is all we need to begin using CrossRef and OpenURL:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'hpricot'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'open-uri'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">DOI</span></span>
+  <span class="hljs-comment"># Convert a doi into a bibliographic reference.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">biblio_for</span> <span class="hljs-title">doi</span></span>
+    doc = Hpricot(open(<span class="hljs-string">"http://www.crossref.org/openurl/?id=doi:<span class="hljs-subst">#{doi}</span>&amp;noredirect=true&amp;pid=ourl_sample:sample&amp;format=unixref"</span>))
+
+    journal = (doc/<span class="hljs-string">"abbrev_title"</span>).inner_html
+    year = (doc/<span class="hljs-string">"journal_issue/publication_date/year"</span>).inner_html
+    volume = (doc/<span class="hljs-string">"journal_issue/journal_volume/volume"</span>).inner_html
+    number = (doc/<span class="hljs-string">"journal_issue/issue"</span>).inner_html
+    first_page = (doc/<span class="hljs-string">"pages/first_page"</span>).inner_html
+    last_page = (doc/<span class="hljs-string">"pages/last_page"</span>).inner_html
+
+    <span class="hljs-string">"<span class="hljs-subst">#{journal}</span> <span class="hljs-subst">#{year}</span>, <span class="hljs-subst">#{volume}</span>(<span class="hljs-subst">#{number}</span>) <span class="hljs-subst">#{first_page}</span>-<span class="hljs-subst">#{last_page}</span>"</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># Convert a bibliographic reference into a DOI.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">doi_for</span> <span class="hljs-title">journal</span>, <span class="hljs-title">year</span>, <span class="hljs-title">volume</span>, <span class="hljs-title">issue</span>, <span class="hljs-title">page</span></span>
+    doc = Hpricot(open(<span class="hljs-string">"http://www.crossref.org/openurl/?title=<span class="hljs-subst">#{journal.gsub(<span class="hljs-regexp">/ /</span>, <span class="hljs-string">'%20'</span>)}</span>&amp;volume=<span class="hljs-subst">#{volume}</span>&amp;issue=<span class="hljs-subst">#{issue}</span>&amp;spage=<span class="hljs-subst">#{page}</span>&amp;date=<span class="hljs-subst">#{year}</span>&amp;pid=ourl_sample:sample&amp;redirect=false&amp;format=unixref"</span>))
+
+   (doc/<span class="hljs-string">"doi"</span>).inner_html
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>This code makes use of the excellent Ruby HTML parser library <a href="http://code.whytheluckystiff.net/hpricot">Hpricot</a>.</p>
+<h4>Testing the Library</h4>
+<p>Saving the Ruby code to a file named <strong>doi.rb</strong>, we can test it using the interactive Ruby shell:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'doi'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include DOI
+=&gt; Object
+irb(main):003:0&gt; biblio_for <span class="hljs-string">"10.1021/cr00032a009"</span>
+=&gt; <span class="hljs-string">"Chem. Rev. 1994, 94(8) 2483-2547"</span>
+irb(main):004:0&gt; doi_for <span class="hljs-string">"Chem. Rev."</span>, 1994, 94, 8, 2483
+=&gt; <span class="hljs-string">"10.1021/cr00032a009"</span>
+</code></pre>
+<p>Notice how the journal abbreviation <em>Chem. Rev.</em> was used; we'd get the same result if we used <em>Chemical Reviews</em>.</p>
+<p>Of course, the implementation described here could be refined a lot. With a DOI, it's trivial to <a href="http://dx.doi.org/10.1021/cr00032a009">construct a URL to the example paper</a>. But we could take it further than that. With some carefully crafted regular expressions, our <code>doi_for</code> method could accept a freeform bibliographical citation rather than separately identified fragments. From there we might start to think about creating living HTML and/or Wikis from old PDFs and Word documents.</p>
+<p>With a little creative thought, other possibilities are well within reach.</p>
+<h2 id="caveat">Caveat</h2>
+<p>Before extensively experimenting with CrossRef's OpenURL system, you might want to <a href="http://www.crossref.org/requestaccount/">sign up for a free account</a>. CrossRef is understandably interested in tracking usage and this is their way to do it.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>DOIs and traditional bibliographical citations now coexist in a variety of settings, from literature citation managers to journals themselves. Using CrossRef, OpenURL and a little bit of code, it's now possible to make a great deal more sense of it all.</p>
+<p>Harvesting bibliographical citations must be one of the least sexy topics in cheminformatics. But as Google demonstrated (building on the approach taken by <a href="http://scientific.thomson.com/products/sci/"><em>Science Citation Index</em></a>), cataloging citation behavior leads to a unique and highly productive way to view many tough problems. Future articles will discuss how this might apply to cheminformatics.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

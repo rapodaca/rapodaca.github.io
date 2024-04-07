@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Open Source Name To Structure Conversion of IUPAC Nomenclature - OPSIN Revisited | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Open Source Name To Structure Conversion of IUPAC Nomenclature - OPSIN Revisited</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-12-13T00:00:00.000Z">2010-12-13T00:00:00.000Z</time>
+      </header>
+      <p>Way back in 2006, I <a href="/articles/2006/10/14/decoding-iupac-names-with-opsin/">took a look at OPSIN</a>, an open source IUPAC nomenclature parser. Some good things have been happening with OPSIN, and I thought it was worth taking another look at this software. This article, the first in a series, will show how you can start using OPSIN right now through a convenient Web interface.</p>
+<h2 id="theopsinwebinterface">The OPSIN Web Interface</h2>
+<p><a href="http://opsin.ch.cam.ac.uk/">The OPSIN Web interface</a> lets you easily test the scope and limitations of nomenclature parsing. Simply enter any IUPAC name and it returns the InChI and a 2-D chemical structure image.</p>
+<p>In my previous work with OPSIN, one area I found lacking was the parsing of fused heterocycle names. Heterocycles play a central role in the chemical patent literature, particularly in pharmaceuticals. To work with patents as a <a href="/articles/2010/06/03/gigabytes-of-chemical-information---now-free-for-download/">large-scale, free corpus of chemical information</a> requires robust interpretation of heterocycle nomenclature.</p>
+<p>A convenient source of heterocycle names with locants and correct structure assignments is IUPAC's <a href="http://www.iupac.org/publications/pac/1998/pdf/7001x0143.pdf">NOMENCLATURE OF FUSED AND BRIDGED FUSED RING SYSTEMS</a>. Picking a few examples at random reveals a stunning level of accuracy and scope:</p>
+<p>pyrano[2',3':4,5]cyclohepta[1,2-g]quinoline (Page 148):</p>
+<p><img src="/images/posts/opsin-1/example-1.png" alt="Figure" title="Figure"></p>
+<p>2H-furo[2,3-d][1,3]dioxole (Page 157):</p>
+<p><img src="/images/posts/opsin-1/example-2.png" alt="Example" title="Example"></p>
+<p>diquinolizino[3,4,5,6,7-defg:3',4',5',6',7'-klmn]phenazine (Page 183):</p>
+<p><img src="/images/posts/opsin-1/example-3.png" alt="Example" title="Example"></p>
+<p>2H-[1,2]oxazolo[5,4-c][1,3]oxazolo[3,2-a]pyridine (Page 168):</p>
+<p><img src="/images/posts/opsin-1/example-4.png" alt="Example" title="Example"></p>
+<p>OPSIN even seems to be getting substituent locants correct, as in 3-ethyl-1H-imidazo[5,1-c][1,2,4]triazole (Page 174):</p>
+<p><img src="/images/posts/opsin-1/example-5.png" alt="Example" title="Example"></p>
+<p>Of course, there's more to OPSIN than just parsing heterocycle names. <a href="/articles/2006/10/17/from-iupac-nomenclature-to-2-d-structures-with-opsin/">OPSIN is capable of handling a wide range of IUPAC nomenclature</a>, as was outlined in an earlier article.</p>
+<h2 id="failures">Failures</h2>
+<p>I did run into a couple of failures in parsing heterocycle nomenclature. For example, 6H-1,7-dioxacyclopenta[cd]indene (Page 204) failed to generate a structure. There were other examples as well, but at least 80% of the heterocycle frameworks I checked could be parsed accurately by OPSIN.</p>
+<h2 id="opsinisopen">OPSIN is Open</h2>
+<p>Failure to parse is an extremely important condition. Imagine you're processing a body of work (a group of patents or dissertations, for example) and you consistently hit a problem processing a particular kind of structure name. If OPSIN were a closed-source product, your only option would be to contact the vendor and hope that producing a patch fits with their priorities - and then wait.</p>
+<p>OPSIN is open source, meaning that you can dive into the code and fix what needs to be fixed. If you decide to contribute your changes back to the OPSIN team, then OPSIN has the potential to handle more and more edge cases gracefully.</p>
+<p>The next article in this series will show how to set up an environment that will make it possible for you to get OPSIN to handle the names it doesn't yet handle, and make those changes available to the OPSIN community.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

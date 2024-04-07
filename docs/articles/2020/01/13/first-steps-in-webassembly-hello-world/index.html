@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>First Steps in WebAssembly: Hello World | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/01/13/first-steps-in-webassembly-hello-world/">
+      <meta property="og:title" content="First Steps in WebAssembly: Hello World">
+      <meta property="og:description" content="A simple program that prints text and demonstrates bidirectional JavaScript-Wasm interaction.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200113/summary.png">
+      <meta content="A simple program that prints text and demonstrates bidirectional JavaScript-Wasm interaction." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>First Steps in WebAssembly: Hello World</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-01-13T14:00:00Z">2020-01-13T14:00:00Z</time>
+      </header>
+      <p><a href="https://webassembly.org">WebAssembly</a> (aka Wasm) is a <a href="https://www.w3.org/2019/12/pressrelease-wasm-rec.html.en">new W3C recommendation</a> and the second target language to be supported by all browsers. WebAssembly is also fast becoming a full-blown <a href="https://wasi.dev">runtime environment</a> outside the browser. Unlike JavaScript, WebAssembly was designed with fast execution in mind. A previous article described <a href="https://depth-first.com/articles/2019/10/16/compiling-c-to-webassembly-and-running-it-without-emscripten/">how to compile C directly to WebAssembly</a>. That's great if Wasm only matters to you as a compile target, but if your aim is to understand WebAssembly itself and how it interacts with JavaScript, a more fundamental approach works better.</p>
+<p>One way to begin learning a new language is to write a <a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program">Hello World</a>. Although such programs exist for WebAssembly (for example, see <a href="https://fodor.org/blog/webassembly-hello-world/">this one</a>), in most cases, they don't actually print the text "Hello, World!". This article takes a different approach that not only prints the text, but also illustrates the powerful technique of invoking JavaScript functions from WebAssembly. For more detail, see the <a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Understanding_the_text_format">article on MDN</a>.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>You can complete this tutorial with as little as two non-ubiquitous pieces of software: <a href="https://code.visualstudio.com">Visual Studio Code</a> (aka VS Code) and its <a href="https://marketplace.visualstudio.com/items?itemName=dtsvet.vscode-wasm">WebAssembly Plugin</a>.</p>
+<p>Alternatively, you can dispense with even these modest requirements and run the example code directly from Node.js as described near the end of this article.</p>
+<h2 id="components">Components</h2>
+<p>The most common scenario today has WebAssembly running in a browser. This may change in the future, but for now this tutorial assumes your goal is browser deployment. Three files are required, which you should create and place into the same directory:</p>
+<ol>
+<li><code>index.html</code> A boilerplate html file with a single <code>script</code> tag.</li>
+<li><code>hello.js</code> A JavaScript file that sets up the environment in which WebAssembly will run.</li>
+<li><code>hello.wat</code> A file containing a human-readable form of WebAssembly.</li>
+</ol>
+<p>A fourth file, <code>hello.wasm</code> will be translated from <code>hello.wat</code> by VS Code.</p>
+<h2 id="indexhtml">index.html</h2>
+<p>Save the following html as <code>index.html</code>:</p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Hello, World! in WebAssembly<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"hello.js"</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>Using the type <code>module</code> for the script tag ensures that values in <code>hello.js</code> won't pollute the global namespace.</p>
+<h2 id="hellojs">hello.js</h2>
+<p>Running WebAssembly in browsers requires the creation of an environment. Currently, this can only be done through JavaScript. Save the following Wasm configuration code as <code>hello.js</code>:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> WebAssembly.Memory({ <span class="hljs-attr">initial</span>: <span class="hljs-number">1</span> });
+
+<span class="hljs-keyword">const</span> log = <span class="hljs-function">(<span class="hljs-params">offset, length</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer, offset, length);
+  <span class="hljs-keyword">const</span> string = <span class="hljs-keyword">new</span> TextDecoder(<span class="hljs-string">'utf8'</span>).decode(bytes);
+
+  <span class="hljs-built_in">console</span>.log(string);
+};
+
+<span class="hljs-function">(<span class="hljs-params"><span class="hljs-keyword">async</span> (</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'./hello.wasm'</span>);
+  <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
+  <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, {
+    <span class="hljs-attr">env</span>: { log, memory }
+  });
+
+  instance.exports.hello();
+})();
+</code></pre>
+<p>The most application-specific part of this file is the <code>log</code> function, which will be called from WebAssembly to print text to your browser's console. Using the the <code>memory</code> object, which will be shared between the JavaScript and WebAssembly code, <code>log</code> extracts bytes indicated by the parameters <code>offset</code> and <code>length</code>.</p>
+<p>The JavaScript <code>log</code> function may seem like cheating, but there is currently no other way to print to the browser console. Wasm modules aren't allowed to directly interact with the browser console or DOM. These services can only be accessed indirectly through a JavaScript function call.</p>
+<p>The <code>async</code> block at the end of <code>hello.js</code> supplies the infrastructure needed to configure WebAssembly and use its exported functions. The <code>memory</code> object and <code>log</code> function are injected into the WebAssembly environment via the object literal passed to <code>WebAssembly.instantiate</code>. Although many tutorials use promises to load and process Wasm, I find an anonymous <code>async</code> function to be clearer. The trailing empty parentheses are required to complete the <a href="https://developer.mozilla.org/en-US/docs/Glossary/IIFE">IIFE</a> pattern. </p>
+<h2 id="hellowat">hello.wat</h2>
+<p>Finally, we arrive at the main course. <a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Understanding_the_text_format">WebAssembly Text Format</a> (WAT) is a human-readable 1:1 transformation of WebAssembly. As such it can be used to generate executable <code>.wasm</code> files. Add the following text to <code>hello.wat</code>:</p>
+<pre><code class="hljs lisp language-lisp">(<span class="hljs-name">module</span>
+  (<span class="hljs-name">import</span> <span class="hljs-string">"env"</span> <span class="hljs-string">"memory"</span> (<span class="hljs-name">memory</span> <span class="hljs-number">1</span>))
+  (<span class="hljs-name">import</span> <span class="hljs-string">"env"</span> <span class="hljs-string">"log"</span> (<span class="hljs-name">func</span> $log (<span class="hljs-name">param</span> i32 i32)))
+
+  (<span class="hljs-name">data</span> (<span class="hljs-name">i32</span>.const <span class="hljs-number">0</span>) <span class="hljs-string">"Hello, World!"</span>)
+
+  (<span class="hljs-name">func</span> (<span class="hljs-name">export</span> <span class="hljs-string">"hello"</span>)
+    i32.const <span class="hljs-number">0</span>
+    i32.const <span class="hljs-number">13</span>
+    call $log
+  )
+)
+</code></pre>
+<p>Before diving into this example, it may be useful to take a few steps back to discuss WebAssembly in a more general sense.</p>
+<p>The parentheses give WAT a very Lisp-y feel. The reason is that both Lisp and WAT represent syntax trees with a versatile notation called <a href="https://en.wikipedia.org/wiki/s-expression">s-expressions</a>. Parentheses wrap a whitespace-delimited list of child nodes, and nesting is supported.</p>
+<p>For example, the simplest Wasm module, containing a single node is:</p>
+<pre><code class="hljs lisp language-lisp">(<span class="hljs-name">module</span>)
+</code></pre>
+<p>This module could be made more useful by adding a callable function that answers the ultimate question, like so:</p>
+<pre><code class="hljs lisp language-lisp">(<span class="hljs-name">module</span>                                 <span class="hljs-comment">;; start of module</span>
+  (<span class="hljs-name">func</span> (<span class="hljs-name">export</span> <span class="hljs-string">"answer"</span>) (<span class="hljs-name">result</span> i32)  <span class="hljs-comment">;; begin function</span>
+    i32.const <span class="hljs-number">42</span>                        <span class="hljs-comment">;; push the answer (42) onto the stack</span>
+  )                                     <span class="hljs-comment">;; end of function</span>
+)                                       <span class="hljs-comment">;; end of module</span>
+</code></pre>
+<p>The central abstraction in WebAssembly is the "stack," a ubiquitous construct in low-level programming. Operators push values onto and pop values off of the top of the stack. Values appearing on the stack when a function exits will be returned to the caller. Any returned values must be declared by a WebAssembly function. The above example does this with the <code>result</code> expression.</p>
+<p>Getting back to <code>hello.wat</code>, the first two lines import the dependencies created on the JavaScript side. WebAssembly uses a two-level hierarchy for the import namespace. The names for each level can be arbitrary, but both must be present. The <code>memory</code> object and the <code>log</code> function are both imported as children of the <code>env</code> object. An import can optionally be named for later reference (as with <code>log</code>), but a type declaration is mandatory.</p>
+<p>Recapping the interaction between WebAssembly and JavaScript, the JavaScript object literal that created the import was:</p>
+<pre><code class="hljs javascript language-javascript">{
+  <span class="hljs-attr">env</span>: { memory, log }
+}
+</code></pre>
+<p>And the WebAssembly import looks like this:</p>
+<pre><code class="hljs lisp language-lisp">(<span class="hljs-name">import</span> <span class="hljs-string">"env"</span> <span class="hljs-string">"memory"</span> (<span class="hljs-name">memory</span> <span class="hljs-number">1</span>))
+(<span class="hljs-name">import</span> <span class="hljs-string">"env"</span> <span class="hljs-string">"log"</span> (<span class="hljs-name">func</span> $log (<span class="hljs-name">param</span> i32 i32)))
+</code></pre>
+<p>The last expression in <code>hello.wat</code> exports a function called <code>hello</code>. Once exported, the function can be called by another WebAssembly function, or from JavaScript. Within the function, two values are pushed sequentially (0, and 13). The first is an offset to the shared memory defined on the JavaScript side (0). The second is the length of the "Hello, World!" string (13). The <code>call</code> operator pops the two values from the stack and invokes the named function <code>log</code> with them. Nothing is left on the stack, so the function returns no values.</p>
+<pre><code class="hljs lisp language-lisp">(<span class="hljs-name">func</span> (<span class="hljs-name">export</span> <span class="hljs-string">"hello"</span>)
+  i32.const <span class="hljs-number">0</span>
+  i32.const <span class="hljs-number">13</span>
+  call $log
+)
+</code></pre>
+<p>Between the import and export section is a single line of code that writes the text "Hello, World!" starting at memory index 0 using the <code>data</code> operator. A similar data service exists for most executable binary formats.</p>
+<pre><code class="hljs lisp language-lisp">(<span class="hljs-name">data</span> (<span class="hljs-name">i32</span>.const <span class="hljs-number">0</span>) <span class="hljs-string">"Hello, World!"</span>)
+</code></pre>
+<p>To summarize, three things happen when the Wasm module is loaded:</p>
+<ol>
+<li>Imports expose the <code>memory</code> and <code>log</code> objects created in JavaScript.</li>
+<li>The bytes representing the text "Hello, World!" are written to shared memory starting at index 0.</li>
+<li>A function called <code>hello</code> is exported. This function invokes <code>log</code>, passing the <code>offset</code> and <code>length</code> parameters.</li>
+</ol>
+<p>Program flow takes place in three steps after initialization:</p>
+<ol>
+<li>JavaScript calls the exported Wasm <code>hello</code> function.</li>
+<li>Wasm invokes the JavaScript <code>log</code> function, passing <code>offset</code> and <code>length</code> parameters.</li>
+<li>JavaScript reads shared memory to construct a string, which is then printed to the console.</li>
+</ol>
+<h2 id="hellowasm">hello.wasm</h2>
+<p>You can translate <code>hello.wat</code> to <code>hello.wasm</code> with a number of tools. A convenient option is <a href="https://marketplace.visualstudio.com/items?itemName=dtsvet.vscode-wasm">VSCode's WebAssembly Plugin</a>. Right-click on <code>hello.wasm</code> and select the option "Save as WebAssembly binary file." Use <code>hello.wasm</code> as the file name.</p>
+<figure>
+  <img alt="Save as wasm" src="/images/posts/20200113/save-as-wasm.png">
+  <figcaption>
+    <strong>Save as wasm.</strong> VS Code offers a convenient way to translate wat files to wasm.
+  </figcaption>
+</figure>
+<h2 id="execution">Execution</h2>
+<p>If you try to open <code>index.html</code> directly from your file system you're likely to receive an error involving "Access-Control-Allow-Origin." It can be eliminated by loading the file from a local server. A convenient option is <a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/set_up_a_local_testing_server#Running_a_simple_local_HTTP_server">Python's SimpleHTTPServer</a>. Start it with:</p>
+<pre><code class="hljs bash language-bash">python -m SimpleHTTPServer
+</code></pre>
+<p>The default port is 8000, so loading <a href="http://localhost:8000">localhost:8000</a> with an open browser console should produce the text "Hello, World!".</p>
+<h2 id="bonusexecutefromnodejs">Bonus: Execute from Node.js</h2>
+<p>WebAssembly can also be run directly from Node.js with the <a href="https://www.npmjs.com/package/inline-webassembly">inline-webassembly</a> module. The code below mirrors the HTML tutorial, but dispenses with the need for additional files or a local Web server.</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> iw = <span class="hljs-built_in">require</span>(<span class="hljs-string">'inline-webassembly'</span>);
+
+<span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> WebAssembly.Memory({ <span class="hljs-attr">initial</span>: <span class="hljs-number">1</span> });
+
+<span class="hljs-keyword">const</span> log = <span class="hljs-function">(<span class="hljs-params">offset, length</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer, offset, length);
+  <span class="hljs-keyword">const</span> string = <span class="hljs-keyword">new</span> TextDecoder(<span class="hljs-string">'utf8'</span>).decode(bytes);
+
+  <span class="hljs-built_in">console</span>.log(string);
+};
+
+<span class="hljs-function">(<span class="hljs-params"><span class="hljs-keyword">async</span> (</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> wasm = <span class="hljs-keyword">await</span> iw(<span class="hljs-string">`
+  (module
+    (import "env" "memory" (memory 1))
+    (import "env" "log" (func $log (param i32 i32)))
+
+    (data (i32.const 0) "Hello, World!")
+
+    (func (export "hello")
+      i32.const 0
+      i32.const 13
+      call $log
+    )
+  )`</span>, {
+    <span class="hljs-attr">env</span>: { log, memory }
+  });
+
+  wasm.hello();
+})();
+</code></pre>
+<h2 id="conclusion">Conclusion</h2>
+<p>WebAssembly is a promising and versatile technology that's still in its proof-of-concept phase, but nevertheless deployed widely. The simple Hello, World program presented here offers a good starting point for a variety of WebAssembly explorations.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

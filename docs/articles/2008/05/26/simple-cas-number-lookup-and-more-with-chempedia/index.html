@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Simple CAS Number Lookup (and More) with Chempedia | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Simple CAS Number Lookup (and More) with Chempedia</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-05-26T00:00:00.000Z">2008-05-26T00:00:00.000Z</time>
+      </header>
+      <p>Despite many ingenious and energetic attempts, CAS Registry Numbers® remain chemistry's only universal method for referencing chemical structures and substances. They're so woven into the fabric of chemistry and trade that the <a href="http://www.uspto.gov/main/profiles/otherid.htm">US Patent and Trademark Office discusses them</a> in the same context as Domain Names, Drivers License Numbers, ZIP Codes, and UPC Barcodes. But for all of the system's advantages, it suffers from a significant limitation: without access to the CAS Registry database, it can be difficult if not impossible to link a chemical structure with a CAS Number. This article discusses a unique approach to this problem.</p>
+<h2 id="findingcasnumbersonchempedia">Finding CAS Numbers on Chempedia</h2>
+<p>Let's say you've found the CAS Number <strong>[58-08-2]</strong> and needed to look up the chemical structure it refers to. How would you do it?</p>
+<p>We can use <a href="http://chempedia.com">Chempedia</a> to find the answer. Entering "58-08-2" into the <a href="http://chempedia.com/queries/new">text query</a> box takes us to the corresponding <a href="http://chempedia.com/registry_numbers/58-08-2">Registry Number Summary</a>.</p>
+<p>Under the heading "Compound Monographs", this page tells us that one <a href="http://chempedia.com/monographs/caffeine">Compound Monograph</a> referencing the CAS Number <strong>[58-08-2]</strong> exists. We can easily see that both the name and chemical structure are consistent with <a href="http://chempedia.com/monographs/caffeine">Caffeine</a>.</p>
+<p><img src="/images/posts/20080526/caffeine.png" alt="Caffeine" title="Caffeine"></p>
+<p>However, the section under the heading "Compounds" gives us something unique. Rather than simply telling us that the structure of Caffeine is linked to CAS Number <strong>[58-08-2]</strong>, Chempedia tells us how it arrived at this conclusion. As you can see, there are over a dozen references matching CAS Number <strong>[58-08-2]</strong> with a single chemical structure.</p>
+<p>More than that, Chempedia give us links to the organizations making these assertions and the actual Web pages recording them.</p>
+<p>Rather than just giving the answer, Chempedia says how it found the answer.</p>
+<h2 id="authorityconfidenceandtheelectronicpapertrail">Authority, Confidence, and the Electronic Paper Trail</h2>
+<p>By definition, the only authority on CAS Registry Numbers is <a href="http://www.cas.org/">Chemical Abstracts Service</a> itself. But for many, many organizations, full-time access to the CAS Registry database is hopelessly out of reach, and access of the form required to incorporate the CAS Registry system into third-party products is a non-starter.</p>
+<p>In other words, there is a widespread need to work with CAS Numbers independently of the CAS Registry System, but any such attempt is inherently non-authoritative. How can we work within this constraint?</p>
+<p>What's lacking is the concept of confidence.</p>
+<p>To illustrate, let's try to find the structure associated with the CAS Number <strong>[480-41-1]</strong>. In contrast to our earlier search, this one takes us to a <a href="http://chempedia.com/registry_numbers/480-41-1">summary page</a> with three different structures! (see below)</p>
+<p><img src="/images/posts/20080526/naringenin.png" alt="480-41-1" title="480-41-1"></p>
+<p>Each of these three structures share the same connectivity, but different stereochemistry. The first structure (presumably) represents a racemate, the second represents the (<em>S</em>) enantiomer, and the third represents the (<em>R</em>) enantiomer.</p>
+<p>At this point, we need to decide whether we've really found the structure for the CAS Number <strong>[480-41-1]</strong>. And we could use Chempedia's electronic paper trail to guide our thinking. Both the racemate and (<em>S</em>) enantiomer have five references linking structure and CAS number, whereas the (<em>R</em>) enantiomer only lists one.</p>
+<p>We can also see that the racemate and and pure (<em>S</em>) enantiomer each are associated with yet another CAS Registry Number, <a href="http://chempedia.com/registry_numbers/67604-48-2">[67604-48-2]</a>. Examination of this record shows that two structures are cited, the same two structures we were originally considering.</p>
+<p>Clearly, there's some confusion regarding the exact identity of the structure represented by CAS Number <strong>[480-41-1]</strong>. Nevertheless, we can guess that the Registry Numbers <a href="http://chempedia.com/registry_numbers/67604-48-2">[67604-48-2]</a> and <a href="http://chempedia.com/registry_numbers/480-41-1">[480-41-1]</a> refer to the racemate and (<em>S</em>) enantiomer of the flavinoid <a href="http://chempedia.com/monographs/naringenin">Naringenin</a>, although we don't know which is which.</p>
+<p>For some applications this answer would be sufficient. For others, however, it wouldn't. The key point is that Chempedia has enabled us to arrive at this conclusion by exposing the electronic paper trail of third-party CAS Registry Number assignments.</p>
+<p>Chempedia offers a way to debug CAS Registry Numbers.</p>
+<p>Chempedia currently contains just over 380,000 unique CAS Numbers. To browse through the entire set, ten at a time, you can <a href="http://chempedia.com/registry_numbers">begin with this page</a>. Notice how <a href="/articles/2007/05/30/restful-cheminformatics">RESTful URLs</a> are used throughout.</p>
+<h2 id="web20andallthat">Web 2.0 and All That</h2>
+<p>Those who have spent time using or developing "Web 2.0" applications may recognize a potentially powerful analogy between CAS Registry Numbers and the concept of <a href="http://en.wikipedia.org/wiki/Tag_%28metadata%29">tagging</a>. A tag is an alphanumeric string associated with some resource of interest, for example, <a href="http://flickr.com/photos/tags/chemistry/clusters/">a photo</a>, <a href="http://www.connotea.org/tag/chemistry">a scientific paper</a>, <a href="http://del.icio.us/tag/chemistry">a URL</a>, or a blog post.</p>
+<p>Although originally designed to uniquely identify a chemical substance or structure, when used in the wild, CAS Registry Numbers sometimes more closely resemble the fuzzy semantics of tagging.</p>
+<p>Chemical information system that use CAS Numbers processed by third parties need to take this reality into account or run the risk of misleading users. Chempedia offers one method for doing so.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Chempedia currently contains just over 380,000 CAS registry numbers. Although this is a minuscule fraction of the total CAS Registry, Chempedia's collection comprises some of the most widely used and most important substances known. More importantly, Chempedia now offers a tool for understanding the often complex associations between chemical structure and CAS Registry numbers that exist in real-world chemical information sources.</p>
+<p>In this sense, Chempedia could be a useful tool for small organizations to double check their CAS Number assignments and for individuals to quickly look up the chemical structure of a given CAS number and understand ambiguities.</p>
+<p>Chempedia also lays bare both the confusion and consensus around CAS Registry Numbers used in the real world. If CAS Numbers in the wild are more like tags than unique identifiers, what can we do with this insight? Future articles will describe some possibilities.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

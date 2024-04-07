@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Temodar, MGMT Methylation, and the Endless Loop of Bad Glioblastoma Treatments | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2023/08/06/temodar-mgmt-methylation-and-the-endless-loop-of-bad-glioblastoma-treatments/">
+      <meta property="og:title" content="Temodar, MGMT Methylation, and the Endless Loop of Bad Glioblastoma Treatments">
+      <meta property="og:description" content="Understanding why half of patients will take a drug offering little to no benefit.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20230806/summary.png">
+      <meta content="Understanding why half of patients will take a drug offering little to no benefit." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Temodar, MGMT Methylation, and the Endless Loop of Bad Glioblastoma Treatments</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2023-08-06T20:20:00Z">2023-08-06T20:20:00Z</time>
+      </header>
+      <p>In the days following <a href="/articles/2023/06/02/reflections-on-my-brain-surgery/">brain surgery</a> to remove a tennis ball-sized <a href="/articles/2023/05/27/the-scary-stuff/">glioblastoma</a>, one term I heard a lot was "next-generation sequencing" (NGS). The idea seemed straightforward enough. Drugs and radiation are blunt instruments, but each tumor is genetically unique. NGS would reveal my tumor's specific vulnerabilities, which would translate into more effective, targeted treatment. My medical team could kill more cancer with less collateral damage to healthy tissue — at least in principle.</p>
+<p>But what happens when high-tech tests like NGS leave patients without good treatment options? I would soon find out.</p>
+<h2 id="mgmtmethylation">MGMT Methylation</h2>
+<p>I didn't know it at the time, but only one finding from NGS would have any bearing on my treatment post-diagnosis: MGMT methylation status. In a nutshell, glioblastoma cases can be divided into two groups: "methylated" and "unmethylated." The importance of this split comes into play during chemoradiation part of the <a href="/articles/2023/07/10/glioblastomas-dismal-standard-of-care-the-stupp-protocol/">standard of care</a>.</p>
+<p><a href="https://en.wikipedia.org/wiki/O-6-methylguanine-DNA_methyltransferase">O-6-methylguanine-DNA methyltransferase</a> (MGMT) is a DNA repair enzyme. Its purpose is to undo chemical DNA damage caused by environmental agents. Maintaining undamaged DNA is crucial to cell survival, so MGMT is pretty important, cancer aside.</p>
+<p>Like all enzymes, the amount of MGMT within a cell is regulated. One way cells do this involves the "promoter region," a stretch of DNA reserved for regulating transcription into protein. Increased "methylation" in the promoter region decreases MGMT production, leading to less cellular DNA repair. Decreased "methylation" in the promoter region increases MGMT production, leading to more cellular DNA repair. One result available from NGS, and indeed perhaps the most important result, is an estimate of the degree of MGMT promoter methylation.</p>
+<p>NGS and treatment intersect in the following way. The front-line chemotherapeutic for glioblastoma, <a href="https://en.wikipedia.org/wiki/Temozolomide">temozolomide</a> (aka "Temodar", "TMZ") slows cancer cell growth through chemical modification of DNA. Cancer cells replicate much faster than healthy cells, so TMZ disproportionally affects cancer cells. At least this is how it works in principle. In practice, TMZ inhibits the replication of many kinds of cells, including the intended target. This lack of selectivity accounts for at least some of the side-effects of TMZ, which will be briefly addressed below.</p>
+<p>Patients with methylated MGMT promoters produce less MGMT and should therefore respond better to treatment. The idea was borne out clinically. According to <a href="https://doi.org/10.1056/nejmoa043331">this study</a>, patients with methylated tumors lived longer and enjoyed a longer interval between surgery and tumor progressions. Unfortunately, MGMT methylation is the exception rather than the rule. The same study found just 45% of patients to have the genetic marker in their tumors.</p>
+<h2 id="unmethylated">Unmethylated</h2>
+<p>My highly-anticipated NGS sequencing results came back, and the pathology report minced no words:</p>
+<blockquote>
+  <p>Low-level MGMT promoter methylation was detected.</p>
+</blockquote>
+<p>The report went on to explain the meaning of "low-level":</p>
+<blockquote>
+  <p>… average percent methylation of 0 to less than 5 percent is reported as "Not detected," 5 to less than 25 percent as "Low level," and equal or more than 25 percent as "Detected."</p>
+</blockquote>
+<p>I had an "unmethylated" tumor. This was clearly bad news, but how bad?</p>
+<h2 id="clinicaldata">Clinical Data</h2>
+<p>It was surprisingly difficult to track down clinical data on the survival benefit of TMZ in the standard of care for patients with MGMT unmethylated tumors. The best I could find was data contained in the paper <a href="https://doi.org/10.1016/S1470-2045(09)70025-7"><em>Effects of radiotherapy with concomitant and adjuvant temozolomide versus radiotherapy alone on survival in glioblastoma in a randomised phase III study: 5-year analysis of the EORTC-NCIC trial</em></a>. Table 2 breaks out median survival along several axes. The second to the last comparison bears the heading "MGMT unmethylated." There I found the answer. The median survival times for the "Radiotherapy" group, which did not receive TMZ, compared to the median survival rate for "Combined" therapy group, which did receive TMZ, were 11.8 months vs. 12.6 months. In other words, patients whose tumors lacked MGMT methylation saw about two extra weeks of survival from the use of TMZ in the standard of care.</p>
+<p>This study was conducted under the direction of <a href="https://www.feinberg.northwestern.edu/faculty-profiles/az/profile.html?xid=37377">Roger Stupp</a>, whose name is associated with the <a href="/articles/2023/07/10/glioblastomas-dismal-standard-of-care-the-stupp-protocol/">current standard of care</a> (the "Stupp Protocol" or "Stupp Regimen").</p>
+<p>Some might look at two weeks of survival as a cause for celebration. Not me. Two weeks, especially given that no error ranges are reported on these median survival times, is barely worth considering. It's a drop in the bucket compared to the risks.</p>
+<p>Stupp would later go on to question the value of administering TMZ to MGMT unmethylated patients, at least in a clinical context, in the paper <a href="https://doi.org/10.1093/neuonc/nov198"><em>Withholding temozolomide in glioblastoma patients with unmethylated MGMT promoter—still a dilemma?</em></a>:</p>
+<blockquote>
+  <p>These 2 trials confirm the predictive value of the MGMT status. Together, the data allow the conclusion that alkylating agent chemotherapy [such as TMZ] is of marginal benefit, if any, for patients with MGMT unmethylated GBM.</p>
+</blockquote>
+<p>In the next sentence, Stupp noted:</p>
+<blockquote>
+  <p>By continuing to treat the majority of MGMT unmethylated patients with TMZ, we are missing an opportunity to do better. …</p>
+</blockquote>
+<h2 id="whataboutthestandardofcare">What about the Standard of Care?</h2>
+<p>"Marginal benefit" is all that patients with MGMT unmethylated tumors should expect from TMZ, yet TMZ remains the standard of care for unmethylated and methylated patients across most of the US and the rest of the world. What happened to NGS as a driver of therapy?</p>
+<p>I suspect several factors may be at work:</p>
+<ol>
+<li>TMZ is "well-tolerated," at least as far as chemotherapeutics go. See below for more on this, though.</li>
+<li>TMZ is inexpensive, given insurance coverage.</li>
+<li>TMZ is convenient. It's taken orally at home, not intraveneously at an infusion center.</li>
+<li>There isn't much else to choose from. Despite decades of research, more effective chemotherapeutics for glioblastoma have not been found.</li>
+</ol>
+<p>In other words, TMZ may not do much for the majority of patients, but the drug is cheap and easy to administer. Call me a skeptic of this school of thought. If the data show a treatment barely works, you don't administer the treatment. Period. About the "well-tolerated" reputation that TMZ has, consider the side-effects. According to the <a href="https://ctep.cancer.gov/protocolDevelopment/docs/sideeffects/SideEffects-Temozolomide.docx">National Cancer Institute</a> they include:</p>
+<ul>
+<li>headache, seizure</li>
+<li>memory loss</li>
+<li>insomnia</li>
+<li>muscle weakness</li>
+<li>dizziness</li>
+<li>fatigue</li>
+<li>hair loss</li>
+</ul>
+<p>To deal with its problematic side effect profile, TMZ is often prescribed with other drugs. An anti-emetic to control nausea is pretty standard. And a prophylactic antibiotic is also common to prevent the less-common but dangerous side effect of infection caused by immune system compromise and damage to bone marrow. One does not simply take temozolomide. At least two, and possibly more drugs may be required to deal with the side effects of this systemic <a href="https://www.ncbi.nlm.nih.gov/books/NBK547849/#:~:text=Alkylating%20agents%20are%20a%20class,thereby%20stopping%20the%20protein%20synthesis.">alkylating agent</a>.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Over half of glioblastoma patients will be prescribed a drug, TMZ, to treat their condition that will be "marginally" beneficial at best. They will take this drug despite significant health risks and the possibility for complication. Additional drugs may be be prescribed to control the side effects caused by TMZ, and each will carry its own risks as well.</p>
+<p>Chasing marginal therapeutic benefit with drugs that have the kind of side effect profile of TMZ makes no scientific sense. The whole notion borders on faith-healing in my view. Glioblastoma patients deserve better. And if nothing better is available, patients deserve the respect of being told that what they're being given will more likely than not just just produce side effects with little treatment benefit.</p>
+<p>Despite decades of research and a multitude of high-tech techniques like NGS, little has changed for glioblastoma patients. I can't help but think that doctors and healthcare systems trapped in an endless chorus of <em>But this is how we've always done it</em> could offer one explanation.</p>
+<p>If NGS says a patient will respond poorly to TMZ, maybe it's a good idea to listen. And if medical professionals don't want to hear what NGS is saying, why bother asking in the first place?</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

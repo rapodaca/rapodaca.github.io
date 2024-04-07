@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Similarity-Potency Trees | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Similarity-Potency Trees</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2011-10-18T00:00:00.000Z">2011-10-18T00:00:00.000Z</time>
+      </header>
+      <p>A colleague has just sent you a 500-record SD File containing structure-activity relationships (SAR) that you've never seen before. What are the first steps you take to begin to make sense of it?</p>
+<p>The approach a medicinal chemist would take might involve:</p>
+<ul>
+<li>opening the file in a <a href="/articles/2008/09/12/your-favorite-chemical-spreadsheet/">chemical spreadsheet</a></li>
+<li>sorting the records by potency</li>
+<li>compiling a series of reports derived from substructure or similarity searches</li>
+<li>printing the entire dataset for offline browsing and note-taking</li>
+<li>using one or more of a variety of multidimensional plotting tools to spot trends and outliers</li>
+</ul>
+<p>If you talk to ten medicinal chemists, you might get ten different opinions on the utility of the activities listed above. Although this problem is best framed in the context of new datasets, aspects can be seen at every stage of a drug discovery program.</p>
+<p>Surprisingly, there aren't a lot of good tools for dealing with this problem.</p>
+<h2 id="similaritypotencytrees">Similarity-Potency Trees</h2>
+<p>A recent publication from Wawer and <a href="http://www.limes.uni-bonn.de/forschung/abteilungen/Bajorath/labwebsite">Bajorath</a> introduces an intriguing solution. The <a href="http://dx.doi.org/10.1021/ci100197b">Similarity-potency tree</a> (SPT) is both a new visualization technique and a new data structure specifically designed to help chemists quickly identify and interactively build mental models of complex SAR. Here's an example, taken from the publication:</p>
+<p><img src="/images/posts/simple-spt.png" alt="Simple SPT" title="Simple SPT"></p>
+<p>Each node (dot) represents a structure and its associated data point - a binding assay result, for example. An edge (line) between two nodes means that the two underlying structures are similar enough to meet a pre-determined cutoff.</p>
+<p>The root node (top) of the tree represents a structure-potency pair chosen at random from the dataset. Structural similarity to the root node decreases in the downward direction. In other words, the further down a node appears, the less structural similarity is shares with the root structure.</p>
+<p>For a given parent node, potency of its children increases from left to right. Because each node is color coded according to absolute potency, the children of each node tend to take on the appearance of a rainbow in those instances in which deep SAR can be found.</p>
+<p>Although this analysis may not appear on face value to offer much, consider the two cases below:</p>
+<p><img src="/images/posts/left-spt.png" alt="Left SPT" title="Left SPT"></p>
+<p>Although overall the data show relatively few actives, comparing the structures each of the two or three red nodes with its immediate parent could give key insights for making more potent compounds. Likewise, the SPT offers a well-defined path to trace how potency increases (or decreases). SPTs don't generate SAR models, but they appear to be useful tool to help chemists quickly deduce them.</p>
+<p><img src="/images/posts/right-spt.png" alt="Right SPT" title="Right SPT"></p>
+<p>In contrast, to the previous tree, this one above shows many active compounds to the right (near "4"). Despite big structural differences, all of the compounds in this grouping maintain high potency. The SAR is flat. This insight was gained by doing nothing more than inspecting a simple 2d diagram.</p>
+<h2 id="software">Software</h2>
+<p>A Java-based tool for building Structure-Potency trees is <a href="http://www.limes.uni-bonn.de/forschung/abteilungen/Bajorath/labwebsite/downloads/similarity-potency-trees-tool-and-sample-data/view">available  for download</a>. I was able to run the software on my OS X system using the following command (note the required output filename):</p>
+<pre><code class="hljs bash language-bash">java -jar spt.jar sampleInput.sdf  out.txt
+</code></pre>
+<h2 id="industrialinterest">Industrial Interest</h2>
+<p>In a recent presentation, Lisa Peltason of Hoffmann-La Roche described the company's efforts to integrate SPTs into an in-house tool called <a href="http://www.youtube.com/watch?v=gFIfyrBtvPo">SAR Analyzer</a>.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/gFIfyrBtvPo" allowfullscreen=""></iframe>
+</div>
+<h2 id="conclusions">Conclusions</h2>
+<p>There's a lot more to SPTs than what's been presented here, including a method for scoring them to provide the best starting points for further analysis. Although the examples I've seen with small datasets are interesting, I'm curious about how usability holds up with thousands of datapoints. Although SPTs are simple in concept, the practical utility of SPTs will likely depend on the availability of good user interfaces.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

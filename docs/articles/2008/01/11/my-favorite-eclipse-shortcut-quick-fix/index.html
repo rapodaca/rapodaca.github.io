@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>My Favorite Eclipse Shortcut - Quick Fix | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>My Favorite Eclipse Shortcut - Quick Fix</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-01-11T00:00:00.000Z">2008-01-11T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://www.eclipse.org/">Eclipse</a> is one of those great tools that is both easy to learn and extremely powerful. Eclipse's power comes, in part, from the number of features it offers, which seems to grow with every new release. This creates a problem though; the more features that are added to Eclipse, the more difficult it is to find them. This article focuses on one feature that every Eclipse user should know about: <a href="http://help.eclipse.org/help31/index.jsp?topic=/org.eclipse.jdt.doc.user/tasks/tasks-175.htm">Quick Fix</a>.</p>
+<p>Let's say you're creating a class from scratch and you need to add a variable. Because you're working in Java, you'll also need to specify a type. If that type is one that doesn't already appear in the file you're working on, you'll either need to create it or import it. It may not seem like a big deal to scroll to the top of your file, add an <code>import</code> statement, and scroll back down to continue writing, but it can really break the flow of concentration - especially considering that it may need to be done several times in just one method.</p>
+<p>Wouldn't it be great if Eclipse could handle this tedium for you?</p>
+<p>Enter <a href="http://help.eclipse.org/help31/index.jsp?topic=/org.eclipse.jdt.doc.user/tasks/tasks-175.htm">Quick Fix</a>. In this example, we're creating a class called <code>Molecule</code> and need to add a <code>List</code> to hold its atoms. We begin by declaring the <code>atoms</code> variable:</p>
+<p><img src="/images/posts/20080111/list_error.png" alt="List Error" title="List Error"></p>
+<p>Eclipse recognizes that <code>List</code> is a new type. Instead of manually inserting an <code>import</code> statement at the top of the file, let's use Quick Fix.</p>
+<p>Highlighting the error and pressing [Ctrl-1] opens Quick Fix and gives us a list of options to choose from:</p>
+<p><img src="/images/posts/20080111/list_options.png" alt="List Options" title="List Options"></p>
+<p>Quick Fix can also create a class or interface template instead of importing a class, as the screenshot above suggests.</p>
+<p>We need to import the <code>java.util.List</code> interface. Double clicking on the <code>Import 'List'(java.util)</code> option inserts the import statement and allows us to continue writing:</p>
+<p><img src="/images/posts/20080111/list_fix.png" alt="List Fix" title="List Fix"></p>
+<p>Eclipse is packed with these kinds of useful but hard to find features. Future Depth-First articles will highlight some of them.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

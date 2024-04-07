@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scripting Java Libraries with Ruby Java Bridge | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Scripting Java Libraries with Ruby Java Bridge</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-08-26T00:00:00.000Z">2006-08-26T00:00:00.000Z</time>
+      </header>
+      <p>Although <a href="http://jruby.codehaus.org/">JRuby</a> solves many Java/Ruby integration issues, in some cases it's not the right solution. One situation is when you want your Ruby code to use extensions written in C. The JRuby documentation makes very clear that this will never be supported. Another situation is if your code needs full access to <a href="http://jruby.codehaus.org/">Ruby on Rails</a>, or if your hosting service makes it difficult to configure JRuby on Rails. In these cases, JRuby's currently limited Rails support makes it a suboptimal choice.</p>
+<p><a href="http://rjb.rubyforge.org/">Ruby Java Bridge</a> (RJB) is designed to solve these problems by letting Ruby developers manipulate Java libraries from Ruby. This gives you the ability to access C Ruby extensions <em>and</em> Java libraries in the same Ruby program. It also makes Rails integration a snap. Articles to follow will explore these two points. For now, let's see how how to get RJB working.</p>
+<p>Installing Ruby Java Bridge is very simple. With root access:</p>
+<pre><code class="hljs bash language-bash">sudo gem install rjb
+</code></pre>
+<p>This installs the Ruby Java Bridge gem. That's all there is to it.</p>
+<p>Instantiating and using Java classes consists of the familiar process of first importing the class followed by creating a new instance:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+require_gem <span class="hljs-string">'rjb'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rjb'</span>
+
+string_class = Rjb::import <span class="hljs-string">'java.lang.String'</span>
+hello_string = string_class.new_with_sig(<span class="hljs-string">'Ljava.lang.String;'</span>, <span class="hljs-string">'hello'</span>)
+
+p hello_string.toString <span class="hljs-comment"># -&gt; "hello"</span>
+</code></pre>
+<p>Because an argument is passed to the constructor of the Java class, a special form needs to be used, <code>new_with_sig</code>. The "L" in front of the import statement indicates that the argument "hello" is a non-primitive datatype (i.e. class or interface).</p>
+<p>Ruby Java Bridge offers some important advantages over JRuby. Subsequent articles will explore how these advantages can be used to quickly develop applications integrating chemical informatics libraries written in multiple languages.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

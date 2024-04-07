@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>MX Performance Comparison #3: Substructure Search in MX and CDK | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>MX Performance Comparison #3: Substructure Search in MX and CDK</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-01-22T00:00:00.000Z">2009-01-22T00:00:00.000Z</time>
+      </header>
+      <p><a href="/articles/2008/11/13/one-of-these-things-is-not-like-the-other">Substructure search</a> is a fundamental cheminformatics operation. <a href="http://metamolecular.com/mx/">MX</a>, the open source cheminformatics toolkit, contains an implementation <a href="/articles/2008/11/17/substructure-search-from-scratch-in-java-part-1-the-atom-mapping-problem">based on</a> the <a href="/articles/2008/11/13/one-of-these-things-is-not-like-the-other">VF monomorphism algorithm</a>. How fast is it? Let's compare it to CDK's <a href="http://cheminfo.informatics.indiana.edu/~rguha/code/java/nightly/api/org/openscience/cdk/isomorphism/UniversalIsomorphismTester.html">UniversalIsomorphismTester</a>.</p>
+<p><img src="/images/posts/20090122/benchmark/testcase0.jpg" alt="Benchmark" title="Benchmark"></p>
+<p>The full report is available <a href="/images/posts/20090122/benchmark/index.html">here</a>. <a href="http://github.com/rapodaca/cheminfbenchmark/tree/20090122">The full source code</a> can be found on <a href="http://github.com/">GitHub</a>.</p>
+<p>This test reads the molecules contained in a <a href="http://github.com/rapodaca/cheminfbenchmark/blob/c2d7d926381e1bcf0f365777861f71ff563d8ae7/data/pubchem_416_benzenes.sdf">416-record SD file</a> into memory during setup. Then, during the test phase, each of these molecules is compared for a substructure relationship to a benzene molecule. As you can see, MX ran this test nearly five times faster than CDK.</p>
+<p>MX and CDK differ in the algorithms used for substructure match. Whereas MX uses a variant of VF, CDK uses a variant of Ullmann. As noted by the VF creators, these two algorithms have <a href="http://amalfi.dis.unina.it/people/vento/lavori/gbr01bm.pdf">very different performance characteristics</a>, with VF always outperforming Ullmann. The performance gap increases quickly with increasing graph size.</p>
+<p>CDK will soon have a new substructure matcher <a href="http://rguha.wordpress.com/2008/11/18/java-port-of-vflib-works-and-its-blazing/">based on Rajarshi Guha's implementation</a>. It will be interesting to directly compare this new CDK matcher to the one used by MX.</p>
+<p>As is the case with the <a href="/articles/2009/01/21/mx-performance-comparison-2-exhaustive-ring-perception-in-mx-and-cdk">MX/CDK ring perception comparison</a>, it should be noted that the MX substructure matcher implementation is optimized for readability and correctness, but not performance. A number of interesting opportunities exist for increasing the performance of the MX substructure matcher.</p>
+<p>One point to note: MX and CDK differed in the number of hits found, with MX detecting all 416 and CDK finding 412. This is most likely due to the presence of isotopically-labelled benzenes in the dataset. Depending on your interpretation of a substructure match, either CDK or MX could be returning the "correct" answer.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

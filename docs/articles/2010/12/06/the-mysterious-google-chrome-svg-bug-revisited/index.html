@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The Mysterious Google Chrome SVG Bug Revisited | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The Mysterious Google Chrome SVG Bug Revisited</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-12-06T00:00:00.000Z">2010-12-06T00:00:00.000Z</time>
+      </header>
+      <p>A previous post outlined the steps I took to track down <a href="/articles/2010/12/03/the-mysterious-google-chrome-svg-bug/">a bug in Google Chrome that prevented the firing of mouse events on certain SVG elements</a>. After <a href="http://code.google.com/p/chromium/issues/detail?id=65238">filing a bug report</a>, one commenter <a href="http://code.google.com/p/chromium/issues/detail?id=65238#c3">suggested that I create a single file that illustrates the bug</a>, rather than a full Google Closure project.</p>
+<p>That's exactly what I did. You can <a href="/demos/chrome-bug-65238/chrome-on-linux-windows-svg-event-bug.xhtml">view the test page here</a>. In addition to major simplification, this demo shows that the Chrome SVG event bug also affects event firing from rectangles as well ellipses. Here's the source:</p>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://www.w3.org/1999/xhtml"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Chrome on Linux/Windows SVG Event Bug<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+      <span class="hljs-selector-tag">p</span> { <span class="hljs-attribute">width</span>: <span class="hljs-number">600px</span>; <span class="hljs-attribute">line-height</span>: <span class="hljs-number">1.5em</span>; }
+      <span class="hljs-selector-tag">svg</span> { <span class="hljs-attribute">width</span>: <span class="hljs-number">600px</span>; <span class="hljs-attribute">height</span>: <span class="hljs-number">200px</span>;}
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="actionscript">
+      <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">enter</span><span class="hljs-params">(event)</span> </span>{
+        event.target.setAttribute(<span class="hljs-string">"fill"</span>, <span class="hljs-string">"#22AA00"</span>);
+      };
+      <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">exit</span><span class="hljs-params">(event)</span> </span>{
+        event.target.setAttribute(<span class="hljs-string">"fill"</span>, <span class="hljs-string">"#AA2222"</span>);
+      };
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://www.w3.org/2000/svg"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">g</span> <span class="hljs-attr">transform</span>=<span class="hljs-string">"translate(0, 200) scale(100, -100)"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">ellipse</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">rx</span>=<span class="hljs-string">"0.75"</span> <span class="hljs-attr">ry</span>=<span class="hljs-string">"0.75"</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">"#AA2222"</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">"enter(evt)"</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">"exit(evt)"</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">ellipse</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">"3"</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">rx</span>=<span class="hljs-string">"0.2"</span> <span class="hljs-attr">ry</span>=<span class="hljs-string">"0.2"</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">"#AA2222"</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">"enter(evt)"</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">"exit(evt)"</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">"4"</span> <span class="hljs-attr">y</span>=<span class="hljs-string">"0.9"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"0.2"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"0.2"</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">"#AA2222"</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">"enter(evt)"</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">"exit(evt)"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">g</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
+      Hover the mouse cursor over all three shapes. Each shape should change its color from red to green.
+      This test works on all recent SVG-enabled browsers, but fails in Google Chrome 8.0.552.215 on Linux and Windows.
+    <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
+      On Chrome for Linux and Windows, the smaller circle and square on the right don't turn green. On Chrome for OS X, all
+      three shapes turn green, which is the expected behavior.
+    <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
+      For details, see <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://code.google.com/p/chromium/issues/detail?id=65238"</span>&gt;</span>this bug report<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+      and <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"/articles/2010/12/03/the-mysterious-google-chrome-svg-bug/"</span>&gt;</span>this writeup<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>.
+    <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>This demo creates a transformed SVG coordinate space, populates it with three shapes, and assigns two event listeners, <code>enter</code> and <code>exit</code>, to respond to mouse events by changing the shapes' fill colors.</p>
+<p><strong>Update 12/06/2010</strong> Fixed onmouseover/onmouseout attributes in demo code.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

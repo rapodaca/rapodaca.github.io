@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Molecular Language for Modern Chemistry: Reading FlexMol Documents with Octet | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Molecular Language for Modern Chemistry: Reading FlexMol Documents with Octet</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-01-31T00:00:00.000Z">2007-01-31T00:00:00.000Z</time>
+      </header>
+      <p>An XML language is only as useful as the software tools that take advantage of it. <a href="http://depth-first.com/articles/tag/flexmol">Previous articles</a> have discussed how the XML language FlexMol can solve a variety of molecular representation problems ranging from the <a href="http://depth-first.com/articles/2006/12/20/a-molecular-language-for-modern-chemistry-getting-started-with-flexmol">multiatom bonding of metallocenes</a> to the <a href="http://depth-first.com/articles/2006/12/20/a-molecular-language-for-modern-chemistry-getting-started-with-flexmol">axial chirality of biaryls</a>. <a href="http://depth-first.com/articles/2007/01/30/an-object-oriented-framework-for-molecular-representation-getting-started-with-octet">Octet</a> is a framework written in Java that speaks FlexMol natively. In this article, I'll show how Octet can be used to read a sample FlexMol document.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>For this tutorial, you'll need <a href="http://rubyforge.org/projects/rjb/">Ruby Java Bridge</a> (RJB). Previous articles have discussed the installation and use of RJB on <a href="http://depth-first.com/articles/2006/10/12/running-ruby-java-bridge-on-windows">Windows</a> and <a href="http://depth-first.com/articles/2006/08/26/scripting-java-libraries-with-ruby-java-bridge">Linux</a>.</p>
+<h2 id="asamplemolecule">A Sample Molecule</h2>
+<p><img src="/images/posts/20070131/s_monolaterol.png" alt="(S)-Monolaterol" title="(S)-Monolaterol"></p>
+<p>A <a href="http://depth-first.com/articles/2007/01/25/a-molecular-language-for-modern-chemistry-flexmol-tetrahedral-chirality-and-monolaterol">recent article</a> disused a FlexMol representation of the chiral natural product monolaterol. Using a slightly modified numbering system for this molecule (shown above), we can construct a <a href="/images/posts/20070131/s_monolaterol.xml">complete FlexMol representation</a>. In this case, we simply start numbering at index zero, subtracting one from every index in the previous example to match the zero-based indices used in Octet.</p>
+<h2 id="ademonstrationpackage">A Demonstration Package</h2>
+<p>To illustrate the process of reading a FlexMol document, I've prepared a small package (<strong>demo-20070131.tar.gz</strong>) that can be <a href="https://sourceforge.net/project/showfiles.php?group_id=96108&amp;package_id=220177&amp;release_id=482855">downloaded from SourceForge</a>. In it, you'll find an Octet jarfile (<strong>octet-0.8.2.jar</strong>), a FlexMol representation of monolaterol (<strong>s_monolaterol.xml</strong>), a Ruby library (<strong>reader.rb</strong>), and some Ruby test code (<strong>test.rb</strong>). Inflate this archive and make it your working directory.</p>
+<h2 id="asimpletest">A Simple Test</h2>
+<p>The following sequence of commands will run the test included with the demonstration package:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> CLASSPATH=./octet-0.8.2.jar
+ruby test.rb
+</code></pre>
+<p>You should see several lines of output terminated with the line:</p>
+<pre><code class="hljs bash language-bash">The exact mass of monolaterol is 276.115029755.
+</code></pre>
+<p>You can get more hands-on experience with loading and processing the monolaterol FlexMol document using interactive Ruby (irb). For example:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'reader'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; r=Reader.new
+=&gt; <span class="hljs-comment">#&lt;Reader:0x2b9ab173a1f0 @xml_reader=#&lt;#&lt;Class:0x2b9ab1741680&gt;:0x2b9ab1736690&gt;, @handler=#&lt;#&lt;Class:0x2b9ab1741680&gt;:0x2b9ab1736e10&gt;, @builder=#&lt;#&lt;Class:0x2b9ab1741680&gt;:0x2b9ab1736b90&gt;&gt;</span>
+irb(main):003:0&gt; mol=r.read_file <span class="hljs-string">'s_monolaterol.xml'</span>
+=&gt; <span class="hljs-comment">#&lt;#&lt;Class:0x2b9ab1741680&gt;:0x2b9ab172cd48&gt;</span>
+irb(main):004:0&gt; mol.countAtoms
+=&gt; 21
+irb(main):005:0&gt; mol.countBondingSystems
+=&gt; 24
+</code></pre>
+<p>Of course, this is just scratching the surface of what can be done once a FlexMol document has been loaded by Octet.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Octet makes it possible to convert FlexMol documents into Java object representations that can be accessed through Ruby. With an object representation, the possibilities are limitless. Some simple examples have been provided here. Future articles will illustrate more advanced uses.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

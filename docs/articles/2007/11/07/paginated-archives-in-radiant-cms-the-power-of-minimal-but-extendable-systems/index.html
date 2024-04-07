@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Paginated Archives in Radiant CMS: The Power of Minimal But Extendable Systems | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Paginated Archives in Radiant CMS: The Power of Minimal But Extendable Systems</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-11-07T00:00:00.000Z">2007-11-07T00:00:00.000Z</time>
+      </header>
+      <p>If you've ever needed to build a Website hosting mostly static content, you've probably tried out a few Content Management Systems. The problem is not finding them - there must be hundreds. The problem is finding one that successfully walks the fine line between being minimal (so that you can do things your way) and powerful (so that it can grow with your needs).</p>
+<p><a href="http://radiantcms.org">Radiant CMS</a> is one of those systems. As an added bonus, it's written in Ruby and built on <a href="http://rubyonrails.org">Rails</a>. Radiant succeeds by focusing on the management of pages while providing a powerful extension mechanism.</p>
+<p>The Website for my company, <a href="http://metamolecular.com">Metamolecular</a>, will consist of content produced infrequently (product descriptions and documentation) intermingled with more frequently created blog-like content (updates, tutorials, responses to user questions). Traditionally, the CMS has handled the former, with blogging software handling the latter. But we needed a system that handled both well.</p>
+<p>One of the distinguishing characteristics of blogs, as opposed to other kinds of websites, is the unusually large number of similar pages. Handling this kind of content requires pagination - the ability to break an archive up into a series of pages containing a smaller subset of the archive.</p>
+<p>Although Radiant doesn't have the ability to paginate its content, it does have a wonderful system for creating extensions. I thought I'd give it a try.</p>
+<p>The result is the Paginated Archive extension. It works as a drop-in replacement for Radiant's existing Archive Page. After placing the extension into your PROJECT_HOME/vendor/extensions directory, you'll be able to create and configure Paginated Archives for use with blogs and other kinds of sites generating large numbers of pages. The extension requires Bruce Williams' excellent <a href="http://rubyforge.org/projects/paginator">Paginator</a> gem.</p>
+<p>You can get started by downloading the extension <a href="/images/posts/20071107/paginated_archive.tar.gz">here</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fighting Comment Spam on the Cheap with CAPTCHA | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Fighting Comment Spam on the Cheap with CAPTCHA</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-09-01T00:00:00.000Z">2007-09-01T00:00:00.000Z</time>
+      </header>
+      <p>If you run a blog or website that allows public input, you've almost certainly been subjected to a spam attack. This is a problem because even one successful attack can eat up hours of time. After a recent spam attack on this blog, comments were disabled altogether. They've now been restored with the help of a more robust kind of protection, which is the subject of this article.</p>
+<p>One of the best forms of spam protection is the <a href="http://en.wikipedia.org/wiki/Captcha">Completely Automated Public Turing Test to Tell Computers and Humans Apart</a> (CAPTCHA). CAPTCHA comes in many guises but usually consists of a noisy image of some text that a user must enter, like this one from <a href="http://digg.com">Digg</a>:</p>
+<p><img src="/images/posts/20070901/diggcap.png" alt="Diggcap" title="Diggcap"></p>
+<p>There are many CAPTCHA systems. The disadvantage most of them share is that they must be deployed on a server. Depending on your hosting situation and your platform, this may or may not be feasible. D-F is run by the <a href="http://rubyonrails.org">Ruby on Rails</a> blogging software <a href="http://typosphere.org">Typo</a>. Most CAPTCHA systems for Ruby require the installation of the C extension <a href="http://rmagick.rubyforge.org/">RMagick</a> and its dependencies, which is either difficult or impossible on many hosts.</p>
+<p>I recently found two solutions to this problem, and have implemented one of them:</p>
+<ul>
+<li><strong><a href="http://captchas.net">captchas.net</a></strong> This free service generates CAPTCHAs on a remote server, which your own server uses. By writing a small Ruby library and some glue code, I was able to integrate this solution, which is currently running on D-F. Here's an example in action:</li>
+</ul>
+<p><img src="/images/posts/20070901/dfcap.png" alt="dfcap"></p>
+<ul>
+<li><strong><a href="http://recaptcha.net">reCAPTCHA</a></strong> Not only does this service generate CAPTCHAs for you, but your users actually help solve OCR problems in the process. Talk about a win-win situation. If this sounds impossible, check out the description <a href="http://recaptcha.net/learnmore.html">here</a>. As an added bonus, <a href="http://recaptcha.net/resources.html">reCAPTHCA APIs</a> are available in a number of languages, <a href="http://www.loonsoft.com/recaptcha/">including Ruby</a>. reCAPTCHA is currently used on popular sites such as <a href="http://twitter.com">Twitter</a> and looks like this:</li>
+</ul>
+<p><img src="/images/posts/20070901/recap.png" alt="Recap" title="Recap"></p>
+<p>The struggle against spam is an arms race. Currently, the best weapon for legitimate content producers is CAPTCHA, but even it can be foiled by a determined spammer. If past history is any guide, even more sophisticated forms of spam attacks and countermeasures are just around the corner.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

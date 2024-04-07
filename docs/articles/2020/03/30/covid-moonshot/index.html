@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>COVID MoonShot | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/03/30/covid-moonshot/">
+      <meta property="og:title" content="COVID MoonShot">
+      <meta property="og:description" content="Open Source Drug Discovery takes on COVID-19.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200330/summary.png">
+      <meta content="Open Source Drug Discovery takes on COVID-19." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>COVID MoonShot</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-03-30T15:00:00Z">2020-03-30T15:00:00Z</time>
+      </header>
+      <p><a href="https://doi.org/10.1002/cmdc.201900565">Open Source Drug Discovery</a> offers an alternative to the proprietary system driving new drug development today. The idea has taken a variety of forms over the years, but in essence is an attempt to replace closed, proprietary processes with open, public ones. A new initiative, the <a href="https://covid.postera.ai/covid">COVID-19 MoonShot</a>, seeks to apply similar principles to development of antiviral treatments for COVID-19. This article offers an overview of the effort.</p>
+<h2 id="covidmoonshotproject">COVID MoonShot Project</h2>
+<p>The COVID MoonShot Project is an <em>ad hoc</em> group of individuals and institutions working to develop a drug inhibiting the SARS-CoV-2 main protease (M<sup>pro</sup>). Participating institutions include:</p>
+<ul>
+<li><a href="https://www.diamond.ac.uk/Home.html">Diamond Light Source</a>. The UK national synchrotron science facility.</li>
+<li><a href="http://www.weizmann.ac.il/Organic_Chemistry/London/">London Lab</a>. A research lab located at the Weizmann Institute (<a href="https://twitter.com/london_lab">Twitter</a>).</li>
+<li><a href="https://postera.ai">PostEra AI</a>. A Y-Combinator funded medicinal chemistry as a service startup.</li>
+</ul>
+<h2 id="gettingstarted">Getting Started</h2>
+<p>The two best sources for up-to-date information about the project are the <a href="https://covid.postera.ai/covid">Website</a> and the <a href="https://twitter.com/covid_moonshot">Twitter account</a>. What follows has been mostly gleaned from them.</p>
+<h2 id="msupprosupasthetarget">M<sup>pro</sup> as the Target</h2>
+<p>MoonShot's focus is the M<sup>pro</sup> protease, also known in the older literature as 3CL<sup>pro</sup>. This enzyme was <a href="https://science.sciencemag.org/content/300/5626/1763?ijkey=0a8e5246a508573738f4b6f57c540972d64be6a6&amp;keytype2=tf_ipsecsha">first characterized by X-ray crystallography</a> in 2003 using the enzyme expressed by SARS-CoV-1. M<sup>pro</sup> cleaves a polyprotein chain transcribed from viral RNA at 11 or more sites. The enzyme is thought to exist as a dimer in its active state, with an unobstructed, shallow active site hosting a catalytic Cys-His diad. M<sup>pro</sup> is thought to be essential for the virus, but evidence on this point seems fuzzy at best.</p>
+<p>More recently, the <a href="https://science.sciencemag.org/content/early/2020/03/20/science.abb3405">X-ray crystal structure</a> of SARS-CoV-2 M<sup>pro</sup> was determined both alone and bound to peptides <strong>13a</strong>, <strong>13b</strong>, and <strong>14b</strong>. Inhibition of purified recombinant CARS-CoV-2 M<sup>pro</sup> by <strong>13b</strong> was determined as 670 nM. A functional assay of SARS-CoV-2 activity using <strong>14b</strong> was performed (EC<sub>50</sub> 4-µM). Mouse ADME parameters for both <strong>13a</strong> and <strong>13b</strong> were determined.</p>
+<figure>
+  <img alt="Inhibitors" src="/images/posts/20200330/mpro-inhibitors.jpg">
+  <figcaption>
+    <strong>Inhibitors.</strong> Using SARS-CoV-1 M<sup>pro</sup> inhibitor <strong>11r</strong> as a starting point, three inhibitors of SARS-CoV-2 M<sup>pro</sup> were developed. [<a href="https://doi.org/10.1126/science.abb34059">source</a>]. 
+  </figcaption>
+</figure>
+<p>As-yet <a href="https://www.diamond.ac.uk/covid-19/for-scientists/Main-protease-structure-and-XChem.html">unpublished results</a> from the <a href="https://www.diamond.ac.uk">Diamond Light Source</a> have yielded X-ray crystal structures for 66 fragments, 44 of which were covalently bound to SARS-CoV-2 M<sup>pro</sup>. Data are available in a <a href="https://www.diamond.ac.uk/covid-19/for-scientists/Main-protease-structure-and-XChem/Downloads.html">variety of formats</a>, including PDB and Excel files.</p>
+<p>The goal of the COVID MoonShot project is to apply the growing amounts of structural data on M<sup>pro</sup> to the development of "effective, easy-to-make anti-COVID drugs."</p>
+<h2 id="timeline">Timeline</h2>
+<p>The Diamond Light Source team has compiled a <a href="https://www.diamond.ac.uk/covid-19/for-scientists/progress-highlights.html">timeline</a> of its efforts. Recently, <a href="https://www.linkedin.com/posts/davide-sabbadin-34b5403a_hackaton-covid-sars-activity-6647895532851249152-xQz8">a hackathon</a> was announced. The MoonShot group announced the closure of the <a href="https://twitter.com/covid_moonshot/status/1243702399526563840">first wave of structure design submissions</a>. Candidates from this set have <a href="https://twitter.com/covid_moonshot/status/1242895527596797952">been selected</a>, and samples have been requested from supplier Enamine. Results (of unspecified type) are to be posted <a href="https://covid.postera.ai/covid">here</a>.</p>
+<p>A recent <a href="https://cen.acs.org/pharmaceuticals/drug-discovery/Crystal-structures-novel-coronavirus-protease/98/web/2020/03">C&amp;EN Article</a> mentions the MoonShot project. <a href="http://practicalcheminformatics.blogspot.com/2020/03/building-on-fragments-from-diamondxchem.html">Pat Walters</a> and <a href="https://cheminf20.org/2020/03/28/cheminformatics-from-quarantine-some-interactive-covid-19-resources/">Alex Clark</a> have recently begun writing about techniques for working with the available data.</p>
+<h2 id="lookingahead">Looking Ahead</h2>
+<p>It's early days for the COVID Moonshot. Even so, I don't recall any project quite like it. If you have a background in or inclination toward molecular design, the project may be worth your time.</p>
+<p>Having worked in drug discovery as a medicinal chemist for many years, however, I can't help but thinking about the steps following design and compound synthesis. In vitro assays, probably with recombinant enzyme, will be a vital component of any successful project. For a relatively unexplored target such as SARS-CoV-2 M<sup>pro</sup>, in vitro assay throughput could become a bottleneck. It's not clear how the MoonShot will address the problem of in vitro assays, and a <a href="https://twitter.com/rapodaca/status/1243356536287531009">request for information I sent by Twitter</a> remains unanswered. That's just the start of the labor and expense. The project is going to need resources in DMPK/ADME, not to mention functional animal models. It will also need an information technology infrastructure, as the limits of simple websites and Twitter already begin to surface. The there's the thorny problem of intellectual property, particularly among participants who also work in industry. These and many other challenges could help shape new models for running drug discovery programs.</p>
+<p>Crises have a way of making previously unthinkable leaps into the unknown possible.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>The COVID MoonShot is a loose association of institutions and individuals organized around the goal of finding a practical COVID-19 treatment. Current efforts are focused on SARS-CoV-2 M<sup>pro</sup> inhibitors, but I suspect that could change as new information emerges. Regardless of your scientific background or skills, the project is worth exploring.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

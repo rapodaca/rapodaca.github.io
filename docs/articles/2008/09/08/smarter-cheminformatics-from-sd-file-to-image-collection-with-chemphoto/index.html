@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Smarter Cheminformatics - From SD File to Image Collection with ChemPhoto | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Smarter Cheminformatics - From SD File to Image Collection with ChemPhoto</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-09-08T00:00:00.000Z">2008-09-08T00:00:00.000Z</time>
+      </header>
+      <p>The old adage says time is money. Unfortunately, working chemists are often forced to spend a remarkable amount of valuable time and mental effort on menial chemical information processing tasks. These are things that could be done faster and with better quality by the right software, if it were available. Most importantly, these tasks take resources away from much more valuable work that <em>can't</em> be automated.</p>
+<h2 id="theprobleminanutshell">The Problem in a Nutshell</h2>
+<p>As a case in point, consider the creation of 2D chemical structure images. If you maintain a compound collection of any kind, sooner or later you may end up asking yourself how you can create a set of images depicting the chemical structures in your collection.</p>
+<h2 id="aspecificexamplechemicalsuppliers">A Specific Example: Chemical Suppliers</h2>
+<p>For example, you might work for a chemical supplier that maintains a Web-based eCommerce site, one or more PDF catalogs, or printed brochures. Your customers are chemists and they expect to see chemical structures in your product listings. How can you make this happen?</p>
+<p>If you look around for software that automates this job, you'll more likely than not come up empty-handed. The software that solves this problem well simply doesn't exist yet.</p>
+<h2 id="doingitthehardway">Doing it the Hard Way</h2>
+<p>In the absence of software to solve the problem, the only way to get the job done is to buckle down and do it manually. Most chemical structure editors allow you to save output as a raster image. Provided that this output matches your requirements, your system might consist of the following steps:</p>
+<ol>
+<li>For every product in your catalog, create a single molfile or its machine-readable equivalent.</li>
+<li>Load one file into your editor.</li>
+<li>Save the file as a raster image, being careful to make sure all of the drawing settings and image size parameters are identical to the rest of your images.</li>
+<li>Repeat Steps (2)-(3) until you have all of your images.</li>
+</ol>
+<p>There are many problems with this approach. For example, if your images ever need to be made larger (or smaller), you'll have to create all of your images over again (which can easily number in the thousands). Similarly, if for some reason you want to change the appearance of the images such as background, atom label coloring, or line thicknesses, you'll be forced into a lot of manual work. Finally, this system requires you to keep track of structures that have been imaged and those that haven't, which can in itself be nontrivial and error-prone, especially for thousands of products.</p>
+<p>With the right software, this problem would disappear.</p>
+<h2 id="onesolutioncustomizedimagingservice">One Solution: Customized Imaging Service</h2>
+<p>My company, <a href="http://metamolecular.com">Metamolecular</a>, has recently provided custom imaging services to a few chemical suppliers wanting thousands of good-looking structure images rendered automatically. The service made use of the versatile <a href="http://metamolecular.com/chemwriter">ChemWriter</a> rendering engine together with some custom code written in Ruby.</p>
+<p>Although the imaging service works very well as a one-off solution, it's less than optimal in the longer term. Any changes to the image collection must be processed by Metamolecular, and then sent back to the client. A cheaper and faster solution would be to offer software that implements the functionality of the service.</p>
+<h2 id="abettersolutionchemicalstructureimagingsoftware">A Better Solution: Chemical Structure Imaging Software</h2>
+<p>Wouldn't it be great if easy-to-use software existed that could automatically generate thousands of chemical structure images with the press of a button?</p>
+<p>In particular, the software should:</p>
+<ul>
+<li>Run on any modern platform (Windows, Mac OS X, Linux).</li>
+<li>Read industry-standard Structure Data Files (SD Files).</li>
+<li>Be capable of working with tens of thousands of chemical structures at a time even on older machines.</li>
+<li>Store fully-customizable drawing settings in a format that could be used over and over again for a consistent and professional look.</li>
+<li>Allow the output to be previewed exactly as it will appear in the generated images ("what you see is what you get").</li>
+<li>Output to a variety of image formats, including: Portable Network Graphics (PNG image); JPG image; <a href="http://depth-first.com/articles/2008/06/10/adobe-flash-for-cheminformatics-fast-scalable-and-attractive-2d-depiction-of-chemical-structures-with-vector-graphics">Flash</a> (SWF file); <a href="http://depth-first.com/articles/2006/09/09/generating-and-serving-2-d-molecular-svgs">Scalable Vector Graphics</a> (SVG); and <a href="http://depth-first.com/articles/2008/08/07/encapsulated-postscript-for-cheminformatics">Encapsulated PostScript</a> (EPS file).</li>
+</ul>
+<h2 id="introducingchemphoto">Introducing ChemPhoto</h2>
+<p>ChemPhoto is designed to solve the problem of consistently creating large numbers of high-quality 2D chemical structure images. Currently in development, the first versions of ChemPhoto will be available for review within the next two weeks.</p>
+<p>ChemPhoto consists of a lightweight and intuitive user interface layer built on top of the ChemWriter rendering engine. ChemPhoto focuses on doing one thing very well, so it wouldn't be useful for creating or editing SD Files (a task for which many tools already exist). The software is specifically designed to work well with large SD Files, such as the 25,000-structure sets that can be obtained from <a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem</a>. Written in Java, ChemPhoto runs on Windows, Mac OS X, and Linux. Future articles will discuss ChemPhoto's design and implementation.</p>
+<p>If you're interested in evaluating ChemPhoto, feel free to <a href="http://mailhide.recaptcha.net/d?k=01R9bxyP6XNdc0duoUCzBBHA==&amp;c=vZ7R0VDctRzIRzbSs1-LZwDzjTjAnfCS4KONqGHxY9I=" onclick="window.open('http://mailhide.recaptcha.net/d?k=01R9bxyP6XNdc0duoUCzBBHA==&amp;c=vZ7R0VDctRzIRzbSs1-LZwDzjTjAnfCS4KONqGHxY9I=', '', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=500,height=300'); return false;" title="Reveal this e-mail address">drop me a line</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

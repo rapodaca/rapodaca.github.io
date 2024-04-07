@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The RESTful Chemical Tracking System Part 5 - Media Types | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The RESTful Chemical Tracking System Part 5 - Media Types</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-09-10T00:00:00.000Z">2009-09-10T00:00:00.000Z</time>
+      </header>
+      <p>Laboratory information management systems are complex entities that evolve over time. Change takes many forms, including the support of new kinds of devices (e.g., <a href="/articles/2009/09/04/tech-fridays-titanium-mobile-and-the-electronic-laboratory-notebook-usability-problem">mobile devices</a>), new applications that make use of the underlying data, changes in data models, and additional services that need to be integrated. RESTful web services exposing narrow functionality through a uniform interface offer an approach to anticipating and effectively working with these kinds of changes.</p>
+<p>This article is the fifth part in a series exploring the idea that the REST architectural style can be applied to scientific laboratory information management problems, specifically chemical tracking. Previously, we identified five resources and described their interrelationships. This installment takes up the important question of how clients and servers will represent these resources through media types.</p>
+<h2 id="allarticlesinthisseries">All Articles in This Series:</h2>
+<ol>
+<li><a href="/articles/2009/08/07/the-restful-chemical-tracking-system-part-1-introduction">The RESTful Chemical Tracking System Part 1: Introduction</a></li>
+<li><a href="/articles/2009/08/14/the-restful-chemical-tracking-system-part-2-resources">The RESTful Chemical Tracking System Part 2: Resources</a></li>
+<li><a href="/articles/2009/08/21/the-restful-chemical-tracking-system-part-3-resource-associations">The RESTful Chemical Tracking System Part 3: Resource Associations</a></li>
+<li><a href="/articles/2009/08/28/the-restful-chemical-tracking-system-part-4-resources-representations-hypertext-and-json">The RESTful Chemical Tracking System Part 4: Resources, Representations, Hypertext, and JSON</a></li>
+<li>The RESTful Chemical Tracking System Part 5: Media Types</li>
+</ol>
+<h2 id="resourcesataglance">Resources At a Glance</h2>
+<p>We previously defined an <a href="/articles/2009/08/21/%EF%BB%BFthe-restful-chemical-tracking-system-part-3-resource-associations">association diagram</a> that depicts how each of our resources relates to the others:</p>
+<p><img src="/images/posts/20090820/cts.png" alt="CTS" title="CTS"></p>
+<h2 id="usingmediatypeswithhypertextdrivenapis">Using Media Types with Hypertext-driven APIs</h2>
+<p>As [previously described]](/articles/2009/08/28/%EF%BB%BFthe-restful-chemical-tracking-system-part-4-resources-representations-hypertext-and-json), media types for this chemical tracking system will be based on <a href="http://www.json.org/">JSON</a>. Because our API will be <a href="/articles/2009/07/31/restful-web-services-hypermedia-and-robot-scientists">hypertext-driven</a>, we'll need a mechanism for providing links for clients to follow. We'll do this by defining a JSON data structure called <strong>Link</strong>. A <strong>Link</strong> will communicate three things: (1) a URI; (2) a media type; (3) a human-readable name to aid in debugging and client development. The following is an example of a <strong>Link</strong> defined in JSON:</p>
+<pre><code class="hljs bash language-bash">{
+  <span class="hljs-string">"name"</span>:<span class="hljs-string">"human-readable description of this Link"</span>,
+  <span class="hljs-string">"uri"</span>:<span class="hljs-string">"http://example.com/transfers/123"</span>,
+  <span class="hljs-string">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Transfer+json"</span>
+}
+</code></pre>
+<p>When a client receives a representation containing a <strong>Link</strong>, it won't need to guess the media type to send or request from the server - it uses the media type supplied in the Link. For its part, the server can define as many media types for a given URI as it cares to without breaking any client code.</p>
+<h2 id="mediatypedescriptions">Media Type Descriptions</h2>
+<p>Everything is now in place to offer some specific media type descriptions for the chemical tracking system. They each follow the same pattern consisting of: (1) a text description of the resource; (2) a table listing attributes and Links; and (3) an example representation.</p>
+<p>Within each attributes table, those attributes marked "[create]" can be used when creating a new resource, and those marked "[update]" can be used when updating a resource. All attributes are returned when viewing the representation.</p>
+<h2 id="indexapplicationvndcommetamolecularctsindexjson">#Index [application/vnd.com.metamolecular.cts.Index+json]</h2>
+<p>A listing of resources of the same type and which supports pagination.</p>
+<table width="100%" border="1"><tbody><tr><th> Field Name
+    </th><th> Type
+    </th><th> Occurs
+    </th><th> Description
+  </th></tr>
+  <tr><td> create
+    </td><td> Link
+    </td><td> 1
+    </td><td> Create a new item.
+  </td></tr>
+  <tr><td> items
+    </td><td> [Link]
+    </td><td> 1
+    </td><td> An array of Links that may be empty.
+  </td></tr>
+  <tr><td> next_page
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Next page of Links.
+  </td></tr>
+  <tr><td> previous_page
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Previous page of Links.
+  </td></tr>
+</tbody></table>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"create"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"create a new location"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
+  },
+  <span class="hljs-attr">"items"</span>: [
+    {
+      <span class="hljs-attr">"name"</span>:<span class="hljs-string">"a location"</span>,
+      <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/991"</span>,
+      <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
+    },
+    {
+      <span class="hljs-attr">"name"</span>:<span class="hljs-string">"a location"</span>,
+      <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/992"</span>,
+      <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
+    },
+    {
+      <span class="hljs-attr">"name"</span>:<span class="hljs-string">"a location"</span>,
+      <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/993"</span>,
+      <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
+    }
+  ],
+  <span class="hljs-attr">"next_page"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the next page of locations"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations?page=3"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
+  },
+  <span class="hljs-attr">"previous_page"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the previous page of locations"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations?page=1"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
+  }
+}
+</code></pre>
+<h2 id="locationapplicationvndcommetamolecularctslocationjson">Location [application/vnd.com.metamolecular.cts.Location+json]</h2>
+<p>The place in which a Sample resides (or once resided). This simplistic definition may work for a small lab; we can accomodate <a href="/articles/2009/08/14/%EF%BB%BFthe-restful-chemical-tracking-system-part-2-resources#comments">more complex arrangements</a> by breaking <em>Location</em> into subordinate resources such as <em>Building</em>, <em>Room</em>, <em>Rack</em>, and so on.</p>
+<table width="100%" border="1"><tbody><tr><th> Field Name
+    </th><th> Type
+    </th><th> Occurs
+    </th><th> Description
+  </th></tr>
+    <tr><td> location:building
+    </td><td> String
+    </td><td> 1
+    </td><td> Name of the building. [create, update]
+  </td></tr>
+    <tr><td> location:room
+    </td><td> Integer
+    </td><td> 1
+    </td><td> Room number. [create, update]
+  </td></tr>
+    <tr><td> location:station_type
+    </td><td> String
+    </td><td> 1
+    </td><td> Type of station, for example "Fume Hood." [create, update]
+  </td></tr>
+    <tr><td> location:station
+    </td><td> Integer
+    </td><td> 1
+    </td><td> Station identifier, for example "27-A". [create, update]
+  </td></tr>
+  <tr><td> current_samples
+    </td><td> Link
+    </td><td> 1
+    </td><td> Listing of Samples currently found at this Location.
+  </td></tr>
+  <tr><td> transfers
+    </td><td> Link
+    </td><td> 1
+    </td><td> Listing of Transfers associated with this Location.
+  </td></tr>
+  <tr><td> update
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Update the state of this Location.
+  </td></tr>
+  <tr><td> destroy
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Destroy this Location.
+  </td></tr>
+</tbody></table>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"location"</span>: {
+    <span class="hljs-attr">"building"</span>:<span class="hljs-string">"Chemistry"</span>,
+    <span class="hljs-attr">"room"</span>:<span class="hljs-number">104</span>,
+    <span class="hljs-attr">"station_type"</span>:<span class="hljs-string">"Fume Hood"</span>,
+    <span class="hljs-attr">"station"</span>:<span class="hljs-string">"27-A"</span>
+  }
+  <span class="hljs-string">"current_samples"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"samples currently stored at this location"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123/samples"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
+  },
+  <span class="hljs-attr">"transfers"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"transfers made to this location"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123/transfers"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
+  },
+  <span class="hljs-attr">"update"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"updates this location"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
+  },
+  <span class="hljs-attr">"destroy"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this location"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
+  }
+}
+</code></pre>
+<h2 id="transferapplicationvndcommetamolecularctstransferjson">Transfer [application/vnd.com.metamolecular.cts.Transfer+json]</h2>
+<p>The act of a User moving a Sample from one Location to another. Notice that unlike other resources, a Transfer is not something we can physically interact with but instead something done to another resource. Note that the <em>sample_reference</em> and <em>location_reference</em> fields make use of URIs themselves as primary resource identifiers.</p>
+<table width="100%" border="1"><tbody><tr><th> Field Name
+    </th><th> Type
+    </th><th> Occurs
+    </th><th> Description
+  </th></tr>
+    <tr><td> transfer:created_at
+    </td><td> Datetime
+    </td><td> 1
+    </td><td> Time and date of transfer.
+  </td></tr>
+    <tr><td> transfer:sample_reference
+    </td><td> URI
+    </td><td> 1
+    </td><td> The URI of the Sample being transfered. [create]
+  </td></tr>
+    <tr><td> transfer:location_reference
+    </td><td> URI
+    </td><td> 1
+    </td><td> The URI of the Location for this transfer. [create]
+  </td></tr><tr><td> user
+    </td><td> Link
+    </td><td> 1
+    </td><td> The user initiating the transfer.
+  </td></tr>
+  <tr><td> location
+    </td><td> Link
+    </td><td> 1
+    </td><td> The location to which the transfer was made.
+  </td></tr>
+  <tr><td> sample
+    </td><td> Link
+    </td><td> 1
+    </td><td> The Sample that was transferred.
+  </td></tr>
+  <tr><td> destroy
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Destroy this Transfer.
+  </td></tr>
+</tbody></table>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"transfer"</span>: {
+    <span class="hljs-attr">"created_at"</span>:<span class="hljs-string">"Fri, 04 Sep 2009 18:44:44 +0000"</span>,
+    <span class="hljs-attr">"location_reference"</span>:<span class="hljs-string">"http://example.com/locations/123"</span>,
+    <span class="hljs-attr">"sample_reference"</span>:<span class="hljs-string">"http://example.com/samples/1234"</span>
+  },
+  <span class="hljs-attr">"user"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the user initiating this transfer"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/users/123"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.User+json"</span>
+  },
+  <span class="hljs-attr">"location"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the location to which the transfer was made"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
+  },
+  <span class="hljs-attr">"sample"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the sample being transferred"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/samples/1234"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Sample+json"</span>
+  },
+  <span class="hljs-attr">"destroy"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this transfer"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/transfers/1234"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Transfer+json"</span>
+  }
+}
+</code></pre>
+<h2 id="userapplicationvndcommetamolecularctsuserjson">User [application/vnd.com.metamolecular.cts.User+json]</h2>
+<p>Any entity capable of moving a Sample from one Location to another. Depending on the equipment available in a lab, a User may or may not be a person.</p>
+<table width="100%" border="1"><tbody><tr><th> Field Name
+    </th><th> Type
+    </th><th> Occurs
+    </th><th> Description
+  </th></tr>
+    <tr><td> user:name
+    </td><td> String
+    </td><td> 1
+    </td><td> This user's name. [create, update]
+  </td></tr>
+    <tr><td> user:type
+    </td><td> String
+    </td><td> 1
+    </td><td> One of (Human|Robot) [create, update]
+  </td></tr>
+  <tr><td> transfers
+    </td><td> Link
+    </td><td> 1
+    </td><td> Listing of all transfers made by this user.
+  </td></tr>
+  <tr><td> update
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Update the state of this User.
+  </td></tr>
+  <tr><td> destroy
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Destroy this User.
+  </td></tr>
+</tbody></table>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"user"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"Xanthus-1"</span>,
+    <span class="hljs-attr">"type"</span>:<span class="hljs-string">"Robot"</span>
+  },
+  <span class="hljs-attr">"transfers"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the transfers made by this user"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/users/123/transfers"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
+  },
+  <span class="hljs-attr">"update"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"update this user"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/users/123"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.User+json"</span>
+  },
+  <span class="hljs-attr">"destroy"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this user"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/users/123"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.User+json"</span>
+  }
+}
+</code></pre>
+<h2 id="sampleapplicationvndcommetamolecularctssamplejson">#Sample [application/vnd.com.metamolecular.cts.Sample+json]</h2>
+<p>The physical object we want to keep track of. We'll start with something simple here. But like <em>Location</em>, <em>Sample</em> is a resource we can refine by breaking it down into smaller resources. For example, we might enable a <em>Sample</em> to be divided by defining a <em>Partition</em> resource.</p>
+<table width="100%" border="1"><tbody><tr><th> Field Name
+    </th><th> Type
+    </th><th> Occurs
+    </th><th> Description
+  </th></tr>
+    <tr><td> sample:mass
+    </td><td> String
+    </td><td> 1
+    </td><td> The mass of the Sample. [create, update]
+  </td></tr>
+  <tr><td> transfers
+    </td><td> Link
+    </td><td> 1
+    </td><td> Listing of all transfers involving this Sample.
+  </td></tr>
+  <tr><td> current_location
+    </td><td> Link
+    </td><td> 1
+    </td><td> The current location of this sample.
+  </td></tr>
+  <tr><td> substance
+    </td><td> Link
+    </td><td> 1
+    </td><td> The Substance making up this Sample.
+  </td></tr>
+  <tr><td> update
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Update the state of this Sample.
+  </td></tr>
+  <tr><td> destroy
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Destroy this Sample.
+  </td></tr>
+</tbody></table>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"sample"</span>: {
+    <span class="hljs-attr">"mass"</span>:<span class="hljs-string">"275 mg"</span>
+  },
+  <span class="hljs-attr">"transfers"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the transfers involving this sample"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/samples/1143/transfers"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
+  }
+  <span class="hljs-string">"current_location"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the current location this sample"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/42"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
+  },
+  <span class="hljs-attr">"substance"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the substance making up this sample"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/substances/1099"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Substance+json"</span>
+  },
+  <span class="hljs-attr">"update"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"updates this sample"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/samples/1234"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Sample+json"</span>
+  },
+  <span class="hljs-attr">"destroy"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this sample"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/samples/1234"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Sample+json"</span>
+  }
+}
+</code></pre>
+<h2 id="substanceapplicationvndcommetamolecularctssubstancejson">Substance [application/vnd.com.metamolecular.cts.Substance+json]</h2>
+<p>The molecular entity (or entities) contained in a Sample. Here, we'll use a Substance ID assigned by another system (possibly by a company-wide substance registration app). If that system were RESTful (see <a href="http://chemcaster.com">Chemcaster</a>), we could link to it instead.</p>
+<table width="100%" border="1"><tbody><tr><th> Field Name
+    </th><th> Type
+    </th><th> Occurs
+    </th><th> Description
+  </th></tr>
+    <tr><td> substance:identifier
+    </td><td> String
+    </td><td> 1
+    </td><td> Substance ID. [create, update]
+  </td></tr>
+  <tr><td> samples
+    </td><td> Link
+    </td><td> 1
+    </td><td> The samples in which this substance appears.
+  </td></tr>
+  <tr><td> update
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Update the state of this Substance.
+  </td></tr>
+  <tr><td> destroy
+    </td><td> Link
+    </td><td> 0..1
+    </td><td> Destroy this Substance.
+  </td></tr>
+</tbody></table>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"substance"</span>: {
+    <span class="hljs-attr">"identifer"</span>:<span class="hljs-string">"CB-10779751"</span>
+  },
+  <span class="hljs-attr">"samples"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the samples in which this substance appears"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/substances/815/samples"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
+  },
+  <span class="hljs-attr">"update"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"update this substance"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/substances/123"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Substance+json"</span>
+  },
+  <span class="hljs-attr">"destroy"</span>: {
+    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this substance"</span>,
+    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/substances/123"</span>,
+    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Substance+json"</span>
+  }
+}
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>We now have the blueprint for a RESTful chemical tracking system. Five resources with well-defined relationships can now be expressed in terms of simple media types. But how do we use these media types and resources to actually accomplish something useful? The next article in this series will offer some ideas.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

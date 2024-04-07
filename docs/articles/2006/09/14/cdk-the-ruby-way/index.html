@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>CDK, the Ruby Way | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>CDK, the Ruby Way</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-09-14T00:00:00.000Z">2006-09-14T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://depth-first.com/articles/2006/09/11/visualizing-iupac-names-with-chemnomparse">Previous articles</a> have discussed how the <a href="http://cdk.sf.net">Chemistry Development Kit</a> (CDK) can interface with Ruby using the <a href="http://depth-first.com/articles/2006/08/26/scripting-java-libraries-with-ruby-java-bridge">Ruby Java Bridge</a> (RJB). However, each of these articles included a repetitive setup in which the CDK jarfile needed to be copied and the <code>CLASSPATH</code> variable needed to be set. In writing, as in programming, <a href="http://en.wikipedia.org/wiki/Don't_repeat_yourself">repeating yourself</a> is a sure sign that something needs to be refactored.</p>
+<p>My solution is the <a href="http://rubyforge.org/projects/rcdk">Ruby Chemistry Development Kit</a> (RCDK), a lightweight Ruby wrapper around the CDK. RCDK hides the boring details of interfacing CDK with Ruby, letting you get on to the more interesting things like doing a quick descriptor calculation, running a test, interfacing CDK with C/C++ or Ruby libraries, or building your <a href="http://www.rubyonrails.org/">Ruby on Rails</a> CDK application.</p>
+<p>RCDK is available as a <a href="http://www.rubygems.org/">RubyGem</a>. One of the advantages of RubyGems compared to jarfiles is that the system automatically manages dependencies. For example, RCDK depends on RJB. If you haven't yet installed RJB, this will be taken care of for you as you install RCDK with the following command (run as root):</p>
+<pre><code class="hljs bash language-bash">sudo gem install rcdk
+</code></pre>
+<p>During the interactive session that follows, you'll be asked which version of RJB should be installed. There are currently two Windows versions and two unix versions. Be prepared for a bit of a wait as the 10 Mb RCDK Gem installs itself.</p>
+<p>After installing the RCDK RubyGem, there is one additional step you'll need to take. Update your bash profile or equivalent to point to your system's native Java libraries. On Linux with Sun's JDK, this consists of adding the following to <code>.bash_profile</code>, usually in your home directory:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> LD_LIBRARY_PATH=<span class="hljs-variable">$JAVA_HOME</span>/jre/lib/i386:<span class="hljs-variable">$LD_LIBRARY_PATH</span>
+</code></pre>
+<p>This step is needed due to the way that RJB is currently implemented. If <code>$JAVA_HOME</code> was not already set, it should point to your system's Java installation. Future versions of RJB may find a way to avoid this manual configuration step.</p>
+<p>After RCDK has been installed and your <code>LD_LIBRARY_PATH</code> has been set, using RCDK is straightforward (notice the shortened <code>import</code> statement):</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+require_gem <span class="hljs-string">'rcdk'</span>
+
+SmilesParser = import <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
+
+parser = SmilesParser.new
+smiles = <span class="hljs-string">'c1ccccc1'</span>
+mol = parser.parseSmiles(smiles)
+
+puts mol.getAtomCount <span class="hljs-comment"># =&gt;6</span>
+</code></pre>
+<p>A local jarfile (say, foo-0.1.1.jar) can be added to your classpath with the following:</p>
+<pre><code class="hljs ruby language-ruby">Java::Classpath.add(<span class="hljs-string">'foo-0.1.1.jar'</span>)
+</code></pre>
+<p>This approach to using the CDK has the added advantage that a Ruby-specific convenience layer could be introduced in a transparent way. For example, a very common chemical informatics task is to interconvert molfiles and SMILES strings. In the future, RCDK may introduce methods that will do these kinds of common tasks automatically, without the need to refer to CDK classes.</p>
+<p>I don't know of <a href="http://www.ruby-forum.com/topic/81021#new">any other attempts</a> to package Java jarfiles as RubyGems for use with the C implementation of Ruby. It's a very simple approach that may be applicable to other Java libraries, especially as more Java programmers turn to Ruby. I have tested RCDK on Mandriva Linux 2006. Other operating systems may have their own configuration issues.</p>
+<p>RCDK offers many opportunities to experiment with chemical informatics and Ruby, and Ruby-Java integration. Future articles will discuss some of the possibilities.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

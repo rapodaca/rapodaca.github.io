@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JavaScript for Cheminformatics - Atom Typing with Prototype and Iterators | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>JavaScript for Cheminformatics - Atom Typing with Prototype and Iterators</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-08-28T00:00:00.000Z">2008-08-28T00:00:00.000Z</time>
+      </header>
+      <p>The previous article in this series discussed the use of <a href="http://depth-first.com/articles/2008/08/26/javascript-for-cheminformatics-using-the-prototype-framework">Prototype to build a simple cheminformatics model</a>. But there's much more to <a href="http://www.prototypejs.org/">Prototype</a> than an improved class-like syntax. This article discusses one specific way that Prototype enhances JavaScript collections through iterators.</p>
+<h2 id="theproblem">The Problem</h2>
+<p>Let's say we have an instance of <code>Molecule</code>, as defined in <a href="http://depth-first.com/articles/2008/08/26/javascript-for-cheminformatics-using-the-prototype-framework">the previous article</a>, and we'd like to group the carbon atoms separately from the heteroatoms. In many languages, including Java, we'd have to write a for-loop complete with logic for comparing atoms and then placing them into bins. Prototype makes possible a more modular approach with iterators.</p>
+<h2 id="functionalprogramminganditerators">Functional Programming and Iterators</h2>
+<p>JavaScript is a multi-paradigm programming language that offers tools for both object-oriented and <a href="http://www.joelonsoftware.com/items/2006/08/01.html">functional programming</a> approaches. In practical terms, this simply means that even functions in JavaScript behave as objects: they can be created dynamically and passed as parameters. Prototype takes advantage of this to extend collections instances such as <code>Arrays</code> with built-in iterators that are analogous to iterators found in languages such as Ruby.</p>
+<h2 id="asimpletest">A Simple Test</h2>
+<p>The JavaScript below builds a pyridine molecule:</p>
+<pre><code class="hljs js language-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createPyridine</span>(<span class="hljs-params"></span>)</span>{
+  <span class="hljs-keyword">var</span> pyridine = <span class="hljs-keyword">new</span> Molecule();
+  <span class="hljs-keyword">var</span> c1 = pyridine.addAtom(<span class="hljs-string">"C"</span>);
+  <span class="hljs-keyword">var</span> c2 = pyridine.addAtom(<span class="hljs-string">"C"</span>);
+  <span class="hljs-keyword">var</span> c3 = pyridine.addAtom(<span class="hljs-string">"C"</span>);
+  <span class="hljs-keyword">var</span> c4 = pyridine.addAtom(<span class="hljs-string">"C"</span>);
+  <span class="hljs-keyword">var</span> c5 = pyridine.addAtom(<span class="hljs-string">"C"</span>);
+  <span class="hljs-keyword">var</span> n6 = pyridine.addAtom(<span class="hljs-string">"N"</span>);
+
+  pyridine.connect(c1, c2, <span class="hljs-number">1</span>);
+  pyridine.connect(c2, c3, <span class="hljs-number">2</span>);
+  pyridine.connect(c3, c4, <span class="hljs-number">1</span>);
+  pyridine.connect(c4, c5, <span class="hljs-number">2</span>);
+  pyridine.connect(c5, n6, <span class="hljs-number">1</span>);
+  pyridine.connect(n6, c1, <span class="hljs-number">2</span>);
+
+  <span class="hljs-keyword">return</span> pyridine;
+}
+</code></pre>
+<p>Saving this code in a file called <strong>molecules.js</strong>, we can use Firefox with Firebug to test it with the following HTML:</p>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"prototype.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"chem.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"molecules.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>With the Firebug console, we create a <code>Molecule</code> of pyridine:</p>
+<pre><code class="hljs bash language-bash">&gt;&gt;&gt; m = createPyridine();
+</code></pre>
+<p>To separate carbons from heteroatoms, we use the Prototype <code>partition</code> iterator:</p>
+<pre><code class="hljs bash language-bash">&gt;&gt;&gt; m=createPyridine();
+Object atoms=[6] bonds=[6]
+&gt;&gt;&gt; m.atoms.partition(<span class="hljs-keyword">function</span>(atom){<span class="hljs-built_in">return</span> atom.label == <span class="hljs-string">"C"</span>});
+[[Object label=C neighbors=[2] bonds=[2], Object label=C neighbors=[2] bonds=[2], Object label=C neighbors=[2] bonds=[2], 2 more...], [Object label=N neighbors=[2] bonds=[2]]]
+</code></pre>
+<p>The <code>partition</code> iterator accepts a function as a parameter and returns an array containing two sub-arrays: the first contains the elements for which the function evaluated to <code>true</code> (carbons) and the second contains the elements for which the function evaluated to <code>false</code> (heteroatoms).</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Although the example shown here is rather simple, it's possible to extend the general principle to more complex atom typing systems. By creating a single function that evaluated atom type, we could pass it as a parameter to any number of collection iterator functions.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

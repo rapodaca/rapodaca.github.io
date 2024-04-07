@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Recombining Compressed PubChem SD Files with Open Babel | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Recombining Compressed PubChem SD Files with Open Babel</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-10-01T00:00:00.000Z">2008-10-01T00:00:00.000Z</time>
+      </header>
+      <p>While testing <a href="http://metamolecular.com/chemphoto">ChemPhoto</a>, it became necessary to test the <a href="http://depth-first.com/articles/2008/09/08/smarter-cheminformatics-from-sd-file-to-image-collection-with-chemphoto">chemical structure imaging application</a> with SD Files containing several hundred thousand records. Although it's tempting to meet this need by constructing "dummy" files with the same record or small set of records repeated, tests are always far more illuminating when real data is used.</p>
+<p><a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem</a> is an excellent source of large molecular datasets, and the entire database can be <a href="http://depth-first.com/articles/2006/09/29/hacking-pubchem-direct-access-with-ftp">downloaded by FTP</a>. Because of PubChem's massive size, what's downloadable consists of files broken up into groups of about 25,000 in gzipped SD File format (*.sdf.gz). Although this is an excellent resource, it creates a problem: how can you conveniently recombine this set of compressed SD Files into a single SD File?</p>
+<p>You might think about writing some "quick" code in your language of choice. Fortunately, <a href="http://openbabel.org">Open Babel</a> gets the job done - without any of the coding or debugging.</p>
+<p>The following command will create a single SD File from all of the compressed SD Files in a given directory, while also stripping explicit hydrogens and removing all fields except PUBCHEM_COMPOUND_CID.</p>
+<pre><code class="hljs bash language-bash">babel *.sdf.gz pubchem.sdf -d --delete PUBCHEM_COMPOUND_CANONICALIZED,PUBCHEM_CACTVS_COMPLEXITY,PUBCHEM_CACTVS_HBOND_ACCEPTOR,PUBCHEM_CACTVS_HBOND_DONOR,PUBCHEM_CACTVS_ROTATABLE_BOND,PUBCHEM_CACTVS_SUBSKEYS,PUBCHEM_IUPAC_OPENEYE_NAME,PUBCHEM_IUPAC_CAS_NAME,PUBCHEM_IUPAC_NAME,PUBCHEM_IUPAC_SYSTEMATIC_NAME,PUBCHEM_IUPAC_TRADITIONAL_NAME,PUBCHEM_NIST_INCHI,PUBCHEM_EXACT_MASS,PUBCHEM_MOLECULAR_FORMULA,PUBCHEM_MOLECULAR_WEIGHT,PUBCHEM_OPENEYE_CAN_SMILES,PUBCHEM_OPENEYE_ISO_SMILES,PUBCHEM_CACTVS_TPSA,PUBCHEM_MONOISOTOPIC_WEIGHT,PUBCHEM_TOTAL_CHARGE,PUBCHEM_HEAVY_ATOM_COUNT,PUBCHEM_ATOM_DEF_STEREO_COUNT,PUBCHEM_ATOM_UDEF_STEREO_COUNT,PUBCHEM_BOND_DEF_STEREO_COUNT,PUBCHEM_BOND_UDEF_STEREO_COUNT,PUBCHEM_ISOTOPIC_ATOM_COUNT,PUBCHEM_COMPONENT_COUNT,PUBCHEM_CACTVS_TAUTO_COUNT,PUBCHEM_BONDANNOTATIONS,PUBCHEM_CACTVS_XLOGP
+
+865543 molecules converted
+7 info messages 15372962 audit <span class="hljs-built_in">log</span> messages 
+</code></pre>
+<p>Apparently, there is no way to tell babel to <em>keep</em> just a particular field in an SD File - they need to be removed individually.</p>
+<p>Still, not bad for a few seconds on the command line.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

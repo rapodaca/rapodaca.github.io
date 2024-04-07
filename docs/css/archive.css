@@ -1,0 +1,12 @@
+ol li {
+  margin-bottom: 1em;
+}
+
+li h2 {
+  margin-bottom: 0.4em;
+}
+
+li time {
+  opacity: 0.5;
+  font-size: 0.9em;
+}

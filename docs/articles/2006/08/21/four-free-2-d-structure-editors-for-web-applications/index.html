@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Four Free 2-D Structure Editors for Web Applications | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Four Free 2-D Structure Editors for Web Applications</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-08-21T00:00:00.000Z">2006-08-21T00:00:00.000Z</time>
+      </header>
+      <p>The increasing trend toward hosting free chemical databases and other services on the web brings with it the need for a free, ergonomic, capable, and fast 2-D structure editor. For years, the options were rather limited. However, this situation has started to change. Four web-enabled editors are discussed here, with an emphasis on the steps needed to deploy them within a webpage and retrieve a text-based molecular representation. A sample webpage is provided for each editor that allows a user to draw a molecule and view the corresponding output in a browser.</p>
+<h2 id="buildingawebapplicationthekeyplayers">Building a Web Application: The Key Players</h2>
+<p>Consider the case of John, who would like to know the TPSA of caffeine. John finds a new website that calculates the TPSA of any molecule. This site presents John with a 2-D structure editor applet and a "Submit" button. John uses the applet to draw caffeine and then presses the  button. After one second, John sees a new page showing the structure of caffeine and its TPSA descriptor.</p>
+<p>By pressing the "Submit" button, John sets in motion a series of transactions between the editor applet, the webpage, and the server. First, the webpage extracts a molfile representation of caffeine from the editor using JavaScript. This molfile is then submitted to the server using an HTTP POST request. After processing the molfile, the server returns a page containing the TPSA that John requested.</p>
+<p>Several variations on this pattern are conceivable, each involving varying levels of involvement by the browser, the applet, and the server. Advanced use of JavaScript can lead to elimination of the applet entirely, an approach taken by the <a href="http://pubchem.ncbi.nlm.nih.gov/search/">PubChem structure search</a>. Even more interesting is the use of <a href="http://www.ajaxian.com/">AJAX</a>, which would eliminate both the applet and the page refresh step, setting the stage for highly-interactive chemical content using only a browser and JavaScript. Although no AJAX-powered 2-D structure editors currently exist, this situation can be expected to change in the future.</p>
+<h2 id="obtainingtextoutputfroma2deditor">Obtaining Text Output From a 2-D Editor</h2>
+<p>Extracting text-based output requires the same boilerplate code for all four editors. This code consists of four main components: (1) an editor applet into which the user draws a structure; (2) a JavaScript function that collects the output from the applet; (3) an HTML text field into which the JavaScript function inserts the output; and (4) an HTML form containing a button that when pressed sets the process in motion.</p>
+<p>These commonalities make it possible factor out editor specific code and logic. The HTML below gives an example of what one basic template looks like.</p>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Molfile Test<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+  <span class="hljs-comment">&lt;!-- JavaScript --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">language</span>=<span class="hljs-string">"JavaScript"</span>&gt;</span><span class="javascript">
+      <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">writeOutput</span>(<span class="hljs-params"></span>)
+      </span>{
+       <span class="hljs-built_in">document</span>.form.output.value = <span class="hljs-built_in">document</span>.applet.OUTPUT_METHOD();
+      }
+  </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+
+  <span class="hljs-comment">&lt;!-- Applet --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">applet</span> <span class="hljs-attr">code</span>=<span class="hljs-string">"APPLET_CLASS"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"applet"</span>
+                <span class="hljs-attr">archive</span>=<span class="hljs-string">"APPLET_JARFILE.jar"</span>
+                <span class="hljs-attr">width</span>=<span class="hljs-string">510</span> <span class="hljs-attr">height</span>=<span class="hljs-string">360</span>&gt;</span>
+    Please enable Java and JavaScript on your machine.
+  <span class="hljs-tag">&lt;/<span class="hljs-name">applet</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
+
+  <span class="hljs-comment">&lt;!-- Form --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">method</span>=<span class="hljs-string">"post"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"form"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span>
+                 <span class="hljs-attr">value</span>=<span class="hljs-string">"Get Output"</span>
+                 <span class="hljs-attr">onclick</span>=<span class="hljs-string">"writeOutput()"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">input</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"output"</span> <span class="hljs-attr">rows</span>=<span class="hljs-string">20</span> <span class="hljs-attr">cols</span>=<span class="hljs-string">80</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>The above HTML contains three editor-specific pieces of information: (1) APPLET_JARFILE; (2) APPLET_CLASS; and (3) OUTPUT_METHOD. APPLET_JARFILE is the name of the Java archive file (*.jar) containing the applet code. This name is created by the developer when s/he saves the archive to the webserver. APPLET_CLASS is the fully-qualified class name of the editor applet. OUTPUT_METHOD is the name of the applet method that returns output. These last two pieces of editor-specific information are listed in the summary that follows.</p>
+<h2 id="javamoleculareditorjme">Java Molecular Editor (JME)</h2>
+<p><strong>Homepage:</strong> <a href="http://www.molinspiration.com/jme/">Molinspiration</a></p>
+<p><strong>License:</strong> Free for noncommercial development.</p>
+<p><strong>Source Code:</strong> N/A</p>
+<p><strong>Size:</strong> 39 Kb</p>
+<p><strong>APPLET_CLASS:</strong> JME</p>
+<p><strong>OUTPUT_METHOD:</strong> molFile(); smiles(); nonisomericSmiles(); jmeFile();</p>
+<p><a href="/images/posts/20060820/jme/jme.html">View the Sample Page</a></p>
+<h2 id="jchempaint">JChemPaint</h2>
+<p><strong>Homepage:</strong> <a href="http://almost.cubic.uni-koeln.de/cdk/jcp">CDK</a> </p>
+<p><strong>License:</strong> <a href="http://www.opensource.org/licenses/gpl-license.php">GPL</a> </p>
+<p><strong>Source Code:</strong> <a href="http://sourceforge.net/project/showfiles.php?group_id=20024&amp;package_id=173599&amp;release_id=400854">SourceForge</a>  </p>
+<p><strong>Size:</strong> up to 6.2 Mb</p>
+<p><strong>APPLET_CLASS:</strong> org.openscience.cdk.applications.jchempaint.applet.JChemPaintEditorApplet  </p>
+<p><strong>OUTPUT_METHOD:</strong> getMolFile();</p>
+<p><strong>Comment:</strong> Although getSmiles() and getSmilesChiral() methods are available, neither produced the desired output during this test (version 2.1.5). The applet consists of 35 jar files, only some of which are necessary for minimal functionality.</p>
+<p><a href="/images/20060820/jchempaint/jchempaint.html">View the Sample Page</a></p>
+<h2 id="jmoldraw">JMolDraw</h2>
+<p><strong>Homepage:</strong> <a href="http://sourceforge.net/projects/jmoldraw">SourceForge</a>  </p>
+<p><strong>License:</strong> <a href="http://www.opensource.org/licenses/gpl-license.php">GPL</a>  </p>
+<p><strong>Source Code:</strong> <a href="http://sourceforge.net/project/showfiles.php?group_id=155468&amp;package_id=173185&amp;release_id=379497">SourceForge</a>  </p>
+<p><strong>Size:</strong> up to 1.4 Mb </p>
+<p><strong>APPLET_CLASS:</strong> org.jmd.editor.main.JMolDraw</p>
+<p><strong>OUTPUT_METHOD:</strong> getContentsAsMolfile(); getContentsAsJMEString()  </p>
+<p><strong>Notes:</strong> In contrast to the other three editors, there is no option to display this applet in the browser itself; it must be rendered as a separate window. In addition, this editor requires that several configuration and resource files be accessible on the server. Molfile output uses V3000 ctabs. Although V2000 ctabs are supported, the only way to activate this functionality is to modify the source code.</p>
+<p><a href="/images/20060820/jmoldraw/jmoldraw.html">View the Sample Page</a></p>
+<h2 id="mcdl">MCDL</h2>
+<p><strong>Homepage:</strong> <a href="http://sourceforge.net/projects/mcdl">SourceForge</a>  </p>
+<p><strong>License:</strong> Public Domain  </p>
+<p><strong>Source Code:</strong> <a href="http://sourceforge.net/project/showfiles.php?group_id=148281&amp;package_id=163529&amp;release_id=405662">SourceForge</a>  </p>
+<p><strong>Size:</strong> 256 Kb</p>
+<p><strong>APPLET_CLASS:</strong> mcdl.MCDLEditor  </p>
+<p><strong>OUTPUT_METHOD:</strong> getMDCL()  </p>
+<p><strong>Notes:</strong> This editor only supports output in <a href="/articles/2006/08/19/a-first-look-at-modular-chemical-descriptor-language-mcdl">Modular Chemical Descriptor Language</a> format.</p>
+<p><a href="/images/posts/20060820/mcdl/mcdl.html">View the Sample Page</a></p>
+<h2 id="conclusions">Conclusions</h2>
+<p>This review has only scratched the surface of what is possible with these editors. For example, all accept input as well as providing output. As a result, they can be used to render 2-D molecular images, with more or less Java coding. Both MCDL and JME are especially attractive from the developer perspective because they are each distributed as a single jar file with a small footprint.</p>
+<p>Although numerous 2-D structure editors <a href="http://dragon.klte.hu/~gundat/rajzprogramok/dprog.html">are available</a>, those reviewed here meet the minimum requirements for the development of free chemical web applications: they work on nearly all computing platforms thanks to Java; and they are themselves free.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

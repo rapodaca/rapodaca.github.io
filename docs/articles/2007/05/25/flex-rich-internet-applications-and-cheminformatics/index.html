@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Flex, Rich Internet Applications, and Cheminformatics | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Flex, Rich Internet Applications, and Cheminformatics</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-05-25T00:00:00.000Z">2007-05-25T00:00:00.000Z</time>
+      </header>
+      <p><img src="/images/posts/20070525/flash.png" alt="Flash" title="Flash"></p>
+<p>Building <a href="http://en.wikipedia.org/wiki/Rich_Internet_application">Rich Internet Applications</a> (RIAs) is no easy task. The technologies are all there, but twelve years after the release of Netscape Navigator, Web developers are still hacking around browser idiosyncrasies.</p>
+<p>From JavaScript to HTML, to CSS, browser quirks are still a fact of life. Browsers tend to disagree the most on the more advanced features, but examples of less advanced features requiring cross-browser work-arounds continue to suck up large amounts of developer time.</p>
+<p>Even Java applets get in on the act. The interface between applets and the browser is the most poorly-defined aspect of the technology. Particularly with respect to <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4984794">keyboard focus</a>, <a href="http://forum.java.sun.com/thread.jspa?threadID=348710&amp;messageID=2031874">persisting applet state</a>, and even <a href="http://java.sun.com/developer/technicalArticles/J2SE/Desktop/ieappletguide/">initial activation</a>, it's "write once, test everywhere."</p>
+<p>Recently, I saw a presentation by <a href="http://www.jamesward.org/wordpress/">James Ward</a> on a technology called <a href="http://www.adobe.com/products/flex/">Flex</a> that's aimed squarely at solving the Rich Internet Application problem.</p>
+<p>Flex is a platform for building software that runs on the Flash multimedia player. If you've developed Java applets, you already know a lot about how Flex works. Here are some of the key points James brought up:</p>
+<ul>
+<li>Flex applications are written in ECMAScript (aka JavaScript) and run on the Flash 9 runtime. The language offers, among other features, variable typing. This stands in contrast to the non-typed form of JavaScript typically used in browsers.</li>
+<li>Sometime in 2007, Flex will be open sourced. The <a href="http://www.adobe.com/products/flex/downloads/">developer kit</a> is currently a free download.</li>
+<li>A desktop-native runtime for Flex called <a href="http://labs.adobe.com/technologies/apollo/">Apollo</a> is nearing release.</li>
+<li>A variety of eye-popping examples of Flex in action are available. My favorites so far: <a href="http://demo.quietlyscheming.com/book/Anatomy.html">FlexBook</a> and <a href="http://picnik.com">Picnik</a>.</li>
+</ul>
+<p><img src="/images/posts/20070525/flashbook.png" alt="Flash Book" title="Flash Book"></p>
+<p>Adobe is clearly trying to position Flash/Flex as the successor to Java applets. By ensuring that Flash works the same way in all browsers, has a rich API for interacting with the browser, and is available on all platforms, they just might succeed.</p>
+<p>Adobe claims that Flash is the most widely-installed multimedia browser plug-in. According to a <a href="http://www.adobe.com/products/player_census/flashplayer/">recent study</a>, nearly 99% of browsers have some version of Flash installed (congratulations to <a href="http://cheminfo.informatics.indiana.edu/~rguha/">Rajarshi Guha</a> for almost immediately getting the <a href="http://depth-first.com/articles/2007/05/23/name-that-graph">Name that Graph</a>). Adoption of Flash 9, the latest version and the one required to run Flex applications, <a href="http://www.adobe.com/products/player_census/flashplayer/version_penetration.html">is significantly lower</a>. My guess is that these numbers will rise quickly given the availability of Flash 9 for Linux and the mere 1.5 MB download footprint.</p>
+<p>If Flex has anything going against it, it's probably the small footprint of the Flash player. One of the first things you'll notice about many feature-rich Flex applications is how long they take to download relative to comparable Java applets. What the Flash runtime lacks, your application may well have to supply on deployment.</p>
+<p>I'm unaware of a single use of Flex/Flash in cheminformatics. This is really quite surprising given the highly visual nature of cheminformatics and the refined graphics capabilities of the Flash player. Even with it's limitations, Flex may offer solutions to a variety of difficult problems in developing Rich Internet Applications for chemistry.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

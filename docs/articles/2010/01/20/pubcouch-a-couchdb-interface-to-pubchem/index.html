@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>PubCouch: A CouchDB Interface to PubChem | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>PubCouch: A CouchDB Interface to PubChem</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-01-20T00:00:00.000Z">2010-01-20T00:00:00.000Z</time>
+      </header>
+      <p>The choice of a database can have far-reaching consequences on an application's design and capabilities. I've recently become interested in <a href="http://couchdb.apache.org/">CouchDB</a> and other so-called <a href="http://en.wikipedia.org/wiki/NoSQL">NoSQL</a> databases as an alternative to traditional approaches.</p>
+<p>This article, the first in a series, explores how CouchDB can be applied to real-world cheminformatics problems using <a href="/articles/2006/09/29/hacking-pubchem-direct-access-with-ftp">the PubChem dataset</a>.</p>
+<h2 id="getinvolved">Get Involved</h2>
+<p>An open source project called <a href="http://github.com/metamolecular/pubcouch">PubCouch</a> has been set up on GitHub. PubCouch will be written in native CouchDB JavaScript (with an import utility written in a language TBA). I have no idea how this will turn out and no preconceptions about what it needs to be. If you like what you see, I encourage you to create a fork and start hacking.</p>
+<h2 id="asolutioninsearchofaproblem">A Solution in Search of a Problem</h2>
+<p>For my money, the best way to learn a new technology is to apply it to a simple, but real problem that seems to be a good match. Until now, <a href="/articles/2009/04/22/couchdb-for-chemistry">that problem was lacking</a>. Thanks to one of my clients, who would like some information that may be extractable from PubChem, I may have just the excuse (er… problem) I needed.</p>
+<p>If you've ever <a href="/articles/2006/09/29/hacking-pubchem-direct-access-with-ftp">used the PubChem dataset</a>, you've probably noticed it's not the easiest thing to work with. For one thing - it's BIG. For another, it's not relational; instead, the PubChem dataset consists of a collection of individual documents assembled into files.</p>
+<p>Awhile back, I wrote about one approach to working with PubChem in which <a href="/articles/2008/05/26/simple-cas-number-lookup-and-more-with-chempedia">each Structure and Substance was broken down into tables with relationships</a>. In this, case, the document-oriented nature of the PubChem dataset was converted into a relational system that could be easily used from an RDBMS.</p>
+<p>But document-oriented databases like CouchDB offer an intriguing alternative. Instead of overlaying a preconceived database schema on the PubChem dataset, we can dynamically generate these relationships on a case-by-case basis using <a href="http://wiki.apache.org/couchdb/Introduction_to_CouchDB_views">MapReduce</a>.</p>
+<p></p><center><embed src="http://blip.tv/play/AcrAPwI" type="application/x-shockwave-flash" width="480" height="300" allowscriptaccess="always" allowfullscreen="true"></center><p></p>
+<h2 id="ageneralplan">A General Plan</h2>
+<p>PubCouch will start off with some basic tools for converting raw PubChem FTP downloads into CouchDB documents. It'll then move on to creating some simple MapReduce functions to answer basic questions. If the project is still alive at this point, it may then be dedicated to creating a range of MapReduce functions for performing a variety of sophisticated queries against the entire PubChem dataset, possibly taking advantage of CouchDB's <a href="http://books.couchdb.org/relax/reference/replication">highly-touted replication capabilities</a>.</p>
+<p><em>Credit: <a href="http://blog.rguha.net/">Rajarshi Guha</a> got the wheels turning with his <a href="http://blog.rguha.net/?p=289">series on Hadoop</a>.</em></p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

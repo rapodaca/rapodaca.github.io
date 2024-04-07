@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Big Data in Chemistry: Mirroring PubChem the Easy Way Part 2 | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Big Data in Chemistry: Mirroring PubChem the Easy Way Part 2</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-02-09T00:00:00.000Z">2010-02-09T00:00:00.000Z</time>
+      </header>
+      <p>One of the useful (and unnerving) things about running a blog is that you're forced to face what you don't know (usually very publicly). I've been looking for the simplest way to maintain an up-to-date local copy of PubChem. I previously posted an article describing one way to <a href="http://depth-first.com/articles/2010/02/08/big-data-in-chemistry-mirroring-pubchem-the-easy-way">mirror PubChem</a> through the use of rsync and curlftpfs.</p>
+<p>Although this method works, it turns out that there's an even simpler way to do this with wget. For Compounds:</p>
+<pre><code class="hljs bash language-bash">wget --mirror --accept <span class="hljs-string">"*.sdf.gz"</span> ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/
+</code></pre>
+<p>For Substances:</p>
+<pre><code class="hljs bash language-bash">wget --mirror --accept <span class="hljs-string">"*.sdf.gz"</span> ftp://ftp.ncbi.nlm.nih.gov/pubchem/Substance/CURRENT-Full/SDF/
+</code></pre>
+<p>The --mirror option bundles several options together relating to <a href="http://sunsite.ualberta.ca/Documentation/Gnu/wget-1.7/html_chapter/wget_5.html">timestamping</a>. This is how wget will be able to download only the updates to the PubChem archives directory, rather than downloading the entire PubChem archive every time.</p>
+<p>Without any options, the default behavior of wget is to not preserve timestamps and to force a complete download of all files every time.</p>
+<p>The <code>--accept</code> option says we only want to download gzipped SDF files (leaving out, for example, text files).</p>
+<p>Whenever you're ready to update your local PubChem archive, simple run the two commands above and you're done. You'll have a copy of the PubChem dataset that matches - to within one day - the dataset being used by NCBI itself.</p>
+<p>Pretty simple, huh?</p>
+<p>Now if I could just figure out how to use a single wget command to mirror both the Compound and Substance directories…</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

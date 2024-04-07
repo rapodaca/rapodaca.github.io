@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Demystifying Java Applets, Part 1 - Cross-Browser, Standards-Compliant, Pure HTML Deployment Using the Object Tag | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Demystifying Java Applets, Part 1 - Cross-Browser, Standards-Compliant, Pure HTML Deployment Using the Object Tag</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-02-20T00:00:00.000Z">2008-02-20T00:00:00.000Z</time>
+      </header>
+      <p><strong>Update June 10, 2009</strong>: <em>The information in this article, while accurate, has been superseded by <a href="http://products.metamolecular.com/2009/06/08/better-applet-deployment-with-applet-fu">Applet-Fu</a>, a small JavaScript library that simplifies the use of the applet deploy technique described here.</em></p>
+<p>A <a href="http://today.java.net/pub/pq/89">2006 survey on java.net</a> posed a simple question to developers: What's wrong with applets? By a significant margin, the number one complaint was that they are "too hard to deploy." This article, the first in a series, takes a look at the issue of Java applet deployment and in particular how using the &lt;object&gt; tag can radically simplify and enhance both the developer and end user experience.</p>
+<h2 id="appletsyoumustbejoking">Applets? You Must Be Joking!</h2>
+<p>Applets got a well-deserved bad reputation in the early days of Java. They were slow, difficult to deploy across browsers, and over-hyped. The situation has signficantly changed for the better, but the bad reputation lingers.</p>
+<p>There are many situations in which applets are inappropriate. The most important of these is when simple interactivity can be achieved through HTML or JavaScript (Ajax).</p>
+<p>But in many situations, HTML and JavaScript make a poor platform choice. As a specific example, consider <a href="/articles/2007/11/27/chemwriter-chemical-structures-and-the-web">Web-based chemical structure editors</a>. The high level of <a href="/articles/2008/02/14/the-art-and-science-of-chemical-structure-diagrams-chemwriter-as-chemically-aware-vector-graphics-system">graphical manipulation</a>, sophistication of data processing, and responsiveness required by these components, coupled by their ubiquity, means that it will be a long time indeed before Ajax (or Flash for that matter) is up to the challenge - and they may never be, given their design constraints.</p>
+<p>For a large number of specialized Web components, applets are the only platform.</p>
+<p>Regarding the "uncool factor", it's worth pointing out that not more than four years ago JavaScript was one of the most loathed, ridiculed, and ignored technologies around. Now it <a href="http://www.paulgraham.com/web20.html">finally works</a> - meaning it's reliable enough to be used on all modern browsers. The result is Ajax and a host of interactive Web technologies that played a major role in redefining what the Web was all about.</p>
+<p>Whether a similar renaissance happens for applets is anybody's guess, but most of the prerequisites have already been met.</p>
+<h2 id="deploymentwiththeapplettag">Deployment with the <code>&lt;applet&gt;</code> Tag</h2>
+<p>If you decide to develop Web applications with applets, a major consideration will eventually become how to deploy them. Unfortunately, a bewildering array of often contradictory advice is available on the subject - most of it outdated.</p>
+<p>Many sources recommend using the <code>&lt;applet&gt;</code> tag. It's the oldest method, and will generally work on most browsers. For example, to deploy my company's structure editor applet <a href="http://metamolecular.com/products/chemwriter">ChemWriter</a>, the following code could be used:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">applet</span> <span class="hljs-attr">code</span>=<span class="hljs-string">"com/metamolecular/chemwriter/applet/EditorApplet.class"</span>
+        <span class="hljs-attr">archive</span>=<span class="hljs-string">"/path/to/applets/chemwriter.jar"</span>
+        <span class="hljs-attr">width</span>=<span class="hljs-string">"600"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"300"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"persistState"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"false"</span> /&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">applet</span>&gt;</span>
+</code></pre>
+<p>Unfortunately, the <code>&lt;applet&gt;</code> tag has some very important strikes against it. The first is that its use is <a href="http://www.w3.org/TR/html401/struct/objects.html#h-13.4">now deprecated</a> in HTML. In other words, whatever support browsers now have for it is living on borrowed time.</p>
+<p>The second problem with the <code>&lt;applet&gt;</code> tag is an insidious bug in Internet Explorer (as if there were any other kind). Most hardware suppliers pre-install Java onto their Microsoft-based machines, which is a good thing. The bad thing is that at least one major manufacturer disables the Java console in IE 7 at the same time. Under IE 7, disabling the Java console renders all <code>&lt;applet&gt;</code> tags invisible. Counterintuitive as it may seem, this is what happens. The insidious part is that perplexed users <em>know</em> they have Java installed because they can see the plug-in, are being told by IE that it's active, can find some applets that <em>do</em> work and - well, you get the idea.</p>
+<p>The third problem with the <code>&lt;applet&gt;</code> tag is that, by itself, it has no mechanism to indicate which version of Java is required. This can be a very important consideration for applets that take advantage of the major advances in functionality and performance of the Java platform in recent years.</p>
+<h2 id="abetterwaydeploymentwiththeobjecttag">A Better Way: Deployment with the <code>&lt;object&gt;</code> Tag</h2>
+<p>All major browsers support the <code>&lt;object&gt;</code> tag, and this is the <a href="http://ww2.cs.fsu.edu/~steele/XHTML/appletObject.html">preferred method for deploying applets</a>. Provided that Internet Explorer's peculiarities are accounted for, a single piece of valid HTML can render applets on all major browsers including:</p>
+<ul>
+<li>IE 6/7</li>
+<li>Firefox 1.5/2</li>
+<li>Safari</li>
+</ul>
+<p>As a specific example using ChemWriter, the <code>&lt;applet&gt;</code> tag above can be re-written with the <code>&lt;object&gt;</code> tag:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!--[if !IE]&gt; --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">classid</span>=<span class="hljs-string">"java:com/metamolecular/chemwriter/applet/EditorApplet.class"</span> 
+              <span class="hljs-attr">type</span>=<span class="hljs-string">"application/x-java-applet"</span>
+              <span class="hljs-attr">archive</span>=<span class="hljs-string">"/path/to/applets/chemwriter.jar"</span> 
+              <span class="hljs-attr">height</span>=<span class="hljs-string">"350"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"550"</span> &gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"code"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"com/metamolecular/chemwriter/applet/EditorApplet.class"</span> /&gt;</span>
+  <span class="hljs-comment">&lt;!-- For Konqueror --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"archive"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"/path/to/applets/chemwriter.jar"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"persistState"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"false"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"/path/to/images/chemwriter_logo.png"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span>ChemWriter content requires Java 1.4.2 or higher, which your browser does not appear to have.<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://www.java.com/en/download/index.jsp"</span>&gt;</span>Get the latest Java Plug-in.<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">object</span>&gt;</span>
+<span class="hljs-comment">&lt;!--&lt;![endif]--&gt;</span>
+<span class="hljs-comment">&lt;!--[if IE]&gt;
+&lt;object classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" 
+                codebase="http://java.sun.com/products/plugin/autodl/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"
+                height="350" width="550" &gt; 
+  &lt;param name="code" value="com/metamolecular/chemwriter/applet/EditorApplet.class" /&gt;
+  &lt;param name="archive" value="/path/to/applets/chemwriter.jar" /&gt;
+  &lt;param name="persistState" value="false" /&gt;
+  &lt;center&gt;
+    &lt;img src="/path/to/images/chemwriter_logo.png" /&gt;
+    &lt;p&gt;&lt;strong&gt;ChemWriter content requires Java 1.4.2 or higher, which your browser does not appear to have.&lt;/strong&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;a href="http://www.java.com/en/download/index.jsp"&gt;Get the latest Java Plug-in.&lt;/a&gt;&lt;/p&gt;
+  &lt;/center&gt;
+&lt;/object&gt;
+&lt;![endif]--&gt;</span>
+</code></pre>
+<p>Before explaining the code, here's what the verbosity buys:</p>
+<ul>
+<li>It works with both IE 6/7 <em>and</em> standards-compliant browsers such as Firefox.</li>
+<li>It avoids the use of <a href="/articles/2007/11/20/write-once-run-anywhere-simplifying-java-applet-deployment">JavaScript JVM detection methods</a>.</li>
+<li>It prompts the user to download the correct JVM, <em>without immediately directing them away from the current page</em>.</li>
+<li>Firefox and IE users can opt to install the Java plugin without ever leaving their current page.</li>
+<li>It works in IE 7 with the Java console disabled.</li>
+</ul>
+<h2 id="youvegotsomesplainintodo">You've Got Some 'Splainin' to Do</h2>
+<p>The code above is based on documentation found on <a href="http://ww2.cs.fsu.edu/~steele/XHTML/appletObject.html">this site</a>, which also details the meaning of the <code>codebase</code> and <code>classid</code> attributes.</p>
+<p>The main idea is that Internet Explorer handles the <code>&lt;object&gt;</code> tag in its own idiosyncratic, lovable way. Most of this difference is in the <code>&lt;object&gt;</code> element itself and the <code>classid</code> attribute in particular. By taking advantage of Internet Explorer's support for <a href="http://msdn2.microsoft.com/en-us/library/ms537512.aspx">conditional comments</a>, we can handle both IE and the rest with one chunk of HTML.</p>
+<h2 id="alivedemonstration">A Live Demonstration</h2>
+<p>For a live demonstration of the above technique, see the <a href="http://metamolecular.com/products/chemwriter/">ChemWriter Home Page</a>. If you have Java 1.4.2 or higher installed and activated in your browser, you'll see the most recent version of the ChemWriter editor applet. If not, you'll see the ChemWriter logo and a link to install Java. Firefox and IE will also display an "Install Plugin" bar at the top of the browser for in-place installation of the JVM.</p>
+<h2 id="clicktoactivateworkingaroundeolas">Click to Activate: Working Around Eolas</h2>
+<p>A <a href="/articles/2007/11/02/eolas-and-jactivating-working-around-a-workaround">recent Depth-First article</a> discussed the problem that IE 6 and 7 have involving a "click to activate" (or "Eolas") message that appears with applets and all other browser plugins. To eliminate this issue, the <a href="http://metamolecular.com/products/chemwriter/">ChemWriter Home Page</a> uses the excellent <a href="http://jactivating.sf.net/">jActivating library</a>. This JavaScript library, which is included in the HTML <code>&lt;head&gt;</code> tag, obviates the need to write the <code>&lt;object&gt;</code> tag using JavaScript. All that's left is pure, standards-compliant HTML to debug, deploy, and maintain.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Applet deployment, like Java itself, has come a long way in the last ten years. This article has shown one method to deploy applets into highly heterogeneous computing environments with relatively little effort.</p>
+<p>But deployment is only one aspect of interactive Web development using applets. Future articles will discuss some of the others.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

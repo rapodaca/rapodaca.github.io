@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SMILES Validation in the Browser | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/08/24/smiles-validation-in-the-browser/">
+      <meta property="og:title" content="SMILES Validation in the Browser">
+      <meta property="og:description" content="A Project using Rust and WebAssembly.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200824/summary.png">
+      <meta content="A Project using Rust and WebAssembly." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>SMILES Validation in the Browser</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-08-24T17:00:00Z">2020-08-24T17:00:00Z</time>
+      </header>
+      <p>Sometimes Web applications accept molecular input in the form of SMILES strings. For example, a form may allow a list of newline-delimited SMILES to be submitted for processing. Increasingly, users expect realtime validation during these interactions. One option would be an asynchronous HTTP call in which a server validates SMILES strings. But this requires an API to be both available and properly secured. A simpler and more scalable approach would be to validate SMILES in the browser directly. This article describes an open source solution to this problem that takes advantage of a new cheminformatics toolkit and WebAssembly. A <a href="https://github.com/rapodaca/smival">repository</a> containing the source code is available.</p>
+<h2 id="alternatives">Alternatives</h2>
+<p>My company's chemical structure editor and renderer (<a href="https://chemwriter.com/smiles/">ChemWriter</a>) accepts a SMILES string with the <code>readSMILES</code> function, throwing an error if it is invalid. Within certain limitations, this feature can be used for validation as well. Still, some will prefer an open source option.</p>
+<p>It might appear that something like <a href="https://metamolecular.com/smidge/">SMIDGE</a> could work. The main problem is that this and similar tools only validate the <a href="/articles/2020/04/20/smiles-formal-grammar/">grammar</a> of input strings, not the semantics. Features such as <a href="/articles/2020/02/10/a-comprehensive-treatment-of-aromaticity-in-the-smiles-language/">non-kekulizable aromatics</a>, hypervalence, and invalid isotopes are ignored.</p>
+<h2 id="smivalproject">Smival Project</h2>
+<p>What could be helpful is a tool that returns a yes or no answer to the question: "is this a valid SMILES, accounting for both syntax and semantics?" This functionality is available from the <a href="https://github.com/rapodaca/smival">Smival project</a>.</p>
+<h2 id="livedemo">Live Demo</h2>
+<p>A <a href="/images/posts/20200824/demo/">live demo</a> is available. Start typing a SMILES into the text input field. As you do, the background alternates between green and red to indicate validity or invalidity, respectively.</p>
+<figure>
+  <video autoplay="">
+    <source src="/images/posts/20200824/screen.mp4" type="video/mp4">
+  </video>
+  <figcaption>
+    <strong>Smival Live Demo.</strong> Interactive validation of SMILES in the browser with JavaScript and WebAssembly.
+  </figcaption>
+</figure>
+<h2 id="highleveloverview">High-Level Overview</h2>
+<p>Smival is comprised of three components working together:</p>
+<ol>
+<li>A WebAssembly (Wasm) file, compiled from Rust source code.</li>
+<li>An HTML file containing styles (CSS) and code (JavaScript).</li>
+<li>A two-way communication channel using strings (JavaScript to Wasm) and integers (Wasm to JavaScript).</li>
+</ol>
+<p>On detecting a change to the input field, the JavaScript side allocates memory within the Wasm instance for a string representing the input. After copying the SMILES into the allocated memory, the address is passed to the <code>read</code> function function exposed by the Wasm instance. Using the address, the Wasm instance dereferences the string, reads it as a SMILES using the Rust library <a href="https://github.com/rapodaca/chemcore">ChemCore</a>, then returns one of three integer results: 0 (valid); -1 (invalid); or -2 (internal error). This return value is then used to set the background color of the input field.</p>
+<p>For background on the overall approach, these articles may be helpful:</p>
+<ul>
+<li><a href="/articles/2020/07/07/rust-and-webassembly-from-scratch-hello-world-with-strings/">Rust and WebAssembly from Scratch: Hello World with Strings</a></li>
+<li><a href="/articles/2020/06/29/compiling-rust-to-webassembly-a-simple-example/">Compiling Rust to WebAssembly: A Simple Example</a></li>
+<li><a href="/articles/2020/01/13/first-steps-in-webassembly-hello-world/">First Steps in WebAssembly: Hello World</a></li>
+</ul>
+<h2 id="javascripthtmlcss">JavaScript/HTML/CSS</h2>
+<p>Two files set up the browser environment: an HTML file and a JavaScript file.</p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span> <span class="hljs-attr">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Cereus Editor<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+      <span class="hljs-selector-tag">body</span> {
+        <span class="hljs-attribute">margin</span>: <span class="hljs-number">2em</span>;
+      }
+      <span class="hljs-selector-tag">input</span> {
+        <span class="hljs-attribute">font-size</span>: <span class="hljs-number">200%</span>;
+        <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;
+        <span class="hljs-attribute">padding</span>: <span class="hljs-number">0.1em</span>;
+        <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#55ff00</span>;
+      }
+      <span class="hljs-selector-class">.invalid</span> {
+        <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#ff8888</span>;
+      }
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Smival<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">placeholder</span>=<span class="hljs-string">"Enter a SMILES..."</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">input</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"./validate.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>The HTML file (listed above) sets up the UI and invokes the <code>validate.js</code> script as an ES6 module. Aside from these two tasks, it's just HTML5 boilerplate.</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> path = <span class="hljs-string">'/target/wasm32-unknown-unknown/release/smival.wasm'</span>;
+
+<span class="hljs-keyword">const</span> read_smiles = <span class="hljs-function"><span class="hljs-params">instance</span> =&gt;</span> {
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-params">smiles</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> TextEncoder();
+    <span class="hljs-keyword">const</span> encoded = encoder.encode(<span class="hljs-string">`<span class="hljs-subst">${smiles}</span>\0`</span>);
+    <span class="hljs-keyword">const</span> length = encoded.length;
+    <span class="hljs-keyword">const</span> pString = instance.exports.alloc(length);
+    <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(
+      instance.exports.memory.buffer, pString, length
+    );
+
+    view.set(encoded);
+
+    <span class="hljs-keyword">return</span> instance.exports.read_smiles(pString);
+  };
+};
+
+<span class="hljs-keyword">const</span> watch = <span class="hljs-function"><span class="hljs-params">instance</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> read = read_smiles(instance);
+
+  <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'input'</span>).addEventListener(<span class="hljs-string">'input'</span>, e =&gt; {
+    <span class="hljs-keyword">const</span> { target } = e;
+
+    <span class="hljs-keyword">if</span> (read(target.value) === <span class="hljs-number">0</span>) {
+      target.classList.remove(<span class="hljs-string">'invalid'</span>);
+    } <span class="hljs-keyword">else</span> {
+      target.classList.add(<span class="hljs-string">'invalid'</span>);
+    }
+  });
+}
+
+(<span class="hljs-keyword">async</span> () =&gt; {
+  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(path);
+  <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
+  <span class="hljs-keyword">const</span> wasm = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, { });
+
+  watch(wasm.instance);
+})();
+</code></pre>
+<p>The JavaScript file's responsibilities are more involved (<code>validate.js</code>, above). The <a href="https://en.wikipedia.org/wiki/Immediately_invoked_function_expression">IIFE</a> at the bottom kicks the process off by building a Wasm instance from the raw binary. It then watches for changes by invoking the <code>watch</code> function.</p>
+<p>When <code>watch</code> detects a change to the text field input, it invokes <code>read_smiles</code>, adding or removing the <code>invalid</code> style to the text input as appropriate.</p>
+<p>The <code>read_smiles</code> function serves as the communication channel into Rust/Wasm. The SMILES obtained from the input field is appended with a null byte, then encoded and written to a pre-allocated section of Wasm linear memory.</p>
+<h2 id="rust">Rust</h2>
+<p>The Rust project is implemented with Cargo, Rust's default package manager and build system. Like most small projects, the Rust source is contained within a single file (<code>lib.rs</code>). Two functions are exposed to the Wasm instance: <code>alloc</code> and <code>read_smiles</code>. <code>alloc</code> allocates memory of the specified length. <code>read_smiles</code> accepts a raw pointer that is de-referenced and passed to ChemCore's <code>daylight::read</code> function. At the same time, the de-referenced SMILES string is automatically dropped using <a href="/articles/2020/01/27/rust-ownership-by-example/">Rust's ownership mechanics</a>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> std::os::raw::{ c_void, c_char };
+<span class="hljs-keyword">use</span> std::ffi::CString;
+<span class="hljs-keyword">use</span> std::mem;
+
+<span class="hljs-keyword">use</span> chemcore::daylight;
+
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">alloc</span></span>(length: <span class="hljs-built_in">usize</span>) -&gt; *<span class="hljs-keyword">mut</span> c_void {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> buf = <span class="hljs-built_in">Vec</span>::with_capacity(length);
+    <span class="hljs-keyword">let</span> ptr = buf.as_mut_ptr();
+
+    mem::forget(buf);
+
+    ptr
+}
+
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">read_smiles</span></span>(
+    p_smiles: *<span class="hljs-keyword">mut</span> c_char
+) -&gt; <span class="hljs-built_in">i8</span> {
+    <span class="hljs-keyword">let</span> smiles = <span class="hljs-keyword">unsafe</span> {
+        CString::from_raw(p_smiles)
+    };
+
+    <span class="hljs-keyword">match</span> smiles.into_string() {
+        <span class="hljs-literal">Ok</span>(smiles) =&gt; {
+            <span class="hljs-keyword">match</span> daylight::read(&amp;smiles) {
+                <span class="hljs-literal">Ok</span>(_) =&gt; <span class="hljs-number">0</span>,
+                <span class="hljs-literal">Err</span>(_) =&gt; -<span class="hljs-number">1</span>
+            }
+        },
+        <span class="hljs-literal">Err</span>(_) =&gt; -<span class="hljs-number">2</span>
+    }
+}
+</code></pre>
+<p>Compilation of <code>lib.rs</code> requires only one other change to the default project. Add a <code>[lib]</code> section to <code>Cargo.toml</code> to indicate that the project will be built as a dynamic library.</p>
+<pre><code class="hljs toml language-toml"><span class="hljs-comment"># ...</span>
+
+<span class="hljs-section">[lib]</span>
+<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">"cdylib"</span>]
+</code></pre>
+<p>After this change, the project can be built with the following call to <code>cargo</code>:</p>
+<pre><code class="hljs console language-console">cargo build --target wasm32-unknown-unknown --release
+</code></pre>
+<p>It may come as a surprise to find a 1.6 MB Wasm file in the <code>target</code> directory.</p>
+<pre><code class="hljs console language-console">ls -l target/wasm32-unknown-unknown/release/smival.wasm
+-rwxr-xr-x   2 rich  staff  1687048 Aug 21 16:47 smival.wasm
+</code></pre>
+<p>Fortunately, the compile target can be pared down more than tenfold with <a href="https://github.com/alexcrichton/wasm-gc"><code>wasm-gc</code></a>.</p>
+<pre><code class="hljs console language-console">wasm-gc target/wasm32-unknown-unknown/release/smival.wasm
+ls -l target/wasm32-unknown-unknown/release/smival.wasm 
+-rwxr-xr-x  2 rich  staff  110837 Aug 22 09:20 target/wasm32-unknown-unknown/release/smival.wasm
+</code></pre>
+<p>The two versions (pre-<code>wasm-gc</code> and post-<code>wasm-gc</code>) can be used interchangeably.</p>
+<h2 id="limitations">Limitations</h2>
+<p>The biggest limitation of <code>smival</code> is its simple yes/no output. In some applications, it makes sense to inform users of the specific problem to enable correction. Fortunately, this is possible, but at the cost of a more complex <code>lib.rs</code> file. <a href="https://s3.amazonaws.com/temp.michaelfbryan.com/errors/index.html">The (unofficial) Rust FFI Guide</a> offers some good jumping-off points.</p>
+<p>A secondary limitation comes from ChemCore. Specifically, the SMILES kekulization algorithm applies a simple greedy procedure, not the full-blown <a href="/articles/2019/04/02/the-maximum-matching-problem/">maximum matching</a> solution called for in the general case. This means that certain multicyclic odd aromatic systems will be perceived as unkekulizable. Fortunately, such structures are rare in organic chemistry. Future updates to ChemCore based on a matching algorithm already used in <a href="https://chemwriter.com/smiles/">ChemWriter</a> will eliminate this limitation.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Realtime client-side SMILES validation can be accomplished with the new software package Smival. Smival is written in Rust using the ChemCore toolkit and compiled to WebAssembly using a standard toolchain. At this stage, Smival only reports whether a SMILES could be read without errors. More sophisticated forms of error reporting are possible with some modification.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

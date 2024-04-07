@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Parsing InChI: It&#x27;s Complicated | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/03/10/parsing-inchi-its-complicated/">
+      <meta property="og:title" content="Parsing InChI: It&#x27;s Complicated">
+      <meta property="og:description" content="SMILES and InChI may look like two solutions to the same problem, but looks can be deceiving.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20210310/summary.png">
+      <meta content="SMILES and InChI may look like two solutions to the same problem, but looks can be deceiving." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Parsing InChI: It&#x27;s Complicated</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-03-10T16:00:00Z">2021-03-10T16:00:00Z</time>
+      </header>
+      <p>InChI and SMILES stand as the two de facto standard line notations for cheminformatics. A <a href="/articles/2007/03/14/eleven-qualities-of-the-perfect-line-notation-for-the-web/">line notation</a> represents a molecular graph as a compact string of characters without newlines. Given its similarity to SMILES, a reasonable assumption would be that InChI can be parsed to regenerate the molecular graph that created it. With few exceptions, this is not the case. This article explains why.</p>
+<h2 id="anatomyofaninchi">Anatomy of an InChI</h2>
+<p>To understand the problem, it's helpful to know a few things about how InChI is structured.</p>
+<p>An InChI is composed of <em>layers</em>. The <a href="https://www.inchi-trust.org/download/104/InChI_TechMan.pdf">InChI Technical Manual</a> notes that there are five InChI layers, "each representing a different class of structural information." A layer is composed of one or more <em>sublayers</em>. A sublayer begins with the forward slash character (<code>/</code>) and ends with either a second forward slash or the end of the string. Every sublayer except for the first begins with a single character signifying its purpose. The sequence of characters leading up to the first forward slash is called the <em>prefix</em>. The prefix contains metadata, but nothing specific to any molecular graph.</p>
+<p>Consider the InChI for methanol.</p>
+<pre><code class="hljs console language-console">InChI=1S/CH4O/c1-2/h2H,1H3
+</code></pre>
+<p>This InChI encodes three sublayers:</p>
+<ul>
+<li><code>CH4O</code>. The "formula" sublayer encoding elemental composition as <a href="https://en.wikipedia.org/wiki/Chemical_formula#Hill_system">Hill notation</a>. This sublayer appears first in all InChIs.</li>
+<li><code>c1-2</code>. The "connections" sublayer encoding the sigma framework of a molecular graph. The first character (<code>c</code>) stands for "connections." The remainder of the sublayer encodes a graph using continuous integer ids as node labels and the dash character (<code>-</code>) to denote edges.</li>
+<li><code>h2H,1H3</code>. The "fixed" hydrogens sublayer. An atom id is followed by a hydrogen count, with each entry separated by a comma (<code>,</code>). Sometimes, a range of ids is used. What's reported here are <a href="/articles/2019/11/06/virtual-hydrogens/">virtual hydrogen</a> counts. The sublayer's first character ('h') stands for "hydrogens."</li>
+</ul>
+<p>InChI builds up atomic specifications stepwise through each sublayer. To do this, each atom is assigned an integer id. When a sublayer needs to update an atomic specification, it references the atomic id. For example, the connections sublayer defines a mutual connection between ids 1 and 2. Likewise, the fixed hydrogens sublayer tells us that atom 2 has one virtual hydrogen and atom 1 has three.</p>
+<p>You may have guessed which atom is which in the case of methanol. If so, the trap has been set.</p>
+<h2 id="atomicattributes">Atomic Attributes</h2>
+<p>Using the information contained in each sublayer, it's possible to compile an <em>atomic attribute table</em>. An atomic attribute table lists all of the information about an atom, identified by its id, as revealed by the layers of an InChI. Building an atomic attribute table makes it possible to see which information is and isn't conveyed by the corresponding InChI.</p>
+<p>Methanol's InChI (<code>InChI=1S/CH4O/c1-2/h2H,1H3</code>) yields the following atomic attribute table:</p>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th><th>Connections</th><th>Hydrogens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td><td>2</td><td>3</td>
+    </tr>
+    <tr>
+      <td>2</td><td>1</td><td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>Using the table allows some conclusions to be drawn. Atom 1 has three virtual hydrogens and is connected to atom 2. Atom 2 has one virtual hydrogen and is connected to atom 1.</p>
+<p>However, the table is silent on the crucial question of which element is mapped to which atom id. To fill in this blank, we might turn to the formula sublayer (<code>CH4O</code>). It tells us there are two heavy atoms (carbon and oxygen). Combining this information with a simple valence model yields the elemental assignment: 1(C); 2(O).</p>
+<p>Although we can deduce which elements go with each atom index, no InChI layer explicitly conveys this information. Therein lies the problem.</p>
+<h2 id="ambiguouselementalmapping">Ambiguous Elemental Mapping</h2>
+<p>An InChI's formula sublayer conveys the identity and count of all elements, but says nothing about their mapping to atom ids. In the case of methanol, we can fall back to hydrogen counts and valence rules to deduce the assignment. But in many cases that kind of deduction won't be possible.</p>
+<p>To illustrate where things start to get off track, consider methylsilane.</p>
+<pre><code class="hljs console language-console">InChI=1S/CH6Si/c1-2/h1-2H3
+</code></pre>
+<p>It generates the following table:</p>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th><th>Connections</th><th>Hydrogens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td><td>2</td><td>3</td>
+    </tr>
+    <tr>
+      <td>2</td><td>1</td><td>3</td>
+    </tr>
+  </tbody>
+</table>
+<p>The table reveals that both atoms have three virtual hydrogens and are mutually connected. As such, we can't definitively say which atom is which. What rescues the situation is that mapping either id to silicon will yield the correct molecular graph.</p>
+<p>But increasing the complexity of the example even slightly leads to trouble. Consider dimethylsilane.</p>
+<pre><code class="hljs console language-console">InChI=1S/C2H8Si/c1-3-2/h3H2,1-2H3
+</code></pre>
+<p>Using the same procedure as before, we build this table:</p>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th><th>Connections</th><th>Hydrogens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td><td>3</td><td>3</td>
+    </tr>
+    <tr>
+      <td>2</td><td>3</td><td>3</td>
+    </tr>
+    <tr>
+      <td>3</td><td>1,2</td><td>2</td>
+    </tr>
+  </tbody>
+</table>
+<p>This table describes a three atom chain, with atom 3 inside and atoms 1 and 2 outside. Atom 3 has two virtual hydrogens and atoms 1 and 2 each have three.</p>
+<p>But this table says nothing about the element associated with each atom. Does the table describe dimethylsilane (atom 3 is silicon) or ethylsilane (atom 3 is carbon)? Without an in-depth understanding of the <a href="/articles/2006/08/12/inchi-canonicalization-algorithm/">InChI canonicalization algorithm</a>, there's no way to know. Even then, it may not be possible to say with certainty.</p>
+<p>In other words, the problem is not so much the parsing of an InChI. Instead, the problem is that parsing an InChI can yield not a single molecular representation, but more than one.</p>
+<h2 id="otherlayerfailures">Other Layer Failures</h2>
+<p>Clearly, the InChI formula sublayer by itself lacks the detail needed to unambiguously map every atom id to an element. But this is not the only limitation. At least three other commonly-used InChI features will present similar problems:</p>
+<ul>
+<li>Charge sublayer. The charge sublayer reports overall molecular charge, not the formal charge associated with particular atom ids. Take, for example, methoxide anion (<code>InChI=1S/CH3O/c1-2/h1H3/q-1</code>).</li>
+<li>Protons sublayer. Like the charge sublayer, the protons sublayer also reports overall proton counts, not counts mapped to a particular atomic id. Consider methylammonium cation (<code>InChI=1S/CH5N/c1-2/h2H2,1H3/p+1</code>).</li>
+<li>Metal disconnection. Chemists can debate whether the carbon-metal bond in methyllithium (<code>InChI=1S/CH3.Li/h1H3;</code>) is covalent or not. For its part, standard InChI will treat this bond as ionic and so it will be absent from the connections sublayer.</li>
+</ul>
+<p>Could these limitations be overcome in certain cases to yield a single unique molecular graph? Of course. But as we saw before, even slightly more complex molecules will become difficult to impossible to nail down.</p>
+<h2 id="thetrap">The Trap</h2>
+<p>InChI's similarity to SMILES sets up a seductive trap. As bait, the trap uses the incorrect assumption that InChI itself provides sufficient information to generate a single molecular graph. Driven by this fallacy, it seems reasonable to use InChI not only as a unique identifier, but as the primary representation. The former is what InChI was designed for, but the latter leads to trouble.</p>
+<p>This trap has ensnared a few database designers and users. Consider two public examples:</p>
+<ul>
+<li>An RDKit user generated the InChI for a propargyl carbene represented by the SMILES <code>[CH]C#C</code>. However, parsing the resulting InChI yielded a molecule with incorrect hydrogen counts and a pentavalent carbon to boot (SMILES <code>[CH-]=C=[CH3+]</code>). (<a href="https://github.com/rdkit/rdkit/issues/542">link</a>)</li>
+<li>A CDK user attempted to parse an InChI but found that it was not possible to assign hydrogen atoms. The user noted: "I don't really have any alternative to reading InChis, since I was given a database of molecules as a table of InChi strings." (<a href="https://github.com/cdk/cdk/issues/475">link</a>)</li>
+</ul>
+<p>For years, the InChI project has <a href="http://www.hellers.com/steve/pub-talks/toronto-7-14.pdf">cautioned</a> users that:</p>
+<blockquote>
+  <p>InChI is not a replacement for any existing internal structure representations. (We do not start religious wars. ) InChI is in ADDITION to what one uses internally. Its value to student or scientist is in FINDING and LINKING information.</p>
+</blockquote>
+<p>In other words, bare InChIs are to be used for molecular identification, but not for molecular representation. Although this guidance is helpful, it explains neither the distinction being made nor the validity of the guidance. What's needed to drive the point home are specific examples of failure when using InChI outside the scope of its intended role.</p>
+<h2 id="avoidingthetrap">Avoiding the Trap</h2>
+<p>Given the problems of parsing InChIs, what's a database creator or user to do? A few options are available. One is to be sure the database contains the information needed to generate a sufficiently detailed molecular representation.</p>
+<p>For example, a full-featured representation can be stored alongside the InChI. Both SMILES and Molfile would be candidates. However, InChI can readily be generated from either of these representations. In that case, why store the InChI at all? One reason would be to allow fast exact structure search through indexing. If this is the use case, then it could be argued that InChI Key should be used, not InChI itself. But if that's not a use case, then storing InChIs may not make much sense.</p>
+<p>Alternatively, InChI Auxiliary Information ("AuxInfo") can be stored. This sparsely-documented type of metadata is both read and written by the InChI software. Given AuxInfo, InChI works much like SMILES and Molfile. The tradeoff is storage space and additional complexity.</p>
+<p>Neither of these approaches will be available to a user forced to extract molecular graphs from an existing database using just InChI. Fortunately, InChI's intended role as a molecular identifier can be called into service. Many public databases store InChIs along with molfiles and/or SMILES. These mappings can be used to retroactively patch a database containing only InChIs. Of course, this approach relies on the InChI of interest being present in public databases. The more unique the collection, the less viable this lookup approach becomes.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Superficial similarities between InChI and SMILES can lead to the erroneous conclusion that InChI can be read and written like SMILES. This article covers some of the ways this assumption can fail. Three approaches to dealing with the problem are presented.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

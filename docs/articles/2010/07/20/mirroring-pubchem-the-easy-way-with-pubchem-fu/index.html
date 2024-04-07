@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Mirroring PubChem the Easy Way with PubChem Fu | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Mirroring PubChem the Easy Way with PubChem Fu</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-07-20T00:00:00.000Z">2010-07-20T00:00:00.000Z</time>
+      </header>
+      <p>If you want to work with the <a href="http://depth-first.com/articles/2006/09/29/hacking-pubchem-direct-access-with-ftp">PubChem dataset</a>, two of your biggest problems will likely be creating a local working copy and keeping it synchronized. Although a few articles on doing just this have appeared here on Depth-First, the information is a bit scattered. Also, some time and effort is required in getting a robust mirroring system in place and working as expected. Enter <a href="http://github.com/metamolecular/pubchem-fu">PubChem Fu</a>, a simple tool designed to help you maintain a complete, up-to-date copy of the PubChem dataset.</p>
+<h2 id="previousarticlesinthisseries">Previous Articles in this Series:</h2>
+<ul>
+<li><a href="http://depth-first.com/articles/2010/03/01/big-data-in-chemistry-incrementally-mirror-pubchem-the-easy-way">Big Data in Chemistry: Incrementally Mirror PubChem the Easy Way</a></li>
+<li><a href="http://depth-first.com/articles/2010/02/09/big-data-in-chemistry-mirroring-pubchem-the-easy-way-part-2">Big Data in Chemistry: Mirroring PubChem the Easy Way Part 2</a></li>
+<li><a href="http://depth-first.com/articles/2010/02/08/big-data-in-chemistry-mirroring-pubchem-the-easy-way">Big Data in Chemistry: Mirroring PubChem the Easy Way</a></li>
+</ul>
+<h2 id="whatitdoes">What it Does</h2>
+<p>PubChem Fu lets you create and automatically update a local working copy of all PubChem Compound and Substance data.</p>
+<p>This tool uses Ruby and a clever little Ruby utility called <a href="http://github.com/javan/whenever">Whenever</a> to configure cron for you. Simply give it a time to pull daily updates at, and you can always have access to the complete, latest PubChem dataset.</p>
+<h2 id="usage">Usage</h2>
+<p>Create a full copy of PubChem (in the same directory as PubChem Fu):</p>
+<pre><code class="hljs bash language-bash">rake full
+</code></pre>
+<p>Pull available daily updates (in the same directory as PubChem Fu):</p>
+<pre><code class="hljs bash language-bash">rake daily
+</code></pre>
+<p>Automate pulling daily updates:</p>
+<pre><code class="hljs bash language-bash">whenever --update-crontab pubchem
+</code></pre>
+<p>Make sure your cron task is set:</p>
+<pre><code class="hljs bash language-bash">crontab -l
+
+...
+
+<span class="hljs-comment"># Begin Whenever generated tasks for: pubchem</span>
+PATH= ...
+
+15 14 * * * <span class="hljs-built_in">cd</span> ~/<span class="hljs-built_in">local</span>/pubchem &amp;&amp; RAILS_ENV=production /usr/bin/env rake daily
+
+
+<span class="hljs-comment"># End Whenever generated tasks for: pubchem</span>
+</code></pre>
+<p>That part about <tt>RAILS_ENV</tt> is a by-product of Whenever being mainly used in a <a href="http://rubyonrails.org/">Ruby on Rails</a> environment. I'm sure there's a way to block that output if needed. If you know, please <a href="http://depth-first.com/pages/richard-l-apodaca">drop me a line</a>.</p>
+<h2 id="moreinformation">More Information</h2>
+<p>PubChem Fu is a simple utility built on a powerful foundation. For more information, see this <a href="http://media.railscasts.com/videos/164_cron_in_ruby.mov">video on automating cron with Ruby</a>.</p>
+<p>PubChem's large size presents many challenges, some of which may have solutions that could be included with PubChem Fu, and some of which could be applied to other large datasets. Stay tuned.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

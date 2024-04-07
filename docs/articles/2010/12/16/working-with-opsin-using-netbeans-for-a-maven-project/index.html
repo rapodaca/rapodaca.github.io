@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Working With OPSIN - Using Netbeans for a Maven Project | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Working With OPSIN - Using Netbeans for a Maven Project</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-12-16T00:00:00.000Z">2010-12-16T00:00:00.000Z</time>
+      </header>
+      <p>The previous article in this series showed how to use the popular version control system <a href="/articles/2010/12/14/plugging-into-opsin-how-to-synchronize-git-and-mercurial-repositories/">Git with OPSIN</a>. For the unfamiliar, <a href="http://opsin.ch.cam.ac.uk/">OPSIN</a> is the open source IUPAC nomenclature parser. <a href="/articles/2006/10/14/decoding-iupac-names-with-opsin/">First reviewed here in 2006</a>, OPSIN has continued to evolve and now parses a remarkable range of nomenclature including <a href="/articles/2010/12/13/open-source-name-to-structure-conversion-of-iupac-nomenclature-opsin-revisited/">fused hetereocycles</a>.</p>
+<p>But having raw source code is not the same as being able to do something useful with it. For example, both a build system and some form of dependency management are essential. This article will show an easy way to begin working with the OPSIN source code using free tools.</p>
+<h2 id="maven">Maven</h2>
+<p>OPSIN uses <a href="http://maven.apache.org/">Maven</a> to manage project builds and dependencies. My experience with Java dates all the way back to the time when your shell was the build system. Ant soon followed and most developers standardized on it, including me. I've had very little experience with Maven and was especially discouraged by the apparent complexity of the system compared to Ant.</p>
+<p>In fact, my first thought when seeing that OPSIN used Maven was to write an Ant build file. I'm glad I didn't.</p>
+<h2 id="netbeansandmavennice">Netbeans and Maven = Nice</h2>
+<p>It turns out that <a href="http://netbeans.org/">Netbeans</a> has quite good support for working with Maven projects. There's no need to actually import the project files - the root folder can simply be opened.</p>
+<p>Start by cloning the <a href="https://github.com/metamolecular/opsin">OPSIN git repository</a>:</p>
+<pre><code class="hljs bash language-bash">git <span class="hljs-built_in">clone</span> git://github.com/metamolecular/opsin.git
+</code></pre>
+<p>Or, if you prefer Mercurial:</p>
+<pre><code class="hljs bash language-bash">hg <span class="hljs-built_in">clone</span> https://bitbucket.org/dan2097/opsin
+</code></pre>
+<p>To begin using and modifying the OPSIN source, open the project folder with Netbeans (File -&gt; Open Project, then select the 'opsin' directory). You'll end up with a project folder:</p>
+<p><img src="/images/posts/opsin-netbeans-main.png" alt="OPSIN Netbeans" title="OPSIN Netbeans"></p>
+<p>OPSIN is composed of two modules, OPSIN Core and OPSIN_InChI_Support. To begin browsing the OPSIN Core source, open the 'Modules' folder, and then double-click on 'OPSIN Core'. You'll then have a new project called 'OPSIN core':</p>
+<p><img src="/images/posts/opsin-core.png" alt="OPSIN Core" title="OPSIN Core"></p>
+<h2 id="trustbutverify">Trust, But Verify</h2>
+<p>You can run the OPSIN JUnit test suite by right-clicking on the OPSIN Core project and selecting Test. All tests should pass. As of this writing, the number of tests is 295.</p>
+<h2 id="looseends">Loose Ends</h2>
+<p>Still on my list of things to figure out are how to generate a runnable jarfile using Netbeans. It may be that this is only possible through the command line.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>All of the prerequisites for forking OPSIN and contributing changes back to the main project are now in place: a distributed version control system (Git or Mercurial); a build and dependency management system (Maven); and a test suite (JUnit). What remains is to decide exactly what to do. Future articles will discuss some specific directions.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

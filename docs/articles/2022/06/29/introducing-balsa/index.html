@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Introducing Balsa | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2022/06/29/introducing-balsa/">
+      <meta property="og:title" content="Introducing Balsa">
+      <meta property="og:description" content="Improving data quality in chemistry by constraining SMILES.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20220629/summary.png">
+      <meta content="Improving data quality in chemistry by constraining SMILES." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Introducing Balsa</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2022-06-29T21:40:00Z">2022-06-29T21:40:00Z</time>
+      </header>
+      <p>When molecular structures are encoded and decoded as short strings, SMILES is more likely than not to be used. In the 34 years since Weininger's <a href="https://doi.org/10.1021/ci00057a005">landmark publication</a>, SMILES has been widely adopted by both software vendors and database maintainers. But despite its crucial importance to the fields of both chemistry and cheminformatics, SMILES remains underspecified. This article outlines problem and describes a solution.</p>
+<h2 id="smilesisunderspecified">SMILES is Underspecified</h2>
+<p>To get a sense of just how underspecified SMILES is, try locating the specification itself. By a wide margin, modern literature cites Weininger's <a href="https://doi.org/10.1021/ci00057a005">1988 paper</a>. But by its own admission, this source is incomplete. The most glaring omission is stereochemistry, but there are several others.</p>
+<p>A <a href="/articles/2022/06/01/protosmiles/">previous article</a> describes this problem, and a solution, at length. To recap, a 2003 <a href="http://doi.wiley.com/10.1002/9783527618279.ch5">book chapter</a> by Weininger is not only authoritative but the most complete description of SMILES ever published. I call the language described therein "ProtoSMILES" to avoid confusion with the many often conflicting notions of "SMILES." With ProtoSMILES we can at least begin to talk about something specific.</p>
+<p>Although it's the best source available, ProtoSMILES is nevertheless incomplete. Major language elements lacking complete descriptions include: the algorithm for implicit hydrogen counting; upper and lower bounds on numerical quantities; the algorithm for converting Kekulé and aromatic forms; the function of aromatic bonds; and formal grammar.</p>
+<p>Software implementors require clarity on these and other points. None was ever given, leaving only one path forward: guesswork. This has led to a proliferation of SMILES dialects, none of which is documented in sufficient detail or has sufficient market share to be considered a reference standard. To further muddy the waters, each implementation adds its own extensions to varying degrees.</p>
+<p>To get a sense of the ways in which opinions around SMILES diverge, consider a series of <a href="/articles/2022/06/15/smiles-problems/">informal polls</a> I've conducted over the last two years on Twitter. If the results of those polls seem unrepresentative, try asking the same questions to a few knowledgeable peers. I suspect that the level of disagreement could be surprising. But even more surprising will be the lack of a clear path to resolving these differences. Simply put, the necessary documentation was never written.</p>
+<p>Some view this situation as no big deal or even healthy. Spoken languages are fluid, lacking full specification and evolving over time. Many computer languages have similar characteristics. The world didn't end as a result — far from it. So why make a fuss about underspecification in SMILES?</p>
+<p>Ambiguity at the level seen with SMILES undermines science. The most obvious problem is the central role played by molecular structure in chemistry. Experimental chemists spend a large amount of time and money in pursuit of the goal of associating molecular structure with various properties. An unreliable primary key (molecular representation) can throw the integrity of entire data sets into question.</p>
+<p>It would be one thing if SMILES were widely-understood to actually be two or so dozen vendor-specific formats whose differences have never been documented. At least then the problem would be apparent and workarounds possible. This view may be present to a degree, but so is the view of SMILES as a vendor-independent data exchange format. Where you get your SMILES strings and how you process them matters to some unknown degree. It's not unreasonable to ask how many <a href="https://www.go-fair.org/fair-principles/">FAIR Principles</a> are put at risk through the continued use of SMILES in databases and in toolkits.</p>
+<h2 id="languagesubset">Language Subset</h2>
+<p>At its core, SMILES solves a real problem: the compact representation of a subset of addressable chemical space. The problem is that SMILES is underspecified, yet treated as if it were fully specified. Over time, that underspecification and lack of awareness of the problem have led to a proliferation of implementations that are mutually incompatible in subtle yet scientifically meaningful ways.</p>
+<p>A clear step toward solving an underspecification problem is to add constraints. Wherever ProtoSMILES is vague, inconsistent, or unclear about either syntax or semantics, we add the necessary constraints, erring on the side of preserving useful functionality. For example, ProtoSMILES sets no upper or lower bounds on the atomic isotope attribute. So we define it to be an integer greater than zero and less than 1,000.</p>
+<p>A few SMILES features were poorly-conceived. Take, for example, the aromatic bond, represented by the colon symbol (<code>:</code>). ProtoSMILES says nothing about the function of such bonds, and even hints that they may serve no purpose at all. Eliminating aromatic bonds therefore subtracts no functionality. Non-tetrahedral stereo descriptors (e.g., "OH") are removed due to their low cost/benefit ratio. SMILES lacks the features needed to faithfully represent the bonding relationships for organometallic and inorganic molecules in which such configurations appear. At the same time, the system of chiral classes used in ProtoSMILES is extraordinarily complex and for this reason not commonly implemented. Moreover, templates fail to address the root cause of the problem, which is that they inevitably beget more templates as chemistry advances.</p>
+<p>Some ProtoSMILES features are not only underspecified but under-documented. Consider "aromaticity." Not only does ProtoSMILES overload a highly contentious term from organic chemistry, but it fails to provide a procedure for converting Kekulé and aromatic forms, or even counting implicit hydrogens on atoms designated as aromatic. Therefore, documentation consistent with all descriptions of aromatic behavior in ProtoSMILES is added. The terms may be different, but the net effect is to fully document a feature, while providing a clear path to implementation.</p>
+<p>The process is purely subtractive. Features are clarified and if need be removed altogether, but never added. The result is a SMILES language subset or <a href="https://en.wikipedia.org/wiki/Sublanguage">sublanguage</a>. Language subsets have ample precedent in computer science. A well-known example is the one based on JavaScript and found in <em><a href="https://www.oreilly.com/library/view/javascript-the-good/9780596517748/">JavaScript: The Good Parts</a></em>. The author's aim was to "chip away at the features that are not beautiful until the language's true nature reveals itself." SMILES also has many good parts, which can be accentuated by removing the bad parts.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/hQVTIJBZook" allowfullscreen=""></iframe>
+</div>
+<h2 id="introducingbalsa">Introducing Balsa</h2>
+<p>Balsa (previously known by the codename "Dialect") is a SMILES language subset. It consists of two ongoing efforts:</p>
+<ol>
+<li><a href="https://github.com/metamolecular/balsadoc">A working paper</a> describing Balsa in sufficient detail to write a software implementation. The manuscript is being written in the open using GitHub. Questions, comments, and suggestions can be submitted as <a href="https://github.com/metamolecular/balsadoc/issues">issues</a>. A first draft of the manuscript text has been completed. In progress are figures, which are likely to number 25-30.</li>
+<li><a href="https://github.com/metamolecular/balsa">A reference implementation</a>. It is being written simultaneously with the working paper in an effort to ensure compatibility and to inform the content of the paper. This implementation has already undergone two incarnations as <a href="https://github.com/rapodaca/purr">Purr</a> and <a href="https://github.com/rapodaca/dialect.rs">Dialect</a>. The reference implementation is written in <a href="/articles/2020/01/20/cheminformatics-in-rust/">Rust</a> for its rich suite of tools and to maximize portability and security.</li>
+</ol>
+<p>The name "Balsa" was chosen in reference to the <a href="https://en.wikipedia.org/wiki/Ochroma">tree</a> (<em>Ochroma pyramidale</em>). The working paper introduces the concept of a "molecular tree" on which discussions of syntax and semantics are based. The wood from the balsa tree is <a href="https://www.apogeerockets.com/education/downloads/Newsletter69.pdf">renowned</a> for its high strength-to-weight ratio, which fits well with the aim of compact, lossless molecular representation.</p>
+<h2 id="compatibility">Compatibility</h2>
+<p>The main reason to construct a language subset such as Balsa is compatibility with existing software. In this sense, Balsa strings should be readable by all SMILES implementations. Given a reference implementation, this endpoint can be tested in an automated fashion through a compliance suite. Such a compliance suite can also serve as a helpful resource for developing Balsa-compatible software.</p>
+<p>A Balsa reader won't necessarily be able to interpret every SMILES. The degree to which this poses a practical problem depends on the degree to which the features Balsa leaves out are being used elsewhere. My belief is that Balsa drops features that are used rarely, if at all. Fortunately, this hypothesis can be tested through the combination of a reference implementation and large SMILES data sets such as those published by <a href="https://pubchem.ncbi.nlm.nih.gov">PubChem</a>, <a href="https://www.ebi.ac.uk/chebi/">ChEBI</a>, and <a href="https://www.ebi.ac.uk/chembl/">ChemBL</a>.</p>
+<h2 id="lookingforward">Looking Forward</h2>
+<p>What does a successful Balsa look like? Two outcomes would be important: (1) the development of additional reference implementations; and (2) the development of comprehensive compliance suites.</p>
+<p>Porting software from one language to another is a powerful labor-saving technique. In this sense the Rust implementation gives developers using other languages a leg up over starting from scratch. Moreover, Rust's ability to integrate with other languages means that a full port may not even be necessary.</p>
+<p>The point of reference implementations is to replicate behavior across software stacks. Tests are paramount here, and the more comprehensive they are the better. Compliance suites compiled from a diverse collection of SMILES found in the wild would offer the means to verify compatibility in an automated fashion.</p>
+<p>A longer-range goal behind Balsa is to lay a foundation for extensions. SMILES itself lacks versioning, a limitation that Balsa necessarily inherits as a language subset. This means that Balsa must remain closed to future changes, or else risk recreating the very problem Balsa was designed to solve. In other words, what you see is what you will always get. Nevertheless, Balsa is open to extensions, provided that they avoid changes to grammar or semantics. The emergence of such extensions would both add and demonstrate value.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Balsa is a molecular line notation designed to be a subset of SMILES. Balsa eliminates problematic features from SMILES, while fully constraining the features that are left. The output of Balsa writers should be readable by any SMILES reader, and Balsa readers should in general be able to read SMILES. Two projects are underway: a working paper that describes the language in detail; and a software reference implementation. This combination should provide a practical entry for those interested in improving data quality in chemistry.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

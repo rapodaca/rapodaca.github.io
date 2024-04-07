@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building ChemWriter 2 - JavaScript All the Way Down | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building ChemWriter 2 - JavaScript All the Way Down</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-08-10T00:00:00.000Z">2010-08-10T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://chemwriter.com">ChemWriter™</a> is the <a href="http://chemwriter.com/articles/the-chemical-structure-editor-bridging-chemistry-and-cheminformatics-on-the-web">chemical structure editor for Web applications</a>. It was designed from the ground up with the strengths and limitations of the Web in mind.</p>
+<p>Times change and at <a href="http://metamolecular.com">Metamolecular</a> we've been busily creating the next major release of ChemWriter. This is no mere revision, but a complete rewrite of ChemWriter - in <a href="http://depth-first.com/tags/javascript">JavaScript</a>.</p>
+<p>This article, the first in a series, discusses ChemWriter 2. Specifically, it describes why we decided to offer the ultimate in Web integration to ChemWriter customers by implementing the next major release of our structure editor in JavaScript.</p>
+<h2 id="builtfortheweb">Built for the Web</h2>
+<p>When I started writing what would become ChemWriter back in April 2007, I had some <a href="http://depth-first.com/articles/2007/04/23/a-chemical-structure-editor-for-the-web-fireflys-two-audiences">very specific ideas about how this structure editor should work</a>. One priority was that ChemWriter must respect the Web as a unique software platform.</p>
+<p>One example of ChemWriter's Web friendliness: its deployment footprint is just over 100K, enabling fast page loading. As a result, you can <a href="http://emolecules.com">put ChemWriter right on your site's front page</a>, without driving your users away with a slow page load.</p>
+<p>Another example of how ChemWriter embraces the Web: no scary security dialogs. Any user would have the right (and in many cases the obligation) to avoid any site that shows a dialog indicating that their system is about to be exposed to a security risk. <a href="http://www.chemaxon.com/products/marvin/marvinsketch/">Other companies may not see it this way</a>, but we do. Security matters a lot on the Web, and no user should have to sacrifice this precious commodity just to use a structure editor.</p>
+<h2 id="goodbyejavaapplets">Goodbye Java Applets</h2>
+<p>ChemWriter is currently offered as a Java applet, and nearly every other structure editor that can be used within a browser is based on the same technology. I would maintain that applets are still useful, but they come with some significant downsides. These tradeoffs work against ChemWriter's purpose, which is to offer the very best chemical structure user experience for Web applications. The four most important limitations of applets in this context are:</p>
+<ol>
+<li><strong>Plugin Dependency.</strong> Every user must have a functioning, properly-configured version of the <a href="http://www.java.com/en/">Java plugin</a> to draw structures. In some cases, this is not a simple matter. Even if the operating system supports it, most chemists are uncomfortable installing and configuring any software. Even if a chemist is willing and able to install/configure Java, their IT department may not let them. Even if neither consideration is a problem, things can still go wrong - resulting in additional support costs.</li>
+<li><strong>Future Support.</strong>  Sun Microsystems has been an extremely poor steward of its Java applet technology over the last decade, leaving developers on their own to work around numerous problems. Oracle, Sun's new owner, has said little about the future of applets, but given the low regard applets have among Web developers after years of neglect, I would not be at all surprised to find the entire technology discontinued by the database giant in the near future.</li>
+<li><strong>LiveConnect Doesn't Work Reliably.</strong> <a href="http://en.wikipedia.org/wiki/LiveConnect">LiveConnect</a> allows objects created in a Java applet to be used within a browser and vice versa - in theory. In practice, support across browsers has been too patchy to do anything significant with this otherwise promising technology. The newest releases of the Java plugin address this issue, but it's too little, too late. The upshot: applets live in their own self-contained world within the browser, limiting the amount of control developers have in using them as first-class citizens of the rest of the page.</li>
+<li><strong>Tablets: The Future of Laboratory Informatics.</strong> iPad forced many to re-consider the tablet as a viable computing platform. It seems very likely that the laboratory information systems of the future will be based on computers with a tablet form factor and operating system. Neither iPad, nor its closest competitor, Android, support applets, nor are they likely to ever support them. The success of the iPad, a platform that supports neither Java applets nor Flash, raises serious questions about the need for browser plugins going forward.</li>
+</ol>
+<p>In addition to these applet drawbacks, the browser itself has advanced in sophistication by leaps and bounds over the last five years:</p>
+<ol>
+<li><strong>JavaScript Now Works Everywhere.</strong> JavaScript is a serious (if widely <a href="http://depth-first.com/articles/2009/09/11/tech-fridays-javascript-the-good-parts">misunderstood</a>) programming language. It offers the most widely-available runtime environment in the world and the de facto language of the Web. Four major browsers - IE, Firefox, Safari, and Chrome - have made JavaScript performance a top priority <a href="http://depth-first.com/articles/2008/09/05/chrome-and-a-v8-javascript-takes-a-giant-leap-forward">with amazing results</a>. Most of JavaScript's perceived problems come from inconsistently implemented ancillary technologies, such as the DOM and event handling. These differences are rendered inconsequential with any of a number of libraries such as <a href="http://jquery.com/">jQuery</a> or <a href="http://www.prototypejs.org/">Prototype</a>. I have been particularly impressed with <a href="http://code.google.com/closure/">Google Closure</a>, which future articles will discuss in more detail. <a href="http://depth-first.com/articles/2008/07/15/javascript-for-cheminformatics">JavaScript has not been widely-used in the past for Cheminformatics</a>, but this seems likely to change significantly in the near future.</li>
+<li><strong>Vector Graphics Now Work on All Browsers.</strong> One of the Web's best-kept secrets is <a href="http://depth-first.com/articles/2008/06/06/the-other-vector-graphics-markup-language">Internet Explorer's longtime support for vector graphics in the form of VML</a>. Taken together with the support by standards-compliant browsers for SVG, it's obvious that interactive graphics of the kind needed to create a structure editor are well within reach on every modern browser. Even better, <a href="http://blogs.msdn.com/b/ie/archive/2010/03/18/svg-in-ie9-roadmap.aspx">the next version of Internet Explorer will directly support high performance SVG</a>. A <a href="http://depth-first.com/articles/2008/07/17/javascript-for-cheminformatics-an-introduction-to-webspex-a-spectroscopy-tool-for-the-internet">number of desktop-like user interface elements for the visualization and manipulation of complex data types in chemistry</a> are not just feasible, but compelling.</li>
+<li><strong>HTML 5.</strong> JavaScript and SVG are two key components of a larger technological context - <a href="http://depth-first.com/articles/2010/06/18/html-5-mobile-devices-and-chemistry">HTML&nbsp;5</a>. With HTML 5, differences between browser-based software and thick clients will become ever more difficult to perceive. HTML 5 eliminates many of the most compelling arguments in favor of using browser plugins - and building thick clients.</li>
+</ol>
+<h2 id="bottomlinejavascriptoffersabetteruserexperience">Bottom Line: JavaScript Offers a Better User Experience</h2>
+<p>No switch in base technology should be undertaken without a compelling case for it. In switching ChemWriter from Java to JavaScript, the choice was easy: JavaScript now offers the potential for a superior user experience with little or no performance penalty. Future articles will discuss how we've done in making this vision reality.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

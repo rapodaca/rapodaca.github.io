@@ -1,0 +1,32 @@
+<html>
+  <head><title>JMolDraw Test</title></head>
+  <body>
+    <script language="JavaScript">
+      function writeMolfile()
+      {
+        document.form.output.value = document.applet.getContentAsMolFile();
+      }
+
+      function writeJME()
+      {
+        document.form.output.value = document.applet.getContentAsJMEString();
+      }
+    </script>
+
+    <p>Back to the <a href="http://depth-first.com/articles/2006/08/21/four-free-2-d-structure-editors-for-web-applications">Editor Comparison</a></p>
+    <h1>JMolDraw</h1>
+
+    <applet codebase="." code="org.jmd.editor.main.JMolDraw.class" archive="jmoldraw.jar,lib/jmd-base.jar" name="applet" width="510" height="360">
+    </applet>
+
+    <br />
+
+    <form method="post" name="form">
+      <input type="button" value="Get Molfile (V3000)" onclick="writeMolfile()"></input>
+      <input type="button" value="Get JME" onclick="writeJME()"></input>
+      <br /><br />
+      <textarea name="output" rows=20 cols=70></textarea>
+    </form>
+
+  </body>
+</html>

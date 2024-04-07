@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cheminformatics Data Pipelining with KNIME - Creating a Custom Node for Generating InChIs and InChI Keys | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Cheminformatics Data Pipelining with KNIME - Creating a Custom Node for Generating InChIs and InChI Keys</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-10-22T00:00:00.000Z">2010-10-22T00:00:00.000Z</time>
+      </header>
+      <p>KNIME is a graphical programming environment that many are considering for use in cheminformatics. One of the limitations of KNIME at the present is its relative lack of low-level cheminforamtics software components (nodes) compared to Pipeline Pilot, for example. Previous articles have <a href="/articles/2010/10/11/cheminformatics-data-pipelining-with-knime-getting-started">introduced KNIME as a tool for cheminformatics</a> and outlined a method for <a href="/articles/2010/10/14/cheminformatics-data-pipelining-with-knime-configuring-a-node-developer-environment-on-ubuntu-linux">creating a KNIME node developer environment</a>. This article shows how to create a custom KNIME node for generating Standard InChIs and InChI Keys.</p>
+<h2 id="theproblem">The Problem</h2>
+<p>Although the KNIME cheminformatics package does enable the generation of InChIs through the Open Babel node, it does not enable the generation of InChI Keys - nor does that node generate Standard InChIs or InChI Keys.</p>
+<p>We'll be building a node for the sole purpose of generating InChIs and InChI Keys using the latest (1.03) version of the InChI software.</p>
+<h2 id="thehack">The Hack</h2>
+<p>The InChI Node makes use of the <a href="http://www.iupac.org/inchi/">IUPAC InChI toolkit</a>, which was <a href="/articles/2008/12/10/mr-inchi-tear-down-this-wall/">unfortunately implemented in C and only C</a>. Because KNIME Nodes are implemented in Java, we face the problem of how to deal with the platform-specific binary dependency InChI introduces - in the platform-independent context of a KNIME Node running in a JVM.</p>
+<p>Fortunately, there is a way - albeit a hack. Provided we can ensure our platform has access to the InChI binary, we can use <a href="/articles/2010/10/18/a-lightweight-and-portable-java-interface-to-inchi">a lightweight Java wrapper to InChI</a>, saving ourselves the trouble of compiling numerous platform-specific versions of the node.</p>
+<p>We could obviously build a full-blown JNI (or <a href="http://today.java.net/article/2009/12/20/simplify-native-code-access-jna">JNA</a>) interface to InChI (or use an existing one), but with significantly increased costs in development and maintenance.</p>
+<p>Given the trade-offs, this InChI Node will use the lightweight wrapper approach.</p>
+<h2 id="settinguptheenvironment">Setting Up the Environment</h2>
+<p>Given that you're following my suggestion to [run the KNIME SDK on Ubuntu]/articles/2010/10/14/cheminformatics-data-pipelining-with-knime-configuring-a-node-developer-environment-on-ubuntu-linux/), possibly using VirtualBox, you should be able to create a new project. Creating a KNIME node project called "inchi" should give this project layout:</p>
+<p><a href="/articles/2010/10/14/cheminformatics-data-pipelining-with-knime-configuring-a-node-developer-environment-on-ubuntu-linux/"><img src="/images/posts/blank-knime-project.png" alt="Figure" title="Figure"></a></p>
+<p>Although there are a lot of files, we'll only need to concern ourselves with one: <strong>InChINodeModel.java</strong>. Even better, we'll only need to implement a single method in this class, <code>execute</code>.</p>
+<h2 id="thecode">The Code</h2>
+<p>Below is the source I added to implement the <code>execute</code> method:</p>
+<pre><code class="hljs java language-java"><span class="hljs-keyword">protected</span> BufferedDataTable[] execute(<span class="hljs-keyword">final</span> BufferedDataTable[] inData, <span class="hljs-keyword">final</span> ExecutionContext exec) <span class="hljs-keyword">throws</span> Exception {
+  logger.warn(<span class="hljs-string">"Calculating InChIs..."</span>);
+
+  DataTableSpec inputTableSpec = inData[<span class="hljs-number">0</span>].getDataTableSpec();
+  DataColumnSpec[] outputColumnSpecs = <span class="hljs-keyword">new</span> DataColumnSpec[inputTableSpec.getNumColumns() + <span class="hljs-number">2</span>];
+
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; inputTableSpec.getNumColumns(); i++) {
+    DataColumnSpec columnSpec = inputTableSpec.getColumnSpec(i);
+
+    outputColumnSpecs[i] = columnSpec;
+  }
+
+  outputColumnSpecs[inputTableSpec.getNumColumns()] = <span class="hljs-keyword">new</span> DataColumnSpecCreator(<span class="hljs-string">"inchi"</span>, StringCell.TYPE).createSpec();
+  outputColumnSpecs[inputTableSpec.getNumColumns() + <span class="hljs-number">1</span>] = <span class="hljs-keyword">new</span> DataColumnSpecCreator(<span class="hljs-string">"inchi_key"</span>, StringCell.TYPE).createSpec();
+
+  DataTableSpec outputTableSpec = <span class="hljs-keyword">new</span> DataTableSpec(outputColumnSpecs);
+  BufferedDataContainer outputContainer = exec.createDataContainer(outputTableSpec);
+
+  CloseableRowIterator it = inData[<span class="hljs-number">0</span>].iterator();
+  <span class="hljs-keyword">int</span> rowNumber = <span class="hljs-number">1</span>;
+
+  <span class="hljs-keyword">while</span> (it.hasNext()) {
+    DataRow inputRow = it.next();
+    RowKey key = inputRow.getKey();
+    DataCell[] cells = <span class="hljs-keyword">new</span> DataCell[inputRow.getNumCells() + <span class="hljs-number">2</span>];
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; inputRow.getNumCells(); i++) {
+      cells[i] = inputRow.getCell(i);
+    }
+
+    DataCell molfileCell = inputRow.getCell(<span class="hljs-number">0</span>);
+    String inchi = getInChIFromMolfile(molfileCell.toString());
+    String inchiKey = getInChIKeyFromMolfile(molfileCell.toString());
+    cells[inputRow.getNumCells()] = <span class="hljs-keyword">new</span> StringCell(inchi);
+    cells[inputRow.getNumCells() + <span class="hljs-number">1</span>] = <span class="hljs-keyword">new</span> StringCell(inchiKey);
+
+    DataRow outputRow = <span class="hljs-keyword">new</span> DefaultRow(key, cells);
+
+    outputContainer.addRowToTable(outputRow);
+    exec.checkCanceled();
+    exec.setProgress(rowNumber / (<span class="hljs-keyword">double</span>)inData[<span class="hljs-number">0</span>].getRowCount(), <span class="hljs-string">"Adding row "</span> + rowNumber);
+
+    rowNumber++;
+  }
+
+  outputContainer.close();
+  BufferedDataTable outputTable = outputContainer.getTable();
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BufferedDataTable[]{outputTable};
+}
+</code></pre>
+<p>The code is fairly straightforward, if verbose. At a high level, we're transforming a tabular representation of a data stream into another tabular representation of that stream by adding two columns - one called "inchi", and the other called "inchi_key". We preserve the contents and ordering of all input fields. We then populate the extra columns with the InChI and InChI key generated by the lightweight wrapper to the InChI binary.</p>
+<p>The <code>execute</code> method invokes both <code>getInChIFromMolfile</code> and <code>getInChIKeyFromMolfile</code>, the implementations of which follow:</p>
+<pre><code class="hljs java language-java"><span class="hljs-function"><span class="hljs-keyword">private</span> BufferedReader <span class="hljs-title">runInChI</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
+  String[] command = {
+    <span class="hljs-string">"/bin/sh"</span>,
+    <span class="hljs-string">"-c"</span>,
+    <span class="hljs-string">"echo \""</span> + molfile + <span class="hljs-string">"\" | inchi -STDIO -AuxNone -NoLabels -Key 2&gt;/dev/null"</span>
+  };
+  Process inchi = Runtime.getRuntime().exec(command);
+
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BufferedReader(<span class="hljs-keyword">new</span> InputStreamReader(inchi.getInputStream()));
+}
+
+<span class="hljs-function"><span class="hljs-keyword">private</span> String <span class="hljs-title">getInChIFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
+  BufferedReader input = runInChI(molfile);
+  String result = input.readLine();      
+  input.close();
+
+  <span class="hljs-keyword">return</span> result == <span class="hljs-keyword">null</span> ? <span class="hljs-string">""</span> : result;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">private</span> String <span class="hljs-title">getInChIKeyFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
+  BufferedReader input = runInChI(molfile);
+  input.readLine();
+  String result = input.readLine();
+
+  input.close();
+
+  <span class="hljs-keyword">return</span> result == <span class="hljs-keyword">null</span> ? <span class="hljs-string">""</span> : result.substring(<span class="hljs-number">9</span>);
+}
+</code></pre>
+<h2 id="compile">Compile</h2>
+<p>We can compile the node for deployment to the KNIME workbench by opening the <strong>plugin.xml</strong> file in Eclipse, scrolling to the bottom, clicking "Export Wizard", and following the instructions:</p>
+<p><img src="/images/posts/knime-export-wizard.png" alt="KNIME Export Wizard" title="KNIME Export Wizard"></p>
+<p>I've set up my export task to copy the compiled package into my KNIME workbench plugin directory:</p>
+<p><img src="/images/posts/knime-destination-dir.png" alt="KNIME Destination Dir" title="KNIME Destination DIR"></p>
+<h2 id="seeitrun">See It Run</h2>
+<p>Restarting the KNIME workbench gives a new Node called "InChI":</p>
+<p><img src="/images/posts/knime-nodes-with-inchi.png" alt="KNIME Nodes with InChI" title="KNIME Nodes with InChI"></p>
+<p>The InChI node can be used, for example, to add InChIs to an SD File and write the contents to an CSV File:</p>
+<p><img src="/images/posts/knime-inchi-workflow.png" alt="KNIME InChI Workflow" title="KNIME InChI Workflow"></p>
+<h2 id="impressions">Impressions</h2>
+<p>I found it cumbersome to develop the InChI Node because the only way to test was to use it in a KNIME workflow. And the only way I found to get each new version of the node into a KNIME workflow was to shut down the currently running instance of the KNIME workbench and restart it. All of this fiddling around added up to a lot of time spent just running tests.</p>
+<p>An automated testing solution that streamlines the process of testing a KNIME model object would be a welcome addition to the SDK. I'm thinking of a small library that stubs out the essential behaviors of the KNIME workbench and which could be included in JUnit tests. Does something like this already exist?</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Building a custom KNIME cheminformatics node is not difficult, although it feels more complicated and verbose than it needs to be. Still, we have a working node that in principle we can use in our own automated workflows and share with others. There are some niceties that I've skipped over - for example the custom icon, placement of the node into a folder in the workbench, and enabling customization of the node's behavior through a popup dialog. But that's a story for another time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

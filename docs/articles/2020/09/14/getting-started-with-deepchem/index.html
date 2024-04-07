@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Getting Started with DeepChem | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/09/14/getting-started-with-deepchem/">
+      <meta property="og:title" content="Getting Started with DeepChem">
+      <meta property="og:description" content="Build a workbench for exploring machine learning primitives in chemistry.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200914/summary.png">
+      <meta content="Build a workbench for exploring machine learning primitives in chemistry." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Getting Started with DeepChem</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-09-14T14:00:00Z">2020-09-14T14:00:00Z</time>
+      </header>
+      <p>Like many fields, chemistry is in the midst of a machine learning transformation. Chemistry also has some peculiarities that make getting started with machine learning a challenge. What would be helpful is a workbench that makes it possible to conduct simple but illustrative studies with minimal ceremony. <a href="https://github.com/deepchem/deepchem">DeepChem</a> is a batteries-included suite that seeks to fill this need. This article describes DeepChem's installation, and works through an example showing one way to train a random forest model to predict experimental solubility data.</p>
+<h2 id="aboutdeepchem">About DeepChem</h2>
+<p>From the <a href="https://github.com/deepchem/deepchem">README</a>, DeepChem provides:</p>
+<blockquote>
+  <p>… a high quality open-source toolchain that democratizes the use of deep-learning in drug discovery, materials science, quantum chemistry, and biology.</p>
+</blockquote>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/sntikyFI8s8" allowfullscreen=""></iframe>
+</div>
+<p>DeepChem goes beyond merely aggregating packages in that it also provides a suite of uniform machine learning primitives customized for chemistry and biology. For this reason, it can be useful to both beginners and experts.</p>
+<h2 id="installation">Installation</h2>
+<p>The <a href="https://github.com/deepchem/deepchem">README</a> recommends running DeepChem through <a href="https://colab.research.google.com/notebooks/intro.ipynb">Google Colab</a>. In my experience, that approach seems less than ideal because it requires the re-installation of at least one dependency (RDKit) before each use. There are other reasons for running DeepChem on your own machine. For example, your use case may be more sophisticated than what Jupyter Notebooks allow.</p>
+<p>A <a href="/articles/2020/08/17/getting-started-rdkit-and-jupyter/">previous article</a> described the installation of a cheminformatics stack consisting of RDKit, Jupyter, and Anaconda. The procedure for installing DeepChem re-uses many elements from that approach. If you haven't done so already, begin by installing Anaconda on your system.</p>
+<p>My approach installs DeepChem, RDKit, Jupyter and matplotlib into an Anaconda instance. I've found it to be reproducible on my macOS Mojave installation:</p>
+<pre><code class="hljs console language-console">conda create --name deepchem-test
+conda activate deepchem-test
+conda install -y -c conda-forge rdkit nb_conda_kernels matplotlib
+pip3 install tensorflow==2.2.0
+pip3 install --pre deepchem 
+</code></pre>
+<p>Three points are worth noting:</p>
+<ul>
+<li><code>pip3</code> is my system's Python 3 Pip installation. You may be able to use just <code>pip</code>.</li>
+<li>It's important to install Pip dependencies <em>after</em> the Anaconda dependencies, and while the <code>deepchem-test</code> environment is activated.</li>
+<li>The DeepChem pre-release is required. The last stable release of DeepChem was one year ago (2.3.0). Unfortunately, all of DeepChem's examples are written to use the most recent API, which is not backward-compatible. To avoid this headwind, go with the pre-release.</li>
+</ul>
+<h2 id="startinganotebook">Starting a Notebook</h2>
+<p>Jupyter notebooks ("notebooks") offer a convenient alternative to the Python REPL thanks to inline graphics and publication capabilities. For this reason, the DeepChem example that follows will be presented as a notebook.</p>
+<p>By way of preparation, ensure that your terminal prompt is prefixed with <code>(deepchem-test)</code>, or the name you chose for the Anaconda environment. If this isn't the case, activate the environment with:</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda activate deepchem-test</span>
+(deepchem-test) $ jupyter notebook
+</code></pre>
+<h2 id="example">Example</h2>
+<p>What follows is a transcript of a notebook I created while working through the DeepChem project's <a href="https://github.com/deepchem/deepchem/blob/master/examples/tutorials/03_Modeling_Solubility.ipynb">aqueous solubility tutorial</a>. The goal is not develop a practical model, but rather to illustrate some of DeepChem's capabilities. For a more technical treatment of solubility modeling, see the <a href="http://practicalcheminformatics.blogspot.com/2018/09/predicting-aqueous-solubility-its.html">article by Pat Walters.</a> More examples are available from the <a href="https://github.com/deepchem/deepchem/tree/master/examples">DeepChem repository</a>. An <a href="https://github.com/deepchem/deepchem/tree/master/examples/delaney">entire subdirectory of examples</a> is dedicated to the Delaney solubility set.</p>
+<!-- https://stackoverflow.com/questions/9162933/make-iframe-height-dynamic-based-on-content-inside-jquery-javascript -->
+<iframe src="/images/posts/20200914/solubility-notebook.html" onload="this.height=this.contentWindow.document.body.scrollHeight;" scrolling="no" class="jupyter"></iframe>
+<h2 id="videotutorial">Video Tutorial</h2>
+<p>A video tutorial from <a href="https://www.youtube.com/c/JanJensenCopenhagen/videos">Jan Jansen's helpful YouTube channel</a> explains how to use <a href="/articles/2020/03/09/a-brief-introduction-to-graph-convolutional-networks/">graph convolution</a> with DeepChem to predict aqueous solubility (to better effect than random forest).</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/eiELMN7QIT0" allowfullscreen=""></iframe>
+</div>
+<h2 id="conclusion">Conclusion</h2>
+<p>DeepChem is a suite of machine learning primitives geared toward chemistry and biology. In addition to a wide range of functionality, DeepChem offers many examples illustrating how to build and use predictive models with datasets containing chemical graphs. This article shows how to install DeepChem from scratch and works through the training of a model for aqueous solubility step-by-step.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiling Open Babel to Pure Java Bytecode with NestedVM - Building A Runnable Classfile that Almost Works | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Compiling Open Babel to Pure Java Bytecode with NestedVM - Building A Runnable Classfile that Almost Works</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-11-26T00:00:00.000Z">2007-11-26T00:00:00.000Z</time>
+      </header>
+      <p>Previously, I described an <a href="/articles/2007/11/19/compiling-open-babel-to-pure-java-bytecode-with-nestedvm-an-unsuccessful-first-attempt#comment-268">unsuccessful first attempt</a> to compile the popular cheminformatics C/C++ library <a href="http://openbabel.sf.net">Open Babel</a> to pure Java bytecode using <a href="http://nestedvm.ibex.org/">NestedVM</a>. This article follows that topic one step further, and shows how to obtain a runnable Java classfile. Although major functionality is missing, the principle of compiling arbitrary C/C++ code to both Java source code and Java bytecode is illustrated.</p>
+<h2 id="gettingstarted">Getting Started</h2>
+<p>This articles assumes that you've <a href="/articles/2007/11/19/compiling-open-babel-to-pure-java-bytecode-with-nestedvm-an-unsuccessful-first-attempt#comment-268">installed NestedVM and downloaded Open Babel</a> on your system. You'll then need to set up your environment (from the nestedvm installation directory):</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">source</span> env.sh
+</code></pre>
+<h2 id="runtheconfigurescript">Run the Configure Script</h2>
+<p>The configure script we used last time didn't attempt to statically compile the binary utilities in the <strong>tools</strong> directory. This time, we'll add flags to allow this:</p>
+<pre><code class="hljs bash language-bash">./configure --<span class="hljs-built_in">disable</span>-dynamic-modules --<span class="hljs-built_in">enable</span>-static=yes --<span class="hljs-built_in">enable</span>-shared=no --<span class="hljs-built_in">enable</span>-inchi --host=mips-unknown-elf
+make
+</code></pre>
+<p><em>Note: leaving out the static compile directives does not produce a fully-functioning classfile either.</em></p>
+<p>Next, we'll attempt to directly create the <code>babel</code> binary in Java classfile format, as we did last time:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> tools
+java org.ibex.nestedvm.Compiler -outfile Babel.class Babel babel
+Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">"main"</span> java.lang.IllegalStateException: unresolved phantom target
+        at org.ibex.classgen.MethodGen.resolveTarget(MethodGen.java:555)
+        at org.ibex.classgen.MethodGen._generateCode(MethodGen.java:664)
+        at org.ibex.classgen.MethodGen.generateCode(MethodGen.java:618)
+        at org.ibex.classgen.MethodGen.dump(MethodGen.java:888)
+        at org.ibex.classgen.ClassFile._dump(ClassFile.java:193)
+        at org.ibex.classgen.ClassFile.dump(ClassFile.java:160)
+        at org.ibex.nestedvm.ClassFileCompiler.__go(ClassFileCompiler.java:380)
+        at org.ibex.nestedvm.ClassFileCompiler._go(ClassFileCompiler.java:72)
+        at org.ibex.nestedvm.Compiler.go(Compiler.java:259)
+        at org.ibex.nestedvm.Compiler.main(Compiler.java:183)
+</code></pre>
+<p>We're getting the same error as before. Although, an <a href="http://groups.google.com/group/nestedvm/browse_thread/thread/b5d114a20a6b672b">announcement of a bugfix</a> was posted to the NestedVM list, in my hands the new version of NestedVM caused the same error.</p>
+<p>As a workaround, we can compile to Java sourcecode first:</p>
+<pre><code class="hljs bash language-bash">java org.ibex.nestedvm.Compiler -outformat java -outfile Babel.java Babel babel
+</code></pre>
+<p>We now have a Java source file encoding the <strong>babel</strong> program. Does it compile?</p>
+<pre><code class="hljs bash language-bash">javac Babel.java
+The system is out of resources.
+Consult the following stack trace <span class="hljs-keyword">for</span> details.
+java.lang.OutOfMemoryError: Java heap space
+        at com.sun.tools.javac.util.Position<span class="hljs-variable">$LineMapImpl</span>.build(Position.java:139)
+        at com.sun.tools.javac.util.Position.makeLineMap(Position.java:63)
+        at com.sun.tools.javac.parser.Scanner.getLineMap(Scanner.java:1105)
+        at com.sun.tools.javac.main.JavaCompiler.parse(JavaCompiler.java:512)
+        at com.sun.tools.javac.main.JavaCompiler.parse(JavaCompiler.java:550)
+        at com.sun.tools.javac.main.JavaCompiler.parseFiles(JavaCompiler.java:801)
+        at com.sun.tools.javac.main.JavaCompiler.compile(JavaCompiler.java:727)
+        at com.sun.tools.javac.main.Main.compile(Main.java:353)
+        at com.sun.tools.javac.main.Main.compile(Main.java:279)
+        at com.sun.tools.javac.main.Main.compile(Main.java:270)
+        at com.sun.tools.javac.Main.compile(Main.java:69)
+        at com.sun.tools.javac.Main.main(Main.java:54)
+</code></pre>
+<p>Not exactly. But this is a massive source file, so we'll need to increase the Java compiler's memory allowance:</p>
+<pre><code class="hljs bash language-bash">javac Babel.java -J-Xms256m -J-Xmx256m
+Note: Babel.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked <span class="hljs-keyword">for</span> details.
+</code></pre>
+<p>This seems to have worked. Can we run the classfile?</p>
+<pre><code class="hljs bash language-bash">java Babel -H
+Open Babel converts chemical structures from one file format to another
+
+Usage: Babel &amp;lt;input spe&amp;gt; &amp;lt;output spec&amp;gt; [Options]
+
+Each spec can be a file whose extension decides the format.
+Optionally the format can be specified by preceding the file by
+-i&amp;lt;format-type&amp;gt; e.g. -icml, <span class="hljs-keyword">for</span> input and -o&lt;format-type&gt; <span class="hljs-keyword">for</span> output
+
+--truncated--
+</code></pre>
+<p>Success! But before we get too excited, let's make sure Open Babel's file formats are recognized by testing for "SMILES":</p>
+<pre><code class="hljs bash language-bash">java Babel -Hsmi
+Format <span class="hljs-built_in">type</span>: smi was not recognized
+</code></pre>
+<p>As you can see, we have successfully converted the <code>babel</code> program to an executable classfile, but this classfile is missing most of the features of the native binary.</p>
+<p>This may seem hopeless, but consider that natively compiling Open Babel using the above <code>configure</code> flags also produces a binary that doesn't know about SMILES or any other format.</p>
+<p>So, it's very likely that if we can produce a native, statically compiled, self contained <code>babel</code> executable, then we will have solved the problem of running Open Babel entirely on a JVM.</p>
+<p>This doesn't seem like a difficult problem, <a href="http://sourceforge.net/mailarchive/forum.php?thread_name=819391.60947.qm%40web34201.mail.mud.yahoo.com&amp;forum_name=openbabel-discuss">but apparently it is</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

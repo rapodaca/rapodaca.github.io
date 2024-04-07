@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Extending the V3000 Molfile Format with User-Specified Collections | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2023/01/11/extending-the-v3000-molfile-format-with-user-specified-collections/">
+      <meta property="og:title" content="Extending the V3000 Molfile Format with User-Specified Collections">
+      <meta property="og:description" content="A practical look at a unique feature.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20230111/summary.png">
+      <meta content="A practical look at a unique feature." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Extending the V3000 Molfile Format with User-Specified Collections</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2023-01-11T15:00:00Z">2023-01-11T15:00:00Z</time>
+      </header>
+      <p>Two versions of the widely-used molfile format exist: V2000 and V3000. As <a href="/articles/2021/11/17/ten-reasons-to-adopt-the-v3000-molfile-format/">noted previously</a>, the V3000 format introduces several capabilities not present in its predecessor. One of them allows the arbitrary grouping and tagging of certain kinds of features. The documentation hints at this grouping and tagging as a V3000 extension mechanism, but how would that work in practice? This article takes a closer look at the question.</p>
+<h2 id="v3000collectionblock">V3000 Collection Block</h2>
+<p>The syntax and semantics of the V3000 collection block are described in <a href="https://discover.3ds.com/sites/default/files/2020-08/biovia_ctfileformats_2020.pdf">CTfile Formats 2020</a> ("the documentation"). A collection block is an unordered, tagged grouping of "objects," or molecular features. The types of objects that can be added to a collection include atoms, bonds, Sgroups (e.g., abbreviations/superatoms and polymer blocks), 3D objects, and Rgroups. A collection block can also reference objects of type "Member," or a connection table contained within an Rgroup. Within a collection block, objects are referenced by their respective integer identifiers.</p>
+<p>A collection is also associated with either a built-in or user-specified tag.</p>
+<h2 id="syntax">Syntax</h2>
+<p>A collection is defined within a <em>collection block</em>. Located within a connection table (<code>CTAB</code>) block, a collection block must appear after the blocks defining the objects to be referenced. A collection is demarcated by a begin/end (<code>BEGIN</code>/<code>END</code>, respectively) line pair. The first element of the collection block is an optional default flag (<code>DEFAULT</code>), but no further explanation of its purpose is given. Next, a tag (<code>name/subname</code>) is required. Following the tag, groups of like objects are collected using the general notation `{TYPE}=({COUNT} {ID}, [{ID} …]).</p>
+<p>The documentation (p 20) specifies the full syntax of a collection block as:</p>
+<pre><code class="hljs console language-console">M  V30 BEGIN COLLECTION
+[M  V30 DEFAULT -]
+M  V30 name/subname -
+M  V30 [ATOMS=(natoms atom [atom ...])] -
+M  V30 [BONDS=(nbonds bond [bond ...])] -
+M  V30 [Sgroups=(nSgroups sgrp [sgrp ...])] -
+M  V30 [OBJ3DS=(nobj3ds obj3d [obj3d ...])] -
+M  V30 [MEMBERS=(nmembers member [member ...])] -
+M  V30 [Rgroups=(nRgroups Rgroup [Rgroup ...])] -
+...
+M  V30 END COLLECTION
+</code></pre>
+<p>A collection tag is a two-part string consisting of a name and a subname separated by a delimiter (e.g., "NAME/SUBNAME"). This string may contain only "printable characters," and is case-insensitive. Wrapping the tag in double quotation marks (<code>"</code>) allows for space characters. The name part must begin with a letter. Any other first character is assumed to be the delimiter between the name and subname parts. The default delimiter is the forward slash character (<code>/</code>). Tag names must not begin with the upper or lower character sequence "MDL".</p>
+<p>Examples of valid tags include:</p>
+<ul>
+<li><code>foo/bar</code>. The name is "foo" and the subname is "bar". The tags <code>FoO/BaR</code> and <code>FOO/BAR</code> are equivalent.</li>
+<li><code>"foo/bar baz"</code>. Here the subname is "bar baz".</li>
+<li><code>.foo.bar</code>. The delimiter (<code>.</code>) separates the name "foo" from the subname "bar".</li>
+</ul>
+<p>Object types must follow the collection tag, and must be listed in the order given. Only the enumerated object types may be used (<code>ATOMS</code>, <code>BONDS</code>, <code>Sgroups</code>, <code>OBJECT3DS</code>, <code>MEMBERS</code>, and <code>Rgroups</code>). User-defined object types are not allowed.</p>
+<p>The dash character (<code>-</code>) appearing at the end of a line indicates that the contents may appear over one or more lines, and must wrap if the character count exceeds 79. This is a general feature of the V3000 format.</p>
+<p>No content other than that listed may appear between the <code>BEGIN</code> and <code>END</code> lines.</p>
+<h2 id="semantics">Semantics</h2>
+<p>Collections having equivalent tags are deemed to belong to the same collection. For example, two collections might be given the equivalent tags ("ABC/123" and "abc/123"). In such a case, both blocks reference objects belonging to the the same collection.</p>
+<p>Two kinds of collection are supported: <em>internal collections</em> and <em>user-specified collections</em>. An internal collection is one using the tag name "MDLV30", which is reserved for use by the V3000 format sponsor (currently <a href="https://www.3ds.com">Dassault Systèmes</a>). All other collections are user-specified. Readers and writers must preserve valid internal collections, but may or may not preserve user collections. If user collections are discarded, a warning (but not an error) may be reported. A valid internal collection is one whose object identifiers are used previously in the enclosing connection table block.</p>
+<p>Identifier groupings within a collection are unordered. Thus, the atom groupings "ATOMS=(2 1 2)" and "ATOMS=(2 2 1)" express the same two-member group.</p>
+<h2 id="internalcollections">Internal Collections</h2>
+<p>Four internal collections have been defined to date:</p>
+<ul>
+<li><code>MDLV30/HILITE</code>. Highlighting. Used for display applications.</li>
+<li><code>MDLV30/STEABS</code>. Absolute stereo group.</li>
+<li><code>MDLV30/STERACn</code>. Racemic stereo group.</li>
+<li><code>MDLV30/STERELn</code>. Relative stereo group.</li>
+</ul>
+<p>The <code>MDLV30/HILITE</code> collection may contain any object type, but the other three internal collections must only reference atoms. These three tags collectively define "stereogroups," an important part of the V3000 format's <a href="/articles/2022/02/09/v3000-molfile-enhanced-stereochemistry-representation/">enhanced stereochemistry</a> capabilities.</p>
+<p>Two internal collections end with a lower case letter (<code>MDLV30/STERACn</code> and <code>MDLV30/STERELn</code>). Here, the letter is a placeholder for a positive integer index. For example, the first racemic stereo group might have the tag "MDLV30/STERAC1", the second "MDLV30/STERAC2", and so on.</p>
+<p>As an example of an internal collection, consider the absolute stereo group. Each connection table gets one and only one of these. A collection block that would place the atom identified by "4" into the absolute stereogroup would be:</p>
+<pre><code class="hljs console language-console">M  V30 BEGIN COLLECTION
+M  V30 MDLV30/STEABS ATOMS=(1 4)
+M  V30 END COLLECTION
+</code></pre>
+<p>Similarly, the "1" relative stereogroup (typically displayed as "or1" or "OR Enantiomer") would be constructed from atoms identified as "4" and "5" as follows:</p>
+<pre><code class="hljs console language-console">M  V30 BEGIN COLLECTION
+M  V30 MDLV30/STEREL1 ATOMS=(2 4 5)
+M  V30 END COLLECTION
+</code></pre>
+<p>Notice that in this case the tag subname <code>STEREL1</code> is doing double duty. First, it identifies the collection as a relative stereogroup. Second, it sets the index for the relative stereogroup to "1".</p>
+<h2 id="userspecifiedcollections">User-Specified Collections</h2>
+<p>The documentation suggests that user-specified collections can be used as a V3000 molfile format extension mechanism. Readers recognizing such collections will process them. Other readers will simply ignore them and may discard them if present.</p>
+<p>Although the V3000 molfile format does define a collection dedicated to highlighting, it's rather limited. For example, it does not allow the color to be set. We might remedy this problem with a user-specified collection, as exemplified below:</p>
+<pre><code class="hljs console language-console">M  V30  BEGIN COLLECTION
+M  V30 MM/HIGHLIGHT#FF0000 BONDS(6 1 2 3 4 5 6)
+M  V30  END COLLECTION
+</code></pre>
+<p>This user-specified collection identifies its namespace with the tag name "MM". The subname ("HIGHLIGHT#FF0000") serves two purposes. First, marks the collection for use in highlighting. Second, the suffix ("#FF0000") encodes a hexadecimal RGB value (red). The collection would therefore highlight bonds 1-6 in red. Similar collection blocks could highlight bonds, atoms, and other objects using different colors. The scheme could be further expanded to support visual effects like width or transparency. Data could be encoded directly within the subname as is done here, or indirectly through an effect identifier. Readers understanding the "MM/HIGHLIGHT" tag namespace would process its effects according to a well-documented specification. Other readers would just ignore the extension.</p>
+<h2 id="userspecifiedcollectionmetadata">User-Specified Collection Metadata</h2>
+<p>Arbitrary data can be encoded into a collection tag's name and subname components. Indeed, the authors of the V3000 specification appear to sanction this use in the "STERELn" and "STERACn" stereogroups. The same approach is therefore open to third parties. It's straightforward to associate integers and other simple kinds of data with collections in this way. But encoding more complex structured data such as key/value stores could get unwieldy.</p>
+<p>Unfortunately, my reading of the V3000 specification allows for little alternative but to encode all collection metadata into the tag itself. A collection block may only contain the syntax elements described above. Inclusion of other data within the collection block itself risks rejection from compliant readers.</p>
+<p>If complex metadata are to be associated with V3000 molfile, the encoding must exist external to the collection block itself. Indeed, it must exist external to the V3000 molfile connection table. This leave two possible locations for encoding complex collection metadata:</p>
+<ol>
+<li><em>Outside of a V3000 connection table block.</em> V3000 molfiles are designed to be backward compatible with V2000 molfiles. The V2000 part of the documentation directs readers that "All lines that are not understood by the program are ignored." (p 47). If a metadata block were to appear inside a V3000 molfile, but outside of a connection table block, the resulting file should be accepted by conformant readers.</li>
+<li><em>Outside of the molfile.</em> Alternatively, collection metadata could be stored external to the molfile entirely. For example, a V3000 molfile could be contained within a wrapper format. Such a format could reference identifiers within the molfile for any purpose, including the association of structured metadata with collections. The bigger question would be: why stop there? Anything is possible outside of the molfile, including custom collection syntax and semantics.</li>
+</ol>
+<h2 id="conclusion">Conclusion</h2>
+<p>The V3000 molfile format supports aggregation and tagging of objects through collections. Four predefined internal collection types are implemented by default. Third-party extensions are supported through user-specified tags. This extension mechanism may suffice for simple applications. However, syntax restrictions will likely complicate the association of arbitrary structured metadata with collections. In such cases, metadata could be encoded either external to the connection table or the molfile itself.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

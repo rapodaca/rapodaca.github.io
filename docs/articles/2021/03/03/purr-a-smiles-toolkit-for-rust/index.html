@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Purr: A SMILES Toolkit for Rust | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/03/03/purr-a-smiles-toolkit-for-rust/">
+      <meta property="og:title" content="Purr: A SMILES Toolkit for Rust">
+      <meta property="og:description" content="Pulling back the covers on a new way to work with SMILES.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20210303/summary.png">
+      <meta content="Pulling back the covers on a new way to work with SMILES." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Purr: A SMILES Toolkit for Rust</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-03-03T17:00:00Z">2021-03-03T17:00:00Z</time>
+      </header>
+      <p>Simplified Molecular Input Line Entry System (SMILES) is the de facto standard for compact molecular representation in cheminformatics. Due to this role, users have come to expect SMILES support in the software packages they use. Developers have responded to the demand with a wide range of products capable of reading and writing SMILES. These products form a broad network of tools that can in principle work together through a common language.</p>
+<p>Last year, <a href="/articles/2020/01/20/cheminformatics-in-rust/">I speculated</a> that Rust could play an important role in the future of cheminformatics. SMILES support is an important part of that vision, especially in the short term. Users needing functionality not present in a new platform can get it from older platforms, with SMILES serving as a serialization format.</p>
+<p>Lack of functionality is both the biggest weakness and greatest strength of a new platform. There may be few features, but there is also no legacy code to maintain. Users of a new platform tend to be more tolerant of breaking changes, making iterations less disruptive. To the extent that SMILES still has something new to uncover, it's likely to emerge from new cheminformatics platforms.</p>
+<p>With these ideas in mind, this article introduces Purr, a suite of tools for reading, writing, and manipulating SMILES in Rust.</p>
+<h2 id="quickstart">Quickstart</h2>
+<p>After <a href="https://www.rust-lang.org/tools/install">installed the Rust toolchain</a>, create a new project.</p>
+<pre><code class="hljs bash language-bash">cargo new hello_purr &amp;&amp; <span class="hljs-built_in">cd</span> hello_purr
+</code></pre>
+<p>Next, edit <code>Cargo.toml</code> to look like this:</p>
+<pre><code class="hljs toml language-toml"><span class="hljs-section">[package]</span>
+<span class="hljs-attr">name</span> = <span class="hljs-string">"hello_purr"</span>
+<span class="hljs-attr">version</span> = <span class="hljs-string">"0.1.0"</span>
+<span class="hljs-attr">authors</span> = [<span class="hljs-string">"me &lt;me@example.com&gt;"</span>]
+<span class="hljs-attr">edition</span> = <span class="hljs-string">"2018"</span>
+
+<span class="hljs-section">[dependencies]</span>
+<span class="hljs-attr">purr</span> = <span class="hljs-string">"0.9.0"</span>
+</code></pre>
+<p>The template project contains the file <code>src/main.rs</code>. All of the examples in this article should be written into it.</p>
+<p>Let's start with an example of parsing methanol (<code>CO</code>).</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">//src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::graph::{ Builder, Atom, Bond };
+<span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Aliphatic };
+<span class="hljs-keyword">use</span> purr::read::{ read, Error };
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = Builder::new();
+
+    read(<span class="hljs-string">"CO"</span>, &amp;<span class="hljs-keyword">mut</span> builder, <span class="hljs-literal">None</span>)?;
+
+    <span class="hljs-built_in">assert_eq!</span>(builder.build(), <span class="hljs-literal">Ok</span>(<span class="hljs-built_in">vec!</span>[
+        Atom {
+            kind: AtomKind::Aliphatic(Aliphatic::C),
+            bonds: <span class="hljs-built_in">vec!</span>[
+                Bond::new(BondKind::Elided, <span class="hljs-number">1</span>)
+            ]
+        },
+        Atom {
+            kind: AtomKind::Aliphatic(Aliphatic::O),
+            bonds: <span class="hljs-built_in">vec!</span>[
+                Bond::new(BondKind::Elided, <span class="hljs-number">0</span>)
+            ]
+        }
+    ]));
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>Run the program with <code>cargo run</code>.</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> cargo run</span>
+   Compiling purr v0.9.0
+   Compiling hello_purr v0.1.0 (/Users/rich/tmp/hello_purr)
+    Finished dev [unoptimized + debuginfo] target(s) in 2.88s
+     Running `target/debug/hello_purr`
+</code></pre>
+<p>The <code>read</code> function transforms a SMILES string into instructions for a <code>Builder</code> argument. <code>Builder</code> transforms the method calls it receives into a representation that can be obtained through its <code>build</code> method. There will be more to say about the methods <code>Builder</code> implements later. For now, the important idea is that <code>read</code> can generate many different output types. The decision of which one will be produced occurs at runtime.</p>
+<p><code>Builder</code> returns a vector of atoms (<code>Vec&lt;Atom&gt;</code>) from its <code>build</code> method. As we'll see later, <code>Atom</code> supports data access and methods useful for assigning chemical meaning to the SMILES that was parsed.</p>
+<p>To allow errors to be intercepted, <code>read</code> and the <code>build</code> method of <code>Builder</code> return <code>Result</code> types. <code>read</code> also supports an optional parameter that can be used to relate molecular features to cursors within the original SMILES string.</p>
+<h2 id="overview">Overview</h2>
+<p>Like all SMILES implementations, Purr speaks a dialect of SMILES. Purr's dialect is based on the one presented in the <a href="http://opensmiles.org/opensmiles.html">OpenSMILES</a> specification. Although OpenSMILES is the most detailed SMILES specification to date, it has limitations. In cases of contradictory or incomplete OpenSMILES guidance, Purr draws from other sources in roughly this order: Daylight's online documentation; peer-reviewed publications; books; blog posts; mailing list discussions; and personal communications. In rare cases, Purr has introduced some new rules.</p>
+<p>By default and by design, Purr enforces only syntax when reading or writing SMILES. The syntax of strings is checked by a hand-crafted <a href="/articles/2019/01/22/scanner-driven-parser-development/">recursive descent parser</a>. The parser is itself based on a <a href="/articles/2020/12/21/smiles-formal-grammar-revisited/">formal grammar</a> that has undergone several revisions over the years. But sematic errors such as <a href="/articles/2020/03/16/formal-charge-and-bond-order-are-side-effects/">negative implied valence electron count</a>, negative implied neutron count, and mismatched or unbalanced ring closure bonds are not checked by default. Purr does offer the tools needed to perform such checks if desired.</p>
+<p>This pay-as-you-go approach is seen throughout Purr. If you don't need a service, you shouldn't have to pay for it — either with performance or complexity.</p>
+<p>The cornerstone of Purr's design is the <code>Follower</code> trait. <code>Follower</code> defines four methods relating SMILES features to actions: <code>root</code>; <code>extend</code>; <code>join</code>; and <code>pop</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> crate::feature::{ AtomKind, BondKind, Rnum };
+
+<span class="hljs-comment">/// The actions possible during a depth-first traversal of a SMILES</span>
+<span class="hljs-comment">/// representation.</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Follower</span></span> {
+    <span class="hljs-comment">/// A root atom has been found. This occurs at the first atom of every</span>
+    <span class="hljs-comment">/// connected component. As such, every use of `Follower` must</span>
+    <span class="hljs-comment">/// begin with at least one call to `root`. But `root` can also be called</span>
+    <span class="hljs-comment">/// after the first atom has been found, as in methane hydrate (`C.O`).</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">root</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, root: AtomKind);
+
+    <span class="hljs-comment">/// A bond between the current head atom and the next head atom has</span>
+    <span class="hljs-comment">/// been found. Using this method implies the existence of a head atom,</span>
+    <span class="hljs-comment">/// as in methanol (`C-O` or `CO`).</span>
+    <span class="hljs-comment">/// </span>
+    <span class="hljs-comment">/// # Panics</span>
+    <span class="hljs-comment">/// </span>
+    <span class="hljs-comment">/// Panics if headless.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">extend</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: BondKind, atom_kind: AtomKind);
+
+    <span class="hljs-comment">/// A bond between the current head atom and a ring closure digit has</span>
+    <span class="hljs-comment">/// been found. Using this method implies the existence of a head atom,</span>
+    <span class="hljs-comment">/// as in cyclopropane (`C1CC1`).</span>
+    <span class="hljs-comment">/// </span>
+    <span class="hljs-comment">/// # Panics</span>
+    <span class="hljs-comment">/// </span>
+    <span class="hljs-comment">/// Panics if headless.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">join</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: BondKind, rnum: Rnum);
+
+    <span class="hljs-comment">/// Pop the stack by the indicated depth. As roots and extensions are</span>
+    <span class="hljs-comment">/// encountered, `Follower` builds a working path. Branching removes</span>
+    <span class="hljs-comment">/// one or more atoms from the head of this path, exposing a new head.</span>
+    <span class="hljs-comment">/// The newly-exposed head will have previously been a head.</span>
+    <span class="hljs-comment">/// </span>
+    <span class="hljs-comment">/// # Panics</span>
+    <span class="hljs-comment">/// </span>
+    <span class="hljs-comment">/// Panics given depth exceeds the length of the current path.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pop</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, depth: <span class="hljs-built_in">usize</span>);
+}
+</code></pre>
+<p>Think of <code>Follower</code> as a companion that tags along during the depth-first traversal of a SMILES representation. For example, we can simulate a traversal that would represent acetamide (<code>CC(=O)N</code>):</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> purr::walk::Follower;
+<span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Aliphatic };
+
+<span class="hljs-comment">// CC(=O)N</span>
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">acetamide</span></span>&lt;F: Follower&gt;(follower: &amp;<span class="hljs-keyword">mut</span> F) {
+    follower.root(AtomKind::Aliphatic(Aliphatic::C));
+    follower.extend(BondKind::Elided, AtomKind::Aliphatic(Aliphatic::C));
+    follower.extend(BondKind::Double, AtomKind::Aliphatic(Aliphatic::O));
+    follower.pop(<span class="hljs-number">1</span>);
+    follower.extend(BondKind::Elided, AtomKind::Aliphatic(Aliphatic::N));
+}
+</code></pre>
+<p><code>Follower</code> decouples the traversal of a SMILES representation from the use of the features that are discovered along the way. This means that the same traversal function can yield a variety of different products, and these products can be chosen at runtime. This is how Purr makes good on its pay-as-you-go promise. An example of the flexibility of this approach can be seen when reading SMILES strings.</p>
+<h2 id="readingsmiles">Reading SMILES</h2>
+<p>The <code>read</code> function accepts a SMILES string representation and a value of type <code>Follower</code>. After the function returns, the product built by the <code>Follower</code> can be used. For example, we can count the number of atomic nodes (explicit atoms) in a SMILES string as like so.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::walk::Follower;
+<span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Rnum };
+<span class="hljs-keyword">use</span> purr::read::{ read, Error };
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Counter</span></span> {
+    count: <span class="hljs-built_in">usize</span>
+}
+
+<span class="hljs-keyword">impl</span> Follower <span class="hljs-keyword">for</span> Counter {
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">root</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: AtomKind) {
+      <span class="hljs-keyword">self</span>.count += <span class="hljs-number">1</span>
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">extend</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: BondKind, _: AtomKind) {
+        <span class="hljs-keyword">self</span>.count += <span class="hljs-number">1</span>
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">join</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: BondKind, _: Rnum) {
+        <span class="hljs-comment">// no-op</span>
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pop</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: <span class="hljs-built_in">usize</span>) {
+        <span class="hljs-comment">// no-op</span>
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> counter = Counter { count: <span class="hljs-number">0</span> };
+
+    read(<span class="hljs-string">"c1cc([O-]ccc1"</span>, &amp;<span class="hljs-keyword">mut</span> counter, <span class="hljs-literal">None</span>)?;
+
+    <span class="hljs-built_in">assert_eq!</span>(counter.count, <span class="hljs-number">7</span>);
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>Notice that not all <code>Follower</code> methods need to be implemented, nor do they need to be implemented in any particular way. This makes it possible to create highly efficient SMILES analyses targeted to specific applications.</p>
+<p>Purr provides two important <code>Follower</code> implementations out of the box:</p>
+<ul>
+<li><code>Writer</code>. Yields a string representation.</li>
+<li><code>Builder</code>. Yields an adjacency list implementation.</li>
+</ul>
+<p>Because both <code>Writer</code> and <code>Builder</code> implement <code>Follower</code>, they can be used interchangeably in any situation calling for a <code>Follower</code>. For example, a SMILES string can be "round tripped" by combining <code>read</code> with <code>Writer</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::read::{ read, Error };
+<span class="hljs-keyword">use</span> purr::write::Writer;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = Writer::new();
+
+    read(<span class="hljs-string">"[C@H](F)(Cl)Br"</span>, &amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-literal">None</span>)?;
+
+    <span class="hljs-built_in">assert_eq!</span>(writer.write(), <span class="hljs-string">"[C@H](F)(Cl)Br"</span>);
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>Likewise, combining <code>read</code> with <code>Builder</code> yields an adjacency list representation.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::feature::{
+    AtomKind, BondKind, Element, VirtualHydrogen, Configuration,
+    Aliphatic, BracketSymbol
+};
+<span class="hljs-keyword">use</span> purr::read::{ read, Error };
+<span class="hljs-keyword">use</span> purr::graph::{ Builder, Atom, Bond };
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = Builder::new();
+
+    read(<span class="hljs-string">"[C@H](F)(Cl)Br"</span>, &amp;<span class="hljs-keyword">mut</span> builder, <span class="hljs-literal">None</span>)?;
+
+    <span class="hljs-built_in">assert_eq!</span>(builder.build(), <span class="hljs-literal">Ok</span>(<span class="hljs-built_in">vec!</span>[
+        Atom {
+            kind: AtomKind::Bracket {
+                isotope: <span class="hljs-literal">None</span>,
+                symbol: BracketSymbol::Element(Element::C),
+                configuration: <span class="hljs-literal">Some</span>(Configuration::TH1),
+                hcount: <span class="hljs-literal">Some</span>(VirtualHydrogen::H1),
+                charge: <span class="hljs-literal">None</span>,
+                map: <span class="hljs-literal">None</span>
+            },
+            bonds: <span class="hljs-built_in">vec!</span>[
+                Bond::new(BondKind::Elided, <span class="hljs-number">1</span>),
+                Bond::new(BondKind::Elided, <span class="hljs-number">2</span>),
+                Bond::new(BondKind::Elided, <span class="hljs-number">3</span>)
+            ]
+        },
+        Atom {
+          kind: AtomKind::Aliphatic(Aliphatic::F),
+          bonds: <span class="hljs-built_in">vec!</span>[
+              Bond::new(BondKind::Elided, <span class="hljs-number">0</span>)
+          ]
+        },
+        Atom {
+            kind: AtomKind::Aliphatic(Aliphatic::Cl),
+            bonds: <span class="hljs-built_in">vec!</span>[
+                Bond::new(BondKind::Elided, <span class="hljs-number">0</span>)
+            ]
+        },
+        Atom {
+            kind: AtomKind::Aliphatic(Aliphatic::Br),
+            bonds: <span class="hljs-built_in">vec!</span>[
+                Bond::new(BondKind::Elided, <span class="hljs-number">0</span>)
+            ]
+        }
+    ]));
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>Syntax errors detected by <code>read</code> come in one of two variants: <code>read::Error::Character</code> and <code>read::Error::EndOfLine</code>. The former is parameterized with a cursor position (as type <code>usize</code>), allowing the precise location of errors to be flagged for users.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::graph::Builder;
+<span class="hljs-keyword">use</span> purr::read::{ read, Error };
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder1 = Builder::new();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder2 = Builder::new();
+
+    <span class="hljs-built_in">assert_eq!</span>(read(<span class="hljs-string">"CC?C"</span>, &amp;<span class="hljs-keyword">mut</span> builder1, <span class="hljs-literal">None</span>), <span class="hljs-literal">Err</span>(Error::Character(<span class="hljs-number">2</span>)));
+    <span class="hljs-built_in">assert_eq!</span>(read(<span class="hljs-string">"CCC[CH2"</span>, &amp;<span class="hljs-keyword">mut</span> builder2, <span class="hljs-literal">None</span>), <span class="hljs-literal">Err</span>(Error::EndOfLine))
+}
+</code></pre>
+<p><code>read</code> also supports fine-grained semantic error reporting and feature linking with an optional <code>Trace</code> argument. The purpose of <code>Trace</code> is to associate SMILES features with cursor positions in the original string. Because it's optional, clients that don't need the functionality of <code>Trace</code> also don't need to pay for it.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::read::{ read, Error, Trace };
+<span class="hljs-keyword">use</span> purr::graph::Builder;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = Builder::new();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> trace = Trace::new();
+    <span class="hljs-comment">//    012345678901234567890123 4</span>
+    read(<span class="hljs-string">"C[NH-]c1ccccc1C/C=C(/C)\\C"</span>, &amp;<span class="hljs-keyword">mut</span> builder, <span class="hljs-literal">Some</span>(&amp;<span class="hljs-keyword">mut</span> trace))?;
+
+    <span class="hljs-built_in">assert_eq!</span>(trace.atom(<span class="hljs-number">1</span>), <span class="hljs-literal">Some</span>(<span class="hljs-number">1</span>..<span class="hljs-number">6</span>));  <span class="hljs-comment">// [NH-]</span>
+    <span class="hljs-built_in">assert_eq!</span>(trace.bond(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), <span class="hljs-literal">Some</span>(<span class="hljs-number">1</span>));  <span class="hljs-comment">// elided bond between C and [HN-]</span>
+    <span class="hljs-built_in">assert_eq!</span>(trace.bond(<span class="hljs-number">8</span>, <span class="hljs-number">9</span>), <span class="hljs-literal">Some</span>(<span class="hljs-number">15</span>)); <span class="hljs-comment">// first up (/) bond</span>
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<h2 id="writingsmiles">Writing SMILES</h2>
+<p>Adjacency representations can be obtained in one of three ways:</p>
+<ol>
+<li>from a <code>Builder</code> using <code>read</code>, as shown in the previous section;</li>
+<li>from a <code>Builder</code> using ad hoc method calls; and</li>
+<li>by assembling <code>Atom</code>s and <code>Bond</code>s manually.</li>
+</ol>
+<p>It's often useful to write an adjacency representation as a SMILES string. To do so, combine <code>Writer</code> with the <code>walk</code> function.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::graph::Builder;
+<span class="hljs-keyword">use</span> purr::walk::{ walk, Follower, Error };
+<span class="hljs-keyword">use</span> purr::feature::AtomKind;
+<span class="hljs-keyword">use</span> purr::write::Writer;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = Builder::new();
+
+    builder.root(AtomKind::Star);
+    builder.root(AtomKind::Star);
+
+    <span class="hljs-keyword">let</span> adjacency = builder.build().expect(<span class="hljs-string">"adjacency"</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = Writer::new();
+
+    walk(adjacency, &amp;<span class="hljs-keyword">mut</span> writer)?;
+
+    <span class="hljs-built_in">assert_eq!</span>(writer.write(), <span class="hljs-string">"*.*"</span>);
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>Both <code>read</code> and <code>walk</code> accept a parameter of type <code>Follower</code>. This blurs the distinction between reading and writing a SMILES representation. Both processes are just transformations. For example, the <code>Counter</code> type from the previous section can be combined with <code>walk</code>. When <code>read</code> and <code>walk</code> are paired with the same <code>Follower</code>, string and adjacency SMILES representations become functionally equivalent.</p>
+<h2 id="usingsmiles">Using SMILES</h2>
+<p>It's often important to do more than just read and write SMILES representations. Purr supports sophisticated analyses through the <code>Atom</code> and <code>Bond</code> types.</p>
+<p><code>Atom</code> provides methods to query valence and bonding relationships. For example, <a href="/articles/2021/02/10/fast-hydrogen-counting-hydrogens-in-smiles/">suppressed hydrogen count</a> can be computed as follows.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Aliphatic };
+<span class="hljs-keyword">use</span> purr::graph::{ Atom, Bond };
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> atom = Atom {
+        kind: AtomKind::Aliphatic(Aliphatic::C),
+        bonds: <span class="hljs-built_in">vec!</span>[
+            Bond::new(BondKind::Elided, <span class="hljs-number">1</span>),
+            Bond::new(BondKind::Double, <span class="hljs-number">2</span>)
+        ]
+    };
+
+    <span class="hljs-built_in">assert_eq!</span>(atom.suppressed_hydrogens(), <span class="hljs-number">1</span>)
+}
+</code></pre>
+<p>The <code>subvalence</code> method of <code>Atom</code> makes it possible to prune a π-subgraph, a prerequisite for <a href="/articles/2020/02/10/a-comprehensive-treatment-of-aromaticity-in-the-smiles-language/">kekulization</a>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Aromatic };
+<span class="hljs-keyword">use</span> purr::graph::{ Atom, Bond };
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> oxygen = Atom {
+        kind: AtomKind::Aromatic(Aromatic::O),
+        bonds: <span class="hljs-built_in">vec!</span>[
+            Bond::new(BondKind::Elided, <span class="hljs-number">1</span>),
+            Bond::new(BondKind::Elided, <span class="hljs-number">2</span>)
+        ]
+    };
+    <span class="hljs-keyword">let</span> carbon = Atom {
+        kind: AtomKind::Aromatic(Aromatic::C),
+        bonds: <span class="hljs-built_in">vec!</span>[
+            Bond::new(BondKind::Elided, <span class="hljs-number">1</span>),
+            Bond::new(BondKind::Elided, <span class="hljs-number">2</span>),
+            Bond::new(BondKind::Elided, <span class="hljs-number">3</span>)
+        ]
+    };
+
+    <span class="hljs-built_in">assert_eq!</span>(oxygen.subvalence(), <span class="hljs-number">0</span>); <span class="hljs-comment">// prune from π-subgraph</span>
+    <span class="hljs-built_in">assert_eq!</span>(carbon.subvalence(), <span class="hljs-number">1</span>)  <span class="hljs-comment">// don't prune</span>
+}
+</code></pre>
+<p><code>Bond</code> supports three convenience methods for querying a bond.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> purr::feature::BondKind;
+<span class="hljs-keyword">use</span> purr::graph::Bond;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> bond = Bond::new(BondKind::Double, <span class="hljs-number">0</span>);
+
+    <span class="hljs-built_in">assert_eq!</span>(bond.order(), <span class="hljs-number">2</span>);
+    <span class="hljs-built_in">assert_eq!</span>(bond.is_aromatic(), <span class="hljs-literal">false</span>);
+    <span class="hljs-built_in">assert_eq!</span>(bond.is_directional(), <span class="hljs-literal">false</span>)
+}
+</code></pre>
+<h2 id="otherwork">Other Work</h2>
+<p>Two other Rust crates support working with SMILES to varying degrees:</p>
+<ul>
+<li><a href="https://github.com/hobofan/smiles-parser">smiles-parser</a>. Based on the <a href="https://github.com/Geal/nom">nom</a> parser combinator.</li>
+<li><a href="https://gitlab.com/acetylene/acetylene-parser">acetylene-parser</a>. Appears to be inactive.</li>
+</ul>
+<p>According to the available documentation, neither project is currently as full-featured as Purr.</p>
+<p>In addition to these projects, three other dedicated SMILES libraries have been developed over the years.</p>
+<ul>
+<li><a href="https://github.com/timvdm/Smiley">Smiley</a>. A SMILES/SMARTS parser written in C++. Smiley has been <a href="https://open-babel.readthedocs.io/en/latest/FileFormats/SMILES_format_using_Smiley_parser.html">integrated</a> into Open Babel.</li>
+<li><a href="https://github.com/johnmay/beam">Beam</a>. A Java library "dedicated to parsing and generating" SMILES. Beam has been integrated into the <a href="https://cdk.github.io">Chemistry Development Kit</a>.</li>
+<li><a href="http://frowns.sourceforge.net">Frowns</a>. A Python library written in Python. Frowns has not been active for some time.</li>
+</ul>
+<h2 id="isthisnecessary">Is This Necessary?</h2>
+<p>It may seem like overkill for a library to focus just on reading, writing, and manipulating SMILES. After all, SMILES is a simple language and most toolkits offer the ability to work with SMILES anyway.</p>
+<p>Not so fast. First, as several articles here and elsewhere have demonstrated, SMILES <em>syntax</em> may be simple, but its <em>semantics</em> are both extremely complex and incompletely documented. Projects like Smiley, Beam, and Purr that deal exclusively with SMILES shine a spotlight on the numerous subtleties present in the language.</p>
+<p>Second, Rust's package manager Cargo makes it trivial to assemble software components like Purr into a cohesive whole. Although most modern languages have package managers, the problem is that there are too many of them (Python, I'm looking at you). Rust is different. Cargo is both ubiquitous and unique. There is no competition in the Rust package manager space. This feature has already been used to integrate Purr with <a href="/articles/2020/06/01/chemcore-a-cheminformatics-toolkit-for-rust/">ChemCore</a>, a cheminformatics toolkit for Rust.</p>
+<p>Third, as I'll highlight on this blog from time to time, you can do a lot in cheminformatics without a toolkit. Purr in particular offers enough functionality that it can be used on its own to solve some problems. It's not inconceivable that a set of crates linking directly to Purr (and bypassing ChemCore) might eventually become available. Purr's avoidance of build dependencies makes it a good candidate for projects trying to avoid bloat.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Purr is a new Rust toolkit that supports reading, writing, and manipulating SMILES. All OpenSMILES language features are supported. Although the most likely path is for Purr to be integrated into a cheminformatics toolkit, it can also be used by itself as a zero-dependency dependency. As such, the design and implementation of Purr may offer useful pointers to what a new cheminformatics platform built on Rust might look like.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

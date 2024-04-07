@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Demystifying Java Applets Part 2 - DRY Deployment with the Javay Method | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Demystifying Java Applets Part 2 - DRY Deployment with the Javay Method</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-03-10T00:00:00.000Z">2008-03-10T00:00:00.000Z</time>
+      </header>
+      <p>Java applets are easy to deploy in a standards-compliant way across multiple browsers - you just need to know how. The <a href="http://depth-first.com/articles/2008/02/20/demystifying-java-applets-part-1-cross-browser-standards-compliant-pure-html-deployment-using-the-object-tag">previous article in this series</a> gave some general pointers to better applet deployment, including the use of the <code>&amp;lt;object&amp;gt;</code> tag. This article will show how to make this deployment method even more concise with the <strong>Javay Method</strong>.</p>
+<h2 id="keepingitdry">Keeping it DRY</h2>
+<p>The code from the previous article used two completely different <code>&amp;lt;object&amp;gt;</code> tags: one for Internet Explorer and one for all other browsers:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!--[if !IE]&amp;gt; --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">classid</span>=<span class="hljs-string">"java:com/metamolecular/chemwriter/applet/EditorApplet.class"</span> 
+              <span class="hljs-attr">type</span>=<span class="hljs-string">"application/x-java-applet"</span>
+              <span class="hljs-attr">archive</span>=<span class="hljs-string">"/path/to/applets/chemwriter.jar"</span> 
+              <span class="hljs-attr">height</span>=<span class="hljs-string">"350"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"550"</span> &gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"code"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"com/metamolecular/chemwriter/applet/EditorApplet.class"</span> /&gt;</span>
+  <span class="hljs-comment">&lt;!-- For Konqueror --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"archive"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"/path/to/applets/chemwriter.jar"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"persistState"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"false"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"/path/to/images/chemwriter_logo.png"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span>ChemWriter content requires Java 1.4.2 or higher, which your browser does not appear to have.<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://www.java.com/en/download/index.jsp"</span>&gt;</span>Get the latest Java Plug-in.<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">object</span>&gt;</span>
+<span class="hljs-comment">&lt;!--&lt;![endif]--&gt;</span>
+<span class="hljs-comment">&lt;!--[if IE]&gt;
+&lt;object classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" 
+                codebase="http://java.sun.com/products/plugin/autodl/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"
+                height="350" width="550" &gt; 
+  &lt;param name="code" value="com/metamolecular/chemwriter/applet/EditorApplet.class" /&gt;
+  &lt;param name="archive" value="/path/to/applets/chemwriter.jar" /&gt;
+  &lt;param name="persistState" value="false" /&gt;
+  &lt;center&gt;
+    &lt;img src="/path/to/images/chemwriter_logo.png" /&gt;
+    &lt;p&gt;&lt;strong&gt;ChemWriter content requires Java 1.4.2 or higher, which your browser does not appear to have.&lt;/strong&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;a href="http://www.java.com/en/download/index.jsp"&gt;Get the latest Java Plug-in.&lt;/a&gt;&lt;/p&gt;
+  &lt;/center&gt;
+&lt;/object&gt;
+&lt;![endif]--&gt;</span>
+</code></pre>
+<p>Conditional comments are used to ensure that IE sees one definition and standards-compliant browsers see another. But notice the large amount of repetition, specifically the parameters list, the failsafe code, and the closing <code>&amp;lt;object&amp;gt;</code> tag.</p>
+<p>Surely there must be a better way.</p>
+<h2 id="awidespreadproblem">A Widespread Problem</h2>
+<p>Microsoft's idiosyncratic use of the <code>&amp;lt;object&amp;gt;</code> tag doesn't just cause difficulties for Java applets: it rears its head with all plugin content. This problem is so widespread in the Flash world that its solution even has a name: <a href="http://www.alistapart.com/articles/flashsatay/">Flash Satay</a>.</p>
+<p>In the language of Drew McLellan, inventor of Flash Satay, the applet code listing above is the "twice-cooked method" - we repeat the same code twice.</p>
+<p>The twice-cooked method violates one of the most important principles in software development: <a href="http://en.wikipedia.org/wiki/Don't_repeat_yourself">Don't Repeat Yourself (DRY)</a>. It's an invitation cross-browser bugs. If we forget to include the same parameter twice, or if we mistakenly use one parameter for IE and another for standards-compliant browsers, for example, we've just created a potentially nasty headache for ourselves.</p>
+<h2 id="dryingupthec4ctag">Drying Up the <code>&amp;lt;object&amp;gt;</code> Tag</h2>
+<p>We can DRY up our applet <code>&amp;lt;object&amp;gt;</code> tag by factoring out what's common: the parameters listing; the failsafe code; and the closing <code>&amp;lt;object&amp;gt;</code> tag:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!--[if IE]&gt;&lt;object classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" codebase="http://java.sun.com/products/plugin/autodl/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"
+width="480" height="350"&gt;&lt;script&gt;/*&lt;![endif]--&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span>&gt;</span><span class="actionscript"><span class="hljs-comment">/**/</span></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-comment">&lt;!--[if !IE]&gt;&lt;!--&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"application/x-java-applet;version=1.4.2"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"480"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"350"</span>&gt;</span>
+<span class="hljs-comment">&lt;!--&lt;![endif]--&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"code"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"com/metamolecular/chemwriter/applet/EditorApplet.class"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"archive"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"/applets/chemwriter.jar"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"persistState"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"false"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"licenseKey"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"4BC4-3C59-3E7D-182B-92B7-2E68"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://metamolecular.com/java/"</span>&gt;</span>
+    Plugin required
+  <span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">object</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">pre</span>&gt;</span>
+</code></pre>
+<p>This approach was inspired by the <a href="http://www.blatek.co.uk/blateksatay/">BlaTek Satay</a> method, which uses the cute empty JavaScript as a way to prevent IE from showing unwanted characters. To my knowledge, it's never before been applied to applets.</p>
+<p>In the long tradition of naming these hacks after the original Satay method, I call this one "Javay."</p>
+<p>The Javay method's only repetition is in the <code>width</code> and <code>height</code> attributes. Even this redundancy could be eliminated, if we chose, by setting each to "100%" and enclosing the result in a <code>&amp;lt;div&amp;gt;</code> tag that did specify size.</p>
+<p>The above code works in all major browsers, including Safari, Firefox, Internet Explorer 6 and 7, Opera, and Camino. If you find a browser on which the code doesn't work, I'd like to hear about it.</p>
+<p>Here's what the code produces, using my company's 2D structure editor <a href="http://metamolecular.com/chemwriter">ChemWriter</a> as an example:</p>
+<!--[if IE]><object classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" codebase="http://java.sun.com/products/plugin/autodl/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"
+width="480" height="350"><script>/*<![endif]-->
+<script type="text/javascript">/**/</script>
+<!--[if !IE]><!-->
+<p><object type="application/x-java-applet;version=1.4.2" width="480" height="350"><p></p>
+<!--<![endif]-->
+<p><param name="code" value="com/metamolecular/chemwriter/applet/EditorApplet.class">
+  <param name="archive" value="/applets/chemwriter.jar">
+  <param name="persistState" value="false">
+  <param name="licenseKey" value="4BC4-3C59-3E7D-182B-92B7-2E68">
+  <a href="http://metamolecular.com/java/">
+    Plugin required
+  </a>
+</p></object></p>
+<h2 id="conclusions">Conclusions</h2>
+<p>To summarize, Java applets can be deployed in a cross-browser, standards-compliant way using the Javay Method. This method solves some of the trickier problems when deploying applets, specifically:</p>
+<ol>
+<li>Uses the HTML 4 <code>&amp;lt;object&amp;gt;</code> tag, eliminating the deprecated <code>&amp;lt;applet&amp;gt;</code> tag.</li>
+<li>Works on both IE and standards-compliant browsers in a DRY way.</li>
+<li>Suppresses the annoying "Click to activate" message in IE 6 and 7 with <a href="http://jactivating.sourceforge.net/en/">jActivating</a>.</li>
+<li>Avoids the use of <code>document.write</code> and the problems that can arise if JavaScript is disabled.</li>
+<li>When Java is either missing or not installed, provides a cross-browser failsafe (more on this next time).</li>
+<li>Leaves us with nothing but pure, standards-compliant HTML to write, debug, and maintain.</li>
+</ol>
+<p>We've pretty much got everything the old <code>&amp;lt;applet&amp;gt;</code> tag used to have - and more.</p>
+<p>But what if your users don't have Java? Tune in next time to see how to solve this problem once and for all.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

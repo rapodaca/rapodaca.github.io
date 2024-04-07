@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Anatomy of a Cheminformatics Web Application: Beautifying Depict | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Anatomy of a Cheminformatics Web Application: Beautifying Depict</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-11-27T00:00:00.000Z">2006-11-27T00:00:00.000Z</time>
+      </header>
+      <p><a href="/articles/2006/11/21/build-a-rails-cheminformatics-application-in-thirty-minutes">A recent article</a> outlined the steps for building a <a href="http://rubyonrails.org">Rails</a> Web application that renders <a href="http://www.daylight.com/smiles/index.html">SMILES</a> strings as 2-D molecular images. Although this application, Depict, performed its stated purpose, it was neither much to look at nor as easy to use as it could be. In this tutorial, we'll give Depict a face-lift and make it more user-friendly.</p>
+<h2 id="theproblem">The Problem</h2>
+<p>As it now stands, Depict accepts a SMILES string as input, and then renders a new Web page containing a 2-D molecular image. We'd like to make it easier to enter multiple SMILES strings by combining data entry and image display into the same Web page. We'd also like to make the application as a whole look better by using <a href="http://www.w3.org/Style/CSS/">Cascading Style Sheets</a> and other UI enhancements.</p>
+<h2 id="downloadandprerequisites">Download and Prerequisites</h2>
+<p>For this tutorial, you'll need <a href="/articles/2006/10/30/agile-chemical-informatics-development-with-cdk-and-ruby-rcdk-0-3-0">Ruby CDK</a> (RCDK). A recent article described the small amount of system configuration required for <a href="/articles/2006/09/25/cdk-the-ruby-way-rcdk-0-2-0">RCDK on Linux</a>. Another article showed how to install <a href="/articles/2006/10/12/running-ruby-java-bridge-on-windows">RCDK on Windows</a>.</p>
+<p>In addition, you'll need to install <a href="http://www.rubyonrails.org/down">Ruby on Rails</a> - something that can be done through <a href="http://docs.rubygems.org/">RubyGems</a>.</p>
+<p>The Rails application that this tutorial starts with can be downloaded from <a href="/images/posts/20061121/depict.tar.gz">this link</a>. If you'd rather work with the version of Depict produced by applying the changes outlined in this tutorial, the full source code can be downloaded from <a href="/images/posts/20061127/depict-20061127.tar.gz">this link</a>.</p>
+<h2 id="step1consolidateactions">Step 1: Consolidate Actions</h2>
+<p>Our first version of Depict defined three <code>SmilesController</code> actions: <code>input</code>; <code>depict</code>; and <code>image_for</code>. Because we want to show the molecular image on the same page on which SMILES input happens, we'll consolidate <code>input</code> and <code>depict</code> into a single action.</p>
+<p>To do this, we'll edit <code>depict/app/controllers/smiles_controller.rb</code> by removing the <code>input</code> method and rewriting the <code>depict</code> and <code>image_for</code> methods:</p>
+<pre><code class="hljs ruby language-ruby">require_gem <span class="hljs-string">'rcdk'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+
+jrequire <span class="hljs-string">'java.io.ByteArrayOutputStream'</span>
+jrequire <span class="hljs-string">'net.sf.structure.cdk.util.ImageKit'</span>
+jrequire <span class="hljs-string">'javax.imageio.ImageIO'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmilesController</span> &lt; ApplicationController</span>
+
+  <span class="hljs-comment"># Consolidated depict method.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict</span></span>
+    <span class="hljs-keyword">if</span> params[<span class="hljs-symbol">:smiles</span>]
+      @smiles = params[<span class="hljs-symbol">:smiles</span>][<span class="hljs-symbol">:value</span>]
+    <span class="hljs-keyword">else</span>
+      @smiles = <span class="hljs-string">''</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">image_for</span></span>
+    smiles = params[<span class="hljs-symbol">:smiles</span>]
+
+    <span class="hljs-comment"># Just return if we can't get a SMILES string.</span>
+    <span class="hljs-keyword">if</span> !smiles
+      <span class="hljs-keyword">return</span>
+    <span class="hljs-keyword">end</span>
+
+    mol = RCDK::Util::Lang.read_smiles smiles
+    mol = RCDK::Util::XY::coordinate_molecule mol
+    out=Java::Io::ByteArrayOutputStream.new
+    image=Net::Sf::Structure::Cdk::Util::ImageKit.createRenderedImage(mol, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>)
+
+    Javax::Imageio::ImageIO.write(image, <span class="hljs-string">"png"</span>, out)
+
+    send_data(out.toByteArray, <span class="hljs-symbol">:type</span> =&gt; <span class="hljs-string">"image/png"</span>, <span class="hljs-symbol">:disposition</span> =&gt; <span class="hljs-string">"inline"</span>, <span class="hljs-symbol">:filename</span> =&gt; <span class="hljs-string">"molecule.png"</span>)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>  
+</code></pre>
+<p>We need to check whether the SMILES in <code>image_for</code> is <code>nil</code> because when the application is first lanched, no SMILES string is defined. By checking for this condition and exiting if found, our application can gracefully start up and respond to a blank input field.</p>
+<p>We no longer need a View for the <code>input</code> action, the functionality of which we'll be moving into the View for our new <code>depict</code> action. Delete <code>depict/app/views/smiles/input.rhtml</code>, and edit <code>depict/app/view/smiles/depict.rhtml</code> so that is looks like the following:</p>
+<pre><code class="hljs html language-html">&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Depict&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Depict a SMILES String&lt;/h1&gt;
+    &lt;img src=&amp;quot;&lt;%= url_for :action =&gt; &amp;quot;image_for&amp;quot;, :smiles =&gt; @smiles %&gt;&amp;quot;&gt;&lt;/img&gt;&lt;br /&gt;
+
+    &lt;%= form_tag :action=&gt;'depict' %&gt;
+      &lt;label&gt;SMILES: &lt;/label&gt;
+      &lt;%= text_field('smiles', 'value', :value =&gt; @smiles) %&gt;&lt;br /&gt;
+    &lt;%= end_form_tag %&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>This new template is simply a combination of the two previous templates. Pointing your browser to <a href="http://localhost:3000/smiles/depict">http://localhost:3000/smiles/depict</a> and entering a valid SMILES string should give a screen similar to the one below:</p>
+<p><img src="/images/posts/20061127/step_1_1.png" alt="Step 1.1" title="Step 1.1"></p>
+<h2 id="step2addahelperforservingimages">Step 2: Add a Helper for Serving Images</h2>
+<p>If a blank or invalid SMILES is entered, we'd like to give feedback by loading an image that reflects this condition. The user is expecting to see an image anyway, so we may as well put our error message there. To do so, we need to first re-think our <code>image_for</code> action.</p>
+<p>Currently, <code>image_for</code> tries to generate an image from any string of characters. When it fails, no image is produced, giving rise to the familar "broken image" icon below:</p>
+<p><img src="/images/posts/20061127/broken_image.png" alt="Broken Image" title="Broken Image"></p>
+<p>We could add some conditional logic in our view that would detect an invalid or empty SMILES string. However, for several reasons such co-mingling of application code and HTML is generally considered a Bad Thing. Fortunately, Rails offers just what we need: Helpers. A helper is code contained in a module that is automatically included in a view.</p>
+<p>Each Rails Controller comes complete with an associated Helper. Our SmilesHelper was already created and wired together for us when we created the <code>SmilesController</code>. All we need to do is to add our own Helper methods.</p>
+<p>We're going to add a method called <code>image_for_smiles</code> that will return a URL to an image based on a SMILES string. It needs to handle three possible types of string input:</p>
+<ul>
+<li>Blank SMILES: Returns a static URL to an image on our server indicating no SMILES string has been entered. We'll discuss where to put this image in Step 5.</li>
+<li>Invalid SMILES: Returns a static URL to an image on our server indicating an invalid SMILES. We'll add this in Step 5.</li>
+<li>Valid SMILES: Returns a dynamic URL that will generate a 2-D molecular image on the fly from binary data generated in the same manner as our current <code>image_for</code> action.</li>
+</ul>
+<p>Let's add the functionality we need to our <code>SmilesHelper</code>, which is contained in the file <code>depict/app/helpers/smiles_helper.rb</code>:</p>
+<pre><code class="hljs ruby language-ruby">require_gem <span class="hljs-string">'rcdk'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+
+<span class="hljs-comment"># New jrequire calls.</span>
+jrequire <span class="hljs-string">'java.io.ByteArrayOutputStream'</span>
+jrequire <span class="hljs-string">'net.sf.structure.cdk.util.ImageKit'</span>
+jrequire <span class="hljs-string">'javax.imageio.ImageIO'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">SmilesHelper</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">image_for_smiles</span><span class="hljs-params">(param)</span></span>
+    smiles = param[<span class="hljs-symbol">:smiles</span>]
+
+    <span class="hljs-keyword">if</span> smiles.eql? <span class="hljs-string">''</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-string">'/images/blank.png'</span>
+    <span class="hljs-keyword">end</span>
+
+    render(smiles)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">render</span><span class="hljs-params">(smiles)</span></span>
+    <span class="hljs-keyword">begin</span>    
+      mol = RCDK::Util::Lang.read_smiles smiles
+      mol = RCDK::Util::XY::coordinate_molecule mol
+      image=Net::Sf::Structure::Cdk::Util::ImageKit.createRenderedImage(mol, <span class="hljs-number">400</span>, <span class="hljs-number">400</span>)
+    <span class="hljs-keyword">rescue</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-string">'/images/invalid.png'</span>
+    <span class="hljs-keyword">end</span>
+
+    out = Java::Io::ByteArrayOutputStream.new
+
+    Javax::Imageio::ImageIO.write(image, <span class="hljs-string">"png"</span>, out)
+
+    flash[<span class="hljs-symbol">:bytes</span>] = out.toByteArray
+    flash[<span class="hljs-symbol">:smiles</span>] = smiles
+
+    url_for <span class="hljs-symbol">:action</span> =&gt; <span class="hljs-string">'image_for'</span>, <span class="hljs-symbol">:id</span> =&gt; smiles
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Here, we introduce another Rails element - the flash. The flash provides temporary storage for data that needs to be passed from one Action to another. In the <code>render</code> method, we're storing the byte array created by Ruby CDK in the flash so that it can be sent into Depict's image window as dynamically-generated content.</p>
+<p>If successful, the <code>render</code> method returns a URL of the form:</p>
+<p><code>http://localhost:3000/smiles/image_for/SMILES</code></p>
+<p>where <code>SMILES</code> is the escaped form of the user-specified SMILES string. If two images are served with exactly the same URL, some browsers (e.g., Konqueror) will assume they represent the same image and will re-use the image in their cache. So, we append the SMILES string to the URL as a way to get these browsers to refresh Depict's image area.</p>
+<h2 id="step3invokethenewimage_for_smilesmethod">Step 3: Invoke the New <code>image_for_smiles</code> Method</h2>
+<p>We've added a new <code>image_for_smiles</code> method as a Helper, but Depict isn't yet using it. Let's change that by modifying the way that our image URL is generated in <code>depict/app/views/smiles/depict.rhtml</code>:</p>
+<pre><code class="hljs html language-html">&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Depict&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Depict a SMILES String&lt;/h1&gt;
+    &lt;img src=&amp;quot;&lt;%= image_for_smiles :smiles =&gt; @smiles %&gt;&amp;quot;&gt;&lt;/img&gt;&lt;br /&gt;
+
+    &lt;%= form_tag :action=&gt;'depict' %&gt;
+      &lt;label&gt;SMILES: &lt;/label&gt;
+      &lt;%= text_field('smiles', 'value', :value =&gt; @smiles) %&gt;&lt;br /&gt;
+    &lt;%= end_form_tag %&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h2 id="step4simplifysmilescontroller">Step 4: Simplify <code>SmilesController</code></h2>
+<p>We're now no longer using <code>SmilesController</code> (<code>depict/app/controllers/smiles_controller.rb</code>) to perform the bulk of the work related to 2-D image generation. Let's update our Controller to reflect these changes:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-comment"># No libraries need to be loaded now.</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmilesController</span> &lt; ApplicationController</span>
+  <span class="hljs-comment"># Consolidated depict method.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict</span></span>
+    <span class="hljs-keyword">if</span> params[<span class="hljs-symbol">:smiles</span>]
+      @smiles = params[<span class="hljs-symbol">:smiles</span>][<span class="hljs-symbol">:value</span>]
+    <span class="hljs-keyword">else</span>
+      @smiles = <span class="hljs-string">''</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># Consolidated image_for method.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">image_for</span></span>
+    <span class="hljs-keyword">if</span> flash[<span class="hljs-symbol">:bytes</span>]
+      send_data(flash[<span class="hljs-symbol">:bytes</span>], <span class="hljs-symbol">:type</span> =&gt; <span class="hljs-string">"image/png"</span>, <span class="hljs-symbol">:disposition</span> =&gt; <span class="hljs-string">"inline"</span>, <span class="hljs-symbol">:filename</span> =&gt; <span class="hljs-string">"<span class="hljs-subst">#{flash[<span class="hljs-symbol">:smiles</span>]}</span>.png"</span>)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Notice how much simpler the <code>image_for</code> method now is. The byte array saved in Rails' flash (introduced in Step 2) is simply sent out as a PNG image to any receiver requesting it.</p>
+<p>Our application, when provided with a valid SMILES string, now looks like the image below.</p>
+<p><img src="/images/posts/20061127/step_4_1.png" alt="Step 4.1" title="Step 4.1"></p>
+<h2 id="step5addstaticimages">Step 5: Add Static Images</h2>
+<p>We'd like to have Depict render an appropriate image in those cases where a molecular image can not be rendered. In fact, Depict is already configured to do so - all we need to do is add the images themselves.</p>
+<p>Where do we put these images? Rails creates several directories when an application template is produced. One of these is called <code>public</code>. This directory in turn contains an <code>images</code> subdirectory. Currently, <code>depict/public/images</code> only contains the Rails logo. It is this directory into which static images are designed to go. Let's add these two images to <code>depict/public/images</code>: <a href="/images/posts/20061127/blank.png">blank.png</a> and <a href="/images/posts/20061127/invalid.png">invalid.png</a>. You could, of course, create your own custom 400x400 pixel images for this purpose.</p>
+<p>Deleting any SMILES input from Depict now should generate the screen shown below.</p>
+<p><img src="/images/posts/20061127/step_5_1.png" alt="Step 5.1" title="Step 5.1"></p>
+<p>Not exactly subtle, but it gets the message across. A similar screen results by entering an invalid SMILES string, such as "hello".</p>
+<h2 id="step6createanduseacascadingstylesheet">Step 6: Create and Use a Cascading Style Sheet</h2>
+<p>We'd like to have fine-grained control over the appearance of our application through a single file - a job ideally suited for Cascading Style Sheets (CSS). Where do CSS files live in a Rails application? Along with the <code>images</code> directory described above, Rails also creates a <code>public/stylesheets</code> directory when an application template is generated. This is where custom style sheets can be placed. Create a CSS file called <code>default.css</code> in this directory containing the following definitions:</p>
+<pre><code class="hljs css language-css"><span class="hljs-selector-tag">h1</span> {
+    <span class="hljs-attribute">text-align</span>: center;
+    <span class="hljs-attribute">font-size</span>: <span class="hljs-number">30pt</span>;
+    <span class="hljs-attribute">background</span>: <span class="hljs-number">#993333</span>;
+    <span class="hljs-attribute">color</span>: white;
+}
+
+<span class="hljs-selector-class">.image</span> {
+    <span class="hljs-attribute">margin-left</span>: auto;
+    <span class="hljs-attribute">margin-right</span>: auto;
+    <span class="hljs-attribute">width</span>: <span class="hljs-number">400px</span>;
+}
+
+<span class="hljs-selector-class">.smiles</span> {
+    <span class="hljs-attribute">margin-left</span>: auto;
+    <span class="hljs-attribute">margin-right</span>: auto;
+    <span class="hljs-attribute">width</span>: <span class="hljs-number">400px</span>;
+}
+
+<span class="hljs-selector-class">.smiles</span> <span class="hljs-selector-tag">input</span> {
+    <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;
+    <span class="hljs-attribute">font-size</span>: <span class="hljs-number">18pt</span>;
+    <span class="hljs-attribute">text-align</span>: center;
+    <span class="hljs-attribute">border</span>: solid <span class="hljs-number">#993333</span>;
+    <span class="hljs-attribute">border-width</span>: <span class="hljs-number">2px</span> <span class="hljs-number">2px</span> <span class="hljs-number">2px</span> <span class="hljs-number">2px</span>;
+}
+
+<span class="hljs-selector-class">.smiles</span> <span class="hljs-selector-tag">label</span> {
+    <span class="hljs-attribute">background</span>: <span class="hljs-number">#993333</span>;
+    <span class="hljs-attribute">color</span>: white;
+    <span class="hljs-attribute">padding</span>: <span class="hljs-number">4px</span>;
+    <span class="hljs-attribute">font</span>: sans-serif;
+    <span class="hljs-attribute">font-weight</span>: bold;
+}
+
+<span class="hljs-selector-class">.about</span> {
+    <span class="hljs-attribute">text-align</span>: center;
+    <span class="hljs-attribute">font-size</span>: <span class="hljs-number">16pt</span>;
+}
+
+<span class="hljs-selector-tag">a</span><span class="hljs-selector-pseudo">:link</span>,  <span class="hljs-selector-tag">a</span><span class="hljs-selector-pseudo">:visited</span> { <span class="hljs-attribute">color</span>: <span class="hljs-number">#930</span>; }
+<span class="hljs-selector-tag">a</span><span class="hljs-selector-pseudo">:hover</span>, <span class="hljs-selector-tag">a</span><span class="hljs-selector-pseudo">:active</span> {<span class="hljs-attribute">color</span>: <span class="hljs-number">#FFFFFF</span>; <span class="hljs-attribute">background</span>: <span class="hljs-number">#993333</span>;}
+</code></pre>
+<p>Next, we need to tell Rails where to find the above CSS. Open up <code>depict/app/views/smiles/depict.rhtml</code> and add the following eRuby line inside the <code>head</code> tags:</p>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">%=</span> <span class="hljs-attr">stylesheet_link_tag</span> "<span class="hljs-attr">default</span>", <span class="hljs-attr">:media</span> =&gt;</span> "all" %&gt;
+</code></pre>
+<p>That's all there is to it. Reloading Depict should give a screen similar to the one below.</p>
+<p><img src="/images/posts/20061127/step_6_1.png" alt="Step 6.1" title="Step 6.1"></p>
+<h2 id="step7cleanuptheview">Step 7: Clean Up the View</h2>
+<p>You may have noticed that the style sheet added in the previous step defines some features we're not currently using. Let's update Depict's View (<code>depict/app/views/depict.rhtml</code>) to reflect the changes to our CSS:</p>
+<pre><code class="hljs html language-html">&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Depict&lt;/title&gt;
+    &lt;%= stylesheet_link_tag &amp;quot;default&amp;quot;, :media =&gt; &amp;quot;all&amp;quot; %&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Depict a SMILES String&lt;/h1&gt;
+    &lt;div class=&amp;quot;image&amp;quot;&gt;
+      &lt;img src=&amp;quot;&lt;%= image_for_smiles :smiles =&gt; @smiles %&gt;&amp;quot;&gt;&lt;/img&gt;
+    &lt;/div&gt;
+    &lt;br /&gt;&lt;br /&gt;
+      &lt;div class=&amp;quot;smiles&amp;quot;&gt;
+      &lt;%= form_tag :action=&gt;'depict' %&gt;
+        &lt;label&gt;SMILES: &lt;/label&gt;
+        &lt;%= text_field('smiles', 'value', :align=&gt;'center', :value =&gt; @smiles) %&gt;&lt;br /&gt;
+      &lt;%= end_form_tag %&gt;
+      &lt;/div&gt;
+  &lt;/body&gt;
+
+  &lt;div class=&amp;quot;about&amp;quot;&gt;
+    &lt;a href=&amp;quot;/articles/2006/11/27/anatomy-of-a-cheminformatics-web-application-beautifying-depict&amp;quot;&gt;About this Application&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/html&gt;
+</code></pre>
+<p>The changes here consist of grouping related HTML elements together into <code>div</code> blocks and adding a link to the article you're reading at the bottom of the article. The interaction of the above code and the style sheet we created in Step 6 produces a screen, such as the one below, when a valid SMILES string is entered.</p>
+<p><img src="/images/posts/20061127/step_7_1.png" alt="Step 7.1" title="Step 7.1"></p>
+<h2 id="summary">Summary</h2>
+<p>Even if you haven't followed along through this tutorial, it should be apparent that Rails is a powerful tool for the agile development of Web applications. Although we haven't used any sophisticated techniques, we now have a working Depict server with a simple, logical Web interface that does something useful.</p>
+<p>But we're not quite done with Depict yet. Currently, you need to hit the return key to get a 2-D rendering. Wouldn't it be better if the application automatically updated the image as a SMILES string is typed? If you're thinking "Ajax", you're right on target.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

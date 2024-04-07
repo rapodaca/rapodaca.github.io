@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building Chempedia - A RESTful Web API for Chemical Information | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building Chempedia - A RESTful Web API for Chemical Information</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-11-04T00:00:00.000Z">2009-11-04T00:00:00.000Z</time>
+      </header>
+      <p>In <a href="http://readwritetalk.com/2007/09/05/biz-stone-co-founder-twitter/">a 2007 interview</a>, Biz Stone, cofounder of Twitter, commented on the role Twitter's Web API played in the growth of the now ubiquitous messaging service:</p>
+<blockquote>
+  <p>Yeah. The API has been arguably the most important, or maybe even inarguably, the most important thing we've done with Twitter. … So, the API which has easily 10 times more traffic than the website, has been really very important to us. …</p>
+</blockquote>
+<p>Done right, a Web API can add significant value to a website by offering a way for third-party developers to get involved. In other words, a Web API is a prerequisite for creating a Web platform.</p>
+<p>One of the goals for <a href="http://chempedia.com">Chempedia</a> is to deliver an open, high-performance, Web-based platform for creating and consuming chemical information. One of the cornerstones of this plan is a robust Web API.</p>
+<h2 id="abitaboutrest">A Bit About REST</h2>
+<p>REST turns out to be very easy to understand when you consider that it's possible for machines to interact with Web services the same way humans interact with websites using a browser - by selecting and following hyperlinks.</p>
+<p>The Chempedia Web API is built around this simple principle. For more information on the design of RESTful services and other high-level concepts, see the <a href="/articles/2009/08/07/the-restful-chemical-tracking-system-part-1-introduction">Depth-First RESTful chemical tracking series</a>.</p>
+<p>The Chempedia API is based on the <a href="http://chemcaster.com/rest">Chemcaster API</a>, making it straightforward to port tools written for one to the other.</p>
+<h2 id="apistepbystep">API Step-By-Step</h2>
+<ol>
+<li>Start at <a href="http://chempedia.com/rest.json">http://chempedia.com/rest.json</a>.</li>
+<li>Follow the link to Substances at <a href="http://chempedia.com/substances.json">http://chempedia.com/substances.json</a>.</li>
+<li>View Substance detail by following link to <a href="http://chempedia.com/substances/1-0434-2394-1189.json">http://chempedia.com/substances/1-0434-2394-1189.json</a></li>
+</ol>
+<p>This is just a subset of what's available; more resources can be discovered by following the links provided in each representation. In this sense, the Chempedia API, like all REST APIs, is self-documenting.</p>
+<p>Note: the ".json" extension is a convenience for viewing representations in a browser (be sure to install the <a href="/articles/2009/10/01/rest-tip-use-jsonview-for-in-browser-json-syntax-highlighting">JSONView plugin</a>). When writing client software for use with the Chempedia API, you must use the URIs given and set the "Accept" header to that given by the "media_type" attribute in each Link.</p>
+<p>Also note that no assumptions should be made about URI structure. As with all REST systems, clients follow the links given; <a href="http://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven">they never create links by themselves</a>.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>This article has given just a brief introduction of what's possible with the Chempedia API. Future articles will discuss the API in more detail.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

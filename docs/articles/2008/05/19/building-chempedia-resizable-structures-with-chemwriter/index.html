@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building Chempedia - Resizable Structures With ChemWriter | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building Chempedia - Resizable Structures With ChemWriter</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-05-19T00:00:00.000Z">2008-05-19T00:00:00.000Z</time>
+      </header>
+      <p>One of the difficulties in viewing 2D chemical structures is that molecules vary in size. In particular, larger molecules become difficult to read when confined to a small section of a screen. This article shows how this problem has been addressed in <a href="http://chempedia.com">Chempedia</a> using the 2D rendering capabilities of the <a href="http://metamolecular.com/chemwriter">ChemWriter</a> package.</p>
+<p><img src="/images/posts/20080519/screen.png" alt="Screen"></p>
+<p>As an example, consider Chempedia's entry for <a href="http://chempedia.com/monographs/aluminon">Aluminon</a>. Although the summary box at the right shows the structure for Aluminon, it may not be completely readable due to the large size of the molecule.</p>
+<p>To solve this problem, Chempedia has implemented a "zoom" link for all monographs containing a chemical structure. Clicking on the zoom link for Aluminon gives a magnified, scaled, stretchable, and resizable view of the molecule.</p>
+<p>To implement this feature, Chempedia uses the <a href="http://metamolecular.com/chemwriter">ChemWriter</a> <code>PainterApplet</code>. Simply setting the <code>width</code> and <code>height</code> attributes of the <a href="http://depth-first.com/articles/2008/03/10/demystifying-java-applets-part-2-dry-deployment-with-the-javay-method"><code>&lt;object&gt;</code> tag</a> to "100%" gives an applet that resizes itself as the surrounding window is resized.</p>
+<p>Implementing a resizable 2D structure image window using AJAX and dynamic images is possible, but would be much more difficult to implement. It could also potentially produce a much higher, and unpredictable demand on server memory, CPU cycles, and bandwidth.</p>
+<p>ChemWriter makes it possible for the server to delegate resizable image processing to the client, resulting in a much more responsive feature with minimal effect on the server.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

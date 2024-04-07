@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fingerprints and Atom-By-Atom Searches in Highly-Represented Substructure Queries | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Fingerprints and Atom-By-Atom Searches in Highly-Represented Substructure Queries</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-10-17T00:00:00.000Z">2008-10-17T00:00:00.000Z</time>
+      </header>
+      <p>Wiraj Bibile recently <a href="/articles/2008/10/03/fast-substructure-search-using-open-source-tools-part-2-fingerprint-screen-with-sql#comment-832">posed</a> a question on the use of <a href="/articles/2008/10/03/fast-substructure-search-using-open-source-tools-part-2-fingerprint-screen-with-sql">fingerprints to pre-screen candidate structures</a> in database substructure searches:</p>
+<blockquote>
+  <p>Hi I am currently working [on] a substructure search algorithm using finger prints (I am using the CDK package). My algorithm uses precomputed finger prints placed in a database, which is matched against a query finger print. If the fingerprint query succeeds then a more complete test is done to make sure that the query chemical is a substructure of the matched chemical (from the database). this second test is low in performance [and the] reason why a finger print test is done initially.</p>
+  <p>However when using common chemicals in my query the finger print match succeeds more often and fails at the second stage. Therefore taking longer time to run the query, do you know of any way I can improve fingerprint matching for common structures?</p>
+</blockquote>
+<p>Let's say our database consists of 50,000 compounds screened in a central nervous system (CNS) program. One of the most common substructure features in CNS medicinal chemistry is the benzene ring. Not surprisingly, about 75% of the structures in our database contain a benzene ring.</p>
+<p>Our search strategy is simple. We've fingerprinted each compound in the database. When a user submits a substructure query, we compute a fingerprint from the query and create a list of all stored fingerprints that match. Based on this list, we create another list of all compounds that could be matches. For each compound in this list, we perform an atom-by-atom search (ABAS) to determine if the query is indeed a substructure of the compound.</p>
+<p>Let's now say a user performs a substructure search for benzene. Even if our fingerprints screen out all non-benzene-containing structures, we're still faced with performing an ABAS on 37,500 structures. The substructure search will take a <em>very</em> long time.</p>
+<p>If I understand Wiraj correctly, the scenario posed here is the crux of his question.</p>
+<p>Rather than trying to provide my own answers to this question (which I will try do in a later installment of the <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">Fast Substructure Search series</a>), I thought I'd open the floor to anyone with experience in this area. If you've got a clever trick or even a completely different way of setting up your database to avoid this problem, feel free to leave a comment.</p>
+<p>Given a substructure search system based on fingerprint pre-screening, how can you avoid the need to do ABAS on highly-represented substructure queries?</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Postgres Extensions in Rust | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/08/25/postgres-extensions-in-rust/">
+      <meta property="og:title" content="Postgres Extensions in Rust">
+      <meta property="og:description" content="Opening a new path to high-performance, domain-specific database applications.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20210825/summary.png">
+      <meta content="Opening a new path to high-performance, domain-specific database applications." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Postgres Extensions in Rust</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-08-25T15:00:00Z">2021-08-25T15:00:00Z</time>
+      </header>
+      <p><a href="https://www.postgresql.org">PostgreSQL</a> (aka "Postgres") is a widely-used relational database system. One of the many features making it so popular is extensibility. Postgres <a href="https://www.postgresql.org/docs/13/contrib.html">ships with several extensions</a>, and others are <a href="https://pgxn.org">available from third parties</a>. Underpinning this large body of extended functionality is <a href="https://www.postgresql.org/docs/13/extend.html">a system</a> for building and deploying extensions.</p>
+<p>For flexibility and performance, Postgres supports extensions <a href="https://www.postgresql.org/docs/13/xfunc-c.html">written in C</a>. More recently, and very quietly, Rust has become a first-class language for extension development. This article offers a short introduction to building Postgres extensions in Rust. No previous experience with Rust or Postgres is needed.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Following the tutorial requires a Rust tool chain, which can be obtained as described at <a href="https://rustup.rs">Rustup</a>. Installation provides a Rust compiler and the <a href="https://doc.rust-lang.org/cargo/">Cargo</a> package manager.</p>
+<h2 id="quickstart">Quickstart</h2>
+<p>The following short tutorial was tested on macOS Mojave and Rust 1.52.1.</p>
+<p>Begin by installing the <a href="https://github.com/zombodb/pgx">pgx crate</a>, a complete suite of tools for building Postgres extensions in Rust.</p>
+<pre><code class="hljs bash language-bash">cargo install cargo-pgx
+cargo pgx init
+</code></pre>
+<p>The second command took about 30 minutes on my system. Packaged with the pgx crate are the last four major releases of Postgres, the source for each of which must be downloaded and compiled. These are installed into <code>~/.pgx</code>.</p>
+<p>Create a new Postgres extension project as follows.</p>
+<pre><code class="hljs bash language-bash">cargo pgx new my_extension
+<span class="hljs-built_in">cd</span> my_extension
+</code></pre>
+<p>pgx extends Cargo with a utility for initializing new projects, as done above. The new project so created contains a fully-functional Postgres extension, which can be compiled and tested.</p>
+<pre><code class="hljs bash language-bash">cargo pgx run pg13
+</code></pre>
+<p>The second argument, <code>pg13</code> indicates that the extension will run on Postgres 13. Other options would be <code>pg12</code>, <code>pg11</code> and <code>pg10</code>.</p>
+<p>After compilation (in my hands about 8 minutes), you'll be dropped into a <code>psql</code> shell. Test the extension by calling the <code>hello_my_extension</code> function.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> hello_my_extension() <span class="hljs-keyword">AS</span> <span class="hljs-keyword">test</span>;
+<span class="hljs-comment">--         test         </span>
+<span class="hljs-comment">-- ---------------------</span>
+<span class="hljs-comment">--  Hello, my_extension</span>
+<span class="hljs-comment">-- (1 row)</span>
+</code></pre>
+<h2 id="thedemoproject">The Demo Project</h2>
+<p>The business-end of the extension is contained in the file <code>src/lib.rs</code>. It weighs in at all of six lines of code.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> pgx::*;
+
+pg_module_magic!();
+
+<span class="hljs-meta">#[pg_extern]</span>
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hello_my_extension</span></span>() -&gt; &amp;<span class="hljs-symbol">'static</span> <span class="hljs-built_in">str</span> {
+    <span class="hljs-string">"Hello, my_extension"</span>
+}
+</code></pre>
+<p>Everything from this starting point on is pure Rust. pgx takes care of writing all bindings and all of the infrastructure needed to support an extension.</p>
+<p>Two lines of the example are noteworthy. The first invokes the <code>pg_module_magic</code> function-like macro. Its purpose is to add a signature to the compiled binary designating it as a Postgres extension. The second noteworthy line invokes the <code>pg_extern</code> <a href="https://doc.rust-lang.org/reference/procedural-macros.html">derive macro</a>. This line designates the function as one that the extension will make visible when installed, automatically applying all of the additional code to make that happen. Like all derive macros, <code>pg_extern</code> accepts arguments (e.g.,  <code>name</code>,<code>immutable</code>, <code>schema</code>, and <code>parallel_safe</code>). These flags don't appear to be documented anywhere in the pgx project, but can be found in the <a href="https://github.com/zombodb/pgx/tree/master/pgx-examples">examples directory</a>.</p>
+<p>Additional examples are available in <a href="https://github.com/zombodb/postgresconf">this repo</a>.</p>
+<h2 id="whyextendpostgres">Why Extend Postgres?</h2>
+<p>The current capabilities of Postgres and its available extensions set a very high bar for functionality. Still, there are a number of situations in which a custom extension is the best option.</p>
+<p>For example, Postgres's native data types are unlikely to adequately capture many kinds of domain-specific data such as phone numbers and other identifiers, not to mention scientific data types such as <a href="/articles/2020/04/06/a-minimal-molecule-api/">molecules</a>. The inability to manipulate such data types within Postgres forces data manipulation tasks out of the database and into less appropriate places. The end result is data manipulation logic appearing within an application layer, or some other layer where it becomes an integration and maintenance burden. A well-designed extension makes it easy to transport domain-specific concerns with the database.</p>
+<p>Another reason to extend Postgres is to support more complex functionality. With a few exceptions, pgx makes it possible to do anything inside of Postgres that is possible within Rust. The vast and rapidly-growing collection of <a href="https://crates.io">Rust crates</a> is open for use. Likewise, pgx supports most of the Postgres extension API. For example, pgx supports <a href="https://www.postgresql.org/docs/9.4/spi.html">the Server Programming Interface</a> (SPI). This interface allows extensions to run SQL queries (procedures) inside of custom functions.</p>
+<h2 id="whyrust">Why Rust?</h2>
+<p>High performance Postgres extensions have for the most part been written in C. Given that tradition, why start writing them in Rust with pgx? Reasons include:</p>
+<ul>
+<li><strong>Streamlined workflow.</strong> pgx writes all of the boilerplate code that would otherwise be needed to get an extension running in C.</li>
+<li><strong>Minimize exposure to Postgres internals.</strong> As the example shows, it's now possible to write fully-functional extension without much knowledge of how Postgres works.</li>
+<li><strong>Maximize exposure to Postgres internals.</strong> Although functionality is hidden behind some nice abstractions, these can be bypassed.</li>
+<li><strong>Access Postgres native types and functions.</strong> Tight integration like this makes it possible to seamlessly blend Postgres with new functionality.</li>
+<li><strong>Memory safety.</strong> This is Rust's best-known feature, and now it's possible to write Postgres extensions that make guarantees about memory safety.</li>
+<li><strong>Low-level performance, high-level feel.</strong> Many developers who come to Rust for performance are surprised to find how usable the language is.</li>
+</ul>
+<h2 id="moreinformation">More Information</h2>
+<p>The creator of pgx, <a href="https://github.com/eeeebbbbrrrr">Eric Ridge</a>, recently presented on pgx. The talk highlights some of the material covered here, and describes some other examples in depth.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/RORkgaURcS0" allowfullscreen=""></iframe>
+</div>
+<h2 id="otherprojects">Other Projects</h2>
+<p>Several other projects enabling the creation Postgres extensions in Rust have been started. Although none appear to be as complete as pgx, they illustrate different approaches to Rust/Postgres integration:</p>
+<ul>
+<li><a href="https://github.com/bluejekyll/pg-extend-rs">pg-extend-rs</a>. Also uses Cargo macros.</li>
+<li><a href="https://github.com/posix4e/rpgffi">rpgffi</a>. The state of this project isn't clear from the documentation.</li>
+<li><a href="https://github.com/jeff-davis/postgres-extension.rs">postgres-extension.rs</a>. No written documentation is available, but the author <a href="https://www.youtube.com/watch?v=7Ra5QO3Cxj4">presented</a> the work and the <a href="https://www.pgcon.org/2019/schedule/attachments/532_RustTalk.pdf">slide deck</a> offers some insights into why Rust should be considered for Postgres extensions.</li>
+<li><a href="https://github.com/wasmerio/wasmer-postgres">Wasmer Postgres</a>. Last but not least, it may be possible to compile Rust to WebAssembly, then use the result as an extension. The <a href="https://github.com/wasmerio/wasmer-postgres/tree/master/examples">examples</a> directory contains an example.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>The pgx crate offers a full suite of powerful tools for creating Postgres extensions in Rust. Custom functions, custom data types, and tight integration with Postgres are all supported. The author has created several examples, some of which were described in detail in a recent talk. Although other projects aim to provide similar functionality, I'm aware of no other project with the breadth or depth of support currently offered by pgx.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

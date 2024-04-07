@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Chemical Structure Copy and Paste Problems | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Chemical Structure Copy and Paste Problems</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2013-03-21T00:00:00.000Z">2013-03-21T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://metamolecular.com/chemwriter/articles/the-chemical-structure-editor-bridging-chemistry-and-cheminformatics/">Chemical structure editors</a> play a vital role in chemistry today as a bridge between chemists and their software. In particular, written communication taking the form of reports, patents, and publications very often requires both a structure editor (e.g., ChemDraw) and a word processor (e.g., Word).</p>
+<p>During preparation of a document, it's essential that the graphical chemistry content be just as editable as the text itself. To make this happen, the structure editor and word processor need to work together, despite not being specifically designed to do so. The process of moving a chemical structure or drawing from a structure editor to a word processor and back is called "round trip editing".</p>
+<p>This article is a short compilation of some of the round trip editing problems that have been reported while trying to get structure editors and word processors to play nice together.</p>
+<h2 id="knowyoursoftware">Know Your Software</h2>
+<p>Three major pieces of software come into play for round trip editing: (1) the structure editor; (2) the word processor; and (3) the operating system (mainly through its system clipboard). Although most widely-used and best-understood system has for years been ChemDraw and Word on Windows, many other combinations have been tried with varying degrees of success.</p>
+<h2 id="chemdrawandwordonwindows">ChemDraw and Word on Windows</h2>
+<p>ChemDraw and Word have a long history together, and it hasn't always been smooth sailing. A small selection of issues includes:</p>
+<ul>
+<li><a href="http://pipeline.corante.com/archives/2012/11/26/chemistry_software_questions_here.php#1122372">Embedded ChemDraw files in MSoffice 2010 Word (2012)</a></li>
+<li><a href="http://forums.cambridgesoft.com/messageview.aspx?catid=12&amp;threadid=1445&amp;l=en">Receiving error in Word 2010 (2011)</a></li>
+<li><a href="http://forums.cambridgesoft.com/messageview.aspx?catid=12&amp;threadid=1312&amp;l=en">Problems with Microsoft Word (2011)</a></li>
+<li><a href="http://forums.cambridgesoft.com/messageview.aspx?catid=12&amp;threadid=419">Can't paste from ChemDraw 12.0.2 to Word 2010 </a></li>
+<li><a href="http://www.cambridgesoft.com/support/DesktopSupport/KnowledgeBase/FAQ/details/Default.aspx?TechNote=1127">How come when I paste a ChemDraw Object from Word 2010 into ChemDraw I receive an error stating that the object does not fit on the page and is then placed as an image? (2010)</a></li>
+<li><a href="http://www.cambridgesoft.com/support/DesktopSupport/KnowledgeBase/FAQ/details/Default.aspx?TechNote=1114">In my Word document, the embedded ChemDraw structures are disappeared. Instead of ChemDraw structures, it shows {EMBED ChemDraw.Document.6.0}. How can i fix this issue? (2010)</a></li>
+<li><a href="http://forums.cambridgesoft.com/messageview.aspx?catid=12&amp;threadid=23&amp;l=en">Chemdraw - Word 2008 integration (2009)</a></li>
+<li><a href="http://forums.cambridgesoft.com/messageview.aspx?catid=12&amp;threadid=163&amp;l=en">Word 2007 crashing when trying to edit chemdraw 12.0 figures (2009)</a></li>
+</ul>
+<p>Although there are indications that subsequent releases of either Word or ChemDraw may have resolved at least some of these reported issues, the cost of upgrading can be significant.</p>
+<h2 id="macsecondclasscitizen">Mac: Second-Class Citizen</h2>
+<p>If like many chemists you use a Mac, you've clearly exchanged one software component - the operating system. What may not be clear is that in doing so you've also swapped the drawing package and word processor as well. Although Word and ChemDraw for Mac may appear on the surface to be the same applications, differences large enough to prevent round trip editing have surfaced many times over the years and still perplex users today.</p>
+<p>A small selection of online discussions around ChemDraw-Word integration on OS X includes:</p>
+<ul>
+<li><a href="http://chemistryandcomputers.wordpress.com/2012/03/15/the-continuing-saga-of-chemdraw-and-ms-office/">The Continuing saga of ChemDraw and MS Office (2012)</a></li>
+<li><a href="https://discussions.apple.com/thread/3188692?start=0&amp;tstart=0">Chemdraw and MS Word Problem (2011)</a></li>
+<li><a href="http://www.macresearch.org/word-2011-mac-doesnt-support-chemdraw-round-trip-editing-again">Word 2011 for Mac Doesn't Support ChemDraw Round Trip Editing. Again! (2010)</a></li>
+<li><a href="http://forums.cambridgesoft.com/messageview.aspx?catid=12&amp;threadid=176">A summary of testing and options (2009)</a></li>
+<li><a href="https://groups.google.com/forum/?fromgroups=#!topic/microsoft.public.mac.office/PRw0uPwTgco">No copy-paste between Word 2008 and ChemDraw (2008)</a></li>
+</ul>
+<p>Apparently, round-trip editing of chemical structures on OS X became such a prominent support issue that Microsoft itself saw the need to <a href="http://blog.officeformac.com/an-engineering-solution-for-copy-paste-interoperability-between-office-for-mac-and-chemdraw/">make a statement</a> in 2010. Although the statement suggested that the issue has resolved, bug reports continue.</p>
+<p>Many Mac users avoid Word altogether and use Apple's own <a href="http://www.apple.com/iwork/pages/">Pages</a>. Unfortunately, support for round trip editing in these applications even more spotty than with Word. For example:</p>
+<ul>
+<li><a href="https://discussions.apple.com/thread/2150941?start=0&amp;tstart=0">Pasting from ChemDraw into Pages/Keynote (2009)</a></li>
+<li><a href="http://forums.cambridgesoft.com/messageview.aspx?catid=12&amp;threadid=159">ChemDraw 12.0.1 on Snow Leopard (2009)</a></li>
+<li><a href="http://www.macinchem.org/blog/files/774bd6dc2171602ed0716b02a54a55a5-419.php">Please complain (2009)</a></li>
+</ul>
+<p>My own test confirmed that structures pasted from ChemDraw 12.0.3.1216 into Pages 4.3 (1048) on OS X 10.7.5 can not be pasted back into ChemDraw.</p>
+<p><img src="/images/posts/chemdraw-pages-round-trip-fail.png" alt="Round Trip Fail" title="Round Trip Fail"></p>
+<h2 id="linuxnotforthefaintofheart">Linux: Not for the Faint of Heart</h2>
+<p>Linux is the third most widely-used desktop operating system, with its most popular incarnation being <a href="http://www.ubuntu.com/">Ubuntu</a>. The attraction is clear - Ubuntu is free and boasts a huge set of free applications that's evolved over the last several years.</p>
+<p>However, Ubuntu appears to be only marginally closer to offering a viable alternative to chemists in 2013 than it did in 2007. A forum post in 2007 titled <a href="http://ubuntuforums.org/showthread.php?t=411537">Obstacle for chemists to use Ubuntu = ChemDraw</a> generated a discussion that lasted five years, drawing 148 replies along the way.</p>
+<h2 id="openofficebrokenbydefault">Open Office: Broken by Default</h2>
+<p>Leaving the topic of operating systems aside, there are many options for word processors. <a href="http://www.openoffice.org/product/writer.html">Open Office Writer</a> is an extremely popular free option that's available on Windows, Mac, and Linux. Nevertheless, round trip editing of chemical structures has apparently never worked on any operating system using ChemDraw and Open Office.</p>
+<p>A <a href="https://issues.apache.org/ooo/show_bug.cgi?id=81512">2007 Open Office bug report</a> described the problem this way:</p>
+<blockquote>
+  <p>When a chemical drawing is copied from ChemDraw onto clipboard, and then pasted into Writer, it get pasted as a low resolution bitmap. In Edit -&gt; Paste Special menu the only option is "bitmap" (source "unknown"). </p>
+</blockquote>
+<p>This report was subsequently marked as a duplicate of <a href="https://issues.apache.org/ooo/show_bug.cgi?id=14907">another bug dating to 2003</a>.</p>
+<p>In my own tests, structures pasted from ChemDraw 12.0.3 into Open Office Writer 3.4.1 on either OS X or Windows resulted in low-resolution images that could not be in turn pasted back into ChemDraw.</p>
+<p><img src="/images/posts/chemdraw-openoffice.png" class="figure"></p>
+<h2 id="otherdrawingpackages">Other Drawing Packages</h2>
+<p>A number of desktop chemical drawing packages have been recommended as replacements for ChemDraw over the years, including:</p>
+<ul>
+<li><a href="http://www.chemaxon.com/products/marvin/marvinsketch/">Marvin Sketch</a></li>
+<li><a href="http://bkchem.zirael.org/">BKChem</a></li>
+<li><a href="http://www.chemdoodle.com/">ChemDoodle</a></li>
+</ul>
+<p>However, it's understandably more difficult to find public information on the round-trip editing capabilities of these less-popular programs across numerous combinations of operating systems, word processors, and specific versions of each. The best answer would appear at this point to be: try one and see.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Round trip editing remains an essential capability for many chemists today. Although sticking within a narrow band of software components generally gives good results, straying outside this configuration can lead to problems quickly.</p>
+<p>My current work with <a href="http://metamolecular.com/chemwriter/">ChemWriter</a> has led me to ask to what extent round-trip editing of chemical content is a problem that still needs fixing. If you'd be interested in sharing your experiences either in the comments section or <a href="http://depth-first.com/about/">via email</a>, I'd be very interested in hearing from you.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

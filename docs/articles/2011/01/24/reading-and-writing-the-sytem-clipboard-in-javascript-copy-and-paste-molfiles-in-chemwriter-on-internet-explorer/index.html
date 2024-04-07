@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Reading and Writing the System Clipboard in JavaScript: Copy and Paste Molfiles in ChemWriter on Internet Explorer | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Reading and Writing the System Clipboard in JavaScript: Copy and Paste Molfiles in ChemWriter on Internet Explorer</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2011-01-24T00:00:00.000Z">2011-01-24T00:00:00.000Z</time>
+      </header>
+      <p>Integrating the system clipboard with Web applications is no easy feat. For good reason, most browsers make it nearly impossible for client-side JavaScript to arbitrarily read and write the system clipboard. But as with all things relating to browsers, behavior does vary. This article describes how copy and paste between <a href="http;//chemwriter.com">ChemWriter</a> (my company's pure JavaScript chemical structure editor) and the Windows system clipboard was enabled in Internet Explorer (IE).</p>
+<h2 id="asingularinnovation">A Singular Innovation</h2>
+<p>Although not widely known, <a href="http://msdn.microsoft.com/en-us/library/ms535220(v=vs.85).aspx">IE versions 6, 7, and 8 support read and write access to plain text data stored on the system clipboard from arbitrary JavaScript code</a>. Whether you see this as a <a href="http://www.zdnetasia.com/users-warned-over-ie-clipboard-exploit-39105357.htm">security hole</a> or not depends on what you're trying to do. Different versions of IE support various levels of control over this behavior:</p>
+<ol>
+<li><strong>Enable</strong> Allow any JavaScript to read and write the system clipboard without notifying the user.</li>
+<li><strong>Prompt</strong> Allow any JavaScript to read and write the system clipboard, presenting a cancelable dialog first.</li>
+<li><strong>Disable</strong> Never allow access to the system clipboard from JavaScript.</li>
+</ol>
+<p>These settings can be applied to security zones, like the other IE security settings.</p>
+<p>Out of security concerns, no other browser vendor supports programmatic JavaScript clipboard access out of the box. There have been numerous <a href="http://almaer.com/blog/supporting-the-system-clipboard-in-your-web-applications-what-a-pain">legitimate, white-hat attempts to get around this situation</a>, an indication that this feature is in high demand from many sectors of Web development.</p>
+<h2 id="howitworks">How It Works</h2>
+<p>We wanted a simple way for chemists copy and paste <a href="/articles/2010/06/28/latest-ctfile-formats-specification-available-now-from-symyx/">molfiles</a> (a text-based file format) to/from their system clipboards and a ChemWriter instance deployed in a Web page. This is currently supported through separate text area import dialogs, but we wanted to offer something more streamlined. We also wanted a solution that would enable chemists to use the familiar ctrl-c and ctrl-v keyboard shortcuts in an intuitive way.</p>
+<p>Visiting the <a href="http://chemwriter.com">chemwriter.com homepage</a>, you'll see an example of this new feature in action. Place a molfile onto your system clipboard and either press ctrl-v or use the 'Import Molfile' button at the bottom of the editor.</p>
+<p>Depending on your security settings, you'll see one of three behaviors:</p>
+<ul>
+<li><strong>Enable</strong> An interactive, graphical representation of your molfile will appear in the editor window.</li>
+<li><strong>Prompt</strong> A consent dialog will appear, asking permission to access the clipboard:</li>
+</ul>
+<p><img src="/images/posts/chemwriter_clipboard_prompt.png" alt="ChemWriter Clipboard Prompt" title="ChemWriter Clipboard Prompt"></p>
+<ul>
+<li><strong>Disable</strong> If your clipboard access setting is 'Disable', or you refuse access to your clipboard from the dialog, the editor falls back to presenting the default import molfile dialog, from which you can paste the molfile and then dismiss the dialog.</li>
+</ul>
+<p>It should be emphasized that the consent dialog only appears at the moment a script attempts to access the system clipboard.</p>
+<p>You can test clipboard access on IE in your own scripts (or interactively with the 'Developer Tools' console). To read the clipboard:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">var</span> data = <span class="hljs-built_in">window</span>.clipboardData.getData(<span class="hljs-string">'Text'</span>);
+</code></pre>
+<p>To write the clipboard:</p>
+<pre><code class="hljs js language-js"><span class="hljs-built_in">window</span>.clipboardData.setData(<span class="hljs-string">'Text'</span>, <span class="hljs-string">'this is a test'</span>);
+</code></pre>
+<h2 id="iequirks">IE Quirks</h2>
+<p>As might be expected, the user experience for this feature varies according to the version of IE being used. Given a setting of 'Prompt' for clipboard access, here's a summary of what we've found:</p>
+<ul>
+<li><strong>IE6</strong> Always prompts with dialog for clipboard access.</li>
+<li><strong>IE7</strong> Prompts with dialog on first clipboard access. All other accesses on the same page without intervening page jumps proceed without consent dialog. Loading another page and then re-visiting the original presents a new consent dialog.</li>
+<li><strong>IE8</strong> Same as IE7.</li>
+</ul>
+<h2 id="conclusions">Conclusions</h2>
+<p>Integration with the system clipboard is one of the most difficult things to achieve in current Web development. We've used the capability offered by Internet Explorer as one solution that, we think, may offer a good tradeoff between convenience and security in some situations.</p>
+<p>Are there other, better ways to enable well-integrated system clipboard access in client-side JavaScript? Yes, I think so. But that's a story for another time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

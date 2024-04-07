@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Small Molecule 3D Coordinates From PubChem | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Small Molecule 3D Coordinates From PubChem</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-05-23T00:00:00.000Z">2008-05-23T00:00:00.000Z</time>
+      </header>
+      <p>The PubChem team has quietly introduced a new feature - 3D coordinates for many of the small molecules in its compound collection. To my knowledge, these coordinates are only currently <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound_3D/">available via FTP</a>. From the <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound_3D/README">README</a>:</p>
+<blockquote>
+  <p>The data contained here consists of a theoretical 3D description of PubChem Compound records computed using the MMFF94s force field without coulombic terms, including MMFF charges.  Each provided theoretical 3D conformer is not a stationary point on the hyper-potential surface (i.e., is not at a minimum energy).  Rather, the theoretical 3D description is a low energy conformer selected from a conformer model (a theoretical description of the conformational flexibility of a chemical structure consisting of multiple 3D representations or poses sampled using an RMSD {root mean squared distance} threshold) describing energetically-accessible and (potentially) biologically relevant coformations of a chemical structure.</p>
+  <p>Not every PubChem Compound record will have a theoretical 3D description. Structures considered too large (containing more than 50 non-hydrogen atoms) or too flexible (containing more than 15 rotatable bonds) are excluded.  Furthermore, chemical structures containing elements other than H, C, N, O, F, P, S, Cl, Br, and I are also excluded.</p>
+  <p>Generation of theoretical 3D descriptions of small molecules is computationally intensive.  As such, some PubChem Compound records may be added at a later time.</p>
+</blockquote>
+<p>(A few open source packages for <a href="/articles/2007/12/12/simple-3d-conformer-generation-with-smi23d">generating 3D conformers</a> are also available.)</p>
+<p>Recently, <a href="http://hutchison.chem.pitt.edu/">Geoff Hutchison</a> wrote in <a href="/articles/2008/05/14/the-daily-molecule-the-wonders-of-chemistry-one-molecule-at-a-time#comment-556">to suggest</a> that a potentially useful new feature of <a href="http://chempedia.com">Chempedia</a> could be the ability to directly obtain 3D coordinates for a molecule of interest.</p>
+<p>One very economical way to do that would be to use PubChem's 3D dataset. It would also be trivial to display these coordinates as a resizable <a href="http://jmol.sourceforge.net/">Jmol applet</a>, in analogy to <a href="/articles/2008/05/19/building-chempedia-resizable-structures-with-chemwriter">Chempedia's recently-added 2D molecule resizing feature</a>.</p>
+<p>Of course, there are many other potential uses for the PubChem conformer dataset, especially when applied to Web applications.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

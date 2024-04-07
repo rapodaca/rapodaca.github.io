@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiling Rust to WebAssembly: A Simple Example | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/06/29/compiling-rust-to-webassembly-a-simple-example/">
+      <meta property="og:title" content="Compiling Rust to WebAssembly: A Simple Example">
+      <meta property="og:description" content="A short, no-frills guide from blank project to running code.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200629/summary.png">
+      <meta content="A short, no-frills guide from blank project to running code." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Compiling Rust to WebAssembly: A Simple Example</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-06-29T17:00:00Z">2020-06-29T17:00:00Z</time>
+      </header>
+      <p><a href="https://www.rust-lang.org">Rust</a> and <a href="https://webassembly.org">WebAssembly</a> (Wasm) are often discussed together. The former is a typesafe systems programming language with modern tooling and many high-level features. The latter is a portable, secure execution environment that runs inside and outside the browser. The combination promises many years of progress and utility.</p>
+<p>Unfortunately, the path to starting with Rust and WebAssembly isn't as simple as it could be. A number of sophisticated technologies have popped up around the Rust/Wasm duo. This is great for experienced users but can overcomplicate getting started. This article aims to fill the gap with a no-frills introduction to building Rust code targeting the browser.</p>
+<h2 id="overview">Overview</h2>
+<p>The goal of this project is to compile to Wasm a Rust function that adds one to a value passed in and returns the result. These are the steps:</p>
+<ol>
+<li>Create a vanilla Rust project template.</li>
+<li>Update the project's manifest file.</li>
+<li>Write a Rust function.</li>
+<li>Compile to optimized Wasm.</li>
+<li>Deploy the Wasm through a simple Web page.</li>
+</ol>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Begin by installing the Rust language tools with <a href="https://rustup.rs">rustup</a> if you haven't already. Next, install the Wasm toolchain:</p>
+<pre><code class="hljs bash language-bash">rustup target add wasm32-unknown-unknown
+</code></pre>
+<p>Install <a href="https://github.com/alexcrichton/wasm-gc">wasm-gc</a>, which will be used to compress the <code>*.wasm</code> file output:</p>
+<pre><code class="hljs bash language-bash">cargo install wasm-gc
+</code></pre>
+<p>Finally, create a test project and change into it:</p>
+<pre><code class="hljs bash language-bash">cargo new hello --lib
+
+<span class="hljs-built_in">cd</span> hello
+</code></pre>
+<h2 id="updatecargotoml">Update Cargo.toml</h2>
+<p>The file <a href="http://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/cargo/reference/manifest.html"><code>Cargo.toml</code></a>  (aka "manifest") contains the project's configuration. Leave everything, but append a new block called <code>[lib]</code>. The result should look something this:</p>
+<pre><code class="hljs toml language-toml"><span class="hljs-comment"># Cargo.toml</span>
+<span class="hljs-section">[package]</span>
+<span class="hljs-attr">name</span> = <span class="hljs-string">"hello"</span>
+<span class="hljs-attr">version</span> = <span class="hljs-string">"0.1.0"</span>
+<span class="hljs-attr">authors</span> = [<span class="hljs-string">"Richard Apodaca &lt;rich.apodaca@gmail.com&gt;"</span>]
+<span class="hljs-attr">edition</span> = <span class="hljs-string">"2018"</span>
+
+<span class="hljs-section">[dependencies]</span>
+
+<span class="hljs-comment"># new material</span>
+<span class="hljs-section">[lib]</span>
+<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">"cdylib"</span>]
+</code></pre>
+<h2 id="bringonthecode">Bring on the Code!</h2>
+<p>Rust code lives in the <code>src</code> directory. Your new project contains the default file <code>src/lib.rs</code>. Replace its contents with the following:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
+
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">add_one</span></span>(x: <span class="hljs-built_in">i32</span>) -&gt; <span class="hljs-built_in">i32</span> {
+    x + <span class="hljs-number">1</span>
+}
+</code></pre>
+<p>This function accepts a 32-bit integer value, returning the result as 32-bit integer.</p>
+<h2 id="compiletowasm">Compile to Wasm</h2>
+<p>Compile the project to Wasm:</p>
+<pre><code class="hljs console language-console">cargo build --target wasm32-unknown-unknown --release
+</code></pre>
+<p>The result is a rather large Wasm file in <code>target/wasm32-unknown-unknown/release/</code>:</p>
+<pre><code class="hljs console language-console">ls -la target/wasm32-unknown-unknown/release/hello.wasm
+-rwxr-xr-x  2 rich  staff  1566966 Jun 28 20:05 target/wasm32-unknown-unknown/release/hello.wasm
+</code></pre>
+<h2 id="shrinkthewasmoutput">Shrink the Wasm Output</h2>
+<p>The Wasm initially produced by the compiler contains a lot of unnecessary material. How much? To find out, use <code>wasm-gc</code>:</p>
+<pre><code class="hljs console language-console">wasm-gc target/wasm32-unknown-unknown/release/hello.wasm
+
+ls -la target/wasm32-unknown-unknown/release/hello.wasm
+-rwxr-xr-x  2 rich  staff  209 Jun 28 20:05 target/wasm32-unknown-unknown/release/hello.wasm
+</code></pre>
+<p><code>wasm-gc</code> cut the output to the bone, leaving a 209 byte file.</p>
+<h2 id="javascriptandhtml">JavaScript and HTML</h2>
+<p>One of the simpler (but not only) ways to execute the Wasm output is with a browser running a little JavaScript. Add the following to a new file called <code>index.html</code> a the project root:</p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>title<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+      (<span class="hljs-keyword">async</span> () =&gt; {
+        <span class="hljs-keyword">let</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'target/wasm32-unknown-unknown/release/hello.wasm'</span>);
+        <span class="hljs-keyword">let</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
+        <span class="hljs-keyword">let</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, { });
+
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'The answer is: '</span>, instance.exports.add_one(<span class="hljs-number">13</span>));
+      })();
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<h2 id="runtheexample">Run the Example</h2>
+<p>You won't be able to load the HTML file in your browser directly due to security restrictions. Instead, you'll need to run a local server. A simple way to do that takes advantage of Python's built-in server:</p>
+<pre><code class="hljs console language-console">python -m SimpleHTTPServer
+</code></pre>
+<p>Browsing to <a href="http://localhost:8000">localhost:8000</a> should yield a blank page. Open a developer console to see the result.</p>
+<figure>
+  <img alt="The answer is..." src="/images/posts/20200629/running-wasm-from-rust.png">
+  <figcaption>
+    <strong>Running Wasm from Rust.</strong> Output from the console.
+  </figcaption>
+</figure>
+<h2 id="futuredirections">Future Directions</h2>
+<p>With basic project setup out of the way, it's possible to explore many avenues. The most obvious may be to expand the range of input/output types. Wasm only understands four numerical types: i32; i64; f32; and f64. How can the project be extended to accept or output more complex types such as strings? <a href="https://depth-first.com/articles/2020/01/13/first-steps-in-webassembly-hello-world/">This post</a> may be a good starting point. But even keeping to the four native Wasm types, a number of complex programs can be constructed for benchmarking and other purposes. At the very least, studying this simple example will help clarify what the more advanced tooling such as <a href="https://github.com/rustwasm/wasm-bindgen">wasm-bindgen</a> is doing and why it may be useful.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

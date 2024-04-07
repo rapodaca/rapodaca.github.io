@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hacking Molbank: Downloading a Complete Chemistry Journal | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Hacking Molbank: Downloading a Complete Chemistry Journal</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-12-01T00:00:00.000Z">2006-12-01T00:00:00.000Z</time>
+      </header>
+      <p>The previous article in this series highlighted Molbank as a tool for studying the <a href="http://depth-first.com/articles/2006/11/30/molbank-and-the-convergence-of-open-access-open-data-and-open-source-in-chemistry">convergence of Open Access, Open Data, and Open Source in chemistry</a>. This article will outline some of the technical and legal aspects of downloading and using Molbank content.</p>
+<h2 id="mirrormirror">Mirror, Mirror</h2>
+<p>MDPI themselves <a href="http://mdpi.net/MIRRORING/mirroring.html">actively encourage</a> the copying of their journal content by a process known as mirroring:</p>
+<blockquote>
+  <p>We encourage two types of mirroring :</p>
+  <ul>
+  <li>Institutional Mirroring : Institutions may help not only their own members, but neighbouring scientists, to have a faster and reliable access to MDPI journals. For institutions, this is a tradeoff : they save bandwidth on outgoing traffic, while having more inbound traffic. One positive aspect is that sites supporting mirrors become more visited and better known. We are going to maintain a list of supporting institutional mirror sites which is going to be presented in an extremely visible fashion, on the welcome pages of each journal, so that all MDPI readers can access the nearest site.</li>
+  <li>Personnal Mirroring : With hard disks becoming larger and cheaper, it becomes not unreasonnable to set up his/her own personnal mirror, with all the information at your fingertips !. An automated procedure, running at night, keeps your personnal mirror always updated. This is extremely convenient. You may keep this mirror to yourself, or openned to your colleagues, you may do what you wish !</li>
+  </ul>
+</blockquote>
+<p>The text then goes on to give explicit instructions on how to create a mirror of the entire MDPI site and all of its journal content using Linux. So not only does MDPI explicitly allow the non-commercial copying of their content, but that copy can then be hosted on the Web, transmitted through other media, or simply used locally. It's the latter of these uses that this article will address.</p>
+<h2 id="createamolbankarchive">Create a Molbank Archive</h2>
+<p>The Unix command <code>wget</code> can be used to copy the content of any website. Before using <code>wget</code>, or any similar tool, you should <a href="http://depth-first.com/articles/2006/09/22/hacking-pubchem-why-the-open-access-fight-is-just-the-beginning">check the <code>robots.txt</code> file</a> for the site of interest. I have so far been unable to find a <code>robots.txt</code> file on the MDPI site, so I assume there is no problem with running either <code>wget</code> or other robotic agents. But for the purposes of this tutorial, it is more convenient to create a local copy.</p>
+<p>To create a local copy of all 2005 articles in Molbank, for example, use <code>wget</code> with the appropriate arguments:</p>
+<pre><code class="hljs bash language-bash">wget -r -l2 http://www.mdpi.net/molbank/molbank2005.htm
+</code></pre>
+<p>The <code>-r</code> flag turns on recursive directory retrieval, and the <code>-l2</code> flag sets the retrieval depth to two.</p>
+<p>When the process is complete, you should have a directory called <code>www.mdpi.net</code> in your working directory. This directory will contain a subdirectory called <code>molbank</code> which in turn contains two directories: <code>2005</code> and <code>2006</code>. Under the <code>2005</code> directory, you'll find all of Molbank's articles in HTML format, all images, and all molfiles. It's not clear to me yet why the <code>2006</code> directory is created and why it only contains one article.</p>
+<h2 id="checkingthearchive">Checking the Archive</h2>
+<p>A large number of Molbank's molfiles appear to be corrupted. This isn't related to <code>wget</code>, because these files are also corrupted when viewed through a browser directly from <a href="http://www.mdpi.org">http://www.mdpi.org</a>. For example, the molfile for Molbank article #393 appears corrupted (as do all of the other molfiles for July 2005):</p>
+<p><a href="http://www.mdpi.org/molbank/molbank2005/m393.mol">http://www.mdpi.org/molbank/molbank2005/m393.mol</a></p>
+<p>You'll also find several instances of bogus molfiles containing only one or two atoms, such as for Molbank article #431:</p>
+<p><a href="http://www.mdpi.org/molbank/molbank2005/m431.mol">http://www.mdpi.org/molbank/molbank2005/m431.mol</a></p>
+<p>Some molfiles are missing altogether, such as the one for Molbank article #405:</p>
+<p><a href="http://www.mdpi.org/molbank/molbank2005/m405.mol">http://www.mdpi.org/molbank/molbank2005/m405.mol</a></p>
+<p>Clearly, the integrity of Molbank's molfiles can not be assumed. Software designed to work with this dataset will therefore need to be capable of gracefully handling corrupted, nonexistent, and bogus molfiles.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Molbank permits the non-profit copying of its entire article collection. With some simple command-line tools, it's possible to quickly and easily create your own personal Molbank mirror. A cursory examination of the molfiles contained in Molbank showed several problems that need to be taken into consideration. The remaining articles in this series will describe some ways that Molbank's content can be put to use with Open Source software, and mashed up with Open Data.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

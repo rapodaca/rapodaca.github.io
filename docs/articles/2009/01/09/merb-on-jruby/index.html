@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Merb on JRuby | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Merb on JRuby</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-01-09T00:00:00.000Z">2009-01-09T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://metamolecular.com/">My company</a> is developing a commercial cheminformatics Web application with Ruby on Rails. Due to the nature of the problem domain, this application will require interaction with <a href="http://code.google.com/p/mx-java">MX</a>, an essential cheminformatics library written in Java.</p>
+<p>This article will first explain how and why Merb entered the picture and then explain how to get Merb installed on a clean JRuby-1.1.6 installation.</p>
+<h2 id="jrubyonrailsexpressservicedeploymentbutatrainwreckfordevelopment">JRuby on Rails: Express-Service Deployment, but a Trainwreck for Development</h2>
+<p>The initial approach, <a href="http://wiki.jruby.org/wiki/JRuby_on_Rails">JRuby on Rails</a> works amazingly well for deployment (especially using <a href="http://blog.headius.com/2008/08/zero-to-production-in-15-minutes.html">Glassfish and Warbler</a>), but is nothing but heartache for development and testing. My biggest complaints include:</p>
+<ul>
+<li><strong>Startup time is prohibitively slow.</strong> It typically takes anywhere from 10 to 15 seconds for JRuby and the Rails environment to completely load on my system. This leads to the next point…</li>
+<li><strong>RSpec on JRuby: FAIL</strong> 10-15 seconds startup time may not sound like a big deal, but consider that in <a href="http://dannorth.net/introducing-bdd">Behavior Driven Development</a> with <a href="http://rspec.info/">RSpec</a> you don't even begin writing application code until you first write a failing test, then watch it fail, then write a small bit of code to make the test pass, then write another test, and so on. At every point in this process, you need to wait 10-15 seconds (compared to 1-2 seconds on MRI) for JRuby and Rails to startup up. All of which leads to a lot of waiting around and all of which is anything but Agile.</li>
+<li><strong>Autospec on JRuby: FAIL</strong> <a href="http://www.nateclark.com/articles/2008/09/17/_autotest_-is-now-_autospec_-how-to-set-up-autospec-for-rspec-and-rails-with-zentest">Autospec</a> runs in the background, constantly monitoring modifications to your project and automatically running tests. It's a wonderful idea that, that once you've tried it, will make it very difficult to go back to manually running tests. The problem is that Autospec is broken on JRuby: (1) <a href="http://jira.codehaus.org/browse/JRUBY-3284">rspec only runs by monkeypatching the startup scripts</a> and then dies when the first failing test is run; (2) <a href="http://jira.codehaus.org/browse/JRUBY-3283">spec_server doesn't work</a>.</li>
+</ul>
+<h2 id="onesolutionencapsulatejavadependencyinwebservicewithmerbonjruby">One Solution: Encapsulate Java Dependency in Web Service with Merb on JRuby</h2>
+<p>Given that the interaction with the MX library actually affects very little of the Rails application, one possibility would be to factor out this functionality into a private Web serivice. One way to do that would be with <a href="http://merbivore.com/">Merb</a> on JRuby. At that point, the Rails application could be run under <a href="http://en.wikipedia.org/wiki/Ruby_MRI">MRI</a> for development and testing, and under JRuby for deployment.</p>
+<p>For the unfamiliar, Merb is a lightweight, fast, MVC framework for Ruby ideal for building simple, restful Web services.</p>
+<h2 id="installingmerbonjruby">Installing Merb on JRuby</h2>
+<p>Despite reaching the version 1.0 milestone, getting specific information on installing Merb under non-standard platforms like JRuby is not easy. My solution was based on information provided by <a href="http://blogs.sun.com/arungupta/">Arun Gupta</a> in <a href="http://blogs.sun.com/arungupta/entry/totd_53_scaffold_in_merb">a recent article</a>.</p>
+<p>Starting with a clean installation of JRuby-1.6, here's what worked for me:</p>
+<pre><code class="hljs bash language-bash">jruby -S gem install merb-core --no-ri --no-rdoc
+jruby -S gem install merb-more --no-ri --no-rdoc
+jruby -S gem install activerecord --no-ri --no-rdoc
+jruby -S gem install merb_activerecord --no-ri --no-rdoc
+jruby -S gem install mongrel --no-ri --no-rdoc
+</code></pre>
+<p>The problem we need to solve is that trying to install the full Merb metagem itself will complain due to a dependency on DataMapper, which uses native extensions and is not yet available for JRuby, so you'll get something like this if you try:</p>
+<pre><code class="hljs bash language-bash">jruby -S gem install merb --no-ri --no-rdoc
+Building native extensions.  This could take a <span class="hljs-keyword">while</span>...
+/home/rich/<span class="hljs-built_in">local</span>/jruby-1.1.5/lib/ruby/1.8/mkmf.rb:7: JRuby does not support native extensions. Check wiki.jruby.org <span class="hljs-keyword">for</span> alternatives. (NotImplementedError)
+    from /home/rich/<span class="hljs-built_in">local</span>/jruby-1.1.5/lib/ruby/1.8/mkmf.rb:21:<span class="hljs-keyword">in</span> `require<span class="hljs-string">'
+    from extconf.rb:21
+ERROR:  Error installing merb:
+    ERROR: Failed to build gem native extension.
+
+/home/rich/local/jruby-1.1.5/bin/jruby extconf.rb install merb --no-ri --no-rdoc
+
+Gem files will remain installed in /home/rich/local/jruby-1.1.5/lib/ruby/gems/1.8/gems/do_sqlite3-0.9.10.1 for inspection.
+Results logged to /home/rich/local/jruby-1.1.5/lib/ruby/gems/1.8/gems/do_sqlite3-0.9.10.1/ext/do_sqlite3_ext/gem_make.out
+</span></code></pre>
+<p>Installing only merb-core and merb-more along with ActiveRecord and Mongrel gives us everything we need to create a simple Merb on JRuby application.</p>
+<h2 id="asimplemerbonjrubyapplication">A Simple Merb on JRuby Application</h2>
+<p>We need to tell Merb to use ActiveRecord as the ORM rather than DataMapper when the project is created. Let's call our project 'ws':</p>
+<pre><code class="hljs bash language-bash">jruby -S merb-gen core --orm activerecord ws
+<span class="hljs-built_in">cd</span> ws
+jruby -S rake db:create
+nano config/database.yml.sample ...
+mv config/database.yml.sample config/database.yml
+jruby -S merb
+</code></pre>
+<p>Pointing your browser at <a href="http://localhost:4000/">http://localhost:4000/</a> should render a page. It will complain about "No routes match the request: /", but that's to be expected since we haven't created any.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Merb isn't the only way to create a fast, private, restful web service for accessing Java libraries. One alternative would be to use a pure-Java solution such as <a href="http://www.restlet.org/">Restlet</a>. Still, with Merb on JRuby installed and running, it's possible to explore the tradeoffs. And the coming <a href="http://weblog.rubyonrails.org/2008/12/23/merb-gets-merged-into-rails-3">merge</a> of Merb and Rails for Rails 3.0 makes doing so all the more compelling.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

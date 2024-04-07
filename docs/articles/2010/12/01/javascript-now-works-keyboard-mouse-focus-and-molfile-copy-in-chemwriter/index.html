@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JavaScript Now Works - Keyboard, Mouse Focus, and Molfile Copy in ChemWriter | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>JavaScript Now Works - Keyboard, Mouse Focus, and Molfile Copy in ChemWriter</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-12-01T00:00:00.000Z">2010-12-01T00:00:00.000Z</time>
+      </header>
+      <p>Paul Graham probably said it best when parsing the meaning of the term "Ajax": <a href="http://www.paulgraham.com/web20.html">JavaScript Now Works</a>. In the five years since he made that statement, the performance of JavaScript has continued to improve. This is one of those developments that was easy to miss because it: (a) required the reversal of long-held negative perceptions; and (b) has unfolded at such as slow pace.</p>
+<p>For many years, the only options for building highly interactive Web components were Java applets and Flash. Although both plugin technologies have much to offer, one of their weakest qualities is browser integration. Event focus and text copy are two cases in point.</p>
+<h2 id="focuseventsandapplets">Focus, Events, and Applets</h2>
+<p>ChemWriter is a chemical structure drawing tool, first released as a Java applet, that makes extensive use of keyboard shortcuts to speed the drawing of complex structures. For these shortcuts to work, the applet must be able to capture keyboard and mouse focus.</p>
+<p>On many platform/browser/JVM configurations, keyboard and mouse focus capture works quite well. Internet Explorer on Windows is one of these system configurations. Simply hovering the mouse cursor over a ChemWriter instance is enough to capture keyboard focus. On other system configurations, keyboard focus doesn't work well at all. For example, Safari on Mac requires a click inside the editor to begin capturing keyboard events. And for unknown reasons this mechanism periodically fails even on system configurations that generally work well otherwise.</p>
+<p>But the issue isn't just limited to keyboard events - it applies to mouse events as well. This means that the only way to begin editing an existing structure without clicking on the drawing area and generating an unwanted drawing element (a not-too-uncommon situation) is to find a 'dead' place on the editor to click (say, one of the scrollbars).</p>
+<h2 id="keyboardmousefocusnowworkseverywhere">Keyboard/Mouse Focus Now Works Everywhere</h2>
+<p><a href="http://metamolecular.com">My company</a> has been <a href="http://depth-first.com/articles/2010/11/22/google-closure-building-complex-applications-with-javascript/">rewriting ChemWriter</a> as a plugin-free, pure JavaScript component. There have been many pleasant surprises along the way, and one of them has been the way that keyboard and mouse focus just work across all browsers we've tested. To <a href="http://depth-first.com/articles/2010/11/30/atom-labels-now-available-in-chemwriter-2/">add atom labels</a>, simply hover over a vertex and type a <a href="http://chemwriter.com/articles/keyboard-shortcuts">single-character keyboard shortcut</a>. Both keyboard and mouse events are captured, regardless of what other page components may have been focused beforehand.</p>
+<h2 id="molfilecopynowworkseverywhere">Molfile Copy Now Works Everywhere</h2>
+<p>Another problem area has been copying molfiles from ChemWriter to the system clipboard. Like event focus, this functionality works well on some platforms, but not at all on others. For example, all Mac-based browsers appear to be incapable of copying text from a Java popup to the system clipboard, but this feature works great on Windows.</p>
+<p><img src="/images/posts/chemwriter-molfile-copy.png" alt="ChemWriter Molfile Copy" title="ChemWriter Molfile Copy"></p>
+<p>In our JavaScript rewrite, molfile copy to the system clipboard works flawlessly on all browsers tested.</p>
+<h2 id="tryitforyourself">Try It for Yourself</h2>
+<p>We've set up a <a href="http://chemwriter.com/signups/new">ChemWriter demo site</a> to encourage those who might be interested in trying the most recent development version against the browser of their choice.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Simple 3D Conformer Generation with Smi23D | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Simple 3D Conformer Generation with Smi23D</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-12-12T00:00:00.000Z">2007-12-12T00:00:00.000Z</time>
+      </header>
+      <p>Three-dimensional conformer generation is a common problem in cheminformatics. The most convenient and generally-useful method for creating chemical structures is the <a href="/articles/2007/11/27/chemwriter-chemical-structures-and-the-web">2D chemical structure editor</a>; applications that require three-dimensional representations need a way to generate reasonable coordinates from 2D user input. <a href="http://miningdrugs.blogspot.com/2007/10/open-source-conformer-generators-are.html">Until recently</a>, there were no options for doing so with Open Source software. This article shows how the Open Source package <a href="http://www.chembiogrid.org/cheminfo/smi23d/">smi23d</a> can be used to convert ordinary SMILES strings into three-dimensional molfile representations.</p>
+<h2 id="aboutsmi23d">About smi23d</h2>
+<p>smi23d uses a two-stage process to generate 3D coordinates.; an initial pass with <code>smi2sdf</code> generates rough coordinates and subsequent refinement by <code>mengine</code> results in the final coordinates. The package was originally written in C by Kevin Gilbert and updated by <a href="http://cheminfo.informatics.indiana.edu/~rguha/index.html">Rajarshi Guha</a>. As part of what appears to be a growing trend in cheminformatics, smi23d is licensed under the highly-permissive <a href="http://opensource.org/licenses/apache2.0.php">Apache License</a>.</p>
+<p>On a related note, the source code for a program called <a href="http://bioserv.rpbs.jussieu.fr/Help/Frog-Help.html">Frog</a> is reportedly <a href="http://baoilleach.blogspot.com/2007/10/ann-frog-donates-code-to-openbabel-for.html">on its way</a> into the <a href="http://openbabel.sf.net">Open Babel</a> project.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>To build smi23d, you'll need to install <a href="http://www.scons.org/">Scons</a>, a Make-like build utility written in Python. I was able to install the <a href="http://sourceforge.net/project/showfiles.php?group_id=30337&amp;package_id=22359">Scons rpm</a> on my Linux system without a problem. smi23d uses no other dependencies.</p>
+<h2 id="downloadsmi23d">Download smi23d</h2>
+<p>smi23d can be downloaded with Subversion:</p>
+<pre><code class="hljs bash language-bash">svn co https://cicc-grid.svn.sourceforge.net/svnroot/cicc-grid/cicc-grid/smi23d/trunk smi23d
+</code></pre>
+<h2 id="buildingsmi23d">Building smi23d</h2>
+<p>With the source code in place, compilation is just a matter of running Scons:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> smi23d
+scons
+...
+</code></pre>
+<p>Once the sources are compiled, we'll want to configure our system a bit:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> build
+ls
+mmff94.prm  mmxconst.prm
+
+cp ../src/smi2sdf/smi2sdf .
+cp ../src/mengine/mengine .
+</code></pre>
+<p>The two files <strong>mmff94.prm</strong> and <strong>mmxconst.prm</strong> are parameter files needed by both <code>smi2sdf</code> and <code>mengine</code>.</p>
+<p>With <code>smi2sdf</code> and <code>mengine</code> both in the <strong>build</strong> directory, we can create a simple test with the SMILES for <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=132999">Ivabradine</a>:</p>
+<pre><code class="hljs bash language-bash">vi test.smi
+...
+
+$ cat test.smi
+CN(CCCN1CCC2=CC(=C(C=C2CC1=O)OC)OC)C[C@H]3CC4=CC(=C(C=C34)OC)OC
+</code></pre>
+<p>With everything ready to go, we can begin Stage one:</p>
+<pre><code class="hljs bash language-bash">./smi2sdf test.smi
+Found 1 structures <span class="hljs-keyword">in</span> test.smi
+ field : MMX
+ Atom Types: 169
+ Bonds: 580 Bond3: 0 Bond4: 0 Bond5: 0
+ Angle: 434 Angle3: 41 Angle4: 60 Angle5: 0
+ Torsion: 697  Torsion4: 58 Torsion5: 0
+ Vdw: 172 OOP: 91 Dipole: 474 Charge: 0 Improper: 0
+ STBN: 26 ANGANG: 0 STRTOR: 0 VDWPR: 4
+
+
+Input file  = test.smi
+Output file = output.sdf
+Param file  = mmxconst.prm
+Log file    = error.log
+Inorganic file = test_inorg.smi
+
+Structure: 0 CN(CCCN1CCC2=CC(=C(C=C2CC1=O)OC)OC)C[C@H]3CC4=CC(=C(C=C34)OC)OC
+</code></pre>
+<p>You can view the result in an application like <a href="http://jmol.sf.net">Jmol</a>:</p>
+<p><img src="/images/posts/20071212/smi23d.png" alt="smi23d" title="smi23d"></p>
+<p>It's not much to look at, but we're not quite done yet.</p>
+<p>Stage two is accomplished by using the output of Stage one as input to <code>mengine</code>:</p>
+<pre><code class="hljs bash language-bash">./mengine -o optimized.sdf output.sdf
+ field : MMX
+ Atom Types: 169
+ Bonds: 580 Bond3: 0 Bond4: 0 Bond5: 0
+ Angle: 434 Angle3: 41 Angle4: 60 Angle5: 0
+ Torsion: 697  Torsion4: 58 Torsion5: 0
+ Vdw: 172 OOP: 91 Dipole: 474 Charge: 0 Improper: 0
+ STBN: 26 ANGANG: 0 STRTOR: 0 VDWPR: 4
+ field : MMFF94
+ Atom Types: 181
+ Bonds: 448 Bond3: 0 Bond4: 0 Bond5: 0
+ Angle: 1801 Angle3: 21 Angle4: 61 Angle5: 0
+ Torsion: 674  Torsion4: 38 Torsion5: 95
+ Vdw: 182 OOP: 112 Dipole: 0 Charge: 0 Improper: 0
+ STBN: 286 ANGANG: 0 STRTOR: 0 VDWPR: 0
+</code></pre>
+<p>We now have a file called <code>output.sdf</code>. As you can see, it's a pretty good 3D representation of Ivabradine:</p>
+<p><img src="/images/posts/20071212/mengine.png" alt="mengine" title="mengine"></p>
+<h2 id="conclusions">Conclusions</h2>
+<p>In this tutorial, we've seen how the Open Source program smi23d can be used to assign reasonable 3D coordinates to an arbitrary SMILES string. One very practical use of smi23d would be to process the output of 2D chemical structure editors prior to use in a 3D program. Future articles will discuss some of the possibilities.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

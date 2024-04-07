@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Decoding InChIs with Rino | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Decoding InChIs with Rino</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-09-19T00:00:00.000Z">2006-09-19T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://wwmm.ch.cam.ac.uk/inchifaq/">InChI identifiers</a> are unique, ASCII-based molecular identifiers well-suited for chemical informatics on the Web. But they are also much more than that. Encoded in every InChI is all of the information needed to reconstruct a valid, machine-readable molecular representation. This tutorial shows how Open Source tools can be used to construct a molfile representation from an InChI identifier with the help of new features in the <a href="http://depth-first.com/articles/2006/08/17/ruby-and-inchi-the-rino-library">Rino</a> toolkit for Ruby. The ability of Rino to <a href="http://depth-first.com/articles/2006/08/17/ruby-and-inchi-the-rino-library">produce InChI identifiers</a> from molfile input has already been discussed.</p>
+<h2 id="credits">Credits</h2>
+<p>What follows was in part inspired by <a href="http://sourceforge.net/mailarchive/forum.php?thread_id=30378782&amp;forum_id=45166">helpful comments</a> posted by Sam Adams, author of the <a href="http://sourceforge.net/projects/jni-inchi">JNI InChI Wrapper</a>, and Dmitrii Tchekhovskoi, co-author of the InChI software.</p>
+<h2 id="ademowithcinchi">A Demo with cInChI</h2>
+<p>The newest release of the IUPAC <a href="http://www.iupac.org/inchi/">InChI-API</a> toolkit can now translate an InChI identifier into a molfile. This consists of a two-step process:</p>
+<ul>
+<li>Convert a simple InChI into a full InChI with Auxiliary Information (AuxInfo).</li>
+<li>Convert the full InChI into a molfile.</li>
+</ul>
+<p>You can get a feel for how this process works by using the cInChI command-line program. Create a file called <code>test.txt</code> containing the following InChI (for benzene):</p>
+<p><code>InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H</code></p>
+<p>Now, run cInChI:</p>
+<pre><code class="hljs bash language-bash">touch temp.txt
+./cInChI-1 test.txt temp.txt -InChI2Struct
+</code></pre>
+<p>The first line creates an empty temporary file, <code>temp.txt</code>. Into this file is written the full InChI as output. The <code>-InChI2Struct</code> parameter tells InChI to generate an InChI with Auxiliary Information.</p>
+<p>Now, create an empty file, <code>benzene.mol</code> and run cInChI with the <code>-OutputSDF</code> option:</p>
+<pre><code class="hljs bash language-bash">touch benzene.mol
+./cInChI-1 temp.txt benzene.mol -OutputSDF
+</code></pre>
+<p>If everything worked, you should now have a molfile called <code>benzene.mol</code>, describing benzene, in your working directory. All atom coordinates will be zero, because coordinate generation is outside the scope of the InChI project. This has important implications or stereochemistry (see below). Of course, <a href="http://depth-first.com/articles/2006/09/02/humanizing-line-notations">other free libraries</a> can generate aesthetically-pleasing 2-D molecular coordinates.</p>
+<h2 id="hellorino">Hello, Rino</h2>
+<p><a href="http://rubyforge.org/projects/rino">Rino</a> is a thin Ruby wrapper around the InChI-API toolkit, which is written in C. An <a href="http://depth-first.com/articles/2006/09/16/taking-a-swig-of-inchi">earlier article</a> described the use of the automatic wrapper generator <a href="http://www.swig.org/">SWIG</a> to write the C glue code that Rino interfaces with. The current version of Rino (v0.2.0) uses this approach to Ruby interface generation.</p>
+<p>The current version of Rino can conveniently be installed by executing the following (as root):</p>
+<pre><code class="hljs bash language-bash">sudo gem install rino
+</code></pre>
+<p>Earlier today, I got "404 Not Found" errors for this command, but not recently. The source is not clear, but seems to occur within the 24 hours after the Gem is uploaded. If you run into problems, the Rino RubyGem can also be <a href="http://rubyforge.org/frs/download.php/13261/rino-0.2.0.gem">downloaded</a> and installed locally.</p>
+<p>If you've already installed Rino-0.1.0, the new version can happily cohabitate with it. <a href="http://www.rubygems.org/">RubyGems</a> by default installs the most recent version of Rino unless you specify otherwise. If you'd like to uninstall Rino-0.1.0 do the following (as root):</p>
+<pre><code class="hljs bash language-bash">sudo gem uninstall rino
+</code></pre>
+<p>You should get a menu of Rino version to uninstall.</p>
+<h2 id="arubydemo">A Ruby Demo</h2>
+<p>The following Ruby code demonstrates the use of Rino to translate an InChI identifier into a molfile:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+require_gem <span class="hljs-string">'rino'</span>
+
+inchi = <span class="hljs-string">'InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H'</span> <span class="hljs-comment"># benzene</span>
+reader = Rino::InChIReader.new
+molfile = reader.read(inchi)
+
+p molfile <span class="hljs-comment"># =&gt; prints the molfile for benzene</span>
+</code></pre>
+<p>If you'd like even more control, you can directly access the InChI <code>run</code> method, which provides all of the capabilities of running cInChI from the command line:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+require_gem <span class="hljs-string">'rino'</span>
+
+input = <span class="hljs-string">'input.txt'</span>   <span class="hljs-comment"># a valid file in your working dir</span>
+output = <span class="hljs-string">'output.txt'</span> <span class="hljs-comment"># also a valid file</span>
+
+Rino::InChI.run([<span class="hljs-string">''</span>, input, output])
+</code></pre>
+<h2 id="limitations">Limitations</h2>
+<p>The InChI-&gt;molfile implementation in the InChI-API toolkit does not reproduce stereochemical information. For example, passing an InChI of a molecule containing a single tetrahedral stereocenter results in a molfile lacking stereo parities. Further, an explicit hydrogen atom is added to the sterogenic atom in the molfile output. Being based entirely on the InChI-API, Rino inherits these behaviors.</p>
+<p>Rino is based on a very simple interface into InChI's <code>main</code> method. This has the advantage that anything that can be done with the cInChI command line application can also be done with Rino. It carries the disadvantage that the convenience classes <code>InChIReader</code> and <code>MolfileReader</code> use a less than elegant system of temporary disk files for input-output. Future versions of Rino should address this issue, a task that may be simplified by SWIG.</p>
+<h2 id="otherinchiparsers">Other InChI Parsers</h2>
+<p>To my knowledge, three Open Source InChI parsers, besides the InChI-API and Rino, exist. They are:</p>
+<ul>
+<li><a href="http://sourceforge.net/projects/ninja">Ninja</a>. A Java library that performs low-level InChI parsing, and is designed as a platform for more sophisticated parsers. While it does not create molfiles from InChIs, it can be used as a foundation for software that does. Ninja is used in the molecular language framework, <a href="http://sf.net/projects/rxf">Rosetta</a>, although this work is far from complete.</li>
+<li><a href="http://bkchem.zirael.org/">BKChem</a>. Beda Kosata's 2-D structure editor, which is written in Python. The similarities between Ruby and Python make this codebase a potentially useful starting point for a pure Ruby InChI parser.</li>
+<li><a href="http://sourceforge.net/projects/jni-inchi">JNI InChI Wrapper</a>. Also a wrapper for the InChI-API. When used in combination with the <a href="http://cdk.sf.net">Chemistry Development Kit</a>, this package <a href="http://sourceforge.net/mailarchive/forum.php?thread_id=30378782&amp;forum_id=45166">has been reported</a> to produce molfiles from InChI identifiers.</li>
+</ul>
+<p>More information on InChI software capabilities can be found at Beda Kosata's <a href="http://inchi.info/software_en.html">InChI info</a> site.</p>
+<h2 id="wrappingup">Wrapping Up</h2>
+<p>The translation of InChI identifiers into other molecular representation systems will become more important as InChI gains traction. Mashups involving InChI translation offer many tantalizing opportunities for innovative chemical informatics applications. Future articles will discuss some of them.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

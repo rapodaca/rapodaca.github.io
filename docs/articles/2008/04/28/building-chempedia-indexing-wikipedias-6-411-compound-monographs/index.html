@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building Chempedia - Indexing Wikipedia&#x27;s 6,411 Compound Monographs | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building Chempedia - Indexing Wikipedia&#x27;s 6,411 Compound Monographs</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-04-28T00:00:00.000Z">2008-04-28T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://www.merckbooks.com/mindex/">The Merck Index</a> is one of chemistry's most useful reference works. Organized like an encyclopedia, each entry, or "Compound Monograph," describes a single compound complete with chemical structure, CAS Number, IUPAC name, trivial names, physical properties, and leading primary literature references describing uses. Unlike other chemistry databases, the Merck Index focuses on only those compounds with important industrial, biological, medical, or technical applications.</p>
+<h2 id="whatswrongwiththemerckindex">What's Wrong with the Merck Index?</h2>
+<p>Wonderful product though it may be, the Merck Index has some limitations. For starters, online versions are not free. The disadvantages of this access model go well beyond a simple price barrier; it prevents the very thing the Web was designed to promote: linking. Another limitation is the time it takes for new versions to appear, which is typically measured in years. Still another limitation is in the cost of adding entries for niche compounds that may not be suitable for a general audience, a major barrier to exposing <a href="/articles/2007/08/27/the-long-tail-and-chemistry-why-so-many-acs-meeting-talks-are-uninteresting">chemistry's long tail</a>.</p>
+<h2 id="whatschempedia">What's Chempedia?</h2>
+<p>If we wanted to create a free, online service that worked like the Merck Index but which took full advantage of today's powerful collaboration and information technology tools, how could we go about doing so?</p>
+<p>This article, the first in a series, discusses <a href="http://chempedia.com">Chempedia</a>, a free, structure-oriented online encyclopedia of useful chemical compounds designed to answer this question.</p>
+<h2 id="background">Background</h2>
+<p>The following articles may be useful in understanding Chempedia's approach and underlying technology:</p>
+<ul>
+<li><a href="/articles/2008/04/17/user-created-compound-monographs-on-chempedia-net-open-sourcing-the-collation-and-indexing-of-chemical-information">User-Created Compound Monographs on Chempedia.net: Open Sourcing the Collation and Indexing of Chemical Information</a></li>
+<li><a href="/articles/2008/04/04/chempedia-net-mashing-up-pubchem-and-wikipedia">Chempedia.net: Mashing Up PubChem and Wikipedia</a></li>
+<li><a href="/articles/2008/04/02/wikipedia-for-cheminformatics-a-simple-web-api-for-finding-cas-numbers-in-compound-monographs">Wikipedia for Cheminformatics: A Simple Web API for Finding CAS Numbers in Compound Monographs</a></li>
+<li><a href="/articles/2007/01/24/thirty-two-free-chemistry-databases">Thirty-Two Free Chemistry Databases</a></li>
+</ul>
+<h2 id="wheretobegin">Where to Begin?</h2>
+<p>One of the first problems we'd face in building a free Web-based version of the Merck Index is where to get the compound monographs.</p>
+<p>It turns out that <a href="http://wikipedia.org">Wikipedia</a> (yes, Wikipedia) hosts a growing collection of compound monographs that, when viewed together, bear a striking resemblance to the Merck Index. And the effort is becoming increasingly organized with respect to content and data provenance.</p>
+<p>Why not start here?</p>
+<h2 id="thetaskathand">The Task at Hand</h2>
+<p>To get an idea of just how Wikipedia's collection of compound monographs compares to the Merck Index, it helps to know: (1) how to find Wikipedia compound monographs; and (2) the range of information available for each entry.</p>
+<p>This tutorial will describe a simple method to index Wikipedia's compound monographs using nothing but free tools and data. Subsequent articles will discuss qualitative aspects of Wikipedia's compound monographs and the challenges involved in organizing them into a chemically-aware service.</p>
+<h2 id="indexingwikipediascompoundmonographs">Indexing Wikipedia's Compound Monographs</h2>
+<p>We can index Wikipedia compound monographs via a simple procedure.</p>
+<p>Most compound monographs employ one of four precompiled Wikpedia templates: <a href="http://en.wikipedia.org/wiki/Template:Chembox">Chembox</a> (deprecated); <a href="http://en.wikipedia.org/wiki/Template:Chembox_new">Chembox new</a>; <a href="http://en.wikipedia.org/wiki/Template:Drugbox">Drugbox</a>; and <a href="http://en.wikipedia.org/wiki/Template:Explosivebox">Explosivebox</a>. As an example of what these templates look like, see the right-hand box on Wikipedia's entry on <a href="http://en.wikipedia.org/wiki/Modafinil">modafinil</a>. To index Wikipedia's compound monographs, all we need to do is find the titles of all articles using one of these four templates.</p>
+<p>To get started, we'll need a local copy of Wikipedia. The complete set of all Wikipedia articles, as of March 12, 2008 can be <a href="http://download.wikimedia.org/enwiki/20080312/enwiki-20080312-pages-articles.xml.bz2">downloaded here</a>. This data dump is updated periodically, so you may have access to a more recent version.</p>
+<p>The Wikipedia dump, which contains the full text of every article in Wikipedia, consists of a 3.5 GB file in <a href="http://www.bzip.org/">BZip2</a> format. Fortunately, we won't need to inflate it to index its chemical content.</p>
+<p>The following code will scan the raw Wikipedia dump and produce a list of all compound monograph titles:</p>
+<pre><code class="hljs ruby language-ruby">title = ""
+log = File.new 'monographs.txt', "w"
+
+while((line = STDIN.gets))
+  line.match /&amp;lt;title&amp;gt;(.*)&amp;lt;\/title&amp;gt;/
+
+  if $1
+    title = $1
+
+    next
+  end
+
+  if line.match /\{\{(chembox|drugbox|explosivebox)/i
+    unless title == "" || title.match(/:/)
+      puts title
+      log.puts title
+      log.flush
+
+      title = ""
+    end
+  end
+end
+
+log.close
+</code></pre>
+<p>Saving this code into a file called <code>filter.rb</code>, we can run it by piping the output of <code>bzcat</code> on the raw dump file:</p>
+<pre><code class="hljs bash language-bash">bzcat &amp;lt;path_to_dump&amp;gt;/enwiki-20080312-pages-articles.xml.bz2 | ruby filter.rb
+</code></pre>
+<p>Alphabetizing the output file gives a complete listing of Wikipedia's compound monograph titles (all 6,411 of them), which for convenience can be <a href="/images/posts/20080428/compound_monographs_20080315.txt">downloaded here</a>.</p>
+<p>We can construct a URL to each Wikipedia compound monograph by prepending the title with <strong>http://wikipedia.org/wiki/</strong>. In other words, our program's output can be used both as a list of chemical names and as a hash of chemical names to Wikipedia URLs. And with the URL in hand, <a href="/articles/2008/04/02/wikipedia-for-cheminformatics-a-simple-web-api-for-finding-cas-numbers-in-compound-monographs">all kinds of interesting things can be done</a>.</p>
+<h2 id="limitations">Limitations</h2>
+<p>Although easy to carry out, the procedure described here has some limitations:</p>
+<ul>
+<li>Monographs added after March 12, 2008 are not visible.</li>
+<li>Monographs that don't use the chembox, chembox new, drugbox, or explosivebox templates are not visible.</li>
+<li>A very small number of articles erroneously use the chembox template, for example <a href="http://en.wikipedia.org/wiki/Iraq%27s_Chemical_Warfare">this one</a>.</li>
+</ul>
+<h2 id="chempediaredesign">Chempedia Redesign</h2>
+<p>Currently, Chempedia doesn't include all 6,411 monographs but rather a subset created by a much less comprehensive indexing method. As part of a major redesign of the site, all Wikipedia compound monographs will be available on Chempedia, which should result in a much more useful service.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Wikipedia is fast becoming a major storehouse of chemical information with tantalizing potential for creating powerful new services for chemists. More to the point for cheminformatics, the entire Wikipedia dataset can be downloaded and reprocessed free of charge; Wikipedia is one of those rare cheminformatics datasets that is <a href="/articles/2006/09/27/hacking-pubchem-free-speech-or-free-beer">both free as in speech and free as in beer</a>.</p>
+<p>As this article has shown, some simple programming is all it takes to begin doing useful things with Wikipedia's chemical content. Future articles will discuss some of the possibilities.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

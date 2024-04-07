@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SMILES Formal Grammar Revisited | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/12/21/smiles-formal-grammar-revisited/">
+      <meta property="og:title" content="SMILES Formal Grammar Revisited">
+      <meta property="og:description" content="Encapsulating the full OpenSMILES syntax using a set of streamlined production rules.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20201221/summary.png">
+      <meta content="Encapsulating the full OpenSMILES syntax using a set of streamlined production rules." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>SMILES Formal Grammar Revisited</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-12-22T18:00:00Z">2020-12-22T18:00:00Z</time>
+      </header>
+      <p>A <a href="/articles/2020/04/20/smiles-formal-grammar/">previous article</a> presented a formal grammar for the SMILES language. Its most notable feature was the lack of left-recursion, which enables simple, efficient parsers to be written. However, that first attempt left some room for improvement. In this article, a new grammar is presented that addresses outstanding points.</p>
+<h2 id="limitationsofpreviousgrammar">Limitations of Previous Grammar</h2>
+<p>Limitations of the previous grammar included:</p>
+<ol>
+<li>Multiple unbounded quantifiers. Three production rules (<code>&lt;line&gt;</code>, <code>&lt;chain&gt;</code>, and <code>&lt;branch&gt;</code>) require loops, which complicates parser development, testing, and debugging.</li>
+<li>Complex logic in the <code>&lt;chain&gt;</code> production, which complicated parser development.</li>
+<li>No star symbol (<code>*</code>), a key feature of SMILES.</li>
+<li>Non-tetrahedral stereo templates (e.g., <code>OH1</code>) were not supported.</li>
+<li>Only three-digit atom classes were supported, which may limit certain applications.</li>
+</ol>
+<p>The new grammar addresses all of these points. </p>
+<p>Powerful though grammars may be, there are many things they <em>can not</em> do. A grammar merely describes syntax. Semantics are out of scope. Examples of SMILES language features that can not be addressed by a formal grammar include:</p>
+<ul>
+<li>valance analysis</li>
+<li>double bond conformation analysis</li>
+<li>isotope validation</li>
+<li>kekulization and kekulizability determination</li>
+<li>ring closure balancing</li>
+</ul>
+<h2 id="usingaformalgrammar">Using a Formal Grammar</h2>
+<p>The SMILES grammar described here belongs to a class designated as <em><a href="https://en.wikipedia.org/wiki/LL_parser">LL(1)</a></em>. LL(1) grammars are desirable because they can be parsed from left to right with only one character of lookahead. This enables a technique I call <a href="/articles/2019/01/22/scanner-driven-parser-development/">Scanner-Driven Parser Development</a>. The idea is to wrap a string with an object of type <code>Scanner</code>. Doing so allows character-by-character processing to occur through just three simple operations. With a <code>Scanner</code> in hand, the grammar's production rules can be transformed into functions that call themselves or each other. The result is a recursive descent parser.</p>
+<p>Aside from serving as a parser blueprint, a formal grammar can be used to make and test claims about specific SMILES strings. For example, SMILES does not support a dot character (<code>.</code>) preceding a ring closure number. This excludes strings such as <code>C.1CC1</code>. A grammar should make low-level syntax rules like this clear. As such, a well-crafted formal grammar can play a pivotal role in language standardization.</p>
+<h2 id="atoygrammar">A Toy Grammar</h2>
+<p>Having outlined the main goals, an improved SMILES grammar can now be developed. As before, we start with a toy grammar illustrating the overall structure of SMILES syntax:</p>
+<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;smiles&gt;</span>   ::= &lt;atom&gt; &lt;body&gt;*
+<span class="hljs-attribute">&lt;body&gt;</span>     ::= &lt;branch&gt; | &lt;split&gt; | &lt;union&gt;
+<span class="hljs-attribute">&lt;branch&gt;</span>   ::= <span class="hljs-string">"("</span> ( &lt;dot&gt; | &lt;bond&gt; )? &lt;smiles&gt; <span class="hljs-string">")"</span>
+<span class="hljs-attribute">&lt;split&gt;</span>    ::= &lt;dot&gt; &lt;smiles&gt;
+<span class="hljs-attribute">&lt;union&gt;</span>    ::= &lt;bond&gt;? ( &lt;smiles&gt; | &lt;rnum&gt; )
+<span class="hljs-attribute">&lt;dot&gt;</span>      ::= <span class="hljs-string">"."</span>
+<span class="hljs-attribute">&lt;bond&gt;</span>     ::= <span class="hljs-string">"-"</span>
+<span class="hljs-attribute">&lt;atom&gt;</span>     ::= <span class="hljs-string">"*"</span>
+<span class="hljs-attribute">&lt;rnum&gt;</span>     ::= <span class="hljs-string">"1"</span>
+</code></pre>
+<p>This grammar can be tested using the <a href="https://mdkrajnak.github.io/ebnftest/">EBNF Evaluator</a>. Copy the above EBNF grammar into the text area labeled "EBNF Grammar." Then test different text inputs for validity.</p>
+<p>Three points about this grammar are worth noting:</p>
+<ol>
+<li>Only one unbounded quantifier is present, <code>&lt;body&gt;*</code>. A parser based on the grammar will therefore require only one explicit loop.</li>
+<li>Production rules lack complex logic.</li>
+<li>Production rules have more descriptive names.</li>
+</ol>
+<h2 id="fullstereochemicalparities">Full Stereochemical Parities</h2>
+<p>The previous grammar supported only two stereochemical parities: clockwise (<code>@@</code>) and counterclockwise(<code>@</code>). But as the <a href="http://opensmiles.org/opensmiles.html">OpenSMILES specification documents</a>, SMILES supports more sophisticated stereochemical templates, including square planar (<code>SP</code>), trigonal bipyramidal (<code>TB</code>), and octahedral (<code>OH</code>).</p>
+<p>The full range of stereochemical parities can be represented with the following production rules:</p>
+<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;parity&gt;</span>        ::= <span class="hljs-string">"@"</span> ( <span class="hljs-string">"@"</span> | &lt;parity_suffix&gt; )?
+<span class="hljs-attribute">&lt;parity_suffix&gt;</span> ::= &lt;parity_th&gt; | &lt;parity_al&gt; | &lt;parity_sp&gt; | &lt;parity_tb&gt; | &lt;parity_oh&gt;
+<span class="hljs-attribute">&lt;parity_th&gt;</span>     ::= <span class="hljs-string">"TH"</span> (<span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> )
+<span class="hljs-attribute">&lt;parity_al&gt;</span>     ::= <span class="hljs-string">"AL"</span> (<span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> )
+<span class="hljs-attribute">&lt;parity_sp&gt;</span>     ::= <span class="hljs-string">"SP"</span> ( <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> )
+<span class="hljs-attribute">&lt;parity_tb&gt;</span>     ::= <span class="hljs-string">"TB"</span> &lt;twenty&gt;
+<span class="hljs-attribute">&lt;parity_oh&gt;</span>     ::= <span class="hljs-string">"OH"</span> &lt;thirty&gt;
+<span class="hljs-attribute">&lt;twenty&gt;</span>        ::= ( <span class="hljs-string">"1"</span> &lt;digit&gt;? )
+                  | ( "2" "0"? )
+                  | ( "3" | "4" | "5" | "6" | "7" | "8" | "9" )
+<span class="hljs-attribute">&lt;thirty&gt;</span>        ::= ( <span class="hljs-string">"1"</span> &lt;digit&gt;? )
+                  | ( "2" <span class="hljs-attribute">&lt;digit&gt;</span>? )
+                  | ( "3" "0"? )
+                  | ( "4" | "5" | "6" | "7" | "8" | "9" )
+<span class="hljs-attribute">&lt;digit&gt;</span>         ::= <span class="hljs-string">"0"</span> | <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> | <span class="hljs-string">"4"</span> | <span class="hljs-string">"5"</span> | <span class="hljs-string">"6"</span> | <span class="hljs-string">"7"</span> | <span class="hljs-string">"8"</span> | <span class="hljs-string">"9"</span>
+</code></pre>
+<p>That's a lot of effort for some rarely-used stereo parities. But to build a parser capable of reading the entire OpenSMILES syntax, these production rules are all required.</p>
+<h2 id="fullgrammar">Full Grammar</h2>
+<p>The toy grammar uses pared-down atom and bond definitions. Let's remedy that by putting everything together:</p>
+<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;smiles&gt;</span>           ::= &lt;atom&gt; &lt;body&gt;*
+<span class="hljs-attribute">&lt;body&gt;</span>             ::= &lt;branch&gt; | &lt;split&gt; | &lt;union&gt;
+<span class="hljs-attribute">&lt;branch&gt;</span>           ::= <span class="hljs-string">"("</span> ( &lt;dot&gt; | &lt;bond&gt; )? &lt;smiles&gt; <span class="hljs-string">")"</span>
+<span class="hljs-attribute">&lt;split&gt;</span>            ::= &lt;dot&gt; &lt;smiles&gt;
+<span class="hljs-attribute">&lt;union&gt;</span>            ::= &lt;bond&gt;? ( &lt;smiles&gt; | &lt;rnum&gt; )
+<span class="hljs-attribute">&lt;atom&gt;</span>             ::= &lt;organic&gt; | &lt;bracket&gt; | &lt;star&gt;
+<span class="hljs-attribute">&lt;bracket&gt;</span>          ::= <span class="hljs-string">"["</span> &lt;isotope&gt;? ( &lt;symbol&gt; | &lt;bracket_aromatic&gt; | &lt;star&gt; ) &lt;parity&gt;? &lt;hcount&gt;? &lt;charge&gt;? &lt;map&gt;? <span class="hljs-string">"]"</span>
+<span class="hljs-attribute">&lt;isotope&gt;</span>          ::= &lt;digit&gt;? &lt;digit&gt;? &lt;digit&gt;
+<span class="hljs-attribute">&lt;hcount&gt;</span>           ::= <span class="hljs-string">"H"</span> &lt;digit&gt;?
+<span class="hljs-attribute">&lt;charge&gt;</span>           ::= <span class="hljs-string">"+"</span> ( <span class="hljs-string">"+"</span> | &lt;fifteen&gt; )? | <span class="hljs-string">"-"</span> ( <span class="hljs-string">"-"</span> | &lt;fifteen&gt; )?
+<span class="hljs-attribute">&lt;map&gt;</span>              ::= <span class="hljs-string">":"</span> &lt;digit&gt;? &lt;digit&gt;? &lt;digit&gt;? &lt;digit&gt;
+<span class="hljs-attribute">&lt;rnum&gt;</span>             ::= &lt;digit&gt; | <span class="hljs-string">"%"</span> &lt;digit&gt; &lt;digit&gt;
+<span class="hljs-attribute">&lt;parity&gt;</span>           ::= <span class="hljs-string">"@"</span> ( <span class="hljs-string">"@"</span> | &lt;parity_suffix&gt; )?
+<span class="hljs-attribute">&lt;parity_suffix&gt;</span>    ::= &lt;parity_th&gt; |&lt;parity_al&gt; | &lt;parity_sp&gt; | &lt;parity_tb&gt; | &lt;parity_oh&gt;
+<span class="hljs-attribute">&lt;parity_th&gt;</span>        ::= <span class="hljs-string">"TH"</span> (<span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> )
+<span class="hljs-attribute">&lt;parity_al&gt;</span>        ::= <span class="hljs-string">"AL"</span> (<span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> )
+<span class="hljs-attribute">&lt;parity_sp&gt;</span>        ::= <span class="hljs-string">"SP"</span> ( <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> )
+<span class="hljs-attribute">&lt;parity_tb&gt;</span>        ::= <span class="hljs-string">"TB"</span> &lt;twenty&gt;
+<span class="hljs-attribute">&lt;parity_oh&gt;</span>        ::= <span class="hljs-string">"OH"</span> &lt;thirty&gt;
+<span class="hljs-attribute">&lt;organic&gt;</span>          ::= <span class="hljs-string">"B"</span> <span class="hljs-string">"r"</span>? | <span class="hljs-string">"C"</span> <span class="hljs-string">"l"</span>? | <span class="hljs-string">"N"</span> | <span class="hljs-string">"O"</span> | <span class="hljs-string">"P"</span> | <span class="hljs-string">"S"</span>
+                     | "F" | "I" | "At" | "Ts"
+                     | "b" | "c" | "n" | "o" | "p" | "s"
+<span class="hljs-attribute">&lt;symbol&gt;</span>           ::= <span class="hljs-string">"A"</span> ( <span class="hljs-string">"c"</span> | <span class="hljs-string">"g"</span> | <span class="hljs-string">"l"</span> | <span class="hljs-string">"m"</span> | <span class="hljs-string">"r"</span> | <span class="hljs-string">"s"</span> | <span class="hljs-string">"t"</span> | <span class="hljs-string">"u"</span> )
+                     | "B" ( "a" | "e" | "h" | "i" | "k" | "r" )?
+                     | "C" ( "a" | "d" | "e" | "f" | "l" | "m" | "n" | "o"
+                     | "r" | "s" | "u" )?
+                     | "D" ( "b" | "s" | "y" )
+                     | "E" ( "r" | "s" | "u" )
+                     | "F" ( "e" | "l" | "m" | "r" )?
+                     | "G" ( "a" | "d" | "e" )
+                     | "H" ( "e" | "f" | "g" | "o" | "s" )?
+                     | "I" ( "n" | "r" )?
+                     | "K" "r"?
+                     | "L" ( "a" | "i" | "r" | "u" | "v" )
+                     | "M" ( "c" | "g" | "n" | "o" | "t" )
+                     | "N" ( "a" | "b" | "d" | "e" | "h" | "i" | "o" | "p" )?
+                     | "O" ( "g" | "s" )?
+                     | "P" ( "a" | "b" | "d" | "m" | "o" | "r" | "t" | "u" )?
+                     | "R" ( "a" | "b" | "e" | "f" | "g" | "h" | "n" | "u" )
+                     | "S" ( "b" | "c" | "e" | "g" | "i" | "m" | "n" | "r" )?
+                     | "T" ( "a" | "b" | "c" | "e" | "h" | "i" | "l" | "m"
+                     | "s" )
+                     | "U" | "V" | "W" | "Xe" | "Y" "b"?
+                     | "Z" ( "n" | "r" )
+<span class="hljs-attribute">&lt;bracket_aromatic&gt;</span> ::= <span class="hljs-string">"b"</span> | <span class="hljs-string">"c"</span> | <span class="hljs-string">"n"</span> | <span class="hljs-string">"o"</span> | <span class="hljs-string">"p"</span> | <span class="hljs-string">"s"</span> <span class="hljs-string">"e"</span>? | <span class="hljs-string">"as"</span>
+<span class="hljs-attribute">&lt;bond&gt;</span>             ::= <span class="hljs-string">"-"</span> | <span class="hljs-string">"="</span> | <span class="hljs-string">"#"</span> | <span class="hljs-string">"$"</span> | <span class="hljs-string">"/"</span> | <span class="hljs-string">"\\"</span>
+<span class="hljs-attribute">&lt;fifteen&gt;</span>          ::= <span class="hljs-string">"1"</span> (<span class="hljs-string">"0"</span> | <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> | <span class="hljs-string">"4"</span> | <span class="hljs-string">"5"</span>)?
+                     | ( "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" )
+<span class="hljs-attribute">&lt;twenty&gt;</span>           ::= ( <span class="hljs-string">"1"</span> &lt;digit&gt;? )
+                     | ( "2" "0"? )
+                     | ( "3" | "4" | "5" | "6" | "7" | "8" | "9" )
+<span class="hljs-attribute">&lt;thirty&gt;</span>           ::= ( <span class="hljs-string">"1"</span> &lt;digit&gt;? )
+                     | ( "2" <span class="hljs-attribute">&lt;digit&gt;</span>? )
+                     | ( "3" "0"? )
+                     | ( "4" | "5" | "6" | "7" | "8" | "9" )
+<span class="hljs-attribute">&lt;digit&gt;</span>            ::= <span class="hljs-string">"0"</span> | <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> | <span class="hljs-string">"4"</span> | <span class="hljs-string">"5"</span> | <span class="hljs-string">"6"</span> | <span class="hljs-string">"7"</span> | <span class="hljs-string">"8"</span> | <span class="hljs-string">"9"</span>
+<span class="hljs-attribute">&lt;dot&gt;</span>              ::= <span class="hljs-string">"."</span>
+<span class="hljs-attribute">&lt;star&gt;</span>             ::= <span class="hljs-string">"*"</span>
+</code></pre>
+<p>This new grammar supports all features defined by the <a href="http://opensmiles.org">OpenSMILES specification</a>. As the previous section highlighted, the core set of rules can be expressed with a handful of productions. Unlocking the full set of features, particularly bracket atom properties, requires many more productions.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>An improved LL(1) SMILES formal grammar has been developed. It supports all features in the OpenSMILES specification. The grammar presented here simplifies some previously-presented production rules and uses more descriptive production names. As such, the new grammar be used as a starting point for the development of efficient and robust OpenSMILES-compliant parsers. It can also help to address a number of questions regarding allowed SMILES syntax.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

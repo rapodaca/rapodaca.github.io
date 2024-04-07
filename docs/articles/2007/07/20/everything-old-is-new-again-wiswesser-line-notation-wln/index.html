@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Everything Old is New Again - Wiswesser Line Notation (WLN) | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Everything Old is New Again - Wiswesser Line Notation (WLN)</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-07-20T00:00:00.000Z">2007-07-20T00:00:00.000Z</time>
+      </header>
+      <p>Sometimes, searching through the attic of scientific ideas turns up unexpected treasures. Like old clothing styles that suddenly become fashionable again, the passage of time has a way of making old ideas relevant by supplying new context. Those ideas that once enjoyed widespread popularity followed by complete obscurity are especially interesting. This article talks about one of them and why it may matter again.</p>
+<h2 id="somehistory">Some History</h2>
+<p>Wiswesser Line-Formula Chemical Notation (WLN) was the most popular of perhaps a dozen actively-used line notations systems during the 1960s and 1970s. Developed by William J. Wiswesser over a period of many years starting in the 1940s, WLN contains a surprising number of modern ideas about chemistry and information. At one point a serious contender for the position now held by IUPAC nomenclature, WLN has become so obscure that few chemists have even heard of it and no modern software can manipulate it. Even finding information on the basic grammar of WLN is difficult: almost all of this documentation is contained in out-of-print books.</p>
+<h2 id="aguide">A Guide</h2>
+<p>To my surprise, WLN is both easy to understand and easy to use. As far as canonicalized line notations go, WLN is far easier to comprehend than either InChI or <a href="/articles/2007/04/03/creating-canonical-smiles-with-ruby-open-babel">Canonical SMILES</a>. Even more surprisingly, WLN actually meets more than a few of the requirements for the <a href="/articles/2007/03/14/eleven-qualities-of-the-perfect-line-notation-for-the-web">ideal line notation for the Web</a>. I was always struck by claims that high school graduates with little chemistry background could be trained to encode WLN in a few weeks; this now seems very plausible.</p>
+<p>My guide is Elbert Smith's short 1968 book <em>The Wiswesser Line-Formula Chemical Notation</em>. I was able to pick up a used copy in excellent condition for under $30.00 from Amazon.</p>
+<h2 id="someexamples">Some Examples</h2>
+<p>Functional groups, carbon chains, and rings play central roles in WLN. Unlike modern line notations that emphasize atoms, WLN is designed to mirror the way that chemists actually think about chemistry.</p>
+<p>Consider acetone:</p>
+<p><img src="/images/posts/20070720/acetone.png" alt="Acetone" title="Acetone"></p>
+<p><code>1V1</code></p>
+<p>The two "1"s stand for saturated one-carbon chains, i.e. methyl groups. The "V" stands for a carbon doubly-bonded to oxygen.</p>
+<p>Given nothing more than the above example, the encoding of diethyl ether should be completely clear:</p>
+<p><img src="/images/posts/20070720/ether.png" alt="Ether" title="Ether"></p>
+<p><code>2O2</code></p>
+<p>"O" simply stands for a divalent oxygen atom.</p>
+<p>The benzene ring is one of the most ubiquitous functional groups in organic chemistry. Wiswesser knew this and wanted to make it easy to encode aromatic compounds. His solution is simplicity itself. Consider acetophenone:</p>
+<p><img src="/images/posts/20070720/acetophenone.png" alt="Acetophenone" title="Acetophenone"></p>
+<p><code>1VR</code></p>
+<p>The "R" stands for a benzene ring. WLN canonicalization gives it the lowest priority and this is why it appears last.</p>
+<p>What about disubstituted aromatics? Consider 4-chloroacetophenone:</p>
+<p><img src="/images/posts/20070720/4-chloroacetophenone.png" alt="4-chloroacetophenone" title="4-chloroacetophenone"></p>
+<p><code>GR DV1</code></p>
+<p>The "G" symbol stands for chlorine. The " DV1" stands for the 4-acyl substituent. Here, the "D" denotes the 4-postion. The 3- position would result in " CV1", and the 2- position would give " BV1". The space character means that the character following it should be interpreted as ring locant.</p>
+<p>WLN uses a very simple system of canonicalization based on alphanumeric order. Priority increases in the direction: (1) symbols; (2) numbers in numerical order; and (3) letters in alphabetical order (with the exception of R which has lower priority than symbols). Coding generally begins at the substituent assigned the highest priority. This explains why 4-chloroacetophenone is not coded as "1VR DG".</p>
+<h2 id="advantagesofwln">Advantages of WLN</h2>
+<p>WLN is remarkably compact, especially when compared to SMILES and InChI. For example, consider the InChI for 4-chloroacetophenone, which is eight times longer than the corresponding WLN:</p>
+<pre><code class="hljs bash language-bash">InChI=1/C8H7ClO/c1-6(10)7-2-4-8(9)5-3-7/h2-5H,1H3
+</code></pre>
+<p>Additionally, it's readily apparent to a human observer when a WLN is not properly coded - after all, the language was designed to be both read and written by humans rather than machines. Anyone can look at "GR DV1" and deduce almost instantly that it contains a carbonyl group (V), a phenyl group (R), a chloro group (G), and a methyl group (1).</p>
+<p>And if this functional group recognition is easy for humans, it's orders of magnitude easier for machines. It's not difficult at all to imagine very sophisticated and fast molecular query systems that do nothing more than simple processing of the ASCII text contained within WLN strings.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>It's very unlikely that WLN will ever be resurrected for the purpose of replacing existing line notations. On the other hand, WLN offers many potentially useful concepts for those creating new line notations. As they say, history doesn't repeat itself, but it frequently rhymes.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

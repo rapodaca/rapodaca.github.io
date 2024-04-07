@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Minimal Molecule API | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/04/06/a-minimal-molecule-api/">
+      <meta property="og:title" content="A Minimal Molecule API">
+      <meta property="og:description" content="Cataloging the essential behaviors of molecule-like objects.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200406/summary.png">
+      <meta content="Cataloging the essential behaviors of molecule-like objects." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Minimal Molecule API</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-04-06T16:00:00Z">2020-04-06T16:00:00Z</time>
+      </header>
+      <p>Application Programming Interfaces (APIs) are borne of conflicting demands. On the one hand, clients want an API with a lot of features. On the other hand, too many features can lead to bloat and its malevolent cousins: poor performance; brittleness; and steep learning curves. Good APIs strive for the middle ground, offering just enough functionality to solve important problems, while leaving niche features to extensions.</p>
+<p>With the goal of seeking compromise between functionality and bloat, this article proposes a minimal <code>Molecule</code> API that should be applicable to many problem domains. Whether you're using a cheminformatics toolkit or building one from scratch, there's plenty here to consider.</p>
+<h2 id="theirreduciblemolecule">The Irreducible Molecule</h2>
+<p>The most important API in any cheminformatics toolkit is the one describing the <code>Molecule</code> entity. In modern toolkits, <code>Molecule</code> will be an interface. In older toolkits, it may be a concrete class. A file format such as molfile defines <code>Molecule</code> as a flat data structure. Regardless of its particular expression, the strengths and limitations of a molecular API will be amplified many times over by the software using it. As such, it's critical to define <code>Molecule</code> with care from the start.</p>
+<p><code>Molecule</code> embodies the chemical concept of a molecule at some level of resolution. That last part, "some level of resolution," raises the awkward question of how far to take the abstraction. The answer depends in large part on the ways in which the software surrounding <code>Molecule</code> will be used. A quantum chemistry package will require very different features from <code>Molecule</code> than a chemical structure editor. Chemistry is a vast topic, meaning that there are almost as many ways of thinking about a molecule as there are chemists.</p>
+<p>One solution is to use a domain-specific <code>Molecule</code> API — one that captures every detail relevant to a niche area of chemistry. The main disadvantage is that the team adopting such an approach must find efficient, robust solutions to a dizzying array of problems in chemistry and graph theory. Some of them are highlighted among this blog's articles. The approach can work, but it can also become surprisingly expensive. Alarmingly, the expenses can rack up at an exponential rate as project deadlines fall by the wayside.</p>
+<p>Alternatively, a team can adopt the more practical approach of using a toolkit built around a general-purpose <code>Molecule</code> API. Clearly, toolkit authors can't predict every possible use of their software. They therefore must pack enough utility into <code>Molecule</code> to make it useful within a broad range of applications. At the same time, they must resist the temptation to cater to any particular user base to avoid bloat.</p>
+<p>Is there a happy middle ground here, and if so, what does it look like?</p>
+<h2 id="goals">Goals</h2>
+<p>Before presenting the <code>Molecule</code> API itself, a few words about goals are in order. There are four:</p>
+<ol>
+<li><em>Easy to learn.</em> Brevity and consistency working together can go a long way toward flattening learning curves.</li>
+<li><em>Easy to use.</em> Everything possible in other toolkits should be possible directly or indirectly. </li>
+<li><em>Simple to implement.</em> Lowering the barrier to re-implementing <code>Molecule</code> makes several specialized performance optimizations feasible.</li>
+<li><em>Simple to extend.</em> The exact applications in which <code>Molecule</code> will be used are unknown. Therefore, <code>Molecule</code> must avoid exposing functionality that will conflict with future extensions.</li>
+</ol>
+<h2 id="molecule">Molecule</h2>
+<p>For years, my company's chemical structure editor <a href="https://chemwriter.com">ChemWriter</a> was built around a domain-specific <code>Molecule</code> API by necessity. Back in 2009 when work started, there were no JavaScript cheminformatics toolkits. Even today, the software in that category is <a href="/articles/2019/05/01/javascript-for-cheminformatics-part-2/">limited</a>.</p>
+<p>Over years of constant use, the outlines of a cheminformatics toolkit began to emerge from ChemWriter. At its center was a minimal <code>Molecule</code> API. Like the <a href="/articles/2020/01/06/a-minimal-graph-api/">minimal graph API</a> described here recently, the minimal <code>Molecule</code> API is built around a handful of read-only methods. They are:</p>
+<ul>
+<li><strong><code>element</code></strong>. Returns the <code>Element</code> associated with an atom given its integer ID. <code>Element</code> provides methods to query atomic number, symbol, and other attributes.</li>
+<li><strong><code>isocomp</code></strong>. Returns an <code>Isocomp</code> ("isotopic composition") object associated with an atom given its integer ID. <code>Isocomp</code> represents the state of an atom's nucleus. At a minimum, it reports whether the composition is naturally occurring and iterates the set of mass numbers.</li>
+<li><strong><code>electrons</code></strong>. Returns the number of nonbonding electrons associated with an atom given its integer ID.</li>
+<li><strong><code>hydrogens</code></strong>. Returns the number of <a href="/articles/2019/11/06/virtual-hydrogens/">virtual hydrogens</a> associated with an atom given its integer ID.</li>
+<li><strong><code>charge</code></strong>. Returns the formal charge of a member atom identified by integer id.</li>
+<li><strong><code>atomParity</code></strong>. Returns the parity of an atom identify by integer id. Atom parity, encoded as a three-member enumeration, expresses the tetrahedral arrangement of substituents as clockwise, counterclockwise, or undefined.</li>
+<li><strong><code>bondOrder</code></strong>. Returns the formal bond order between two atoms identified by their integer ids.</li>
+<li><strong><code>bondParity</code></strong>. Returns the parity of a bond between two atoms identified by integer ids. Bond parity, encoded as a three-member enumeration, expresses the conformation about a double bond as syn, anti, or undefined.</li>
+</ul>
+<h2 id="atomandbondparity">Atom and Bond Parity</h2>
+<p>Tetrahedral stereochemical configuration is supported through the concept of atom parity, as defined by the <code>atomParity</code> method. This idea borrows from notions of atom parity present in both SMILES and the molfile format. View the axis defined by the bond from the neighbor with the smallest ID to a central atom. If the remaining neighbors, ordered by ascending ID, sweep clockwise, atom parity is positive (e.g., return value "+1"). Otherwise, atom parity is negative (e.g., return value "-1"). Atoms without parity assignments return a null value (e.g., "0").</p>
+<figure>
+  <img alt="Atom Parity" src="/images/posts/20200406/atom-parity.png">
+  <figcaption>
+    <strong>Atom Parity.</strong> Sight down the axis defined by the neighbor with the lowest ID and the central atom. If the remaining substituents sweep counterclockwise (left), parity is negative. Otherwise, parity is positive (right).
+  </figcaption>
+</figure>
+<p>E/Z double bond conformations are supported through the bond parity concept, as defined by the <code>bondParity</code> method. Identify the two neighbors of the double bond system having the lowest-valued IDs. If these neighbors appear on the same side of the double bond, parity is syn (e.g., "+1"), otherwise atom parity is anti (e.g., "-1"). A double bond without parity assignment returns a null value (e.g., "0").</p>
+<figure>
+  <img alt="Bond Parity" src="/images/posts/20200406/bond-parity.png">
+  <figcaption>
+    <strong>Bond Parity.</strong> Identify the neighbors with the lowest ID on each double bond terminal. If these neighbors appear on the same side of the double bond, parity is syn (left). Otherwise parity is anti (right).
+  </figcaption>
+</figure>
+<p>Atom and bond parities involving atoms bearing one virtual hydrogen can be computed by assigning it the lowest atom ID. In the case of atom parity, the axis defined by the virtual hydrogen and the central atom would be sighted. In the case of bond parity, hydrogen could be assigned the role of lowest-numbered neighbor ID.</p>
+<p>Should an atom or bond not fit the template, the corresponding parity must be returned as null (e.g., "0"). Non-template descriptions of atomic configuration or bond conformation can be realized via Rich Expression Constructs as described below.</p>
+<p>Both atom and bond parity rely on stable atomic IDs. After an atom is assigned an ID, it can never change in a way that affects relative ordering to neighbors. Fortunately, this constraint is easy to achieve.</p>
+<h2 id="atomids">Atom IDs</h2>
+<p>It may be surprising to find neither <code>Atom</code> nor <code>Bond</code> in the API description. These constructs turn out to be completely unnecessary. Unlike many toolkits, the <code>Molecule</code> interface described here is a single source of truth. Everything that can be learned about a molecule flows through the <code>Molecule</code> interface, and only that interface.</p>
+<p>Under this system, the role of the atom shrivels to that of a mere identifier. Having lost its importance as a repository of atomic state, the need for a custom atom type itself fades away. What remains is only the requirement for unique identification of the atoms in a <code>Molecule</code>. This need can be filled by any built-in type. Contiguous integers in the range of 0 through one less than the <a href="https://mathworld.wolfram.com/GraphOrder.html">order of the graph</a> (atom count) offer a convenient and versatile option.</p>
+<p>Similarly, the bond methods <code>bondOrder</code> and <code>bondParity</code> accept a pair of atom IDs representing the terminals of a bond. These can be supplied in either order because a <code>Molecule</code> also behaves as an undirected graph.</p>
+<p>Atomic IDs are fixed on creation. In other words, atomic IDs must never change after assignment. Internally, this constraint is crucial for atomic configuration and bond conformation to remain stable. Externally, the constraint ensures that clients can store atomic IDs without them becoming invalid.</p>
+<h2 id="immutability">Immutability</h2>
+<p>The <code>Molecule</code> interface exposes no mutators. It may come as a surprise, but few situations actually require a mutable <code>Molecule</code>. Most application will work just fine with atomic <code>build</code>, <code>extend</code>, or <code>read</code> functions. Stepwise construction can be supported via methods exposed on concrete <code>Molecule</code> implementations.</p>
+<p>Advantages of adopting an immutable <code>Molecule</code> interface include:</p>
+<ul>
+<li>simplification of the API;</li>
+<li>elimination of defensive copying;</li>
+<li>simplified use in systems languages like Rust, C++, and C; and</li>
+<li>simplified use in concurrent environments.</li>
+</ul>
+<h2 id="moleculeextendsgraph">Molecule Extends Graph</h2>
+<p>In addition to its chemistry-specific methods, <code>Molecule</code> supports all of the methods of the <a href="/articles/2020/01/06/a-minimal-graph-api/">minimal <code>Graph</code> API</a> recently presented here. In other words, <code>Molecule</code> <em>is a</em> <code>Graph</code>. As such, <code>Molecule</code> can be used by any function or method requiring a <code>Graph</code>. Cycle perception, isomorphism detection, matching, traversal, and a host of complex graph operations can all be performed with equal ease on either <code>Graph</code> or <code>Molecule</code>.</p>
+<h2 id="moleculeinjavascript">Molecule in JavaScript</h2>
+<p>To make things less abstract, here's one approach to the <code>Molecule</code> API proposal written in modern JavaScript (specifically, ES6):</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">// minimal Graph API</span>
+<span class="hljs-keyword">import</span> Graph <span class="hljs-keyword">from</span> <span class="hljs-string">'../graph/graph.js'</span>; 
+
+<span class="hljs-comment">/**
+ * @interface
+ */</span>
+<span class="hljs-keyword">const</span> Element = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+  <span class="hljs-comment">/**
+   * <span class="hljs-doctag">@return <span class="hljs-type">{string}</span></span>
+   */</span>
+  symbol () { }
+
+  <span class="hljs-comment">// ...</span>
+};
+
+<span class="hljs-comment">/**
+ * @interface
+ */</span>
+<span class="hljs-keyword">const</span> Isocomp = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+  <span class="hljs-comment">/**
+   * <span class="hljs-doctag">@return <span class="hljs-type">{boolean}</span></span>
+   */</span>
+  natural () { <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; }
+
+  <span class="hljs-comment">/**
+   * <span class="hljs-doctag">@return <span class="hljs-type">{Iterable&lt;number&gt;}</span></span>
+   */</span>
+  isotopes () { <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>; }
+};
+
+<span class="hljs-comment">/**
+ * @interface
+ */</span>
+<span class="hljs-keyword">const</span> Molecule = <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Graph</span> </span>{
+  <span class="hljs-comment">/**
+   * Returns the element of the atom identified by id.
+   * 
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
+   * <span class="hljs-doctag">@return <span class="hljs-type">{Element}</span></span>
+   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   */</span>
+  element (id) { <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>; }
+
+  <span class="hljs-comment">/**
+   * Returns the isotopic composition of the atom identified by id.
+   * 
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
+   * <span class="hljs-doctag">@return <span class="hljs-type">{Isocomp}</span></span>
+   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   */</span>
+  isocomp (id) { <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span> }
+
+  <span class="hljs-comment">/**
+   * Returns the valence electron count of the atom identified by id.
+   * 
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
+   * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span> </span>an integer greater than or equal to zero
+   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   */</span>
+  electrons (id) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
+
+  <span class="hljs-comment">/**
+   * Returns the virtual hydrogen count of the atom identified by id.
+   * 
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
+   * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span> </span>an integer greater than or equal to zero
+   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   */</span>
+  hydrogens (id) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
+
+  <span class="hljs-comment">/**
+   * Returns the formal charge of the atom identified by id.
+   * 
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
+   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span> </span>may be a non-integer
+   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   */</span>
+  charge (id) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
+
+  <span class="hljs-comment">/**
+   * Returns a number representing atom parity.
+   * 
+   * To determine atom parity, sight down the axis from the lowest-indexed
+   * neighbor of atom to the atom. If the remaining neighbors are arranged
+   * clockwise in order of index, parity is +1. Otherwise, parity is -1.
+   * 
+   * If no parity is assigned, 0 is returned.
+   * 
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
+   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span> </span>-1 (anti), 0 (none), 1 (syn)
+   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid sid or tid
+   */</span>
+  atomParity (id) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
+
+  <span class="hljs-comment">/**
+   * Returns the formal bond order between atoms identified by sid and tid.
+   * 
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">sid</span></span>
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">tid</span></span>
+   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span></span>
+   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid sid or tid
+   */</span>
+  bondOrder (sid, tid) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
+
+  <span class="hljs-comment">/**
+   * Returns a number representing the bond parity.
+   * 
+   * If positive, the two lowest-indexed atoms on either terminal are syn. If
+   * negative, the lowest-indexed atom on one terminal is anti to the
+   * lowest-indexed atom on the mating terminal.
+   * 
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">sid</span></span>
+   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">tid</span></span>
+   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span> </span>-1 (anti), 0 (none), 1 (syn)
+   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid sid or tid
+   */</span>
+  bondParity (sid, tid) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
+};
+
+<span class="hljs-keyword">export</span> { Molecule, Element, Isocomp }
+</code></pre>
+<h2 id="extensionviarichexpressionconstructs">Extension via Rich Expression Constructs</h2>
+<p>It may seem as if the <code>Molecule</code> interface precludes advanced forms of molecular representation such as multi-atom bonding and non-template stereochemistry. On the contrary, the approach outlined here supports them by not interfering with them.</p>
+<p>Consider, for example, the <code>bondOrder</code> method which returns a floating point value. Toolkits lacking multi-atom bonding support can implement <code>bondOrder</code> by returning an integer. This yields a fast implementation unburdened by overhead from unused features.</p>
+<p>What if a toolkit requires multi-atom bonding? In such cases, <code>Molecule</code> can be extended with the following functions:</p>
+<ul>
+<li><strong><code>bondingSystems</code></strong>. Iterates all Bonding Systems in the <code>Molecule</code>. A bonding system is a subgraph with an electron count attribute as <a href="/articles/2020/03/16/formal-charge-and-bond-order-are-side-effects/">recently described</a>.</li>
+<li><strong><code>bondingSystemsAtAtom</code></strong>. Iterates all bonding systems containing the member atom identified by ID.</li>
+<li><strong><code>bondingSystemsAtEdge</code></strong>. Iterates all bonding systems containing the edge specified by two atom IDs.</li>
+</ul>
+<p>Notice that the presence of these methods in no way interferes with the presence of the the original <code>bondOrder</code> method. They can both be present without causing conflict. Moreover, it's possible to implement the <code>bondOrder</code> method through analysis of the bonding systems in a molecule.</p>
+<p>Likewise, non-template stereochemical configuration and conformation can be supported without conflicting with the <code>atomParity</code> or <code>bondParity</code> methods. Should such advanced capability be required, <code>Molecule</code> can be extended to support two additional functions:</p>
+<ul>
+<li><strong><code>configuration</code></strong>. Returns the configuration (which may be undefined) of the atom identified by its ID. The result is a "paddle wheel."</li>
+<li><strong><code>conformation</code></strong>. Returns the conformation (which may be undefined) for a molecular path defined by a sequence of atom IDs. As with <code>configuration</code>, the result is a "paddle wheel."</li>
+</ul>
+<p>I'll have more to say about configurational and conformational paddle wheels in a later post. As with <code>bondOrder</code>, both <code>bondParity</code> and <code>atomParity</code> can be computed from internal representations that also support <code>configuration</code> and <code>conformation</code>.</p>
+<h2 id="specializedextensions">Specialized Extensions</h2>
+<p><code>Molecule</code> as described here lacks a lot of functionality that might seem essential. For example, how can graphical applications use a <code>Molecule</code> that lacks even the most rudimentary support for atomic coordinates?</p>
+<p>In the specific case of 2D graphics, the answer is simple. We define a distinct construct encapsulating the behavior of a 2D coordinate plane. In other words, we define a <code>Plane</code> interface.</p>
+<p><code>Plane</code> would provide methods for writing, reading, and transforming a set of points referenced by atomic IDs. If a function or method requires 2D atomic coordinates, we can pass an object implementing <code>Plane</code>, and possibly a <code>Molecule</code> as well.</p>
+<p>For 3D graphics applications, replace <code>Plane</code> with a <code>Space</code> interface.</p>
+<p>This approach can be extended to capture and use a wide range of specialized information about atoms, bonds, and molecules. At no time does it become necessary to force these capabilities onto <code>Molecule</code> itself.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p><code>Molecule</code> is a minimal interface for objects and data structures possessing molecule-like behavior. With only a handful of methods to worry about, toolkits based on <code>Molecule</code> are easy to learn and use. Exposing only a core of irreducible methods enables conflict-free extensions, application-specific enhancements, and many performance optimizations.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

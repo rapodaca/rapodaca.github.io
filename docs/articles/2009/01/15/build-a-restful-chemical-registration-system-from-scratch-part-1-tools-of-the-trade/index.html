@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Build a RESTful Chemical Registration System from Scratch Part 1 - Tools of the Trade | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Build a RESTful Chemical Registration System from Scratch Part 1 - Tools of the Trade</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-01-15T00:00:00.000Z">2009-01-15T00:00:00.000Z</time>
+      </header>
+      <p>A chemical registration system forms the core of most database-driven cheminformatics applications. Yet detailed instructions, in the traditional literature or otherwise, on how to create one from free components are surprisingly rare. This article introduces a new Depth-First series aimed a bringing together several tutorials written over the last year to create a RESTful chemical registration system that anyone can build, run, and adapt to their own needs.</p>
+<h2 id="definingtheproblem">Defining the Problem</h2>
+<p>Whether you're building or designing a database-driven chemical informatics system, at some point you'll face the problem of getting molecules into and out of your database. This is where chemical registration systems come in. <a href="http://emolecules.com">eMolecules</a> has created a <a href="http://www.emolecules.com/doc/cheminformatics-101-chemical-registration.php">summary on the subject</a>. It defines the main responsibilities of a chemical registration system as ensuring:</p>
+<ul>
+<li><strong>Structural novelty</strong> - The same molecule never gets stored twice.</li>
+<li><strong>Structural normalization</strong> When multiple representations of a molecule are possible (e.g., tautomers and charge-separated forms), only one is used.</li>
+<li><strong>Structure drawing</strong> Present a chemical structure recognizable to chemists.</li>
+<li><strong>Consistent relationships among related compounds</strong> The system must decide what to do with various salt forms (or other mixtures) of a particular compound a user might decide to register. There are many options, but they must be applied consistently.</li>
+<li><strong>Reasonable behavior when a structure is (partially) unknown</strong> Not every compound of interest will have a known chemical structure. Sometimes the structure will only be partially known as in the case of double bond geometry and absolute stereochemistry.</li>
+<li><strong>Security</strong> <a href="http://www.codinghorror.com/blog/archives/001210.html">Enough said</a>? There's always more.</li>
+<li><strong>Reasonable behavior when changes are made to structures</strong> The system must be able to respond well to the inevitable: a user changes their mind about the structure s/he entered.</li>
+</ul>
+<p>The system we'll build in this tutorial won't deal with all of these responsibilities, but it will handle most of them. In addition, it will address some other problems as well.</p>
+<h2 id="theapproach">The Approach</h2>
+<p>We'll be building a <a href="http://en.wikipedia.org/wiki/Web_service">Web Service</a>, which is <a href="http://www.w3.org/TR/ws-gloss/">defined</a> by the <a href="http://www.w3.org/">W3C</a> as "a software system designed to support interoperable machine-to-machine interaction over a network."</p>
+<p>The reason is simple: we want our chemical registration system to be addressable from anywhere in the world, and we want to use it as an interchangeable, technology-agnostic, loosely-coupled component to build more complex chemistry Web applications.</p>
+<p>We want this system to be as easy to deploy as possible on <em>any</em> hardware. Lengthy configuration processes, source code compilation, and exotic dependencies are out. Drag-and-drop deployment, self-contained packaging, convention over configuration, and platform-independent binaries are in.</p>
+<h2 id="rest">REST?</h2>
+<p>There are currently multiple competing approaches for creating Web Services. One of the most flexible and straightforward to implement is <a href="http://en.wikipedia.org/wiki/Representational_State_Transfer">Representational State Transfer</a> (REST). In a nutshell, REST leverages the full HTTP protocol for passing messages to and from the server. This simple idea has some powerful implications for the design of the system, which will be explored in articles to come.</p>
+<h2 id="tools">Tools</h2>
+<p>We will use a number of free, open technologies in the creation of our system:</p>
+<ul>
+<li><strong>Technology Platform</strong> Java will be used exclusively due to its massive installed base, platform-independence, and high performance.</li>
+<li><strong>Cheminformatics Toolkit</strong> <a href="http://code.google.com/p/mx-java/">MX</a> will supply the main interface between chemistry and Java.</li>
+<li><strong>Unique Identifier</strong> <a href="http://www.iupac.org/inchi/">InChI</a> will be used to assign unique identifiers to compounds stored in the registry.</li>
+<li><strong>Server</strong> <a href="http://www.mortbay.org/jetty/">Jetty</a> will supply basic HTTP functionality.</li>
+<li><strong>Servlet</strong> <a href="http://www.restlet.org/">Restlet</a> will simplify the implementation of REST using the servlet specification.</li>
+<li><strong>Database</strong> <a href="http://www.h2database.com/html/main.html">H2</a> will provide fast, portable, zero-administration SQL support.</li>
+<li><strong>Object Persistence</strong> The exact method of persisting Java objects hasn't been settled yet, but <a href="http://www.javalobby.org/articles/activeobjects/">Active Objects</a> looks quite interesting, especially when <a href="http://www.manskes.de/index.php/2008/10/30/the-simplest-activeobjects-database-provider-for-the-h2-database/">combined with H2</a>.</li>
+</ul>
+<h2 id="conclusions">Conclusions</h2>
+<p>Chemical registration systems play a vital role in enabling data-driven chemistry applications. This article introduced the problems registration systems typically solve and outlined a plan for implementing one using only free, open components. The next article in this series will discuss the design of the registry Web Service.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

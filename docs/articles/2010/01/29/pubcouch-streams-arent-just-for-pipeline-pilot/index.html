@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>PubCouch - Streams Aren&#x27;t Just for Pipeline Pilot | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>PubCouch - Streams Aren&#x27;t Just for Pipeline Pilot</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-01-29T00:00:00.000Z">2010-01-29T00:00:00.000Z</time>
+      </header>
+      <p>If you've been following along with the development of <a href="http://github.com/metamolecular/pubcouch">PubCouch</a>, the CouchDB interface for PubChem, you've probably noticed that only a fraction of the code relates to CouchDB itself. What's the rest of it doing?</p>
+<p>This article, the the third in a series on <a href="/articles/2010/01/20/pubcouch-a-couchdb-interface-to-pubchem">using CouchDB for PubChem data</a> describes how PubCouch transforms PubChem's collection of gzipped archive files into a stream of structure-data records that can be processed as if it were one big SD File.</p>
+<h2 id="theproblem">The Problem</h2>
+<p>If you want to work with the PubChem dataset, one of the first problems you'll face is how to import the data into your database management system (dbms). The PubChem FTP server contains a rather large collection of archive "bundles", which are simply <a href="/articles/2006/09/29/hacking-pubchem-direct-access-with-ftp">gzipped SD Files of records within a certain ID range</a>.</p>
+<p>In most cases, importing the PubChem database will consist of sequentially reading every Compound and Substance record, applying the appropriate intermediate processing, and storing the result.</p>
+<p>So, we have a mismatch in the way PubChem stores its data (multiple gzipped archives) and the way we want to process it (as one big SD File). And by the way, how about not storing a bunch of temporary files, but rather transfer data directly from the archive to our database?</p>
+<h2 id="asolution">A Solution</h2>
+<p>One of the reasons Java was chosen as PubCouch's development language is its built-in support for high-performance IO operations. <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/io/InputStream.html">InputStream</a>, the foundation of this support, turns out to be a very versatile class enabling a variety of filtering and reprocessing operations on raw data streams.</p>
+<p>Our <a href="http://commons.apache.org/net/">FTP Client</a> can return at most one raw byte stream from each archive file. By applying a set of filters on this stream, we can get pretty close to where we need to be:</p>
+<ul>
+<li>wrap each InputStream in a <a href="http://commons.apache.org/net/">GZIPInputStream</a></li>
+<li>wrap the result in an <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/io/InputStreamReader.html">StreamReaderReader</a></li>
+<li>wrap the result in a <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/io/BufferedReader.html">BufferedReader</a> to read line-by-line</li>
+</ul>
+<p>These filters alone won't do the job - remember, we want to treat the entire FTP archive as one big SD File.</p>
+<p><a href="http://java.sun.com/j2se/1.4.2/docs/api/java/io/SequenceInputStream.html">SequenceInputStream</a> is just what we need. This nifty little class can make a series of InputStreams (i.e., the individual PubChem files) appear as one big InputStream.</p>
+<p>Putting this all together, we end up with a chained series of inputs:</p>
+<pre><code class="hljs bash language-bash">[InputStream -&amp;gt; GZIPInputStream] -&amp;gt;
+SequenceInputStream -&amp;gt;
+StreamReader -&amp;gt;
+BufferedReader
+</code></pre>
+<p>We now have a BufferedReader that will for all intents and purposes look like we've just opened a massive SD File. Handing this Reader to an SD File processor will let us capture all Substance or Compound records using a simple conceptual model.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>By using Java's support for stream chaining and transformation, PubCouch makes it possible to work with the PubChem FTP archive as if it were one big SD File. This turns out to be useful regardless of how you decide to ultimately represent and store the resulting records. There are still some rough edges in the implementation and possibilities for extending the concept (i.e., random-access), but the idea can be used on many other datasources, and in many other contexts.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

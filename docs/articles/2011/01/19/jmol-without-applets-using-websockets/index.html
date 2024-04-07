@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Jmol Without Applets Using Websockets | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Jmol Without Applets Using Websockets</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2011-01-19T00:00:00.000Z">2011-01-19T00:00:00.000Z</time>
+      </header>
+      <div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/1wu5gOxQxcs" allowfullscreen=""></iframe>
+</div>
+<p>This demo shows one way to deploy an interactive applet like Jmol on clients lacking the Java plugin.</p>
+<p>The technique is based on <a href="http://dev.w3.org/html5/websockets/">Websockets</a>, a bi-directional communication protocol that runs over TCP. Currently, Websockets are supported natively on the most recent versions of most standards-compliant browsers. Websockets are also supported on Internet Explorer and other legacy browsers using a <a href="https://github.com/gimite/web-socket-js">Flash implementation</a>.</p>
+<p>I recently wrote about <a href="http://depth-first.com/articles/2011/01/14/webgl-and-what-it-means-for-chemistry/">WebGL and its application to chemistry</a>, especially in the area of 3D visualization. One problem with WebGL is that it may or may not ever make it to Internet Explorer, which is widely-used in pharma.</p>
+<p>The combination of Websockets and a server-side Jmol instance could provide <a href="http://depth-first.com/articles/2006/12/21/scaffolding/">scaffolding</a> for the development of a pure-JavaScript 3D molecular visualizer that would work on all browsers.</p>
+<p>First, build the UI around a Jmol/Websockets renderer. This software would work on all browsers and only require Flash on IE and other clients lacking Websockets. Other platforms, such as iPad, would use native Websockets. Getting the JavaScript-based UI right for the browser would be no small piece of work in itself and could take some time.</p>
+<p>Then, when it becomes clear what the 3D rendering situation will be on IE 9, create the Websockets-free 3D renderer implementation based on WebGL, Microsoft's fork of it, or a higher-level JavaScript API that encompasses both implementations.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

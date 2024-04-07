@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Molecular Language for Modern Chemistry: FlexMol and Alkene Geometrical Isomerism | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Molecular Language for Modern Chemistry: FlexMol and Alkene Geometrical Isomerism</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-01-02T00:00:00.000Z">2007-01-02T00:00:00.000Z</time>
+      </header>
+      <blockquote>
+  <p>The fundamental idea behind our representation of stereochemistry is to really describe the relative spatial arrangements of the atoms of a chemical structure. For a given constitution, we obtain a unique and unambiguous stereochemical representation. No limitation to predefined types or steregenic units exits; any conceivable relative spatial arrangement of atoms may be uniformly represented by one universally applicable formalism. …</p>
+  <p><cite><a href="http://dx.doi.org/10.1021/ci00027a001">Andreas Dietz</a></cite></p>
+</blockquote>
+<p>A recent article <a href="http://depth-first.com/articles/2006/12/20/a-molecular-language-for-modern-chemistry-getting-started-with-flexmol">introduced FlexMol</a>, a molecular language designed to encode the multi-atom bonding arrangements present in molecules being increasingly made and used by today's chemists. But FlexMol was designed with much more than bonding in mind. Of all of the difficult areas in molecular representation, perhaps none are more daunting than stereochemistry. This article will introduce the basic ideas behind FlexMol's stereochemistry capabilities using the geometrical isomers of 2-butene as an example.</p>
+<h2 id="thedifferencebetweenconfigurationandconformation">The Difference Between Configuration and Conformation</h2>
+<p>FlexMol distinguishes between two complementary stereochemical concepts - conformation and configuration.  The difference between the two lies in whether isomers can be interconverted through bond rotations. To paraphrase Dietz:</p>
+<ul>
+<li><strong>Conformation.</strong> Two molecules with identical atom connectivities and bonding differ with respect to their conformation if if they possess different relative spatial arrangements of atoms that can be interconverted by rotations about bonds.</li>
+<li><strong>Configuration.</strong> Two molecules with identical atom connectivities and bonding differ with respect to their configuration if they possess different relative spatial arrangements of atoms that can not be interconverted by rotations about bonds.</li>
+</ul>
+<p>Notice that these definitions say nothing about whether a bond rotation is likely to occur; they simply refer to the possibility of isomer interconversion through bond rotation. Clearly, double bond geometrical isomerism arises from restricted bond rotation. So we'll be relying on FlexMol's support for conformational stereochemistry.</p>
+<h2 id="encodingcistransisomerism2butene">Encoding Cis/Trans Isomerism: 2-Butene</h2>
+<p>Consider the two isomers of 2-butene. The cis isomer can be encoded in FlexMol as follows:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!-- cis-2-butane --&gt;</span>
+<span class="hljs-meta">&lt;?xml version="1.0" standalone="yes"?&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">molecule</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">constitution</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atoms</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"3"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"3"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">atoms</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">bonding</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C4"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">bonding</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">constitution</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">conformation</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">conformationWheel</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">gammaSequence</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C2"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">connections</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">connections</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">gammaSequence</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"C0"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"C3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">conformationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">conformation</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">molecule</span>&gt;</span>
+</code></pre>
+<p>In contrast to previous FlexMol examples, this representation contains a <code>conformation</code> element, which in turn contains a <code>conformationWeel</code> subelement. The <code>conformationWheel</code> is composed of a <code>gammaSequence</code> and two <code>halfPlanes</code>. The relationship among these elements can be seen in the diagram below.</p>
+<p><img src="/images/posts/20070102/cis_2_butene.png" alt="Cis-2-butene" title="Cis-2-butene"></p>
+<p>Stereochemical representation in FlexMol boils down to placing atoms into a set of half-planes intersecting a given axis (Dietz refers to this arrangement as a "pencil of planes"). In the case of cis-2-butene, this axis, or gamma sequence, is the atom pair between atoms <code>C1</code> and <code>C2</code>. A gamma sequence can consist of two or more atoms, a very useful feature for representing allene stereochemistry, for example. Half planes are specified in clockwise order about this axis. Because half planes always occur in pairs separated by 180 degrees about their common axis, the number of half planes will always be even. Each conformational half plane is further subdivided into two regions labeled appropriately enough "upper" and "lower".</p>
+<p>A conformation wheel will always have an equivalent, but opposite representation. For example, cis-2-butene could also be represented with an axis of opposite orientation (C2-&gt;C1), opposite ordering of half planes (in this case the same ordering because there are only two half planes), and inverted upper/lower designations. FlexMol only requires that one of these two equivalent arrangements be specified.</p>
+<p>In a similar fashion, we can generate a FlexMol representation for trans-2-butene:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!-- trans-2-butane --&gt;</span>
+<span class="hljs-meta">&lt;?xml version="1.0" standalone="yes"?&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">molecule</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">constitution</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atoms</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"3"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">hydrogens</span>=<span class="hljs-string">"3"</span> <span class="hljs-attr">ionization</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">atoms</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">bonding</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C2"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C3"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C4"</span> <span class="hljs-attr">bondingElectrons</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">bond</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">bonding</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">constitution</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">conformation</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">conformationWheel</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">gammaSequence</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C2"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">connections</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"C1"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"C2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">connections</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">gammaSequence</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"C3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"C0"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">conformationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">conformation</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">molecule</span>&gt;</span>
+</code></pre>
+<p>This representation contains a <code>conformationWheel</code> with two filled half planes containing the atoms <code>C3</code> and <code>C0</code>, respectively. The arrangement among the conformational elements can be better seen in the following diagram:</p>
+<p><img src="/images/posts/20070102/trans_2_butene.png" alt="Trans-2-butene" title="Trans-2-butene"></p>
+<h2 id="sowhat">So What?</h2>
+<p>There are many ways to represent alkene geometrical isomerism, most of which are far simpler than the one outlined here. So what does this additional complexity buy us? In FlexMol, we can use exactly the same formalisms we used for 2-butene isomers to represent the stereochemistries of molecules that simply can not be represented in other systems. Two specific examples include the axial chirality of allenes and biaryls. If you'd like some hints on how to accomplish this, see the allene and binaphthyl FlexMol examples contained in the <strong>flexmol</strong> directory of the <a href="http://sourceforge.net/project/showfiles.php?group_id=96108&amp;package_id=102647">Octet source distribution</a>.</p>
+<p>Notice how FlexMol does away with the need to define conformation in terms of sterochemical descriptors, which are quite limited. Instead, FlexMol provides a small set of modular concepts that, when used together, actually describe the underlying conformational features of a molecule. Of course, (E) and (Z) descriptors (and a host of others as well) can be derived from a FlexMol representation given the right software.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>We've covered the essentials for conformational representation in FlexMol, and we've seen how to differentiate double bond geometrical isomers. The same principles described here are also used in encoding stereochemical configuration, which will be the subject of a future tutorial.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hacking PubChem: Direct Access with FTP | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Hacking PubChem: Direct Access with FTP</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-09-29T00:00:00.000Z">2006-09-29T00:00:00.000Z</time>
+      </header>
+      <p>A <a href="http://depth-first.com/articles/2006/09/22/hacking-pubchem-why-the-open-access-fight-is-just-the-beginning">previous article</a> in the <em>Hacking PubChem</em> series pointed out that the entire PubChem database can be <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/">downloaded via FTP</a>. This article shows how simple tools written in Ruby can be used to efficiently process the massive amount of data on PubChem's FTP-server.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>The only software you'll need for this tutorial is <a href="http://www.ruby-lang.org/en/">Ruby</a>.</p>
+<h2 id="organizationofpubchemsftpserver">Organization of PubChem's FTP-Server</h2>
+<p>PubChem is a big database. To deal with its size, the FTP-server spreads its contents over about 950 files. Each file contains a contiguous range of Compound Identification Numbers (CIDs), which appears to be set at 10,000 [<em>Now 25,000, see below</em>]. In some of the files I've examined, the actual number of compounds in a given block was less than 10,000. The root directory containing the files can be accessed <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/">here</a>.</p>
+<h2 id="compressionsavestheday">Compression Saves the Day</h2>
+<p>For storage and transmission efficiency, PubChem's SDF files are compressed using the GZip algorithm, giving files that typically range in size from five to seven megabytes. Compression ratios for the files I've examined are about 10:1. I'm calling these files "SDFGZ" files, and they have the extension <code>*.sdf.gz</code>.</p>
+<p>A back of the envelope calculation, based on 950 files with an average size of 6 MB and a compression ratio of 10:1, gives an approximate storage requirement of 57 GB for the uncompressed PubChem database. Although storing this much data is feasible with today's hardware, there are many better uses for storage space. This is especially true if only a few fields of the PubChem database are of interest.</p>
+<h2 id="settingup">Setting Up</h2>
+<p>You'll need to download some SDFGZ data. This tutorial uses the <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/Compound_09540001_09550000.sdf.gz">file containing CIDs 9540001-9550000</a>. [<em>Note: PubChem recently increased the number of compounds in each sdfgz file to 25,000. This means that the link to the file no longer works. Instead, choose a file from <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/">here</a></em>.] Put this file in your working directory.</p>
+<h2 id="ashortlibrary">A Short Library</h2>
+<p>Create a file called <strong>sdfgz.rb</strong> containing the following code:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'zlib'</span>
+
+<span class="hljs-comment"># A simple splitter for *.sdf.gz files available</span>
+<span class="hljs-comment"># from PubChem's FTP-server.</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SDFGZSplitter</span></span>
+  @@stop = <span class="hljs-string">"$$$$\n"</span>
+  @@blank = <span class="hljs-string">""</span>
+
+  <span class="hljs-comment"># Configures this SDFGZSplitter using the IO</span>
+  <span class="hljs-comment"># object io.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span><span class="hljs-params">(io)</span></span>
+    @gzip = Zlib::GzipReader.new(io)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># Yield a sequence of SDFile records.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">each_record</span></span>
+    record = get_record
+
+    <span class="hljs-keyword">while</span> record != @@blank
+      <span class="hljs-keyword">yield</span> record
+      record = get_record
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># Gets the next record, or an empty string if</span>
+  <span class="hljs-comment"># none is available.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_record</span></span>
+    line = read_line
+    record = [line]
+
+    <span class="hljs-keyword">while</span> !(@@stop.eql?(line) <span class="hljs-params">||</span> <span class="hljs-literal">nil</span> == line)
+      line = read_line
+      record &lt;&lt; line
+    <span class="hljs-keyword">end</span>
+
+    record.join
+  <span class="hljs-keyword">end</span>
+
+  private
+
+  <span class="hljs-comment"># Reads the next line in the SDFGZ file.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">read_line</span></span>
+    <span class="hljs-keyword">begin</span>
+      line = @gzip.readline
+    <span class="hljs-keyword">rescue</span> EOFError
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+    <span class="hljs-keyword">end</span>
+
+    line
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment"># Utility class for getting data out of a SDFile record.</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Extractor</span></span>
+  <span class="hljs-comment"># Gets the data from record associated with</span>
+  <span class="hljs-comment"># key.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">extract_data</span><span class="hljs-params">(record, key)</span></span>
+    record.match(<span class="hljs-regexp">/&gt; &lt;<span class="hljs-subst">#{key}</span>&gt;\n(.+)\n/</span>)
+    $1
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># Gets the molfile for record.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">extract_molfile</span><span class="hljs-params">(record)</span></span>
+    record.match(<span class="hljs-regexp">/M  END$/</span>).pre_match + <span class="hljs-string">"M  END\n"</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>The <code>SDFGZSplitter</code> class uses Ruby's built-in GZip library to read SDFGZ files without inflating them. The method <code>each_record</code> is a <a href="http://www.rubycentral.com/book/tut_containers.html">Ruby iterator</a>, one of the strangely cool things that makes Ruby the language it is. The iterator's job is to allow retrieval of each SDFGZ record individually, until all records have been retrieved.</p>
+<h2 id="usingthelibrary">Using the Library</h2>
+<p>As a test for the <code>sdfgz</code> library, lets scrape all PubChem CIDs and InChI identifiers from an SDFGZ file, and place the result into a new CSV file. Create the following code, either in a file to be run by <code>ruby</code> or in a terminal session using <code>irb</code>:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'sdfgz'</span>
+
+file = File.new(<span class="hljs-string">'Compound_09540001_09550000.sdf.gz'</span>)
+splitter = SDFGZSplitter.new(file)
+
+puts <span class="hljs-string">"parsing..."</span>
+
+File.open(<span class="hljs-string">'dictionary.csv'</span>, <span class="hljs-string">'w+'</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|file|</span>
+  splitter.each_record <span class="hljs-keyword">do</span> <span class="hljs-params">|record|</span>
+    cid = Extractor.extract_data(record, <span class="hljs-string">'PUBCHEM_COMPOUND_CID'</span>)
+    inchi = Extractor.extract_data(record, <span class="hljs-string">'PUBCHEM_NIST_INCHI'</span>)
+
+    file &lt;&lt; <span class="hljs-string">"<span class="hljs-subst">#{cid}</span>,\"<span class="hljs-subst">#{inchi}</span>\"\n"</span>
+  <span class="hljs-keyword">end</span> 
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Running this test creates a (rather large) file called <strong>dictionary.csv</strong> in your working directory. Its contents consist of the following truncated output:</p>
+<pre><code class="hljs bash language-bash">9540001,<span class="hljs-string">"InChI=1/C20H22N2O4/c1-13-7-5-10-16(14(13)2)22-20(26)15-8-3-4-9-17(15)21-18(23)11-6-12-19(24)25/h3-5,7-10H,6,11-12H2,1-2H3,(H,21,23)(H,22,26)(H,24,25)/p-1/fC20H21N2O4/h21-22H/q-1"</span>
+9540002,<span class="hljs-string">"InChI=1/C20H22N2O4/c1-13-7-5-10-16(14(13)2)22-20(26)15-8-3-4-9-17(15)21-18(23)11-6-12-19(24)25/h3-5,7-10H,6,11-12H2,1-2H3,(H,21,23)(H,22,26)(H,24,25)/f/h21-22,24H"</span>
+9540003,<span class="hljs-string">"InChI=1/C19H20N2O5/c1-26-16-8-3-7-15(12-16)21-19(25)13-5-2-6-14(11-13)20-17(22)9-4-10-18(23)24/h2-3,5-8,11-12H,4,9-10H2,1H3,(H,20,22)(H,21,25)(H,23,24)/p-1/fC19H19N2O5/h20-21H/q-1"</span>
+9540004,<span class="hljs-string">"InChI=1/C19H20N2O5/c1-26-16-8-3-7-15(12-16)21-19(25)13-5-2-6-14(11-13)20-17(22)9-4-10-18(23)24/h2-3,5-8,11-12H,4,9-10H2,1H3,(H,20,22)(H,21,25)(H,23,24)/f/h20-21,23H"</span>
+...
+</code></pre>
+<p>Many customizations of the above code are possible. For example, it would not be difficult to programatically log into the PubChem FTP-server, download a file, and process it as shown. By parsing the SDFGZ filename, a program could even know which file contained a given CID. Because the <code>SDFGZSplitter</code> constructor takes a Ruby <code>IO</code> object, it's also feasible to process PubChem's SDFGZ files directly from the FTP-server, without downloading them beforehand. But that's a subject for another day.</p>
+<h2 id="summingup">Summing Up</h2>
+<p>The PubChem FTP-server is a treasure trove of useful data that's available free of charge. Using simple tools like those discussed here, it's possible to generate a virtually infinite variety of customized views of this valuable resource. Many creative, and novel, applications are possible by combining the capabilities shown here with those of Open Source chemical informatics software, such as <a href="http://depth-first.com/articles/2006/09/26/looking-at-inchis">RCDK</a>, and other Open data sources, such as <a href="http://depth-first.com/articles/2006/09/04/hacking-nmrshiftdb">NMRShiftDB</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

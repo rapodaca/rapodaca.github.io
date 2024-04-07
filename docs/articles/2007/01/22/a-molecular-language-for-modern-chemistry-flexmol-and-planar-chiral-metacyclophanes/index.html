@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Molecular Language for Modern Chemistry: FlexMol and Planar-Chiral Metacyclophanes | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Molecular Language for Modern Chemistry: FlexMol and Planar-Chiral Metacyclophanes</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-01-22T00:00:00.000Z">2007-01-22T00:00:00.000Z</time>
+      </header>
+      <p><img src="/images/posts/20070122/abstract.gif" alt="Abstract" title="Abstract"></p>
+<p>Previous articles have highlighted FlexMol's ability to represent nearly all forms of molecular chirality, including many that are alien to popular cheminformatics tools. FlexMol provides just a few basic elements and rules for their combination, resulting in a system that is both extensible and systematic. For example, similar elements are used to represent <a href="http://depth-first.com/articles/2007/01/09/a-molecular-language-for-modern-chemistry-flexmol-and-axial-chirality">the axial chirality of biaryls</a>, <a href="http://depth-first.com/articles/2007/01/02/a-molecular-language-for-modern-chemistry-flexmol-and-alkene-geometrical-isomerism">the geometrical isomerism of alkenes</a>, and <a href="http://depth-first.com/articles/2007/01/17/a-molecular-language-for-modern-chemistry-cisplatin-transplatin-and-molecular-configuration">the configuration of square-planar metal complexes</a>. In this article, we'll see how FlexMol can encode an example from the very recent literature: planar-chiral metacyclophanes as described by Tanaka and coworkers.</p>
+<h2 id="configurationorconformation">Configuration or Conformation?</h2>
+<p>The question we have to answer is what form of stereochemistry needs to be represented - configuration or conformation. We follow the simple rule that isomers interconvertable through bond rotations are treated as conformations and conclude that to represent a metacyclophane, we'll be dealing with conformation. See the <a href="http://dx.doi.org/10.1021/ci00027a001">original Dietz specification</a> for a more rigorous analysis.</p>
+<h2 id="aflexmolrepresentation">A FlexMol Representation</h2>
+<p><img src="/images/posts/20070122/molecule.png" alt="Molecule" title="Molecule"></p>
+<p>Let's choose a specific molecule to encode in FlexMol (Y,Z=CH<sub>2</sub>) . Using the atom numbering given in the figure above, we can construct <a href="/images/posts/20070122/molecule.xml">this complete FlexMol representation</a>. Rather than reproduce it completely here, I'll just highlight the stereochemically-relevant part:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!-- snip --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">conformation</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">conformationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">gammaSequence</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"17"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"8"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">connections</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"17"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"8"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">connections</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">gammaSequence</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"16"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"9"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"7"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">conformationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">conformationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">gammaSequence</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"11"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"10"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">connections</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"11"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"10"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">connections</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">gammaSequence</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"12"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"9"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">conformationWheel</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">conformation</span>&gt;</span>
+<span class="hljs-comment">&lt;!-- snip --&gt;</span>
+</code></pre>
+<p>This <code>conformation</code> contains two <code>conformationWheels</code>, each corresponding to one of the two bonds about which rotation is restricted. Notice the similarity of this FlexMol code compared to the examples for <a href="http://depth-first.com/articles/2007/01/09/a-molecular-language-for-modern-chemistry-flexmol-and-axial-chirality">BINOL</a>, and an <a href="http://depth-first.com/articles/2007/01/12/flexmol-and-axial-chirality-n-arylacrylanilides">N-arylacrylanilide</a>. To better visualize the relationships among atoms, axes, and half-planes, consider the following cartoons:</p>
+<p><img src="/images/posts/20070122/conformation_planes.png" alt="Conformation Planes" title="Conformation Planes"></p>
+<p>The enantiomeric representation of our molecule would produce an arrangement of half-planes that was the inverse of those shown here, and distinguishable by manual inspection or software implementation. One such implementation is contained in the open source framework <a href="http://sf.net/projects/octet">Octet</a>.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>As the example in this article demonstrates, FlexMol can fully encode the planar-chirality of the new class of axially-chiral metacyclophanes reported in a recent <em>J. Am. Chem. Soc.</em> article. Exactly the same FlexMol elements were used as in previous examples illustrating axial chirality and alkene geometry. Systematic and extensible methods for encoding diverse forms of chirality are not only feasible - one of them already exists.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

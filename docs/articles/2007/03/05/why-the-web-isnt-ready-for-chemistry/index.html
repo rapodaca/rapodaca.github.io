@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Why the Web Isn&#x27;t Ready for Chemistry | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Why the Web Isn&#x27;t Ready for Chemistry</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-03-05T00:00:00.000Z">2007-03-05T00:00:00.000Z</time>
+      </header>
+      <p>Wouldn't it be wonderful if chemical structure searching were as easy as using Google? Draw your molecule, press a button and get the good stuff first. That day may well arrive, but without the creation of some key technologies, the wait will be very long. This article describes an unsuccessful attempt to bring the chemically-aware Web closer to reality.</p>
+<p>Recently, I <a href="/articles/2007/02/28/googling-for-molecules-new-and-improved-inchimatic">introduced</a> a small Web application called <a href="http://inchimatic.com">InChIMatic</a>. It lets you draw a structure and search for it though one of a number of popular search engines.</p>
+<p>InChIMatic turns a molecular query into text, which is then searched. This magic is made possible through the <a href="http://en.wikipedia.org/wiki/International_Chemical_Identifier">IUPAC International Chemical Identifier</a> (InChI). InChI has enormous potential for enabling chemical Web searches, but several barriers must be overcome first.</p>
+<p>For example, if you run even the most trivial of queries with <a href="http://inchimatic.com">InChIMatic</a>, you'll quickly see that search engines have only indexed a small number of InChIs. One reason is that InChIs are not yet widely-used by Web authors. But the deeper problem is that many pages containing InChIs are not indexed by search engines. For example, <a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem's</a> vast collection of InChIs is apparently invisible to Google.</p>
+<p>Compounding the problems of using InChIs to index chemical content on the Web is the lack of a standard, unobtrusive method for embedding the identifier into Web pages. Understandably, no author wants to invest valuable time and effort on an indexing system that doesn't work with their content and page layout. This problem is the subject of the current article.</p>
+<h2 id="materialsandmethods">Materials and Methods</h2>
+<p>The <a href="/articles/2007/02/28/googling-for-molecules-new-and-improved-inchimatic">InChIMatic article</a> contained a test for how well Google and "invisible" InChIs might work together. If you mouse over the word "1-bromonaphthalene" in the first paragraph of that article, you'll see a small popup window containing the InChI. I accomplished this effect with the following HTML:</p>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">title</span>=<span class="hljs-string">"InChI=1/C10H7Br/c11-10-7-3-5-8-4-1-2-6-9(8)10/h1-7H"</span>&gt;</span>
+  1-bromonaphthalene
+<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>
+</code></pre>
+<p>My goal wasn't the popup effect. Instead, I wanted to test the <code>title</code> attribute as an unobtrusive vector for getting InChIs indexed by Google. This excellent idea was <a href="https://www2.blogger.com/comment.g?blogID=17889588&amp;postID=9068626890097011632">a suggestion</a> made by Oliver Koepler in response to <a href="http://chem-bla-ics.blogspot.com/">Egon Willighagen's</a> article on <a href="http://chem-bla-ics.blogspot.com/2007/02/invisible-inchis.html">invisible InChIs</a>.</p>
+<p>The idea is simple: InChIs are to be read by machines, not humans. InChIs consist of long strings of text that contain no widely-recognized wrappable characters. As a result, displaying InChIs in Web pages can break page layouts. Even if a wrapping mechanism is used, such as with the <code>overflow</code> attribute, I find InChIs unpleasant to look at and just plain distracting. There's <a href="/articles/2006/09/13/the-chemically-aware-web-are-we-there-yet">no good reason</a> why any chemist should have to look at them.</p>
+<p>Chemists themselves are, understandably, <a href="http://kinasepro.wordpress.com/2006/12/05/monday-night-ot-2/">reluctant</a> to invest in ad hoc methods to index their molecular content - they need a real solution. It needs to be simple, it needs to be robust, it needs to be easy to apply retroactively, and it needs to be ready today.</p>
+<h2 id="results">Results</h2>
+<p>After about two days, Google had indexed <a href="/articles/2007/02/28/googling-for-molecules-new-and-improved-inchimatic">the article</a> containing the hidden InChI for 1-bromonaphthalene. Using InchIMatic, I <a href="http://www.google.com/search?q=%22InChI%3D1%2FC10H7Br%2Fc11-10-7-3-5-8-4-1-2-6-9%288%2910%2Fh1-7H%22">searched Google</a> for the InChI, but only found the same <a href="http://nmrshiftdb.org">NMRShiftDB</a> item returned in previous queries.</p>
+<p>A few days later, a new Depth-First link appeared in Google. It pointed to the main XML Atom feed for Depth-First. This is a step in the right direction, but a far cry from the solution chemists need.</p>
+<p>None of the other major search engines supported by InChIMatic returned a link to the Depth-First article containing the hidden InChI. The only new result was retrieved by <a href="http://search.com">Search.com</a>. Like Google's result, this new link pointed to Depth-First's main XML feed.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Google doesn't index the contents of the <code>title</code> attribute and may never do so. This should not be surprising. Google has made a fortune in part by staying <a href="/articles/2007/02/28/inchi-spam">one step ahead of Search Engine Optimization (SEO) tricksters</a>. By ignoring the contents of the <code>title</code> attribute, Google and other search engines eliminate a real threat that could corrupt the search results that drive their business.</p>
+<p>What about other methods for concealing InChIs? One study suggests that none of them will work, either. <a href="http://www.youcansleepwhenyouredead.com/archives/2004/12/testing_search_1.html">A two-year old experiment</a> on SEO techniques compared ten different methods to conceal a text string from human viewers. Methods ranged from applying the <code>display:none</code> attribute, to using matched font and background color, to concealing the text in a hidden frame. Although some of these methods may have initially been successful in getting content into Google, none of them work now.</p>
+<p><a href="http://kinasepro.wordpress.com/">KinasePro</a> recently described a <a href="http://kinasepro.wordpress.com/2006/12/12/monday-night-ot-3/">failed attempt</a> to get Google to index a SMILES string hidden in the <code>alt</code> attribute of the <code>img</code> element. Although <a href="http://technorati.com">Technorati</a> did index this content, a <a href="http://www.technorati.com/search/InChI%3D1%2FC10H7Br%2Fc11-10-7-3-5-8-4-1-2-6-9%288%2910%2Fh1-7H">Technorati search</a> for the 1-bromonaphthalene InChI returned no hits. <a href="http://www.technorati.com/search/inchimatic">A Technorati search</a> for the article containing the hidden InChI did work, suggesting that Technorati also ignores the <code>title</code> attribute.</p>
+<h2 id="whyitmatters">Why it Matters</h2>
+<p>Google and other search engines are in a perpetual state of war with SEO tricksters, and rightly so. At stake are search results that make up some of most valuable intellectual property in the world. Any attempt to make InChIs appear invisible to humans is likely to be interpreted by major search engines as spam and treated accordingly. It seems very unlikely that this stance will ever change, regardless of how legitimate the motivation might be.</p>
+<p>This leaves us with the fundamental problem of how to build a workable, Web-based chemical indexing system. The CAS registry system has served chemistry as the de facto standard for decades, but for a variety of reasons it is unworkable as an open technology for the Web. The more modern approach of combining InChI and standard search engines has major limitations, as outlined in this article.</p>
+<p>If anything in cheminformatics is <a href="/articles/2007/02/14/whats-broken-in-cheminformatics">broken</a>, it's the indexing and retrieval of molecular information on the Web. For those interested in solving a tough problem that really matters, this is a golden opportunity.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

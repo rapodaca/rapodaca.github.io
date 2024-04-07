@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Out With the Old (Or At Least The Stuff That Prevents Progress) | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Out With the Old (Or At Least The Stuff That Prevents Progress)</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-01-05T00:00:00.000Z">2010-01-05T00:00:00.000Z</time>
+      </header>
+      <p>Depth-First's <a href="/articles/2006/08/12/changes">first article</a> appeared on August 12, 2006. It used what was at the time an up-and-coming blogging engine called <a href="http://wiki.github.com/fdv/typo/">Typo</a>. I chose Typo because it did most of what I needed and was written in <a href="http://rubyonrails.org">Ruby on Rails</a>, a Web development framework I wanted to learn more about.</p>
+<h2 id="bitrot">Bitrot</h2>
+<p>I had no idea that 597 articles later, I'd still be using essentially the same software. At some point very early on I was unable to upgrade Typo and that was that - Depth-First's blogging engine became frozen.</p>
+<p>Although Typo continued to work, a combination of factors convinced me this was a dead-end. The frequent reboots to treat a persistent memory leak, and the need for a beefy server to cope. The double-posted comments due to a buggy AJAX implementation. The syntax highlighting system that didn't do Java or JavaScript, and which choked on larger code samples. The inability to interface with conversations happening elsewhere online. And most recently, a barrage of <a href="http://www.jasonmorrison.net/content/2008/quick-tip-keeping-comment-compliment-spam-off-your-blog/">compliment spam</a> (there's a special place in hell for these people).</p>
+<h2 id="outwiththeold">Out With The Old</h2>
+<p>I had had enough. I looked at alternatives, and didn't find any that suited my needs:</p>
+<ul>
+<li><strong>Written in Ruby on Rails.</strong> I'm not a fan of waiting for a patch to be written or a plugin to be developed. If something needs to be fixed or added, I want to know I can get right in and do it. For example, I'm playing with ideas for using Depth-First's nearly 1,000 tags more effectively, and there's nothing like doing that iteratively with a live system.</li>
+<li><strong>Inline Admin Interface.</strong> Separating administration from content is not a good idea. Not only do you end up with duplicated code, but it forces the administrator to jump back and forth between contexts to fix things ('now, what was the title of that article I needed to edit…').</li>
+<li><strong>Designed around <a href="http://openid.net/">OpenID</a> (authentication) and <a href="http://disqus.com">Disqus</a> (comments).</strong> The Web is getting more organized, with services starting to take the place of monolithic systems. OpenID and Disqus are two names to watch in this area.</li>
+<li><strong>Deployable with Heroku's Free Plan</strong> I've <a href="/tags/heroku">written about Heroku before</a> and think it's a great service. The ideal blogging system should work out of the box with <a href="http://heroku.com/pricing#blossom-1">Heroku's free hosting plan</a>.</li>
+<li><strong>Pluggable</strong> To customize most Rails applications means getting way too intimate with the underlying models, views, and controllers. I needed an application that could be selectively 'overridden'. <a href="http://github.com/markbates/warp_drive">Warp Drive</a> was just what I was looking for, but no blogging engine supported it out of the box.</li>
+</ul>
+<h2 id="hubbub">Hubbub</h2>
+<p>Not finding any blogging system that fit the bill, I decided to write my own. After all, how hard could it be ;-) ? The result is <a href="http://github.com/rapodaca/hubbub">Hubbub</a>, the pluggable Rails blogging engine. I'll have more to say on Hubbub and what 'pluggable' means in future articles.</p>
+<p>There are still some rough edges to be sure. For example, the layout and JavaScript commenting system are broken (to different degrees) in IE 6 and IE 7. And I'm still working on adding the static content pages (those links at the very top of this page). If you find anything else that doesn't work as expected, please <a href="http://mailhide.recaptcha.net/d?k=01OXiugCGBytdikvGnBlesKw==&amp;c=Qk29zI5J5DohAe4sL4_Hz2Zf1_bqUhv8nU6CAbMlSJc=" onclick="window.open('http://mailhide.recaptcha.net/d?k=01OXiugCGBytdikvGnBlesKw==&amp;c=Qk29zI5J5DohAe4sL4_Hz2Zf1_bqUhv8nU6CAbMlSJc=', '', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=500,height=300'); return false;" title="Reveal this e-mail address">drop me a line</a>.</p>
+<h2 id="onbackwardcompatibility">On Backward-Compatibility</h2>
+<p>One of the biggest challenges on this project was maintaining backward-compatibility. For example, it was essential that all articles continue to be accessed from their existing URLs (to maintain the <a href="/articles/2007/08/09/ten-things-that-surprised-me-about-blogging">integrity of the archive</a>). Likewise, comments needed to be moved and reformatted, a custom-job that took much more time than expected. I may write about the tools I used to convert Depth-First's comments to Disqus at some point.</p>
+<p>Although there are rough edges around the imported comments, all article links should work as before. Please let me know if you find otherwise.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>In the case of Depth-First, 'broken' didn't happen all at once, but developed over time. Solving the problem resulted in Hubbub, a pluggable blogging engine that may actually have some application to cheminformatics. But more about that later.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

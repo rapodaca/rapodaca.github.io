@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SMILES Reading Performance: RDKit vs ChemCore | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/10/19/smiles-reading-performance-rdkit-vs-chemcore/">
+      <meta property="og:title" content="SMILES Reading Performance: RDKit vs ChemCore">
+      <meta property="og:description" content="Rust and C++/Python cheminformatics toolkits face off on a core task.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20201019/summary.png">
+      <meta content="Rust and C++/Python cheminformatics toolkits face off on a core task." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>SMILES Reading Performance: RDKit vs ChemCore</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-10-19T15:00:00Z">2020-10-19T15:00:00Z</time>
+      </header>
+      <p>The <a href="https://www.rust-lang.org">Rust homepage</a> cites "blazingly fast" performance as an important reason to consider the language, and top-tier performance is often cited by developers as a reason they chose Rust. So far, this blog has emphasized Rust's many other compelling features. This article breaks from that focus to examine performance. Specifically, it compares the speed with which RDKit (Python/C++) and ChemCore (Rust only) can read SMILES.</p>
+<h2 id="results">Results</h2>
+<p>On average, ChemCore completed SMILES reading benchmarks faster than RDKit/Python by a factor of 3.8 to 4.3.</p>
+<h2 id="thebenchmarktasks">The Benchmark Tasks</h2>
+<p>The performance benchmark described here builds on the previously-reported <a href="/articles/2020/10/05/running-a-smiles-validation-benchmark/">validation benchmark</a>. To recap, that benchmark compared ChemCore against several other toolkits for accuracy of SMILES reading. The results showed ChemCore to perform favorably against all established toolkits. Given that SMILES are being interpreted correctly, it makes sense to move on to performance.</p>
+<p>Using the same data set as before, the benchmark consisted of two tasks:</p>
+<ol>
+<li><strong>Integration.</strong> Read the input file and write an output file summarizing hydrogen count on each atom. This is essentially the validation benchmark. Total run time is reported.</li>
+<li><strong>Micro.</strong> Read all SMILES from the input file into memory. The time required to read all SMILES from memory (with no further processing) is reported.</li>
+</ol>
+<h2 id="projectrepository">Project Repository</h2>
+<p>The project for this comparison is <a href="https://github.com/rapodaca/smiles_performance">available on Github</a>. The repository is set up as a Rust crate with subdirectories for data and python scripts. To comply with GitHub's file size limits, files within the <code>data</code> directory were compressed. They will need to be uncompressed using <code>gunzip</code> or something similar before use.</p>
+<h2 id="rustcode">Rust Code</h2>
+<p>The two Rust tasks can be found at <code>src/integration.rs</code> and <code>src/micro.rs</code>. A third task, <code>src/pcba.rs</code> processes a raw dataset to be discussed below.</p>
+<p><code>src/integration.rs</code> consists of a single function, <code>main</code> that reads an input SMILES file, converts each SMILES to a ChemCore <code>Molecule</code> instance, and then writes a file reporting atomic hydrogen counts.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> std::{ fs, io };
+<span class="hljs-keyword">use</span> io::prelude::*;
+<span class="hljs-keyword">use</span> chemcore::daylight;
+<span class="hljs-keyword">use</span> chemcore::molecule::{ Molecule, Error };
+<span class="hljs-keyword">use</span> gamma::graph::Graph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">let</span> _ = fs::create_dir(<span class="hljs-string">"./results"</span>);
+    <span class="hljs-keyword">let</span> in_path = <span class="hljs-string">"./data/rdkit_2017.03.3.smi"</span>;
+    <span class="hljs-keyword">let</span> out_path = <span class="hljs-string">"./results/chemcore-out.txt"</span>;
+    <span class="hljs-comment">// let in_path = "./data/pcba.smi";</span>
+    <span class="hljs-comment">// let out_path = "./results/chemcore-pcba-out.txt";</span>
+    <span class="hljs-keyword">let</span> in_file = fs::File::open(in_path)?;
+    <span class="hljs-keyword">let</span> out_file = fs::File::create(out_path)?;
+    <span class="hljs-keyword">let</span> reader = io::BufReader::new(in_file);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = io::LineWriter::new(out_file);
+
+    <span class="hljs-keyword">for</span> result <span class="hljs-keyword">in</span> reader.lines() {
+        <span class="hljs-keyword">let</span> line = result?;
+        <span class="hljs-keyword">let</span> parts = line.split_whitespace().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+        <span class="hljs-keyword">let</span> id = parts.last().expect(<span class="hljs-string">"no parts"</span>);
+
+        <span class="hljs-keyword">if</span> parts.len() == <span class="hljs-number">1</span> {
+            <span class="hljs-built_in">writeln!</span>(&amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-string">"# {} No_input"</span>, id)?;
+
+            <span class="hljs-keyword">continue</span>;
+        }
+
+        <span class="hljs-keyword">let</span> smiles = parts.first().expect(<span class="hljs-string">"no smiles"</span>);
+
+        <span class="hljs-keyword">match</span> daylight::read(smiles) {
+            <span class="hljs-literal">Ok</span>(molecule) =&gt; {
+                <span class="hljs-keyword">let</span> hcounts = molecule.nodes().iter().map(|id| {
+                    molecule.hydrogens(*id).unwrap().to_string()
+                }).collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+
+                <span class="hljs-built_in">writeln!</span>(&amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-string">"{} {}"</span>, id, hcounts.join(<span class="hljs-string">" "</span>))?;
+            },
+            <span class="hljs-literal">Err</span>(Error::CanNotKekulize) =&gt; {
+                <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"# {} Kekulization_failure"</span>, id)?;
+            },
+            <span class="hljs-literal">Err</span>(Error::Hypervalent(_)) =&gt; {
+                <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"# {} Bad_valence"</span>, id)?;
+            },
+            <span class="hljs-literal">Err</span>(error) =&gt; {
+                <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"# {} ERROR: {:?}"</span>, id, error)?;
+            }
+        }
+    }
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>Run this task using the following command. Output times are representative for my system.</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> time cargo run --release --bin integration</span>
+    Finished release [optimized] target(s) in 0.00s
+     Running `target/release/integration`
+
+real    0m3.439s
+user    0m3.151s
+sys     0m0.264s
+</code></pre>
+<p>The choice of which set of files to run can be made by commenting/uncommenting the appropriate path line assignments at the top of <code>main</code>.</p>
+<p>The <code>src/micro.rs</code> task also consists of a single <code>main</code> function. In this case, the goal is to first read all SMILES into memory and then determine how much time is required to convert them all to ChemCore <code>Molecule</code> instances.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> std::{ fs, io, time };
+<span class="hljs-keyword">use</span> io::prelude::*;
+<span class="hljs-keyword">use</span> chemcore::daylight;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">let</span> in_path = <span class="hljs-string">"./data/rdkit_2017.03.3.smi"</span>;
+    <span class="hljs-keyword">let</span> in_file = fs::File::open(in_path)?;
+    <span class="hljs-keyword">let</span> reader = io::BufReader::new(in_file);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> inputs = <span class="hljs-built_in">Vec</span>::new();
+
+    <span class="hljs-keyword">for</span> result <span class="hljs-keyword">in</span> reader.lines() {
+        <span class="hljs-keyword">let</span> line = result?;
+        <span class="hljs-keyword">let</span> parts = line.split_whitespace().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+
+        <span class="hljs-keyword">if</span> parts.len() == <span class="hljs-number">1</span> {
+            <span class="hljs-keyword">continue</span>;
+        }
+
+        <span class="hljs-keyword">let</span> smiles = parts.first().expect(<span class="hljs-string">"no smiles"</span>).to_string();
+
+        inputs.push(smiles);
+    }
+
+    <span class="hljs-keyword">let</span> start = time::Instant::now();
+
+    <span class="hljs-keyword">for</span> smiles <span class="hljs-keyword">in</span> inputs {
+        <span class="hljs-keyword">let</span> _ = daylight::read(&amp;smiles);
+    }
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"elapsed: {}"</span>, start.elapsed().as_secs_f32());
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>Run this task using the following command. Output times are representative for my system.</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> cargo run --release --bin micro</span>
+    Finished release [optimized] target(s) in 0.01s
+     Running `target/release/micro`
+elapsed: 2.8601365
+</code></pre>
+<h2 id="pythoncode">Python Code</h2>
+<p>The two Python/RDkit tasks can be found at <code>py/integration.py</code> and <code>py/micro.py</code>. <code>py/integration.py</code> was based on a similar script contained within the <a href="https://github.com/nextmovesoftware/smilesreading">smilesreading</a> repository.</p>
+<pre><code class="hljs python language-python"><span class="hljs-keyword">import</span> sys
+<span class="hljs-keyword">import</span> pathlib
+<span class="hljs-keyword">from</span> io <span class="hljs-keyword">import</span> StringIO
+<span class="hljs-keyword">from</span> rdkit <span class="hljs-keyword">import</span> Chem
+
+in_path = <span class="hljs-string">"./data/rdkit_2017.03.3.smi"</span>
+out_path = <span class="hljs-string">"./results/rdkit-out.txt"</span>
+<span class="hljs-comment"># in_path = "./data/pcba.smi"</span>
+<span class="hljs-comment"># out_path = "./results/rdkit-pcba-out.txt"</span>
+
+pathlib.Path(<span class="hljs-string">'./results'</span>).mkdir(exist_ok=<span class="hljs-literal">True</span>)
+Chem.WrapLogs()
+
+sio = sys.stderr = StringIO()
+
+<span class="hljs-keyword">with</span> open(in_path) <span class="hljs-keyword">as</span> in_file, open(out_path, <span class="hljs-string">'w'</span>) <span class="hljs-keyword">as</span> out_file:
+    <span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> in_file:
+        parts = line.strip().split()
+        id = parts[<span class="hljs-number">-1</span>]
+
+        <span class="hljs-keyword">if</span> len(parts) == <span class="hljs-number">1</span>:
+            out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> No_input\n'</span>)
+            <span class="hljs-keyword">continue</span>
+
+        smiles = parts[<span class="hljs-number">0</span>]
+
+        mol = Chem.MolFromSmiles(smiles)
+        err = sio.getvalue()
+        <span class="hljs-keyword">if</span> err:
+            sio = sys.stderr = StringIO()
+            <span class="hljs-keyword">if</span> <span class="hljs-string">"Can't kekulize"</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> Kekulization_failure\n'</span>)
+                <span class="hljs-keyword">continue</span>
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">"Explicit valence"</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> Bad_valence\n'</span>)
+                <span class="hljs-keyword">continue</span>
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">"SMILES Parse Error"</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> SMILES_parse_error\n'</span>)
+                <span class="hljs-keyword">continue</span>
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">"Aromatic bonds on non aromatic atom"</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> Aromatic_bonds_on_non_aromatic_atom\n'</span>)
+                <span class="hljs-keyword">continue</span>
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">"non-ring"</span> <span class="hljs-keyword">in</span> err <span class="hljs-keyword">and</span> <span class="hljs-string">"marked aromatic"</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> Non_ring_atom_marked_aromatic\n'</span>)
+                <span class="hljs-keyword">continue</span>
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">"WARNING"</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> ERROR: <span class="hljs-subst">{err}</span>\n'</span>)
+                <span class="hljs-keyword">continue</span>
+
+        <span class="hljs-keyword">if</span> mol <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:
+            out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> No_output\n'</span>)
+            <span class="hljs-keyword">continue</span>
+
+        counts = <span class="hljs-string">' '</span>.join(str(atom.GetTotalNumHs()) <span class="hljs-keyword">for</span> atom <span class="hljs-keyword">in</span> mol.GetAtoms())
+
+        out_file.write(<span class="hljs-string">f'<span class="hljs-subst">{id}</span> <span class="hljs-subst">{counts}</span>\n'</span>)
+</code></pre>
+<p>Run this file using the following (timings are representative for my system):</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> time python py/integration.py</span>
+[17:13:06] Can't kekulize mol.  Unkekulized atoms: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 25 26 27 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 46 47 48 56 57 58 59 60 61 62 63 64
+
+real    0m14.302s
+user    0m14.764s
+sys     0m0.090s
+</code></pre>
+<p>As with the Rust task, a larger dataset can be run by commenting/uncommenting the top two sets of path assignments.</p>
+<p><code>py/micro.py</code>, like its Rust counterpart, reads all SMILES into memory, then converts them to an RDKit molecule using the <code>Chem.MolFromSmiles</code> function.</p>
+<pre><code class="hljs python language-python"><span class="hljs-keyword">import</span> sys
+<span class="hljs-keyword">import</span> time
+<span class="hljs-keyword">from</span> rdkit <span class="hljs-keyword">import</span> Chem
+
+in_path = <span class="hljs-string">"./data/rdkit_2017.03.3.smi"</span>
+
+<span class="hljs-keyword">with</span> open(in_path) <span class="hljs-keyword">as</span> in_file:
+    inputs = [ ]
+
+    <span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> in_file:
+        parts = line.strip().split()
+
+        <span class="hljs-keyword">if</span> len(parts) == <span class="hljs-number">1</span>:
+            <span class="hljs-keyword">continue</span>
+
+        inputs.append(parts[<span class="hljs-number">0</span>])
+
+    start = time.time()
+
+    <span class="hljs-keyword">for</span> smiles <span class="hljs-keyword">in</span> inputs:
+        Chem.MolFromSmiles(smiles)
+
+    print(<span class="hljs-string">"elapsed: "</span> + str(time.time() - start))
+</code></pre>
+<p>Run this task using the following (timings are representative for my system):</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> python py/micro.py </span>
+[16:02:38] Can't kekulize mol.  Unkekulized atoms: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 25 26 27 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 46 47 48 56 57 58 59 60 61 62 63 64
+
+elapsed: 11.64182710647583
+</code></pre>
+<p>The SMILES that RDKit does not kekulize is successfully kekulized by ChemCore (id 47434). In addition, a SMILES read without error by RDKit is actually not kekulizable and is flagged as such by ChemCore (id 44643). As described previously, kekulization in ChemCore means that a <a href="/articles/2020/02/10/a-comprehensive-treatment-of-aromaticity-in-the-smiles-language/">perfect matching on the corresponding π-subgraph</a> was found. RDKit has a few open issues around kekulization (see, for example <a href="https://github.com/rdkit/rdkit/issues/1900">this one</a>).</p>
+<h2 id="resultsindetail">Results in Detail</h2>
+<p>On average, and across every benchmark, RDKit task run times were at least 3.8 times the run time of the corresponding ChemCore task (n=4 for each determination):</p>
+<ul>
+<li>Integration/ChEMBL RDKit: 14.568 s (s=0.138)</li>
+<li>Integration/ChEMBL ChemCore: 3.404 s (s=0.034)</li>
+<li>Integration/PCBA RDKit: 173.569 s (s=1.23)</li>
+<li>Integration/PCBA ChemCore: 46.115 s (s=0.196)</li>
+<li>Micro RDKit: 11.609 s (s=0.079)</li>
+<li>Micro ChemCore: 2.708 s (s=0.0.30)</li>
+</ul>
+<p>RDKit version 2020.03.5 and ChemCore version 0.3.1 running on macOS were used for all tests.</p>
+<h2 id="differencesbetweenchemcoreandrdkit">Differences between ChemCore and RDKit</h2>
+<p>Without knowing a lot about how RDKit works under the hood, it's hard explain ChemCore's performance advantage. However, an obvious factor to consider would be RDKit's use of Python, a language whose speed trails that of many popular languages. Indeed, benchmarks routinely put Python at a substantial performance disadvantage relative to Rust (<a href="https://www.nicolas-hahn.com/python/go/rust/programming/2019/07/01/program-in-python-go-rust/">example</a>). If RDKit's <code>GetMolFromSMILES</code> function used Python in performance-critical areas, then language could be a factor.</p>
+<p>Along the same lines, perhaps the difference arises from the small amount of Python orchestration code used in the benchmark itself. This seems unlikely, at least according to the <a href="https://rdkit.org/docs/GettingStartedInC++.html#should-you-use-c-or-python">RDKit documentation</a>:</p>
+<blockquote>
+  <p>… If all you are going to do is use scripts to do relatively simple things, essentially stitching RDKit function calls together, there should be little or no speed issues with using the Python interpreted language, as all the RDKit functions are compiled C++ and well optimised. …</p>
+</blockquote>
+<p>As noted above, RDKit is also written in C++. Benchmarks routinely put the performance of idiomatic C++ on par with idiomtic Rust. If RDKit's SMILES processing were exclusively driven by idiomatic and performant C++, I would expect the benchmarks to reveal comparable run times. This was, however, not observed. To account for the difference, we must look elsewhere. For example, maybe there's something about ChemCore's <a href="/articles/2020/05/11/cheminformatics-in-rust-implementing-a-minimal-molecule-api/">molecular representation</a> that leads to more performant code overall. If this were true, one might expect other benchmarks to similarly favor ChemCore over RDKit.</p>
+<p>Then there's the benchmark data set itself. To my eye, the ChEMBL set appears to contain an overabundance of fullerenes. Perhaps RDKit is just not that performant when it comes to kekulization of extended pi-systems. Similarly, the benchmark data set consists mainly of ring systems. Maybe there's something about that focus that disadvantages RDKit.</p>
+<p>One way to test this idea would be to re-run the benchmarks against a more drug-like data set. A good source is <a href="http://moleculenet.ai/datasets-1">MoleculeNet</a>. One of its sets, "PCBA," contains 437,929 PubChem compounds screened in one or more bioassays. As such, it seems likely to be more representative of SMILES found in a pharma setting. The MoleculeNet documentation describes PCBA this way:</p>
+<blockquote>
+  <p>Selected from PubChem BioAssay, consisting of measured biological activities of small molecules generated by high-throughput screening.</p>
+</blockquote>
+<p>The PCBA set is available as a single CSV file. It can be used as-is, but with one caveat: each row is terminated by two newline characters (<code>\n\n</code>). This will confound many CSV readers. <a href="https://tools.ietf.org/html/rfc4180">The CSV spec</a> calls for records to be terminated by a CRLF character sequence (<code>\r\n</code>), so it's not clear what's going on. You can get an idea of what characters are involved by piping into <code>od</code> (octal dump):</p>
+<pre><code class="hljs console language-console">head -n 2 pcba.csv | od -c
+</code></pre>
+<p>After globally adjusting line terminators, I used the task <code>src/pcba.rs</code> to transform the PCBA set into the sort of SMILES file that could be read directly by the <code>src/integration.rs</code> task.</p>
+<p>Running the integration task with the PCBA data set revealed a speed advantage for ChemCore of 3.8x, which compares well with results obtained for the ChEMBL set. The PCBA result demonstrates that on a set of over 400,000 SMILES pulled from a public-domain bioassay set, ChemCore on average performs better than RDKit at parsing SMILES by a wide margin.</p>
+<p>Whatever the reason for ChemCore's better performance, the effect was observed in data sets of different composition and size.</p>
+<h2 id="correctness">Correctness</h2>
+<p>A fast implementation that delivers the wrong answer isn't that useful. As a sanity check, the output for both integration tasks was compared using diff:</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> diff results/chemcore-pcba-out.txt results/rdkit-pcba-out.txt </span>
+</code></pre>
+<p>As expected, there were few differences. However, a few points are worth mention:</p>
+<ol>
+<li>RDKit accepts aromatic symbols (e.g, <code>te</code>) that are rejected by ChemCore and not valid according to <a href="http://opensmiles.org">OpenSMILES</a>.</li>
+<li>RDKit reads and assigns tetrahedral stereochemistry on sulfoxides. The OpenSMILES documentation suggests this is not a valid application of tetrahedral templates due to the presence of only three substituents. See <a href="https://sourceforge.net/p/rdkit/mailman/rdkit-discuss/thread/56B8B0BE.1080307%40unito.it/#msg34832597">this thread</a> for a discussion on how/why RDKit chooses to support this combination.</li>
+<li>RDKit accepts some SMILES double bond conformations that are rejected by ChemCore and ambiguous at best according to OpenSMILES. In particular, OpenSMILES disallows double bond conformations in which two alkene subsituents on the same atom are put into the same quadrant. Based on this reading, ChemCore also disallows such encodings, even though they might be rationalized as not introducing conflicts.</li>
+</ol>
+<p>Overall, the differences between ChemCore and RDKit interpretations are minor. Just 20 differences were found in one data set containing 400,000 records and eight differences were found in a set of over 40,000.</p>
+<h2 id="ergonomics">Ergonomics</h2>
+<p>Raw performance is nice to have, but ergonomics is also important. How does the Rust version of each task compare to the same task written in Python?</p>
+<p>The two sets of implementations are similar in both structure and length. The Python versions are shorter by a few lines, but there's a remarkable degree of similarity in both look and feel between the two code samples. This may in part reflect my much better familiarity with Rust than Python. If there are more Pythonic ways to write the RDKit code, I'd like to hear about them.</p>
+<p>Nevertheless, I ascribe most of the similarity to Rust's automatic type inference. Other than in the function signature, the Rust version requires almost no manual encoding of types. Given that both languages use the same <code>snake_case</code> convention for variables, the result is two languages that look quite similar, at least when <a href="https://en.wikipedia.org/wiki/Programming_in_the_large_and_programming_in_the_small">programming in the small</a>.</p>
+<p>Of course, one important difference between the ChemCore and RDKit implementations is that the former requires a compilation step. I'll let you judge for yourself how much of a burden that is given Rust's Cargo build system and package manager.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The speed of SMILES reading for two cheminformatics toolkits was compared. One was ChemCore, written in Rust. The other was RDKit, written in C++ and Python. Across all tests, including those with and without disk i/o, ChemCore outperformed RDKit on average better than threefold. Some speculations on the possible origins of this observation are offered.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

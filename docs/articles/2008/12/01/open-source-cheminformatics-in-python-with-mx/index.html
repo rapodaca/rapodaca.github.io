@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Open Source Cheminformatics in Python with MX | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Open Source Cheminformatics in Python with MX</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-12-01T00:00:00.000Z">2008-12-01T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://code.google.com/p/mx-java/">MX</a> is an open source cheminformatics toolkit written in Java. One of the reasons Java was selected as MX's development platform is the <a href="http://www.javaworld.com/javaworld/jw-03-2005/jw-0314-scripting.html">excellent support</a> now available to <a href="http://java-source.net/open-source/scripting-languages">interface the Java Virtual Machine to a variety of scripting languages</a>. Of the scripting languages used in cheminformatics, Python stands out for its widespread adoption. This article will outline the steps needed to use MX from Python.</p>
+<h2 id="aboutjython">About Jython</h2>
+<p><a href="http://www.jython.org/Project/">Jython</a> is a Java implementation of the Python interpreter. Although specific benchmarking numbers are surprisingly difficult to find around the Web, anecdotal evidence suggests the Jython interpreter is only slightly slower than the C Python interpreter in most areas, but may actually be faster than C Python in others, <a href="http://blogs.warwick.ac.uk/dwatkins/entry/benchmarking_parallel_python_1_2/">such as threading</a>.</p>
+<p>Another approach to Java-Python integration is <a href="http://jpype.sourceforge.net/">JPype</a>, which uses the <a href="http://en.wikipedia.org/wiki/Java_Native_Interface">Java Native Interface</a> (JNI). The advantage is that its not even necessary to switch your Python interpeter to begin using any Java library.</p>
+<h2 id="creatingajythonenvironment">Creating a Jython Environment</h2>
+<p>Jython comes complete with a GUI installer that worked flawlessly on my Ubuntu Linux system.</p>
+<p>My only gripe about Jython is its lack of readline support out of the box. The symptom consists of getting the following in an interactive jython session after hitting the up-arrow to retrace your command history:</p>
+<pre><code class="hljs bash language-bash">&gt;&gt;&gt; ^[[A
+</code></pre>
+<p>Although there is <a href="http://wiki.python.org/jython/ReadlineSetup">some documentation</a> on enabling readline support, in my hands it failed.</p>
+<p>However, I was successful in installing <a href="http://don.freeshell.org/jython/">Jythonconsole</a>, which I configured to be run from the command line with:</p>
+<pre><code class="hljs bash language-bash">jipy
+</code></pre>
+<p>Jythonconsole offers some nice touches, including dropdown code-completion and, of course, command line history - although the latter isn't persistent across sessions.</p>
+<h2 id="scriptingmxwithpython">Scripting MX With Python</h2>
+<p>Before we use MX from Jython, we'll need to specify a location for the MX jarfile. Assuming <a href="http://mx-java.googlecode.com/files/mx-0.104.0.jar">mx-0.104.0.jar</a> is in our working directory, this can be accomplished with:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> CLASSPATH=<span class="hljs-string">'mx-0.104.0.jar'</span>
+</code></pre>
+<p>Invoking Jython now gives us access to the complete set of MX functionality.</p>
+<h2 id="hellobenzene">Hello, Benzene</h2>
+<p>We can create a benzene molecule in Python using the following commands:</p>
+<pre><code class="hljs bash language-bash">Jython Completion Shell
+Jython 2.5b0 (trunk:5540, Oct 31 2008, 13:55:41) 
+[Java HotSpot(TM) Client VM (Sun Microsystems Inc.)] on java1.5.0_16
+&gt;&gt;&gt; from com.metamolecular.mx.io import Molecules
+&gt;&gt;&gt; benzene = Molecules.createBenzene()
+&gt;&gt;&gt; benzene.countAtoms()
+6
+</code></pre>
+<p>That's it. We can now access any new feature of MX through Python without writing or debugging a single line of bridge code.</p>
+<h2 id="otherusesofjythonincheminformatics">Other Uses of Jython in Cheminformatics</h2>
+<p>A few sources discuss the use of Jython to interface Java-based cheminformatics libraries. One of the most prolific is <a href="http://baoilleach.blogspot.com/">Noel O'Boyle</a>, who has written a series of articles on the subject, including <a href="http://baoilleach.blogspot.com/2008/03/pybel-as-generic-api-for.html">this introduction</a> and <a href="http://baoilleach.blogspot.com/2008/07/cheminformatics-toolkit-face-off-speed.html">this performance comparison</a>. Noel's software project <a href="http://code.google.com/p/cinfony/">Cinfony</a> uses Python to bridge cheminformatics toolkits written in different languages.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Scripting languages like Python offer a rapid and immediate way to test and develop software. This article has shown how simple it is to use the Java cheminformatics library MX from Python using Jython.</p>
+<h2 id="update">Update</h2>
+<p>It's also possible to import the MX jarfile into Jython using <code>sys.path.append</code>:</p>
+<pre><code class="hljs python language-python"><span class="hljs-keyword">import</span> sys
+sys.path.append(<span class="hljs-string">"mx-0.104.0.jar"</span>)
+<span class="hljs-keyword">from</span> com.metamolecular.mx.io <span class="hljs-keyword">import</span> Molecules
+</code></pre>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

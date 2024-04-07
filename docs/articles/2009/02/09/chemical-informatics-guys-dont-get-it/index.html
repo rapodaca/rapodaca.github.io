@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Chemical Informatics Guys Don&#x27;t Get It | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Chemical Informatics Guys Don&#x27;t Get It</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-02-09T00:00:00.000Z">2009-02-09T00:00:00.000Z</time>
+      </header>
+      <p>During my time as a synthetic organic chemist and later, a medicinal chemist, there were many times when I wondered why certain chemical information tools were built, why they were built the way they were - especially when they hindered my ability to use them, and why others seemed to go unbuilt despite obvious need for them. So when a chemist brings thoughtful criticism to the field of chemical informatics, I pay attention and want to know more.</p>
+<p>Recently, <a href="http://www.chemistry-blog.com/">Mitch Garcia</a> had this to say in the context of post on <a href="http://therealmoforganicsynthesis.blogspot.com/2009/02/throwing-down-gauntlet-for-my-fellow.html">creating a new service modeled after Wikipedia, Organic Chemistry Portal, and SciFinder </a></p>
+<blockquote>
+  <p>Reading through all the comments I can't help but feel the chemical informatics guys don't get it. The critical error seems to derive from making tools that can do cool things but not having a critical mass of users to make it relevant. I've always approached problems from the critical mass side, and let others worry about indexing, tagging, and developing tools in the future.</p>
+  <p>What J [the author of the post] and I are planning is truly awesome, but it is not going to fall within the realm of the type of collaborative work that the chemical informatics people know so well. J will announce the project in the next couple of days. I think you will find it completely awesome, or simply not get it. It could go either way from reading through the comments.</p>
+</blockquote>
+<p>The 'critical mass' problem is very real in a niche market like chemistry. For example, the market for photo-sharing sites is so massive that it easily supports <a href="http://flickr.com">Flickr</a>, <a href="http://photobucket.com">Photobucket</a>, and a host of lesser players. Critical mass may be a problem for a new photo sharing service, but getting to critical mass for the early players was <a href="http://www.netmag.co.uk/zine/discover-interview/caterina-fake">hardly a problem at all</a> once the idea was properly tweaked.</p>
+<p>The market for NMR databases is so small, in contrast, that most chemists have never even heard of services like <a href="http://nmrshiftdb.ice.mpg.de/">NMRShiftDB</a> and the <a href="http://riodb01.ibase.aist.go.jp/sdbs/cgi-bin/cre_index.cgi?lang=eng">Spectral Database of Organic Compounds</a> that have been in operation for a few years now. Similarly, although the chemical informatics guys are <a href="/articles/tag/pubchem">all over PubChem</a>, the largest fully-downloadable database of small molecules in the world, the average chemist has either never heard of it or has little use for it.</p>
+<p>The vast breadth of chemistry itself doesn't help much either. Way back in 1908, the American Chemical Society recognized the increasing dissatisfaction of chemists with the over-generality of the society <a href="/articles/2008/05/07/1908-and-all-that-the-long-tail-and-chemistry">by creating a host of new divisions</a> - a practice that continues to this day.</p>
+<p>Taking a niche market (chemistry) and subdividing it into yet smaller niches (organic chemistry, medicinal chemistry, chemical physics, materials science, etc.) makes it very difficult to build anything that most chemists will use even on a weekly basis.</p>
+<p>There's a case to be made that existing NMR-sharing services suffer from 'inside-the-box' thinking not unlike that prevalent in the early photo sharing sites. All that's needed is to tweak the idea in the right way to create a tool with broad appeal, so the thinking goes.</p>
+<p>For example, if I were to take a stab at building an NMR-spectrum sharing site that all synthetic organic chemists at least knew about and some of which used a lot, my mission would be clear: optimize the site for sharing spectra. This would probably leave other potential users, such as spectroscopists, out in the cold. Adding advanced features to please them would likely alienate the site's target users - synthetic organic chemists.</p>
+<p>Still, we can try to build a broadly-usable chemical information tool. One approach that met with some success was to take a resource that many chemists use (for example, the Merck Index), and try to re-create it in the image of the Web. The result was <a href="http://chempedia.com">Chempedia</a>, a combination of <a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem</a> and <a href="http://wikipedia.org">Wikipedia</a>. For what it's worth, the most common use of Chempedia to date appears to be <a href="/articles/2008/05/26/simple-cas-number-lookup-and-more-with-chempedia">looking up CAS numbers</a>, and an article I wrote on the subject is one of Depth-First's most popular items. If I were to try to improve the service (and this is the plan), I'd focus on <em>stripping</em> features from Chempedia until only the most popular one is left, and then optimizing that one feature to perfection. More on this later, though.</p>
+<p>The point is that CAS number/chemical structure interconversion is something that a large percentage of chemists need to do. It shouldn't be surprising that a new service that, among its other features, has the ability to de-reference CAS numbers would be used that way. Additional features simply obscure the true purpose of the service.</p>
+<p>For these reasons, I don't have much faith in chemistry Web services that try to be all things to all chemists. To the extent that public-facing chemistry Web applications have any possibility of attracting significant repeat traffic (and creating a sustainable business model), they will probably try to be all things to a small number of chemists. Or the alternative - one small thing to most chemists.</p>
+<p>Fortunately, the availability of agile Web frameworks like <a href="http://rubyonrails.org">Rails</a> makes it economically viable to custom-build focussed Web applications for a limited number of users. Or to build a suite of single-feature Web applications for a larger audience. Bringing either possibility into being is, in fact, <a href="http://metamolecular.com">my company's</a> business model in a nutshell.</p>
+<p>Given all of this, I'm quite curious about what J and Mitch will be unveiling. What problem will the service/software solve, who will be the audience, and how will the critical mass problem be addressed? Given their proximity to the the problem they'll be solving, whatever it is should be very interesting indeed.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

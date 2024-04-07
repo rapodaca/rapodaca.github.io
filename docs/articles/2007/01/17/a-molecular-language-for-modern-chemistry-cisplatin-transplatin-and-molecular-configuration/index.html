@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Molecular Language for Modern Chemistry - Cisplatin, Transplatin, and Molecular Configuration | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Molecular Language for Modern Chemistry - Cisplatin, Transplatin, and Molecular Configuration</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-01-17T00:00:00.000Z">2007-01-17T00:00:00.000Z</time>
+      </header>
+      <p>Recent articles have discussed FlexMol as a new language capable of representing many of today's most difficult molecules: <a href="http://depth-first.com/articles/2006/12/20/a-molecular-language-for-modern-chemistry-getting-started-with-flexmol">metallocenes</a>; <a href="http://depth-first.com/articles/2007/01/09/a-molecular-language-for-modern-chemistry-flexmol-and-axial-chirality">axially-chiral biaryls</a>; and <a href="http://depth-first.com/articles/2007/01/12/flexmol-and-axial-chirality-n-arylacrylanilides">other forms of axial chirality</a>. FlexMol can also encode more common molecular features such as <a href="http://depth-first.com/articles/2007/01/02/a-molecular-language-for-modern-chemistry-flexmol-and-alkene-geometrical-isomerism">E/Z alkene geometrical isomerism</a>. So far, discussions of stereochemistry have been limited to molecular <em>conformation</em>. In this article, I'll demonstrate how FlexMol encodes molecular <em>configuration</em>, using cisplatin and transplatin as examples.</p>
+<h2 id="thedifferencebetweenconfigurationandconformation">The Difference Between Configuration and Conformation</h2>
+<p>FlexMol's distinction between configuration and conformation is a simple one: if two isomers can't be interconverted by bond rotations, then configuration is used to describe them. Otherwise, conformation is used. The geometrical isomers of dichlorodiamino platinum fall into the former category. For more rigorous definitions, see Dietz' <a href="http://dx.doi.org/10.1021/ci00027a001">original specification</a> on which FlexMol is built.</p>
+<h2 id="cisplatin">Cisplatin</h2>
+<p><img src="/images/posts/20070117/cisplatin.png" alt="Cisplatin" title="Cisplatin"></p>
+<p>Cisplatin consists of a central platinum atom surrounded by two chloro ligands and two ammonia ligands arranged at the corners of a square. Using the numbering system present in the structure above, we can construct a <a href="/images/posts/20070117/cisplatin.xml">complete FlexMol representation</a>. Rather than reproduce the entire document here, I'll just highlight the stereochemical aspects. In contrast to the other FlexMol examples covered on Depth-First to date, this example contains a <code>configuration</code> element:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!-- snip --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"Pt0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"N4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"Cl2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"N3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"Pt0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"N3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"N4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"Cl1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"Pt0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"Cl1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"N3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"Cl2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"Pt0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"Cl2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"Cl1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"N4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+<span class="hljs-comment">&lt;!-- snip --&gt;</span>
+</code></pre>
+<p>Notice that the most of the subelements of cisplatin's <code>configuration</code> were also used in the context of conformation. The three main differences are:</p>
+<ul>
+<li>The element <code>configurationWheel</code> is used in place of <code>conformationWheel</code>;</li>
+<li>Instead of a <code>gammaSequence</code> each chiral axis is described by an <code>atomPair</code> only;</li>
+<li>There are as many <code>configurationWheels</code> as neighbors on a configurational atom. In this case, platinum is the configurational atom. It has four neighbors, and so four <code>configurationWheels</code> appear. Each neighbor is in turn placed at the <code>target</code> of the chiral axis.</li>
+</ul>
+<p>To better visualize cisplatin's configuration, consider the four diagrams below, each of which represents one <code>configurationalWheel</code>. Given the cisplatin's square-planar geometry, each "wheel" in this case consists of only two opposing <code>halfPlanes</code>.</p>
+<p><img src="/images/posts/20070117/cisplatin_planes.png" alt="Cisplatin Planes" title="Cisplatin Planes"></p>
+<p>There are a few things to notice. First, each configurational <code>halfPlane</code> is divided into three sections: <code>lower</code>; <code>upper</code>; and <code>center</code>. A <code>center</code> designation means that an atom sits precisely on the line bisecting a given half-plane. As with conformational half-planes, <code>upper</code> means the part of the half-plane closest to the axis endpoint; <code>lower</code> means the part of the half-plane furthest from this atom. Second, notice that an atom oriented 180 degrees from the direction of the chiral axis is not assigned to a <code>halfPlane</code> because it occupies none. As we shall see, this is not a limitation.</p>
+<h2 id="transplatin">Transplatin</h2>
+<p><img src="/images/posts/20070117/transplatin.png" alt="Transplatin" title="Transplatin"></p>
+<p>How does this system allow us to distinguish cisplatin from transplatin? Given the atom numbering as shown above, we can construct the <a href="/images/posts/20070117/transplatin.xml">complete FlexMol representation</a>. The <code>configuration</code> element is shown below:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!-- snip --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"Pt0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"Cl2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"N3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"N4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"Pt0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"N3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"Cl1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"Cl2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"Pt0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"Cl1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"N3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"N4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"Pt0"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"N4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"Cl1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">center</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"Cl2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+<span class="hljs-comment">&lt;!-- snip --&gt;</span>
+</code></pre>
+<p>The arrangement of planes can be represented by the diagram below:</p>
+<p><img src="/images/posts/20070117/transplatin_planes.png" alt="Transplatin Planes" title="Transplatin Planes"></p>
+<p>As you can see, the cisplatin and transplatin configurations are clearly distinguishable by inspection. Notice that we have not resorted to chiral flags, atom parities, or any form of stereochemical template. When a new atom geometry is desired, for example trigonal bipyramidal, octahedral, t-shaped, or otherwise, exactly the same rules apply.</p>
+<h2 id="asoftwareimplementation">A Software Implementation</h2>
+<p>It's not difficult to write software designed to compare stereochemical configurations in the same way as it is done manually. For example, this has been fully implemented in <a href="http://sf.net/projects/octet">Octet</a>.</p>
+<h2 id="sowhat">So What?</h2>
+<p>At least one other language shares FlexMol's ability to encode square planar stereochemistry: <a href="http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html">SMILES</a>. The difference is that FlexMol uses no templates, resulting in a rule-based, extensible language. SMILES, on the other hand, uses chiral templates. If your molecule doesn't fit one of these pre-defined templates, you can't encode its stereochemistry with SMILES and expect a third party to be able to understand it. This is the unavoidable consequence of a template-based stereochemistry encoding system such as the one used by SMILES.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>FlexMol offers a completely new way to think about encoding stereochemistry with computers. The method is both flexible and systematic. It does away with the need for inherently confusing and limited constructs such as atom parities, chiral flags, and stereochemical templates in favor of actually describing the stereochemical environment of atoms in a molecule. One stop remains on this introductory tour of FlexMol and stereochemistry: tetrahedral chirality.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

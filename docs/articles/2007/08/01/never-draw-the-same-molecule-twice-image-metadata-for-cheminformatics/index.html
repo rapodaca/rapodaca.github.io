@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Never Draw the Same Molecule Twice: Image Metadata for Cheminformatics | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Never Draw the Same Molecule Twice: Image Metadata for Cheminformatics</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-08-01T00:00:00.000Z">2007-08-01T00:00:00.000Z</time>
+      </header>
+      <p>The graphical language of 2D structures has served chemistry well for the last 100 years. Ironically, this language which is so useful for human communication is extraordinarily difficult for machines to understand. Heroic efforts at digital raster image recognition such as <a href="http://cactus.nci.nih.gov/osra/">OSRA</a> and those <a href="http://chem-bla-ics.blogspot.com/2007/07/optical-chemical-structure-recognition.html">recently summarized by Egon Willighagen</a>, in addition to a <a href="http://depth-first.com/articles/2006/08/25/computational-perception-and-recognition-of-digitized-molecular-structures">handful of others</a>, have tried to tackle this problem with varying degrees of success.</p>
+<p>The problem remains unsolved, and continues to be one of the most difficult technical challenges in cheminformatics. But the pace at which non-machine readable images are generated has accelerated dramatically in the last two years with the emergence of <a href="http://depth-first.com/articles/2007/01/24/thirty-two-free-chemistry-databases">numerous free chemical databases</a>.</p>
+<p>What if 2D structure images simply contained all of the information needed for machine processing in the first place?</p>
+<p>This idea isn't as far-fetched as it may sound initially. As discussed in a <a href="http://depth-first.com/articles/2007/07/30/editable-and-searchable-2d-molecular-images">recent D-F article</a>, both <a href="http://www.nongnu.org/gchempaint/">GChemPaint</a> and <a href="http://www.acdlabs.com/download/chemsk.html">ACD ChemSketch</a> have been claimed to be capable of encoding machine-readable structure information.</p>
+<p>Previous D-F articles have described <a href="http://depth-first.com/articles/tag/firefly">"Firefly"</a>, the codename for a new lightweight 2D structure editor designed specifically for the Web. With major work on the editor's user interface complete, more recent efforts have focused on implementing a 2D rendering toolkit, and with it a mechanism to encode structural information within 2D molecular images.</p>
+<p>As a demonstration of what is now possible, consider the structure of GlaxoSmithKline's diabetes treatment rosiglitazone (Avandia), depicted as a PNG image at the beginning of this article. At first glance, the image appears to be just like any other image of a 2D molecular structure. But it is not, for embedded within it are the connection table and 2D atom coordinates of rosiglitazone encoded as an industry-standard molfile.</p>
+<p>Given the right software, a computer can interpret the structural information encoded in the rosiglitazone image and precisely re-create the original molecular representation. A graphical diagnostic tool bundled with Firefly was equipped with code for precisely this purpose.</p>
+<p>This tool can work with molfile-encoded PNG images just as easily as it can with molfiles; they can be opened and the resulting molecule can be further edited, saved in another format, or re-written as a embedded-molfile PNG image.</p>
+<p>The first step is to select the PNG image from a local hard drive:</p>
+<p><img src="/images/posts/20070801/file_open2.png" alt="File Open" title="File Open"></p>
+<p>Opening this image produces a fully-editable version of the original molecule:</p>
+<p><img src="/images/posts/20070801/firefly.png" alt="Firefly" title="Firefly"></p>
+<p>Obviously, nothing limits this technique to molfiles. InChI, SMILES, CML, or any other molecular encoding scheme would work just as well.</p>
+<p>Using molecular-encoded PNG images as a Web-ready replacement for the <a href="/articles/2007/07/30/editable-and-searchable-2d-molecular-images">Word/Chemdraw OLE</a> technology may be one application of this approach. With a large corpus of these images, chemical Web spidering and data mining would be possible on a scale unimaginable today. As always, these possibilities reinforce the desperate need for high quality tools that chemists actually want to use, and which simultaneously yield machine-readable output.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

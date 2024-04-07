@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Because Mistakes Happen: Giving ChemPhoto Some Poka-yoke | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Because Mistakes Happen: Giving ChemPhoto Some Poka-yoke</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-09-17T00:00:00.000Z">2008-09-17T00:00:00.000Z</time>
+      </header>
+      <p>One of the difficulties in creating applications that can write to a user's filesystem is dealing with the real possibility that a simple, honest, garden-variety mistake can result in consequences ranging from the mildly frustrating to the disastrous.</p>
+<p>As a specific example, consider Omar, who has just created 15,000 SVG images from an SD file with <a href="http://metamolecular.com/chemphoto">ChemPhoto</a> (the first <a href="http://depth-first.com/articles/2008/09/08/smarter-cheminformatics-from-sd-file-to-image-collection-with-chemphoto">chemical structure imaging application</a>). Continuing on, he opens a second SD file to create images from it. Forgetting to change the output directory for his images, Omar presses the "Create" button, only to find that the new images are overwriting the old images. By the time he presses "Cancel", the damage has been done. Omar has to go back to the first SD file and create all 15,000 SVG images again.</p>
+<p>In his book <em><a href="http://rhjr.net/dto/">Designing the Obvious</a></em>, Robert Hoekman, Jr. describes user interface elements designed to prevent the user from making mistakes. He calls them Poka-yoke devices (POH-kay YOH-kay, from the Japanese for "mistake-proofing").</p>
+<p>It's possible to spare Omar from his self-inflicted inconvenience (or a far more serious kind of mistake) by building some Poka-yoke devices into ChemPhoto.</p>
+<p>A single dialog box controls the generation of images in ChemPhoto. The image below shows that it requires a name for the collection. Notice that without this, the name field is highlighted, a message appears at the bottom, and the "Create" button is deactivated.</p>
+<p><img src="/images/posts/20080917/choose_name_full.png" alt="Choose Name" title="Choose Name"></p>
+<p>If Omar chooses a non-existing output directory, he'll similarly get a warning and be prevented from continuing:</p>
+<p><img src="/images/posts/20080917/warning_directory_full.png" alt="Warning" title="Warning"></p>
+<p>If Omar chooses a directory and collection name combination that will result in a directory (or archive file) being overwritten, he gets a warning and is blocked from going forward:</p>
+<p><img src="/images/posts/20080917/warning_overwrite_full.png" alt="Overwrite" title="Overwrite"></p>
+<p>When Omar has provided all of the necessary information and there's no chance he can overwrite any of his existing files, ChemPhoto clears the error messages, removes the error highlighting, and activates the "Create" button (he's also told exactly what ChemPhoto will be writing to his hard drive):</p>
+<p><img src="/images/posts/20080917/alles_klar_full.png" alt="Alles Klar" title="Alles Klar"></p>
+<p>This functionality could have been implemented by letting Omar fill in all the fields, with error or not. If some conflict (such a directory overwrite) were detected, Omar could get a warning dialog, and be told to go back to the form to fix it. But why put him to all that trouble when designing the right interface from the start can prevent it?</p>
+<p>Catching errors as they occur and providing feedback in real-time gives the best of both worlds in a form that can be filled out quickly and safely.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

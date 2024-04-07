@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Wrapping Rust Types as Python Classes | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/08/03/wrapping-rust-types-as-python-classes/">
+      <meta property="og:title" content="Wrapping Rust Types as Python Classes">
+      <meta property="og:description" content="A step-by-step guide to rolling your own pythonic Rust wrappers.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200803/summary.png">
+      <meta content="A step-by-step guide to rolling your own pythonic Rust wrappers." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Wrapping Rust Types as Python Classes</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-08-03T19:00:00Z">2020-08-03T19:00:00Z</time>
+      </header>
+      <p>Python has evolved into scientific computing's standard orchestration language. In this role, Python sits at the top of a software stack, directing the actions of components written in low-level languages below. This architecture allows Python to deliver developer productivity while the low-level language delivers performance. This system requires a robust communication channel, which is typically supplied by a "Python wrapper."</p>
+<p>The <a href="https://blog.rust-lang.org/2015/05/15/Rust-1.0.html">recent</a> maturation of Rust as a stable, full-featured systems programming platform raises the possibility that it could replace C and C++ in some Python orchestration scenarios. My own interest lies in using <a href="/articles/2020/06/01/chemcore-a-cheminformatics-toolkit-for-rust/">a cheminformatics library written in Rust</a> from Python.</p>
+<p>A lot has been written about calling Rust code from Python. In researching the topic, however, I found that most documentation begins and ends with simple functions. Python and Rust both support object-oriented programming features, but using them through a wrapper requires non-obvious, lightly-documented refinements. This article fills the gap by showing how to build a Python wrapper for a nontrivial, persistent Rust object.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This tutorial assumes that you've installed a Python 3 interpreter and a <a href="https://rustup.rs">Rust compiler</a>.</p>
+<h2 id="overview">Overview</h2>
+<p>The project's goal is to wrap a subset of Rust's <a href="https://doc.rust-lang.org/std/collections/struct.HashSet.html">HashSet</a> type, an unordered collection of unique values. Like most languages, Python <a href="https://docs.python.org/3/tutorial/datastructures.html#sets">already includes this functionality</a>. So the objective isn't practical but rather educational. Using <code>HashMap</code> simplifies the project, allowing it to fucus on the Rust and Python interfaces themselves.</p>
+<p>The wrapping technique can be summarized as follows:</p>
+<ol>
+<li>Write a Rust FFI interface.</li>
+<li>Write a Python Ctypes interface</li>
+<li>Write a Python API.</li>
+<li>Test the Python API.</li>
+</ol>
+<p>Here's the directory layout for the project:</p>
+<figure>
+  <img alt="Project Layout" src="/images/posts/20200803/project-layout.png">
+  <figcaption>
+    <strong>Project Layout.</strong> The wrapper consists of a Python package directory contained within an ordinary Rust library project. <code>__pycache__</code> is added by Python when the wrapper is imported.
+  </figcaption>
+</figure>
+<p>Several sources proved crucial in my research on this topic, including:</p>
+<ul>
+<li><a href="http://jakegoulding.com/rust-ffi-omnibus/">The Rust FFI Omnibus</a>. A cookbook illustrating various FFI wrapping scenarios, with support for Ruby, Node, Python, Java, C, C#, Julia, and Haskell.</li>
+<li><a href="https://michael-f-bryan.github.io/rust-ffi-guide/">The Unofficial Rust FFI Guide</a>. I found the section on error handling and return types especially helpful.</li>
+<li><a href="https://bheisler.github.io/post/calling-rust-in-python/">Calling Rust From Python</a>. A detailed example of Rust object instantiation and control from Python using a somewhat different approach than presented here.</li>
+<li><a href="https://stackoverflow.com/questions/26277322/passing-arrays-with-ctypes">passing arrays with ctypes</a>. From StackOverflow.</li>
+<li><a href="https://stackoverflow.com/questions/40219711/dereference-ffi-pointer-in-python-to-get-underlying-array">Dereference FFI pointer in Python to get underlying array</a>. From StackOverflow.</li>
+</ul>
+<p>The full project is fairly small. Even so, you may wish to <a href="https://github.com/rapodaca/hash_set/">download it from GitHub</a>.</p>
+<h2 id="createaproject">Create a Project</h2>
+<p>We begin by creating a Rust project in <a href="/articles/2020/07/07/rust-and-webassembly-from-scratch-hello-world-with-strings/">the usual way</a>.</p>
+<pre><code class="hljs console language-console">cargo new hash_set --lib &amp;&amp; cd hash_set
+</code></pre>
+<h2 id="rustffiinterface">Rust FFI Interface</h2>
+<p>The Rust side uses Foreign Function Interface (FFI), a general-purpose mechanism for producing a binary suitable for bindings in not just Python, but other languages. The interface consists of a set of isolated methods that work together to produce an object lifecycle with a constructor, destructor, and methods.</p>
+<p>First, we bring in two dependencies: the <code>HashSet</code> type itself (which will be wrapped) and the <code>size_t</code> type from <a href="https://crates.io/crates/libc">libc</a>. The latter allows translation between certain Rust primitive types and their corresponding C constructs.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
+<span class="hljs-keyword">use</span> std::collections::HashSet;
+<span class="hljs-keyword">use</span> libc::size_t;
+</code></pre>
+<p>Next comes a function to construct a <code>HashSet</code> and return it to the caller - ultimately Python. Rust's most unusual (and powerful) feature is compile-time memory management in which values are allocated on the stack by default. We bypass this by moving the <code>HashSet</code> instance to the heap via <a href="https://doc.rust-lang.org/stable/rust-by-example/std/box.html"><code>Box</code></a>, then returning a raw pointer to it.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set_new</span></span>() -&gt; *<span class="hljs-keyword">mut</span> HashSet&lt;<span class="hljs-built_in">usize</span>&gt; {
+    <span class="hljs-keyword">let</span> result = HashSet::new();
+
+    <span class="hljs-built_in">Box</span>::into_raw(<span class="hljs-built_in">Box</span>::new(result))
+}
+</code></pre>
+<p>A <code>HashMap</code> instance allocated in this way will eventually need to be deallocated. The <code>hash_set_delete</code> function enables memory allocated by Rust to be cleanly reclaimed.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set_delete</span></span>(set: *<span class="hljs-keyword">mut</span> HashSet&lt;<span class="hljs-built_in">usize</span>&gt;) {
+    <span class="hljs-keyword">if</span> set.is_null() {
+        <span class="hljs-keyword">return</span>;
+    }
+
+    <span class="hljs-keyword">unsafe</span> {
+        <span class="hljs-built_in">Box</span>::from_raw(set);
+    }
+}
+<span class="hljs-comment">// ...</span>
+</code></pre>
+<p>This function is remarkably straightforward. We first check that the raw pointer is not null. If not, we bring the <code>HashSet</code> instance into scope on the stack. Rust's compile time memory management does the rest, freeing the memory as expected.</p>
+<p>With the birth and death of a <code>HashSet</code> defined, we can begin to define its functionality. For this we use a set of functions, each of which follows the same basic pattern:</p>
+<ol>
+<li>De-reference the pointer to the Rust instance.</li>
+<li>Use the Rust instance to obtain a result.</li>
+<li>Report the result.</li>
+</ol>
+<p>Take, for example, the <code>contains</code> method, which returns a boolean indicating whether a value is a member of the <code>HashSet</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
+
+<span class="hljs-comment">// ...</span>
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set_contains</span></span>(
+    set: *<span class="hljs-keyword">const</span> HashSet&lt;<span class="hljs-built_in">usize</span>&gt;, item: size_t, result: *<span class="hljs-keyword">mut</span> <span class="hljs-built_in">bool</span>
+) -&gt; <span class="hljs-built_in">i8</span> {
+    <span class="hljs-keyword">let</span> set = <span class="hljs-keyword">match</span> <span class="hljs-keyword">unsafe</span> { set.as_ref() } {
+        <span class="hljs-literal">Some</span>(set) =&gt; set,
+        <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>
+    };
+    <span class="hljs-keyword">let</span> result = <span class="hljs-keyword">match</span> <span class="hljs-keyword">unsafe</span> { result.as_mut() } {
+        <span class="hljs-literal">Some</span>(result) =&gt; result,
+        <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>
+    };
+
+    std::mem::replace(result, set.contains(&amp;item));
+
+    <span class="hljs-number">0</span>
+}
+<span class="hljs-comment">// ...</span>
+</code></pre>
+<p>The first thing that jumps out is that the return type is used to to signal success/error conditions, whereas an input parameter pointer store the actual result. This pattern is common in FFI libraries. The idea is that native wrapper code should never panic on an error condition, but instead report an error as a return value. In the case above, the error condition will be reported as <code>-1</code> and success as <code>0</code>. Although not pursued here, we could take this idea one step further with a <a href="https://s3.amazonaws.com/temp.michaelfbryan.com/errors/index.html">thread-local last error code</a>.</p>
+<p>The boolean result is passed as a raw pointer whose value is re-written by a call to <a href="https://doc.rust-lang.org/std/mem/fn.replace.html"><code>std::mem::replace</code></a>. In other words, the Python side will be responsible for managing the memory of the result, eliminating the need for bloating the Rust side with this cleanup. As we'll see below, it turns out that Python is very well-suited to this approach.</p>
+<p>Although the remaining functions follow a very similar pattern, one point of interest is the <code>collect</code> method wrapper.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
+
+<span class="hljs-comment">// ...</span>
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set_collect</span></span>(
+    set: *<span class="hljs-keyword">const</span> HashSet&lt;<span class="hljs-built_in">usize</span>&gt;, result: *<span class="hljs-keyword">mut</span> size_t
+) -&gt; <span class="hljs-built_in">i8</span> {
+    <span class="hljs-keyword">let</span> set = <span class="hljs-keyword">match</span> <span class="hljs-keyword">unsafe</span> { set.as_ref() } {
+        <span class="hljs-literal">Some</span>(set) =&gt; set,
+        <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>
+    };
+    <span class="hljs-keyword">let</span> items = set.iter().cloned().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+
+    <span class="hljs-keyword">unsafe</span> {
+        std::ptr::copy((&amp;items[<span class="hljs-number">0</span>..]).as_ptr(), result, items.len());
+    }
+
+    <span class="hljs-number">0</span>
+}
+<span class="hljs-comment">// ...</span>
+</code></pre>
+<p>On the Python side, the <code>HashSet::collect</code> method returns the elements of the set as a list. Keeping with the theme that Python will manage its own memory, the list is written to a raw output parameter pointer using <a href="https://doc.rust-lang.org/beta/std/ptr/fn.copy.html"><code>std::ptr::copy</code></a>.</p>
+<p>The library is built in the usual way with Cargo, storing the binary in <code>target/debug</code>.</p>
+<pre><code class="hljs console language-console">cargo build
+</code></pre>
+<h2 id="pythonctypesinterface">Python Ctypes Interface</h2>
+<p>Python wrappers to Rust libraries tend to follow a common layout pattern. Within the Rust project is found a directory named after the project, in this case <code>hash_set</code>. This is where the Python module lives. Create this directory and add the init file:</p>
+<pre><code class="hljs console language-console">mkdir hash_set
+touch hash_set/__init__.py
+</code></pre>
+<p><code>__init.py</code> brings two objects within scope: a <code>lib</code> object exported from the <code>config</code> modules and representing the Rust library; and a <code>HashSet</code> class.</p>
+<pre><code class="hljs python language-python"><span class="hljs-comment"># hash_set/__init__.py</span>
+<span class="hljs-keyword">from</span> .config <span class="hljs-keyword">import</span> lib
+<span class="hljs-keyword">from</span> .hash_set <span class="hljs-keyword">import</span> HashSet
+</code></pre>
+<p>The <code>lib</code> object is built through a call to <code>config/load_lib</code>. This function begins by tracking down the Rust library, then defining the argument types (<code>argstype</code>) and return types (<code>restype</code>).</p>
+<pre><code class="hljs python language-python"><span class="hljs-comment"># hash_set/config.py</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load_lib</span><span class="hljs-params">()</span>:</span>
+    prefix = {<span class="hljs-string">'win32'</span>: <span class="hljs-string">''</span>}.get(sys.platform, <span class="hljs-string">'lib'</span>)
+    extension = {<span class="hljs-string">'darwin'</span>: <span class="hljs-string">'.dylib'</span>, <span class="hljs-string">'win32'</span>: <span class="hljs-string">'.dll'</span>}.get(sys.platform, <span class="hljs-string">'.so'</span>)
+    lib = ctypes.cdll.LoadLibrary(prefix + <span class="hljs-string">"hash_map"</span> + extension)
+
+    lib.hash_set_new.restype = POINTER(HashSetS)
+
+    lib.hash_set_len.argstype = (POINTER(HashSetS), POINTER(c_size_t), )
+    lib.hash_set_len.restype = c_int8
+
+    lib.hash_set_contains.argstype = (POINTER(HashSetS), POINTER(c_size_t), POINTER(c_bool), )
+    lib.hash_set_contains.restype = c_int8
+
+    lib.hash_set_insert.argstype = (POINTER(HashSetS), c_size_t)
+    lib.hash_set_insert_restype = c_bool
+
+    lib.hash_set_collect.argstype = (POINTER(HashSetS), POINTER(POINTER(c_size_t)), )
+
+    <span class="hljs-keyword">return</span> lib
+</code></pre>
+<p>The definition of argument and return types is made possible with <a href="https://docs.python.org/3/library/ctypes.html">ctypes</a>, "a foreign function library for Python." As can be seen above, one of the jobs of ctypes is to help Python interpret the arguments and return values of FFI functions.</p>
+<h2 id="pythonapi">Python API</h2>
+<p>The <code>lib</code> object produced through ctypes assignment is available by importing it from the top-level module. The file <code>hash_set.py</code> leads with this import together with the import of types needed from the ctypes library. </p>
+<pre><code class="hljs python language-python"><span class="hljs-comment"># hash_set/hash_set.py</span>
+<span class="hljs-keyword">from</span> ctypes <span class="hljs-keyword">import</span> c_size_t, c_bool, byref
+<span class="hljs-keyword">from</span> hash_set <span class="hljs-keyword">import</span> lib
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HashSet</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        self.obj = lib.hash_set_new()
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__del__</span><span class="hljs-params">(self)</span>:</span>
+        lib.hash_set_delete(self.obj)
+
+    <span class="hljs-comment"># ...</span>
+</code></pre>
+<p>The two methods <code>__init__</code> and <code>__del__</code> govern specific points in the lifecycle of <code>HashSet</code>. <code>__init__</code> is invoked just before the Python constructor returns. <code>__del__</code> is invoked sometime after a Python <code>HashSet</code> instance goes out of scope.</p>
+<p>The remaining <code>HashSet</code> methods deal with the orchestration of Python ctypes and the Rust FFI library. As on the Rust side, a pattern emerges:</p>
+<ol>
+<li>instantiate and initialize ctypes</li>
+<li>invoke the appropriate <code>lib</code> method</li>
+<li>process the Rust FFI return value and ctypes</li>
+<li>return a result or raise</li>
+</ol>
+<p>Take, for example, the <code>contains</code> method, which was was previously discussed from the Rust side.</p>
+<pre><code class="hljs python language-python"><span class="hljs-comment"># hash_set/hash_set.py</span>
+<span class="hljs-comment"># ...</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HashSet</span>:</span>
+    <span class="hljs-comment"># ...</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">contains</span><span class="hljs-params">(self, item)</span>:</span>
+        result = c_bool()
+
+        <span class="hljs-keyword">if</span> lib.hash_set_contains(self.obj, item, byref(result)) &lt; <span class="hljs-number">0</span>:
+            <span class="hljs-keyword">raise</span> ValueError
+        <span class="hljs-keyword">else</span>:
+            <span class="hljs-keyword">return</span> result.value
+    <span class="hljs-comment"># ...</span>
+</code></pre>
+<p>The remaining <code>HashSet</code> methods follow a similar pattern. In analogy with the Rust side, the <code>collect</code> method deserves special mention.</p>
+<pre><code class="hljs python language-python"><span class="hljs-comment"># hash_set/hash_set.py</span>
+<span class="hljs-comment"># ...</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HashSet</span>:</span>
+    <span class="hljs-comment"># ...</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">collect</span><span class="hljs-params">(self)</span>:</span>
+        result = (c_size_t * self.len())()
+
+        <span class="hljs-keyword">if</span> lib.hash_set_collect(self.obj, byref(result)) &lt; <span class="hljs-number">0</span>:
+            <span class="hljs-keyword">raise</span> ValueError
+        <span class="hljs-keyword">else</span>:
+            <span class="hljs-keyword">return</span> list(result)
+    <span class="hljs-comment"># ...</span>
+</code></pre>
+<p><code>HashSet#collect</code> passes a pointer to a Python ctype array. The Rust side uses this pointer as a starting point to fill the array. However, the Python <code>c_size_t</code> instance must be instantiated with a length equal to the number of items in the Rust collection. A call to <code>self.len</code> makes this possible.</p>
+<h2 id="testing">Testing</h2>
+<p>From the outside, <code>HashMap</code> looks an acts like other Python classes. Instantiation works in the usual way, and there is no need for clients to explicitly "destroy" an instance after creation. </p>
+<pre><code class="hljs bash language-bash">LD_LIBRARY_PATH=target/debug python3
+
+&gt;&gt;&gt; import hash_set
+&gt;&gt;&gt; from hash_set import HashSet
+&gt;&gt;&gt; s = HashSet()
+&gt;&gt;&gt; s.contains(0)
+False
+&gt;&gt;&gt; s.insert(0)
+True
+&gt;&gt;&gt; s.contains(0)
+True
+&gt;&gt;&gt; s.insert(0)
+False
+&gt;&gt;&gt; s.insert(1)
+True
+&gt;&gt;&gt; s.len()
+2
+&gt;&gt;&gt; s.collect()
+[1, 0]
+</code></pre>
+<p>Unix users should be able to use the <code>LD_LIBRARY_PATH</code> prefix to locate the library. Windows users can <a href="http://jakegoulding.com/rust-ffi-omnibus/basics/">copy the binary</a> into the current working directory.</p>
+<h2 id="automation">Automation</h2>
+<p>Building a Pythonic Rust wrapper at the low level presented here is very informative, but won't be right for every project. As we've seen, past a point the work is pure repetition.</p>
+<p>This raises the possibility of automating the process, but to my knowledge not much along these lines exists. <a href="https://github.com/rust-lang/rust-bindgen">Bindgen</a> "automatically generates Rust FFI bindings to C (and some C++) libraries." This is not the direction of interest, which is to produce C FFI bindings to Rust libraries. At first glance, <a href="https://github.com/eqrion/cbindgen">cbindgen</a> looks promising, but it "creates C/C++11 headers for Rust libraries which expose a public C API." We don't need headers. Finally, Swig doesn't yet <a href="https://github.com/swig/swig/issues/1468">directly</a> support Rust, although an indirect approach might be feasible. Rust Swig (aka <a href="https://github.com/Dushistov/flapigen-rs">flapigen-rs</a>) connects "programs or libraries written in Rust with other languages," but so far Python is not directly supported. <a href="https://github.com/PyO3/pyo3">PyO3</a>, which has been discussed here <a href="/articles/2020/06/15/oxmol-rust-python-bindings-for-chemcore/">previously</a>, offers "Rust bindings for Python," but the need to manually set up both the Python and Rust APIs remains.</p>
+<p><a href="https://github.com/iduartgomez/rustypy">RustPy</a> appears to automate some of the tasks presented here, but I haven't worked with it and don't know the scope or limitations.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Hand-coded Python wrappers for Rust libraries are straightforward to build given some simple tools and concepts. The Rust side defines an interfaces of functions recapitulated on the the Python side as a class. The approach is fully capable of yielding wrappers that look and feel like ordinary Python libraries. What hasn't been discussed yet is packaging and distribution, but that's a story for another time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

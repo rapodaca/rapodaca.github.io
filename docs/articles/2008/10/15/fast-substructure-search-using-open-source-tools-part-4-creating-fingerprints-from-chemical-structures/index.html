@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fast Substructure Search Using Open Source Tools Part 4 - Creating Fingerprints from Chemical Structures | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Fast Substructure Search Using Open Source Tools Part 4 - Creating Fingerprints from Chemical Structures</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-10-15T00:00:00.000Z">2008-10-15T00:00:00.000Z</time>
+      </header>
+      <p>The previous articles in this series have detailed the steps needed to build a working fingerprint screening system using nothing more than the open source tools <a href="http://www.mysql.com/">MySQL</a>, <a href="http://ruby-lang.org">Ruby</a>, and <a href="http://ar.rubyonrails.org/">ActiveRecord</a>. With this system we can create, read, update, and destroy fingerprints in persistent storage. Although the system meets all of the requirements of a fingerprint screening system, it isn't a substructure search system - yet. For that, we need a way to convert chemical structure representations into fingerprints. This article describes a very simple method for doing so.</p>
+<p>All Articles in this Series:</p>
+<ul>
+<li><a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">Part 1: Fingerprints and Databases</a></li>
+<li><a href="/articles/2008/10/03/fast-substructure-search-using-open-source-tools-part-2-fingerprint-screen-with-sql">Part 2: Fingerprint Screen With SQL</a></li>
+<li><a href="/articles/2008/10/06/fast-substructure-search-using-open-source-tools-part-3-a-crud-api-for-fingerprints-in-ruby">Part 3: A CRUD API for Fingerprints in Ruby</a></li>
+<li>Part 4: Creating Fingerprints from Chemical Structures</li>
+<li><a href="/articles/2008/10/21/fast-substructure-search-using-open-source-tools-part-5-relating-molecules-to-fingerprints-with-sql">Part 5: Relating Molecules to Fingerprints with SQL</a></li>
+<li><a href="/articles/2008/10/29/fast-substructure-search-using-open-source-tools-part-6-modelling-a-one-to-many-relationship-between-fingerprints-and-compounds-in-ruby">Part 6: Modelling a One-To-Many Relationship Between Fingerprints and Compounds in Ruby</a></li>
+</ul>
+<h2 id="arubyfingerprinterineightlines">A Ruby Fingerprinter in Eight Lines</h2>
+<p>Let's create a <code>Fingerprinter</code> class that's capable of converting a SMILES string into a <code>Fingerprint</code> that can be stored and queried. The Ruby code below makes use of Open Babel's <a href="http://openbabel.org/wiki/Babel"><code>babel</code></a> command-line utility:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'fingerprint'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Fingerprinter</span>  </span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fingerprint_smiles</span> <span class="hljs-title">smiles</span></span>
+    raw = <span class="hljs-string">%x[echo '<span class="hljs-subst">#{smiles}</span>' | babel -ismi -ofpt 2&gt;;/dev/null]</span>
+    bytes = raw.gsub(<span class="hljs-regexp">/&gt;;.*?\n/</span>, <span class="hljs-string">''</span>).gsub(<span class="hljs-regexp">/\n/</span>, <span class="hljs-string">''</span>).split
+
+    Fingerprint.new.fill_bytes{<span class="hljs-params">|i|</span> <span class="hljs-string">"<span class="hljs-subst">#{bytes[<span class="hljs-number">2</span>*i]}</span><span class="hljs-subst">#{bytes[<span class="hljs-number">2</span>*i+<span class="hljs-number">1</span>]}</span>"</span>.hex}
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>This class takes advantage of Ruby's ability to interface directly with the command line through the <code>%x</code> operator in a way similar to that previously described for the <a href="/articles/2008/05/30/a-simple-and-portable-ruby-interface-to-inchi-part-2-silencing-console-output">cInChI command line tool</a>. The <code>babel</code> output is then converted into a form suitable for use with our <a href="/articles/2008/10/06/fast-substructure-search-using-open-source-tools-part-3-a-crud-api-for-fingerprints-in-ruby">previously-defined</a> <code>Fingerprint</code> class.</p>
+<p>Although quite easy to implement, this approach may not work in every situation. For example, the <code>fingerprint_smiles</code> method opens the possibility that a malicious user could attempt to execute arbitrary shell commands by creating a mis-formed SMILES string. Windows users may need to adapt the code. But for trusted SMILES on Unix machines, this implementation works well and can be used in many different programming environments.</p>
+<h2 id="testingthefingerprinter">Testing the Fingerprinter</h2>
+<p>We can test the Fingerprinter through interactive Ruby (irb):</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt;; require <span class="hljs-string">'lib/fingerprinter'</span>
+=&gt;; <span class="hljs-literal">true</span>
+irb(main):002:0&gt;; fp=Fingerprinter.new
+=&gt;; <span class="hljs-comment">#&amp;lt;Fingerprinter:0xb7498038&gt;;</span>
+irb(main):003:0&gt;; f=fp.fingerprint_smiles <span class="hljs-string">'c1ccccc1'</span>
+=&gt;; <span class="hljs-comment">#&amp;lt;Fingerprint id: nil, byte0: 0, byte1: 512, byte2: 0, byte3: 0, byte4: 2112, byte5: 32768, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 134217728, byte11: 0, byte12: 0, byte13: 0, byte14: 131072, byte15: 0, hex: nil&gt;;</span>
+irb(main):004:0&gt;; f.cardinality
+=&gt;; 6
+irb(main):005:0&gt;; f.bitstring
+=&gt;; <span class="hljs-string">"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000100000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000"</span>
+</code></pre>
+<p>As we previously saw, any <code>Fingerprint</code> we create can be stored and later retrieved from a MySQL database. If we've already stored the fingerprint for benzene it can be found with the following:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt;; require <span class="hljs-string">'lib/fingerprinter'</span>
+=&gt;; <span class="hljs-literal">true</span>
+irb(main):002:0&gt;; fp=Fingerprinter.new
+=&gt;; <span class="hljs-comment">#&amp;lt;Fingerprinter:0xb74ae284&gt;;</span>
+irb(main):003:0&gt;; f=fp.fingerprint_smiles <span class="hljs-string">'c1ccccc1'</span>
+=&gt;; <span class="hljs-comment">#&amp;lt;Fingerprint id: nil, byte0: 0, byte1: 512, byte2: 0, byte3: 0, byte4: 2112, byte5: 32768, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 134217728, byte11: 0, byte12: 0, byte13: 0, byte14: 131072, byte15: 0, hex: nil&gt;;</span>
+irb(main):004:0&gt;; Fingerprint.find_by_fingerprint f
+=&gt;; <span class="hljs-comment">#&amp;lt;Fingerprint id: 12687, byte0: 0, byte1: 512, byte2: 0, byte3: 0, byte4: 2112, byte5: 32768, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 134217728, byte11: 0, byte12: 0, byte13: 0, byte14: 131072, byte15: 0, hex: "000000000000000000000000000002000000000000000000000..."&gt;;</span>
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>We now have the ability to create, store, and query fingerprints created from arbitrary SMILES strings. If there were a 1:1 relationship between molecules and fingerprints, we'd be nearly done. But things are not quite that simple. The next article in this series will show how to relate molecules to fingerprints.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

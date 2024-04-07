@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+  <title>Depth-First</title>
+  <link href="https://depth-first.com/articles.atom" rel="self"/>
+  <link href="https://depth-first.com"/>
+  <updated>2024-04-07T01:46:33.577Z</updated>
+  <id>http://depth-first.com/</id>
+  <author>
+    <name>Richard L. Apodaca</name>
+  </author>
+
+    <entry>
+      <title>Median</title>
+      <link href="https://depth-first.com/articles/2024/03/29/median/"/>
+        <updated>2024-03-29T23:15:00Z</updated>
+        <published>2024-03-29T23:15:00Z</published>
+      <id>http://depth-first.com/articles/2024/03/29/median/</id>
+      <summary>Thoughts on crossing a statistical milestone.</summary>
+    </entry>
+    <entry>
+      <title>My Struggle for a Good Death</title>
+      <link href="https://depth-first.com/articles/2024/03/08/my-struggle-for-a-good-death/"/>
+        <updated>2024-03-11T16:15:00Z</updated>
+        <published>2024-03-11T16:15:00Z</published>
+      <id>http://depth-first.com/articles/2024/03/08/my-struggle-for-a-good-death/</id>
+      <summary>Choosing from a wide selection of bad options.</summary>
+    </entry>
+    <entry>
+      <title>The Witness</title>
+      <link href="https://depth-first.com/articles/2024/02/20/the-witness/"/>
+        <updated>2024-02-21T15:30:00Z</updated>
+        <published>2024-02-20T16:15:00Z</published>
+      <id>http://depth-first.com/articles/2024/02/20/the-witness/</id>
+      <summary>A short story.</summary>
+    </entry>
+    <entry>
+      <title>Opting out of Optune</title>
+      <link href="https://depth-first.com/articles/2024/01/24/opting-out-of-optune/"/>
+        <updated>2024-02-06T15:00:00Z</updated>
+        <published>2024-01-24T16:15:00Z</published>
+      <id>http://depth-first.com/articles/2024/01/24/opting-out-of-optune/</id>
+      <summary>A treatment with small benefit and notable costs leads to a tough call.</summary>
+    </entry>
+    <entry>
+      <title>DCA and Me</title>
+      <link href="https://depth-first.com/articles/2024/01/08/dca-and-me/"/>
+        <updated>2024-01-08T16:15:00Z</updated>
+        <published>2024-01-08T16:15:00Z</published>
+      <id>http://depth-first.com/articles/2024/01/08/dca-and-me/</id>
+      <summary>The proof of the pudding is in the eating.</summary>
+    </entry>
+    <entry>
+      <title>Crystal Gardens</title>
+      <link href="https://depth-first.com/articles/2024/01/05/crystal-garden/"/>
+        <updated>2024-01-05T16:15:00Z</updated>
+        <published>2024-01-05T16:15:00Z</published>
+      <id>http://depth-first.com/articles/2024/01/05/crystal-garden/</id>
+      <summary>A chance encounter leads to a new life.</summary>
+    </entry>
+    <entry>
+      <title>The Geiger Counter</title>
+      <link href="https://depth-first.com/articles/2023/11/14/the-geiger-counter/"/>
+        <updated>2023-11-15T16:15:00Z</updated>
+        <published>2023-11-14T20:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/11/14/the-geiger-counter/</id>
+      <summary>Senior year at Willamette University brings new opportunities.</summary>
+    </entry>
+    <entry>
+      <title>Living with Glioblastoma</title>
+      <link href="https://depth-first.com/articles/2023/11/06/living-with-glioblastoma/"/>
+        <updated>2023-11-06T20:30:00Z</updated>
+        <published>2023-11-06T20:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/11/06/living-with-glioblastoma/</id>
+      <summary>It&#x27;s the end of the line for treatment.</summary>
+    </entry>
+    <entry>
+      <title>Beating Swords into Ploughshares</title>
+      <link href="https://depth-first.com/articles/2023/11/01/beating-swords-into-ploughshares/"/>
+        <updated>2023-11-01T23:13:00Z</updated>
+        <published>2023-11-01T20:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/11/01/beating-swords-into-ploughshares/</id>
+      <summary>A returning WWII veteran takes up an unlikely field of study.</summary>
+    </entry>
+    <entry>
+      <title>Growing Pains</title>
+      <link href="https://depth-first.com/articles/2023/10/27/growing-pains/"/>
+        <updated>2023-10-27T21:30:00Z</updated>
+        <published>2023-10-27T21:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/10/27/growing-pains/</id>
+      <summary>A chaotic childhood leads to education and opportunity.</summary>
+    </entry>
+    <entry>
+      <title>Sowing Seeds on Rocky Soil</title>
+      <link href="https://depth-first.com/articles/2023/10/22/sowing-seeds-on-rocky-soil/"/>
+        <updated>2023-10-31T06:30:00Z</updated>
+        <published>2023-10-22T21:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/10/22/sowing-seeds-on-rocky-soil/</id>
+      <summary>Tracing my physicist grandfather&#x27;s origins to an unexpected place.</summary>
+    </entry>
+    <entry>
+      <title>Grandpa, What Did You Do at the Atom Bomb Factory?</title>
+      <link href="https://depth-first.com/articles/2023/10/14/grandpa-what-did-you-do-at-the-atomic-bomb-factory/"/>
+        <updated>2023-10-14T21:30:00Z</updated>
+        <published>2023-10-14T21:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/10/14/grandpa-what-did-you-do-at-the-atomic-bomb-factory/</id>
+      <summary>First in a series investigating what exactly my grandfather did at the Hanford Engineer works.</summary>
+    </entry>
+    <entry>
+      <title>How I Bought and Estimated the Purity of Sodium Dichloroacetate</title>
+      <link href="https://depth-first.com/articles/2023/10/10/how-i-bought-and-estimated-the-purity-of-sodium-dichloroacatate/"/>
+        <updated>2023-10-10T21:30:00Z</updated>
+        <published>2023-10-10T21:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/10/10/how-i-bought-and-estimated-the-purity-of-sodium-dichloroacatate/</id>
+      <summary>Trust, but verify. On second thought, just verify.</summary>
+    </entry>
+    <entry>
+      <title>Beware Oncologists Bearing Hope</title>
+      <link href="https://depth-first.com/articles/2023/10/04/beware-oncologists-bearing-hope/"/>
+        <updated>2023-10-04T23:30:00Z</updated>
+        <published>2023-10-04T23:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/10/04/beware-oncologists-bearing-hope/</id>
+      <summary>Why interpretations from this special breed of doctor should be considered carefully.</summary>
+    </entry>
+    <entry>
+      <title>Dichloroacetate</title>
+      <link href="https://depth-first.com/articles/2023/09/25/dichloroacetate/"/>
+        <updated>2023-09-26T21:30:00Z</updated>
+        <published>2023-09-26T21:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/09/25/dichloroacetate/</id>
+      <summary>Treating my terminal disease like a research problem and finding a lead.</summary>
+    </entry>
+    <entry>
+      <title>Progression</title>
+      <link href="https://depth-first.com/articles/2023/09/14/progression/"/>
+        <updated>2023-09-14T21:30:00Z</updated>
+        <published>2023-09-14T21:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/09/14/progression/</id>
+      <summary>The Standard of Care treatment fails.</summary>
+    </entry>
+    <entry>
+      <title>The California End of Life Option Act</title>
+      <link href="https://depth-first.com/articles/2023/09/06/the-california-end-of-life-option-act/"/>
+        <updated>2023-09-06T14:30:00Z</updated>
+        <published>2023-09-06T14:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/09/06/the-california-end-of-life-option-act/</id>
+      <summary>Time to face the elephant in the room.</summary>
+    </entry>
+    <entry>
+      <title>Just Saying "No" to Adjuvant Temozolomide</title>
+      <link href="https://depth-first.com/articles/2023/08/31/just-saying-no-to-adjuvant-temozolomide/"/>
+        <updated>2023-08-31T14:30:00Z</updated>
+        <published>2023-08-31T14:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/08/31/just-saying-no-to-adjuvant-temozolomide/</id>
+      <summary>Discovering that the medicine cabinet for my terminal disease was filled with fluff.</summary>
+    </entry>
+    <entry>
+      <title>George</title>
+      <link href="https://depth-first.com/articles/2023/08/19/george/"/>
+        <updated>2023-08-19T20:20:00Z</updated>
+        <published>2023-08-19T20:20:00Z</published>
+      <id>http://depth-first.com/articles/2023/08/19/george/</id>
+      <summary>Coming to terms with a disease that can change who you are.</summary>
+    </entry>
+    <entry>
+      <title>Chemoradiotherapy</title>
+      <link href="https://depth-first.com/articles/2023/08/11/chemoradiotherapy/"/>
+        <updated>2023-08-11T20:20:00Z</updated>
+        <published>2023-08-11T20:20:00Z</published>
+      <id>http://depth-first.com/articles/2023/08/11/chemoradiotherapy/</id>
+      <summary>Undergoing a chemical and radiological exorcism.</summary>
+    </entry>
+    <entry>
+      <title>Temodar, MGMT Methylation, and the Endless Loop of Bad Glioblastoma Treatments</title>
+      <link href="https://depth-first.com/articles/2023/08/06/temodar-mgmt-methylation-and-the-endless-loop-of-bad-glioblastoma-treatments/"/>
+        <updated>2023-08-06T20:20:00Z</updated>
+        <published>2023-08-06T20:20:00Z</published>
+      <id>http://depth-first.com/articles/2023/08/06/temodar-mgmt-methylation-and-the-endless-loop-of-bad-glioblastoma-treatments/</id>
+      <summary>Understanding why half of patients will take a drug offering little to no benefit.</summary>
+    </entry>
+    <entry>
+      <title>Tumor Board</title>
+      <link href="https://depth-first.com/articles/2023/07/27/tumor-board/"/>
+        <updated>2023-07-27T18:30:00Z</updated>
+        <published>2023-07-27T18:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/07/27/tumor-board/</id>
+      <summary>The disquieting limits to glioblastoma&#x27;s front-line diagnostic technique.</summary>
+    </entry>
+    <entry>
+      <title>The Ambiguously Alarming Brain MRI</title>
+      <link href="https://depth-first.com/articles/2023/07/21/the-ambiguously-alarming-brain-mri/"/>
+        <updated>2023-07-21T21:30:00Z</updated>
+        <published>2023-07-21T21:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/07/21/the-ambiguously-alarming-brain-mri/</id>
+      <summary>A close look at one reason that glioblastoma remains incurable despite decades of research.</summary>
+    </entry>
+    <entry>
+      <title>The Principle of Least Convenience</title>
+      <link href="https://depth-first.com/articles/2023/07/18/the-principle-of-least-convenience/"/>
+        <updated>2023-07-18T19:30:00Z</updated>
+        <published>2023-07-18T19:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/07/18/the-principle-of-least-convenience/</id>
+      <summary>Clawing back lost abilities, one at a time.</summary>
+    </entry>
+    <entry>
+      <title>Glioblastoma's Dismal Standard of Care: The Stupp Protocol</title>
+      <link href="https://depth-first.com/articles/2023/07/10/glioblastomas-dismal-standard-of-care-the-stupp-protocol/"/>
+        <updated>2023-07-10T18:30:00Z</updated>
+        <published>2023-07-10T18:30:00Z</published>
+      <id>http://depth-first.com/articles/2023/07/10/glioblastomas-dismal-standard-of-care-the-stupp-protocol/</id>
+      <summary>Coming to grips with a disease whose best treatment is not very good.</summary>
+    </entry>
+</feed>

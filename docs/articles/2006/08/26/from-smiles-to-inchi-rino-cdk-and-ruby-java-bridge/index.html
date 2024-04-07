@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>From SMILES to InChI: Rino, CDK, and Ruby Java Bridge | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>From SMILES to InChI: Rino, CDK, and Ruby Java Bridge</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-08-26T00:00:00.000Z">2006-08-26T00:00:00.000Z</time>
+      </header>
+      <p>Integrating Ruby and Java is fast and easy with <a href="http://rjb.rubyforge.org/">Ruby Java Bridge</a> (RJB), which was <a href="http://depth-first.com/articles/2006/08/26/scripting-java-libraries-with-ruby-java-bridge">discussed previously</a>. In this article, I'll show how RJB can be used to solve a practical chemical informatics problem - the conversion of SMILES strings into <a href="http://depth-first.com/articles/2006/08/12/inchi-canonicalization-algorithm">InChI</a> identifiers.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This tutorial is aimed at Linux users, but you should be able to accomplish the same thing in Windows and Mac OS X, although these systems have not been tested. You'll need to install a few software packages if you haven't done so already: Ruby; Ruby Gems; RJB; CDK; and Rino. After <a href="http://docs.rubygems.org/read/chapter/3">installing RubyGems</a>, RJB and Rino can both be installed from the command line (as root):</p>
+<pre><code class="hljs bash language-bash">sudo gem install rjb
+sudo gem install rino
+</code></pre>
+<p>Next, create a working directory, <strong>smi2inchi</strong>. Into this directory, move a copy of the full <a href="http://prdownloads.sourceforge.net/cdk/cdk-20060714.jar?download">CDK-2006714 jarfile</a>. That's it for libraries, so let's move onto the translator itself.</p>
+<h2 id="thetranslator">The Translator</h2>
+<p>The Translator class consists of a small piece of Ruby code gluing CDK's SmilesParser and MDLWriter with the Ruby InChI library <a href="http://depth-first.com/articles/2006/08/17/ruby-and-inchi-the-rino-library">Rino</a>. Rino is a thin Ruby wrapper around the <a href="http://inchi.sourceforge.net/">IUPAC InChI library</a>, which is in turn written in C.</p>
+<pre><code class="hljs ruby language-ruby">ENV[<span class="hljs-string">'CLASSPATH'</span>] = <span class="hljs-string">'./cdk-20060714.jar'</span>
+
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+require_gem <span class="hljs-string">'rjb'</span>
+require_gem <span class="hljs-string">'rino'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rjb'</span>
+
+StringWriter = Rjb::import <span class="hljs-string">'java.io.StringWriter'</span>
+
+SmilesParser = Rjb::import <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
+MDLWriter = Rjb::import <span class="hljs-string">'org.openscience.cdk.io.MDLWriter'</span>
+
+<span class="hljs-comment"># Converts a SMILES string into an InChI identifier using</span>
+<span class="hljs-comment"># the CDK Library (Java) and the Rino Library (Ruby/C).</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Translator</span></span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
+    @smiles_parser = SmilesParser.new
+    @mdl_writer = MDLWriter.new
+    @mol2inchi = Rino::MolfileReader.new
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># Returns an InChI identifier from the specified SMILES string.</span>
+  <span class="hljs-comment"># Uses the CDK classes SmilesParser and MDLWriter to generate</span>
+  <span class="hljs-comment"># a molfile from a SMILES string. Then this molfile is</span>
+  <span class="hljs-comment"># parsed by Rino::MolfileReader.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">translate</span><span class="hljs-params">(smiles)</span></span>
+    mol = @smiles_parser.parseSmiles(smiles)
+
+    sw = StringWriter.new
+
+    @mdl_writer.setWriter(sw)
+    @mdl_writer.write(mol)
+
+    @mol2inchi.read(sw.toString)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Add the above code to a file called <strong>smi2inchi.rb</strong>. The first line points the CLASSPATH environment variable, which is needed by RJB, to the CDK library. Lines 3-6 include the RJB and Rino RubyGems. Lines 8-11 import the built-in Java class StringWriter and the CDK Java classes SmilesParser and MDLWriter using RJB's syntax. The core of the class consists of the <code>translate</code> method, which simply coordinates the pieces.</p>
+<p>Using the Translator class consists of creating an instance, and invoking its <code>translate</code> method on a SMILES string:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'smi2inchi'</span>
+
+translator = Translator.new
+inchi = translator.translate <span class="hljs-string">'c1ccccc1'</span>
+
+p inchi <span class="hljs-comment"># =&gt; "InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H"</span>
+</code></pre>
+<p>The above code fragment can be saved to a text file (e.g. <strong>test.rb</strong>) and invoked with the Ruby interpreter:</p>
+<pre><code class="hljs bash language-bash">ruby test.rb
+</code></pre>
+<p>Alternatively, it can be entered interactively with the Interactive Ruby Interpreter (irb):</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt;
+</code></pre>
+<p>With just a few lines of Ruby, we've solved a real problem. This example integrates software from three different programming languages: Ruby, C, and Java. Given the variety of chemical informatics software written in these languages, Ruby Java Bridge offers numerous integration possibilities.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

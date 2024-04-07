@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ChemCell - Easily Convert Names and CAS Numbers to Chemical Structures in Excel | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>ChemCell - Easily Convert Names and CAS Numbers to Chemical Structures in Excel</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-11-01T00:00:00.000Z">2010-11-01T00:00:00.000Z</time>
+      </header>
+      <p><em>Note: the same functionality described in this article is <a href="http://blog.metamolecular.com/articles/2011/02/22/gchem-easily-convert-names-and-cas-numbers-to-chemical-structures-in-google-spreadsheets/">now available on Google Spreadsheets</a>.</em></p>
+<p>Chemical databases often start as a list of names or <a href="http://metamolecular.com/cheminformatics/what-is-a-cas-number/">Chemical Abstracts Service (CAS) Registry numbers</a> contained in an Excel spreadsheet. But as more and more expectations get placed on these ad hoc datasets, a point inevitably comes when the assignment of chemical structures becomes necessary. Whether for the purpose of performing <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases/">substructure search</a>, <a href="/articles/2008/09/11/imaging-chemical-structures-with-chemphoto-wysiwyg-drawing-settings/">generating structure images</a>, clustering, or assigning molecular weight, generating chemical structures from common names and CAS Numbers can be a major problem. Given the task of doing so for hundreds of structures, many organizations resort to manual data entry. But what if there were an inexpensive, quick alternative? This article discusses one solution.</p>
+<h2 id="chemcell">ChemCell</h2>
+<p><a href="http://github.com/cdd/chemcell">ChemCell</a> is a macro that enables Microsoft Excel to convert columns of chemical names and CAS Numbers into <a href="http://en.wikipedia.org/wiki/Simplified_molecular_input_line_entry_specification">SMILES strings</a>. A poster I gave at the <a href="/articles/2010/10/12/poster-at-the-cdd-communit-meeting/">4th annual Collaborative Drug Discovery (CDD) Community Meeting</a> describes <a href="/images/posts/cdd-poster.pdf">ChemCell in more detail</a>:</p>
+<p><img src="/images/posts/cdd-poster.png" alt="CDD Poster" title="CDD Poster"></p>
+<h2 id="usingchemcell">Using ChemCell</h2>
+<p>After <a href="http://github.com/cdd/chemcell">downloading ChemCell</a>, extract the archive, double-click on the file <strong>chemcell.xls</strong>, then open your spreadsheet containing trivial names, IUPAC names, or CAS Numbers.</p>
+<p>To generate a SMILES string for a name contained in cell A4, click in any empty table cell and use this formula:</p>
+<pre><code class="hljs bash language-bash">=getSMILES(A4)
+</code></pre>
+<p><code>getSMILES</code> works just like any other Excel formula: it can be pasted down every row in a column, the resulting values can be sorted, and other calculations can be based off of it.</p>
+<h2 id="howitworks">How it Works</h2>
+<p>ChemCell uses <a href="http://cactus.nci.nih.gov/chemical/structure/">Chemical Structure Lookup Service</a> (CSLS), a web service created for the purpose of providing structural information based on chemical names. By invoking the <code>getSMILES</code> function, your spreadsheet is calling CSLS and parsing the result.</p>
+<p>Although it's possible to use PubChem to perform <a href="/articles/2007/05/21/simple-cas-number-lookup-with-pubchem/">one-off structure lookup based on CAS Number and/or name</a>, the CSLS Web API is implemented in such a way so as to easily enable the exposure of this functionality through Excel.</p>
+<h2 id="limitations">Limitations</h2>
+<p>ChemCell's recall and accuracy were tested against a random sample of 1,000 name/structure pairings found in the <a href="http://www.ebi.ac.uk/chebi/downloadsForward.do">ChEBI 3-star dataset</a>. Rate of recall was found to be 70% (structures found) with 76% accuracy (exact matches). Most mismatches were due to unassigned stereochemistry in CSLS that was assigned in ChEBI. In other words, agreement between ChEBI and CSLS in terms of molecular atom connectivity was high.</p>
+<h2 id="justthebeginning">Just the Beginning</h2>
+<p>Converting names and CAS numbers to structures is but one possible use of the underlying ChemCell software. The core system could be used for a number of purposes, including: generation of Standard InChI Key (currently supoported); returning structure images; calculating logP, finding molecular weight, assigning IUPAC Name; and a number of other capabilities.</p>
+<p>As more cheminformatics Web services like CSLS start to pop up, they could be integrated through Excel by making some very simple changes to the ChemCell code.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>ChemCell is a very small piece of software that exposes cheminformatics Web services through the familiar and ubiquitous interface of Microsoft Excel. Although the initial proof of concept succeeds relatively well in assigning structures to arbitrary names and CAS Numbers, the underlying approach could be adapted to expose a number of other interesting cheminformatics services.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

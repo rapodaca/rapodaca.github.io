@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Dedicated Library for Reading and Writing V3000 CTfiles | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2022/05/23/a-dedicated-library-for-reading-and-writing-v3000-ctfiles/">
+      <meta property="og:title" content="A Dedicated Library for Reading and Writing V3000 CTfiles">
+      <meta property="og:description" content="Fleshing out a minimalist, modular approach to molecular serialization.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20220523/summary.png">
+      <meta content="Fleshing out a minimalist, modular approach to molecular serialization." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Dedicated Library for Reading and Writing V3000 CTfiles</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2022-05-23T17:30:00Z">2022-05-23T17:30:00Z</time>
+      </header>
+      <p>The <a href="https://discover.3ds.com/sites/default/files/2020-08/biovia_ctfileformats_2020.pdf">CTfile specification</a> defines a suite of popular cheminformatics serialization formats including SDfile, Molfile, and RGfile. CTfile currently comes in two varieties: V2000 and its successor, V3000 (aka "V3K"). V3K may not be as widely-used as its older sibling, but many of its <a href="/articles/2021/11/17/ten-reasons-to-adopt-the-v3000-molfile-format/">features</a> are unique. Even so, V3K is at least as complex as what came before. Chalk this up to pairing those new features with partial backward compatibility.</p>
+<p>The task of reducing the CTfile specification to software typically falls to a monolithic cheminformatics toolkit such as RDKit, CDK, Open Babel, or various commercial alternatives. But this isn't the only way. This article outlines an alternative approach being used for a work in progress.</p>
+<h2 id="goals">Goals</h2>
+<p>For the time being I call the project "Vek." It has four main goals:</p>
+<ol>
+<li>Fidelity. Vek should read and write all representations permitted by the V3K specification. Conversely, Vek should reject any representation disallowed by the V3K specification.</li>
+<li>Portability. Vek should run on any operating system and on any meta-platform such as a Web browser.</li>
+<li>Speed. Vek should be fast enough that it is not a performance bottleneck for downstream uses.</li>
+<li>Flexibility. The data structures and functions exposed by Vek should be readily usable in a variety of contexts.</li>
+</ol>
+<h2 id="language">Language</h2>
+<p>After considering several alternatives, Rust was chosen as the implementation language. A previous article <a href="/articles/2020/01/20/cheminformatics-in-rust/">explained</a> some of what Rust has to offer specifically for cheminformatics. Rust's features dovetail well with the four goals outlined above. Speed and memory efficiency are two things Rust is known for (Goal 3). Less known is the broad range of platforms Rust can be compiled to, or the many ways in which Rust can be integrated with software written in other languages (Goals 2 and 4). Previous articles here have noted how Rust can be <a href="/articles/2020/07/07/rust-and-webassembly-from-scratch-hello-world-with-strings/">compiled to WebAssembly</a> and <a href="/articles/2022/03/09/python-extensions-in-pure-rust-with-rust-cpython/">called from Python</a>, for example.</p>
+<p>Some of Rust's best features only become clear through extended use. Rust's type system in particular will play an important role in enabling Goal 1.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Vek's initial development focused on data types. Two principles guided their design:</p>
+<ol>
+<li>It should be impossible to construct an invalid representation using safe Rust.</li>
+<li>Any value held in memory can be assumed to be valid.</li>
+</ol>
+<p>To the greatest practical extent, Vek replaces runtime validity checks with compile time checks. Rather than a "defensive programming" approach in which all data are suspect until proven otherwise, Vek makes it possible to use values safely without performing these checks. To be more specific, these checks are performed at compile time, not run time. This approach has been elegantly described by <a href="https://lexi-lambda.github.io/">Alexis King</a> in his essay <em><a href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/">Parse, don't validate</a></em>.</p>
+<p>Consider Vek's central abstraction, <code>ConnectionTable</code>. This type represents the concept of a "connection table" found in the specification.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ConnectionTable</span></span> {
+    <span class="hljs-keyword">pub</span> atoms: <span class="hljs-built_in">Vec</span>&lt;Atom&gt;,
+    <span class="hljs-keyword">pub</span> bonds: <span class="hljs-built_in">Vec</span>&lt;Bond&gt;,
+    <span class="hljs-comment">// Used by "enhanced stereochemistry" and extensions.</span>
+    <span class="hljs-keyword">pub</span> collections: <span class="hljs-built_in">Vec</span>&lt;Collection&gt;,
+    <span class="hljs-comment">// Shortcuts such as "Ph", "Et", etc.</span>
+    <span class="hljs-keyword">pub</span> substructures: <span class="hljs-built_in">Vec</span>&lt;Substructure&gt;,
+}
+</code></pre>
+<p><code>ConnectionTable</code> holds collections of other values. The first one listed, <code>atoms</code>, represents an ordered list of zero or more atoms. The <code>Atom</code> type is defined as follows.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Atom</span></span> {
+    <span class="hljs-keyword">pub</span> index: Index,
+    <span class="hljs-keyword">pub</span> kind: AtomKind,
+    <span class="hljs-keyword">pub</span> charge: Charge,
+    <span class="hljs-keyword">pub</span> coordinate: Coordinate,
+    <span class="hljs-keyword">pub</span> atom_atom_mapping: <span class="hljs-built_in">Option</span>&lt;Index&gt;,
+    <span class="hljs-keyword">pub</span> valence: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt;,
+    <span class="hljs-keyword">pub</span> mass: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt;,
+    <span class="hljs-keyword">pub</span> attachment_point: <span class="hljs-built_in">Option</span>&lt;AttachmentPoint&gt;,
+}
+</code></pre>
+<p><code>Atom</code> is itself composed of multiple values. The topmost attribute is <code>index</code>, which is a unique numerical identifier. The V3K specification has the following to say about atomic identifiers:</p>
+<figure>
+  <img alt="V3K Index" src="/images/posts/20220523/v3k-index.png">
+  <figcaption>
+    <strong>V3K Index.</strong> Indexes are used to identify atoms, bonds, and more. Although defined as positive integers, there is no upper bound. The type used to represent index must account for these characteristics. (<a href="https://discover.3ds.com/sites/default/files/2020-08/biovia_ctfileformats_2020.pdf">source</a>)
+  </figcaption>
+</figure>
+<p>Here it's helpful to distinguish semantic from syntactic validity. The syntactic part of the description of <code>index</code> is "Integer &gt; 0." The semantic part is "unique to each atom." Data structures can guarantee syntactic, but not necessarily semantic validity. Similar considerations apply to the implicit semantic guarantee that bonds reference atomic indexes actually associated with atoms.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Index</span></span>(<span class="hljs-built_in">String</span>);
+</code></pre>
+<p>To improve type safety <code>Index</code> uses Rust's <a href="https://doc.rust-lang.org/rust-by-example/generics/new_types.html"><code>newtype</code> idiom</a>, wrapping a private Rust <code>String</code> value. The use of a <code>String</code> makes it possible to support arbitrarily large values for <code>Index</code> as required by the specification.</p>
+<p>The <code>String</code> value associated with <code>Index</code> is private, meaning that <code>Index</code> can't be constructed using literal notation. Instead, associated functions transform other types into <code>Index</code>. Each function checks the values its given, reject those that can't be transformed into a valid <code>Index</code>. For example, a constructor transforms a <code>usize</code> argument, checking that its value is not zero. The return type is <code>Option&lt;Index&gt;</code>, forcing the caller to handle the possibility that a zero value was passed and the <code>None</code> variant was received. At no point is it possible to construct an <code>Index</code> representing the integer 0.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">impl</span> Index {
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(value: <span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Index&gt; {
+        <span class="hljs-keyword">match</span> value {
+            <span class="hljs-number">0</span> =&gt; <span class="hljs-literal">None</span>,
+            _ =&gt; <span class="hljs-literal">Some</span>(Index(value.to_string()))
+        }
+    }
+}
+</code></pre>
+<p>A better illustration of the "parse, don't validate" approach is the <code>AtomKind</code> type, a member of <code>Atom</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">AtomKind</span></span> {
+    Element(Element),         <span class="hljs-comment">// C, N, O, P, S, Pd, etc.</span>
+    Rgroup(IndexList),        <span class="hljs-comment">// References an Rgroup in an RGfile</span>
+    ElementList(ElementList), <span class="hljs-comment">// possibly negated list of elements</span>
+    PolymerBead,              <span class="hljs-comment">// usually depicted as shaded sphere</span>
+    Any,                      <span class="hljs-comment">// no information available</span>
+}
+</code></pre>
+<p><code>AtomKind</code> is an enumeration. Although many languages have enumerations, Rust lavishes syntax and tooling on them that few languages can match. The variants of <code>AtomKind</code> can be divided into two categories: those with their own associated types (<code>Element</code>, <code>Rgroup</code>, and <code>ElementList</code>), and those without (<code>PolymerBead</code> and <code>Any</code>). The former group supports variants having unique, mutually exclusive data and behaviors. This idea goes by the general term <em><a href="https://doc.rust-lang.org/book/ch06-00-enums.html">algebraic data types</a></em>.</p>
+<p>Algebraic types make it easy to model mutually-exclusive data types. For example, the <code>AtomKind::Element</code> and <code>AtomKind::Rgroup</code> variants have little in common. The former is an enumeration of the chemical elements, whereas the latter is an ordered list of Rgroup indexes. Both cases are supported without cross-contamination of data.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Element</span></span> {
+    H,
+    He,
+    Li,
+    <span class="hljs-comment">// etc.</span>
+}
+
+<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">IndexList</span></span>(<span class="hljs-built_in">Vec</span>&lt;Index&gt;);
+</code></pre>
+<p>Consider how difficult it would be to model this kind of relationship without algebraic data types. Every field supported by <code>Atom</code> would need to be present on <code>Atom</code> itself. An <code>Atom</code> would need to define both <code>element</code> and <code>index_list</code>, without any way to ensure their mutual exclusivity. The behavior of a function receiving an <code>Atom</code> in which both fields were set (or neither was) would need to be defined <em>outside</em> the scope of executable code. Rust solves this problem by providing the tools needed to make invalid states uncompilable in the first place.</p>
+<h2 id="datafirst">Data First</h2>
+<p>There aren't many examples of dedicated serialization libraries in cheminformatics. Most read/write functionality is instead tightly coupled to a specific toolkit. In fact, I only know of two standalone projects in this area that are under active development:</p>
+<ul>
+<li><a href="https://github.com/johnmay/beam">Beam</a>. SMILES reader and writer.</li>
+<li><a href="https://github.com/rapodaca/dialect.rs">Dialect reference implementation</a>. Reader and writer for a subset of SMILES called <a href="https://github.com/rapodaca/dialect">Dialect</a>.</li>
+</ul>
+<p>Writing software that distills industry-standard specifications such as V3K down to practice can extremely challenging. The specifications themselves can be ambiguous or self-contradictory. Their features may not mesh well with the limitations of a given programming language. It's the kind of thing you might want to do once and reuse often. This isn't always possible when serialization is tightly-coupled to a general-purpose cheminformatics toolkit.</p>
+<p>There's also something more subtle. Serialization and deserialization require a backing store, or in-memory representation. Perfect alignment with a given serialization format can rarely be achieved due to the common requirement to support two or more of them. Mismatch between representations can cause data to be lost or corrupted. For example, <a href="/articles/2020/02/10/a-comprehensive-treatment-of-aromaticity-in-the-smiles-language/">aromaticity</a> is a nuanced property that no two representations handle the same way. Expanding the toolkit's API surface to accomodate these difference can lead to bloat and performance bottlenecks. Lightweight abstractions, such as a <a href="/articles/2020/04/06/a-minimal-molecule-api/">minimal molecule API</a>, become much less practical. Loose coupling allows toolkit and serialization format to evolve independently.</p>
+<p>Finally, there are times when a cheminformatics toolkit is overkill or too restrictive for the task at hand. For example, maybe the goal is to simply validate a large input file, or rewrite it to meet organizational conventions. These are the kinds of lightweight task at which Vek would excel.</p>
+<p>Should the need arise, Vek can be integrated into a cheminformatics toolkit through Rust's <a href="https://doc.rust-lang.org/cargo/">Cargo</a> package manager. All the toolkit would require is a lightweight bridge between its backing store and Vek's data structures.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Vek is a standalone implementation of the V3000 CTfile specification. When complete, it will expose data structures and functions capable of high-fidelity reads and writes. Rust was chosen as the implementation language to provide the best possible combination of fidelity, portability, speed, and flexibility. Work on V3K is currently underway as part of a commercial ChemDraw <a href="/articles/2021/04/07/an-introduction-to-the-chemdraw-cdxml-format/">CDXML</a>/V3000 translation utility. In the near future I plan to release the first iteration of V3K under an open source license.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

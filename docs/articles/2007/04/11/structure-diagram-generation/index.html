@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Structure Diagram Generation | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Structure Diagram Generation</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-04-11T00:00:00.000Z">2007-04-11T00:00:00.000Z</time>
+      </header>
+      <p>Given a molecule with no 2D coordinates, how would you render a human-readable view? This problem arises in many situations, but most commonly in the context of interpreting <a href="http://depth-first.com/articles/tag/linenotation">line notations</a> such as IUPAC nomenclature, SMILES, or InChI. Whatever the solution you come up with, you'll come face-to-face with the structure diagram generation (SDG) problem.</p>
+<p><img src="/images/posts/20070411/difficult.png" alt="Difficult Layout" title="Difficult Layout"></p>
+<p>Generating 2D molecular coordinates is a fundamental (and remarkably difficult) problem in cheminformatics. Discussions in the primary literature <a href="http://dx.doi.org/10.1021/ci60011a015">date back</a> to at least the 1970s with Chemical Abstract Service's pioneering large-scale efforts. A <a href="http://dx.doi.org/10.1021/ci050550m">recent article</a> from Chemical Computing Group (CCG) described the design and implementation of an advanced SDG system. To my knowledge, the only open source implementation of an SDG system is found in the <a href="http://wiki.cubic.uni-koeln.de/cdknews/index.php/CDKNews/article/view/5">Chemistry Development Kit</a>, and by extension <a href="http://depth-first.com/articles/tag/rubycdk">Ruby CDK</a>.</p>
+<p>The SDG problem plays an important role in the <a href="http://depth-first.com/articles/2007/03/30/the-aesthetics-of-chemical-structure-diagrams">aesthetics of chemical structure diagrams</a>, as mentioned by two readers. To render a molecule aesthetically, 2D coordinates must minimize confusing atom overlaps, unconventional orientations, and unusual bond angles.</p>
+<p>The role of SDG in cheminformatics can only continue to increase in importance, especially as more and more structures are automatically generated through mining the primary literature, the Internet, <a href="http://wwmm.ch.cam.ac.uk/blogs/murrayrust/?p=28">old PDFs</a>, and other sources. With all of these new computer-generated structures will come the need to make them readily understandable to a chemist through SDG.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

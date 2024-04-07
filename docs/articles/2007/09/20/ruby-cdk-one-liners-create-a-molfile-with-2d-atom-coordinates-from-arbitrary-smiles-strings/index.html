@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ruby CDK One-Liners - Create a Molfile With 2D Atom Coordinates From Arbitrary SMILES Strings | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Ruby CDK One-Liners - Create a Molfile With 2D Atom Coordinates From Arbitrary SMILES Strings</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-09-20T00:00:00.000Z">2007-09-20T00:00:00.000Z</time>
+      </header>
+      <p>A very common operation in cheminformatics is the interconversion of molfiles and SMILES strings. Usually, converting from SMILES gives a molfile in which all atoms have coordinates of (0,0,0). Sometimes you just need more than that. The following Ruby CDK code will accept an arbitrary SMILES string and return a molfile with fully-assigned 2D atom coordinates:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<span class="hljs-keyword">include</span> RCDK::Util
+
+XY.coordinate_molfile Lang.smiles_to_molfile(<span class="hljs-string">'c1ccccc1'</span>)
+</code></pre>
+<p>Looking at it this way, those four lines of require/include statements seem pretty darn verbose.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

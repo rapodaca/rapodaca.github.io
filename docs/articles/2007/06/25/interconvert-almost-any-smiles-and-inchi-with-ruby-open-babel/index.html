@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Interconvert (Almost) Any SMILES and InChI with Ruby Open Babel | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Interconvert (Almost) Any SMILES and InChI with Ruby Open Babel</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-06-25T00:00:00.000Z">2007-06-25T00:00:00.000Z</time>
+      </header>
+      <p>SMILES and InChI are the two most widely-used <a href="http://depth-first.com/articles/2007/03/14/eleven-qualities-of-the-perfect-line-notation-for-the-web">line notations</a> in cheminformatics. Not surprisingly, there are many situations in which it's useful to interconvert the two. This article shows a simple method for doing so using <a href="http://depth-first.com/articles/tag/rubyopenbabel">Ruby Open Babel</a>.</p>
+<h2 id="parsinginchis">Parsing InChIs</h2>
+<p>Version 1.01 of the IUPAC/NIST C InChI toolkit introduced the ability to parse InChIs. This capability has subsequently been incorporated into <a href="http://openbabel.sf.net">Open Babel</a>, and by extension, Ruby Open Babel. It's this capability that we'll take advantage of.</p>
+<h2 id="asimplelibrary">A Simple Library</h2>
+<p>The following library provides everything we need to convert between SMILES and InChI via Ruby:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'openbabel'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">InChI</span></span>
+  @@to_smiles = OpenBabel::OBConversion.new
+  @@to_inchi = OpenBabel::OBConversion.new
+  @@to_smiles.set_in_and_out_formats <span class="hljs-string">'inchi'</span>, <span class="hljs-string">'smi'</span>
+  @@to_inchi.set_in_and_out_formats <span class="hljs-string">'smi'</span>, <span class="hljs-string">'inchi'</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">inchi_to_smiles</span> <span class="hljs-title">inchi</span></span>
+    mol = OpenBabel::OBMol.new
+
+    @@to_smiles.read_string(mol, inchi) <span class="hljs-keyword">or</span> raise <span class="hljs-string">"Can't parse InChI: <span class="hljs-subst">#{inchi}</span>."</span>
+    @@to_smiles.write_string(mol).strip
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">smiles_to_inchi</span> <span class="hljs-title">smiles</span></span>
+    mol = OpenBabel::OBMol.new
+
+    @@to_inchi.read_string(mol, smiles) <span class="hljs-keyword">or</span> raise <span class="hljs-string">"Can't parse SMILES <span class="hljs-subst">#{smiles}</span>."</span>
+    @@to_inchi.write_string(mol).strip
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<h2 id="testingthelibrary">Testing the Library</h2>
+<p>After saving the above code to a file named <code>inchi.rb</code>, we can interactively convert SMILES and InChIs:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'inchi'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include InChI
+=&gt; Object
+irb(main):003:0&gt; smiles = inchi_to_smiles <span class="hljs-string">"InChI=1/C14H12/c1-3-7-13(8-4-1)11-12-14-9-5-2-6-10-14/h1-12H/b12-11-"</span>
+=&gt; <span class="hljs-string">"c1ccc(cc1)C(/[H])=C(/[H])c1ccccc1"</span>
+irb(main):004:0&gt; inchi = smiles_to_inchi smiles
+=&gt; <span class="hljs-string">"InChI=1/C14H12/c1-3-7-13(8-4-1)11-12-14-9-5-2-6-10-14/h1-12H/b12-11-"</span>
+</code></pre>
+<p>In the above test, the InChI for <em>cis</em>-stilbene is converted into a SMILES string which is then converted back to InChI form with complete fidelity, including alkene geometry. Note that this would not have been possible using the approach that was <a href="http://depth-first.com/articles/2006/09/19/decoding-inchis-with-rino">previously discussed</a> in which molfiles were used as intermediate datastructures.</p>
+<p>What about chiral centers? Here the results are mixed. For example, when the round-trip conversion is applied to propranalol (<a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=21138">PubChem</a>, <a href="http://60minutes.yahoo.com/segment/21/memory_drug">Video</a>), the configuration of the stereocenter is <em>inverted</em>.</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'inchi'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include InChI
+=&gt; Object
+irb(main):003:0&gt; smiles = inchi_to_smiles <span class="hljs-string">"InChI=1/C16H21NO2/c1-12(2)17-10-14(18)11-19-16-9-5-7-13-6-3-4-8-15(13)16/h3-9,12,14,17-18H,10-11H2,1-2H3/t14-/m1/s1"</span>
+=&gt; <span class="hljs-string">"CC(C)NC[C@@H](COc1cccc2ccccc12)O"</span>
+irb(main):004:0&gt; inchi = smiles_to_inchi smiles
+=&gt; <span class="hljs-string">"InChI=1/C16H21NO2/c1-12(2)17-10-14(18)11-19-16-9-5-7-13-6-3-4-8-15(13)16/h3-9,12,14,17-18H,10-11H2,1-2H3/t14-/m0/s1"</span>
+</code></pre>
+<p>However, the same round-trip conversion of phenethanol works without inversion of stereochemistry:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'inchi'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include InChI
+=&gt; Object
+irb(main):003:0&gt; smiles = inchi_to_smiles <span class="hljs-string">" InChI=1/C8H10O/c1-7(9)8-5-3-2-4-6-8/h2-7,9H,1H3/t7-/m0/s1"</span>
+=&gt; <span class="hljs-string">"C[C@@H](c1ccccc1)O"</span>
+irb(main):004:0&gt; inchi = smiles_to_inchi smiles
+=&gt; <span class="hljs-string">"InChI=1/C8H10O/c1-7(9)8-5-3-2-4-6-8/h2-7,9H,1H3/t7-/m0/s1"</span>
+</code></pre>
+<p>The most likely explanation is that under certain conditions, Open Babel incorrectly interprets and/or writes stereo parities.</p>
+<h2 id="onemoregotcha">One More Gotcha</h2>
+<p>On my system (Linux Mandriva 2007.1), attempting to perform the round-trip test on glucose resulted (reproducibly) in a segfault:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'inchi'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include InChI
+=&gt; Object
+irb(main):003:0&gt; smiles = inchi_to_smiles <span class="hljs-string">"InChI=1/C6H12O6/c7-1-2-3(8)4(9)5(10)6(11)12-2/h2-11H,1H2/t2-,3-,4+,5-,6?/m1/s1"</span>
+=&gt; <span class="hljs-string">"C([C@H]1[C@H]([C@@H]([C@H](C(O)O1)O)O)O)O"</span>
+irb(main):004:0&gt; inchi = smiles_to_inchi smiles
+./inchi.rb:20: [BUG] Segmentation fault
+ruby 1.8.6 (2007-03-13) [i686-linux]
+
+Aborted
+</code></pre>
+<p>The same segfault was obtained when using the <code>babel</code> command-line utility:</p>
+<pre><code class="hljs bash language-bash">babel -ismi -oinchi
+C([C@H]1[C@H]([C@@H]([C@H](C(O)O1)O)O)O)O
+[Return]
+Segmentation fault
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>As you can see, Ruby Open Babel makes short work of interconverting SMILES and InChIs. Despite problems with stereochemical configuration and segfaults on reading certain SMILES strings, the approach outlined here offers a quick and economical way to interconvert a variety of SMILES and InChIs.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

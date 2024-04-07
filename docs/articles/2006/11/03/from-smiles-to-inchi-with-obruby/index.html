@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>From SMILES to InChI with OBRuby | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>From SMILES to InChI with OBRuby</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-11-03T00:00:00.000Z">2006-11-03T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html">SMILES</a> and <a href="http://www.iupac.org/inchi/">InChI</a> are two commonly-used <a href="/articles/2006/08/18/107-years-of-line-formula-notations-1861-1968">molecular line notations</a>. Although each has its advantages and limitations, the novelty of InChI and the ubiquity of SMILES makes the SMILES to InChI conversion especially useful. Many of the situations in which the need for this conversion will arise are particularly well-suited for the <a href="http://ruby-lang.org">Ruby</a> programming language. A <a href="/articles/2006/08/26/from-smiles-to-inchi-rino-cdk-and-java-ruby-bridge">recent article</a> described how <a href="/articles/2006/10/30/agile-chemical-informatics-development-with-cdk-and-ruby-rcdk-0-3-0">RCDK</a> and <a href="/articles/2006/09/26/looking-at-inchis">Rino</a> could be used to accomplish this conversion. This article will show how Open Babel can be used from Ruby to effect the same conversion.</p>
+<h2 id="obruby">OBRuby</h2>
+<p><a href="/articles/2006/10/31/obruby-a-ruby-interface-to-open-babel">OBRuby</a> is a SWIG-generated Ruby interface to the <a href="http://openbabel.sf.net">Open Babel</a> library. Although OBRuby doesn't expose all aspects of the Open Babel API, nearly everything that can be done in C++ Open Babel can now be done in Ruby. For example, all <code>OBConversion</code> permutations should be available, including SMILES to InChI.</p>
+<h2 id="asmallrubylibrary">A Small Ruby Library</h2>
+<p>Let's create a small Ruby library for converting SMILES strings into InChI identifiers. Save the following into a file called <strong>convert.rb</strong>:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'openbabel'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Convertor</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
+    @conv = OpenBabel::OBConversion.new
+
+    @conv.set_in_and_out_formats(<span class="hljs-string">'smi'</span>, <span class="hljs-string">'inchi'</span>)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_inchi</span><span class="hljs-params">(smiles)</span></span>
+    mol = OpenBabel::OBMol.new
+
+    @conv.read_string(mol, smiles)
+    @conv.write_string(mol)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>There's nothing tricky here. We've simply created a Ruby class that makes the SMILES to InChI conversion as simple as one method call to an instance.</p>
+<h2 id="testingthelibrary">Testing the Library</h2>
+<p>A good way to test this library is through Interactive Ruby (irb). For example, to find the InChI of caffeine:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'convert'</span>
+
+c = Convertor.new
+
+puts c.get_inchi(<span class="hljs-string">'Cn1cnc2c1c(=O)n(C)c(=O)n2C'</span>) <span class="hljs-comment"># caffeine</span>
+<span class="hljs-comment"># =&gt;InChI=1/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3</span>
+</code></pre>
+<h2 id="chiralsmiles">Chiral SMILES</h2>
+<p>I applied this simple Ruby conversion library to the <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=10836">(S)-methamphetamine record in PubChem</a>:</p>
+<ul>
+<li>Isomeric SMILES: C<a href="CC1=CC=CC=C1">C@@H</a>NC</li>
+<li>PubChem InChI: InChI=1/C10H15N/c1-9(11-2)8-10-6-4-3-5-7-10/h3-7,9,11H,8H2,1-2H3/t9-/m0/s1</li>
+</ul>
+<p>My results were:</p>
+<ul>
+<li>Isomeric SMILES: C<a href="CC1=CC=CC=C1">C@@H</a>NC</li>
+<li>OBRuby InChI: InChI=1/C10H15N/c1-9(11-2)8-10-6-4-3-5-7-10/h3-7,9,11H,8H2,1-2H3/t9-/m1/s1</li>
+</ul>
+<p>As you can see, there is a discrepancy in the two stereo layers (<code>m0</code> vs. <code>m1</code>). The same InChI is generated by Open Babel using either OBRuby or the <a href="http://wwmm-svc.ch.cam.ac.uk/wwmm/html/observer.html">Worldwide Molecular Matrix</a>. Substituting the SMILES string representing the opposite configuration at carbon generates the InChI with opposite configuration (R), which again is opposite to that of <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=36604">(R)-methamphetamine in PubChem</a>.</p>
+<p>At this point, it is unclear whether Open Babel or PubChem is producing the correct InChI for the methamphetamine enantiomers. I suspect Open Babel is correct. By creating a molfile of (S)-methamphetamine with <a href="/articles/2006/08/21/four-free-2-d-structure-editors-for-web-applications">JME</a> and running cInChI over it, I got the same output as with the Open Babel conversions. I've found similar differences between PubChem and Open Babel InChIs in every chiral molecule I've looked at.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>The conversion of SMILES, and other molecular languages, into InChI identifiers can be expected to become a recurring need as the popularity of InChI increases. Combining the formidable translation capabilities of Open Babel with the comfort and convenience of Ruby offers a powerful new technique for doing so.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

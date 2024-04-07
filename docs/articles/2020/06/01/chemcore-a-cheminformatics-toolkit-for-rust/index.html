@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ChemCore: A Cheminformatics Toolkit for Rust | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/06/01/chemcore-a-cheminformatics-toolkit-for-rust/">
+      <meta property="og:title" content="ChemCore: A Cheminformatics Toolkit for Rust">
+      <meta property="og:description" content="Design, implementation, and future prospects.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200601/summary.png">
+      <meta content="Design, implementation, and future prospects." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>ChemCore: A Cheminformatics Toolkit for Rust</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-06-01T16:00:00Z">2020-06-01T16:00:00Z</time>
+      </header>
+      <p>Chemistry imposes formidable requirements on application developers. One of the toughest is the manipulation of chemical structures as first-class data structures. General purpose programming language don't fulfil this requirement, so the responsibility falls to a peculiar layer of software. That layer goes by various names, but is usually called a "cheminformatics toolkit." This article introduces ChemCore, a new cheminformatics toolkit written in Rust.</p>
+<h2 id="thecode">The Code</h2>
+<p>The ChemCore repository is hosted on <a href="https://github.com/rapodaca/chemcore">GitHub</a>. Using it will require a <a href="https://rustup.rs">Rust installation</a>.</p>
+<p>Clone the repository and run its test suite with the following commands:</p>
+<pre><code class="hljs console language-console">git clone https://github.com/rapodaca/chemcore
+cd chemcore
+cargo test
+</code></pre>
+<p>Use ChemCore as a dependency in your project by adding this to your <code>Cargo.toml</code>:</p>
+<pre><code class="hljs toml language-toml"><span class="hljs-section">[dependencies]</span>
+<span class="hljs-attr">chemcore</span> = <span class="hljs-string">"0.1"</span>
+</code></pre>
+<h2 id="examples">Examples</h2>
+<p>ChemCore should be considered a proof-of-concept at this point. The following examples illustrate the scope of the current capabilities.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::Graph;
+<span class="hljs-keyword">use</span> chemcore::molecule::DefaultMolecule;
+
+<span class="hljs-comment">// build a Molecule using a specification object</span>
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> ethanol = DefaultMolecule::build(spec::Molecule {
+        atoms: <span class="hljs-built_in">vec!</span>[
+            spec::Atom {
+                element: Element::O, hydrogens: <span class="hljs-number">1</span>, ..<span class="hljs-built_in">Default</span>::default()
+            },
+            spec::Atom {
+                element: Element::C, hydrogens: <span class="hljs-number">2</span>, ..<span class="hljs-built_in">Default</span>::default()
+            },
+            spec::Atom {
+                element: Element::C, hydrogens: <span class="hljs-number">3</span>, ..<span class="hljs-built_in">Default</span>::default()
+            }
+        ],
+        bonds: <span class="hljs-built_in">vec!</span>[
+            spec::Bond { sid: <span class="hljs-number">0</span>, tid: <span class="hljs-number">1</span>, ..<span class="hljs-built_in">Default</span>::default() },
+            spec::Bond { sid: <span class="hljs-number">1</span>, tid: <span class="hljs-number">2</span>, ..<span class="hljs-built_in">Default</span>::default() }
+        ]
+    }).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(ethane.element(&amp;<span class="hljs-number">0</span>), Element::O);
+    <span class="hljs-built_in">assert_eq!</span>(ethane.degree(&amp;<span class="hljs-number">1</span>), <span class="hljs-literal">Ok</span>(<span class="hljs-number">2</span>));
+}
+</code></pre>
+<p>The above example builds a molecule using the ChemCore native method <code>DefaultMolecule::build</code>. The result inherits the traits <code>Graph</code> (from <a href=")">Gamma</a> and <code>Molecule</code> (from ChemCore).</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::Graph;
+<span class="hljs-keyword">use</span> chemcore::daylight::Molecule;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-comment">// build a molecule from SMILES</span>
+    <span class="hljs-keyword">let</span> ethanol = Molecule::build(&amp;<span class="hljs-string">"OCC"</span>).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(ethane.element(&amp;<span class="hljs-number">0</span>), Element::O);
+    <span class="hljs-built_in">assert_eq!</span>(ethane.degree(&amp;<span class="hljs-number">1</span>), <span class="hljs-literal">Ok</span>(<span class="hljs-number">2</span>));
+}
+</code></pre>
+<p>ChemCore supports reading SMILES through the <code>build</code> method of <code>daylight::Molecule</code>. The result is a ChemCore <code>Molecule</code> and so can be treated identically to a <code>Molecule</code> built natively (listing above).</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> chemcore::daylight::Molecule;
+<span class="hljs-keyword">use</span> gamma::traversal::depth_first;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-comment">// build a molecule from SMILES and traverse it in depth-first order</span>
+    <span class="hljs-keyword">let</span> molecule = daylight::Molecule::build(&amp;<span class="hljs-string">"C1CC1"</span>).unwrap();
+    <span class="hljs-keyword">let</span> traversal = depth_first(&amp;molecule, &amp;<span class="hljs-number">0</span>).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">false</span>),
+        (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>),
+        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">0</span>, <span class="hljs-literal">true</span>)
+    ]);
+}
+</code></pre>
+<p>Because the <code>Molecule</code> trait extends the <code>Graph</code> trait, all Gamma traversals are available to <code>Molecules</code> as well. In the listing above, cyclopropane is traversed in depth-first order.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> chemcore::daylight::Molecule;
+<span class="hljs-keyword">use</span> gamma::traversal::breadth_first;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-comment">// build a molecule from SMILES and traverse it in breadth-first order</span>
+    <span class="hljs-keyword">let</span> molecule = Molecule::build(&amp;<span class="hljs-string">"C1CC1"</span>).unwrap();
+    <span class="hljs-keyword">let</span> traversal = breadth_first(&amp;molecule, &amp;<span class="hljs-number">0</span>).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">false</span>),
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>),
+        (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">true</span>)
+    ]);
+}
+</code></pre>
+<p>Breadth-first traversal is also supported (listing above). <code>Molecule</code> will work out of the box with all current and future functions taking a <code>Graph</code>.</p>
+<h2 id="yetanothertoolkit">Yet Another Toolkit?</h2>
+<p>Before getting into details, it's reasonable to ask why and whether the world needs another cheminformatics toolkit. After all, Wikipedia lists <a href="https://en.wikipedia.org/wiki/Cheminformatics_toolkits">two dozen of them</a>. Given this abundance, why not just use something that already exists?</p>
+<p>Many of the existing toolkits work well for the problems they were designed to solve. However, each has been designed to address a specific set of needs for a particular audience. As a result, every toolkit has committed itself to certain decisions that may not suit every project.</p>
+<p>The most important of these decisions is language. An obvious constraint that follows is deployment platform. A toolkit written in Java would be a suboptimal choice for applications targeting iOS or the Web browser. Likewise, a toolkit written in C or C++ would be a suboptimal choice for applications targeting a Web server. It's not that such things can't be made to happen so much as the difficulties programmers will endure along the way.</p>
+<p>The consequences of language choice extend beyond syntax and deployment. A programming language occupies the center of its own universe of tooling in the form of: package managers; debugging; concurrency; compilers; IDE support; build systems; and runtime environment. Moreover, the community around a language plays a pivotal role in supporting development efforts.</p>
+<p>Performance also follows from language choice. Both speed and memory usage are important axes here. Sometimes, all that's needed to turn a slow language into a fast one is time (e.g., Java and JavaScript). Some languages such as Python make up for poor runtime performance through native extensions. Python has become such a popular language in cheminformatics that a toolkit written in any other language should have a clear path to Python support.</p>
+<p>Most of the currently-available cheminformatics toolkits are written in one of three languages: C; C++; or Java. The newest of these, Java, was first released almost 25 years ago. A lot has been learned about programming languages in the intervening time, so it makes sense to explore what newer languages bring to the table.</p>
+<p>Beyond language, the most important decision a toolkit commits to is the Molecule layer. Ultimately, all of a toolkit's functionality and ergonomics flow from this source. The more expressive the Molecule layer, the wider the scope of known chemistry that will become accessible to application developers. The simpler this layer, the easier it will be to learn and extend.</p>
+<p>Recent posts on this blog have covered the topic of <code>Molecule</code> API at length. Available toolkits tend to favor wide APIs with lots of methods. I have come to the opposite conclusion: <a href="/articles/2020/04/06/a-minimal-molecule-api/">the Molecule API should be narrow</a>. The API should in particular not hinder extension to <a href="/articles/2020/04/27/multi-atom-bonding-in-cheminformatics/">multi-atom bonding</a> or multiple implementation. Moreover, the Molecule API should be based on an <a href="/articles/2020/01/06/a-minimal-graph-api/">equally minimal Graph API</a>. A toolkit embracing this approach would offer developers a powerful set of options that don't currently exist.</p>
+<p>In addition to APIs, each cheminformatics toolkit brings a design aesthetic. One of the most basic decisions is what to include and what to leave out. Many of the twenty-odd existing cheminformatics toolkits have adopted a "big tent" approach that includes functionality well beyond the creation and low-level manipulation of molecular graphs. An alternative approach would be to restrict the toolkit to the creation and manipulation of molecular graphs only. Higher-level functionality could then be added through semi-independent modules. There are no right or wrong approaches here — merely choices and tradeoffs.</p>
+<p>Beyond technology lies the sometimes heated topic of licensing. Fortunately, many of the cheminformatics toolkits Wikipedia lists are distributed under Open Source license. But these license vary greatly in what users can do with their own modifications and other works using the toolkits. More permissive open source licensing is a clear trend here that should be supported whenever possible.</p>
+<h2 id="rustasalanguageforcheminformatics">Rust as a Language for Cheminformatics</h2>
+<p>ChemCore is implemented in Rust. An earlier article on this blog explored the idea of using <a href="/articles/2020/01/20/cheminformatics-in-rust/">Rust as a language for cheminformatics</a>. To recap, Rust offers a number of attractive features, a small selection of which includes:</p>
+<ul>
+<li><em>Speed.</em> Benchmarks <a href="https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/rust.html">usually</a> put the performance of idiomatic Rust very close to, or better than the performance of idiomatic C or C++. The usual caveats apply.</li>
+<li><em>Minimal runtime and no garbage collector.</em> Rust uses compile time memory management, a powerful feature unique to this language.</li>
+<li><em>Type safety.</em> Unless specifically opted out of, the Rust compiler prevents the compilation of any program with undefined behavior.</li>
+<li><em>Thread safety.</em> Takes advantage of the same features that allow type safety.</li>
+<li><em>Functional and Object Paradigms.</em> Unlike other languages, Rust does not conflate type with class.</li>
+<li><em>Type Inference.</em> Types can often be elided, giving Rust a distinctly high-level feel.</li>
+<li><em>Package Management and Build System.</em> <a href="https://doc.rust-lang.org/cargo/">Cargo</a> performs both tasks.</li>
+</ul>
+<h2 id="python">Python</h2>
+<p>A few projects focus on enabling tight integration between Rust code and a Python interpreter. A popular choice is <a href="https://github.com/PyO3/pyo3">pyo3</a>. <a href="https://github.com/thesketh/oxmol">Python bindings</a> for ChemCore's precursor, <a href="https://github.com/rapodaca/molecule.rs">Molecule.rs</a> have been released. The success of this project suggests a clear path to adding similar Python bindings to ChemCore.</p>
+<h2 id="webassembly">WebAssembly</h2>
+<p>WebAssembly's 1.0 proof-of-concept gives the Web browser its first new first-class language since the 1990s. It's very likely that 1.0 will be followed by a series of releases integrating WebAssembly ever more tightly into the browser. At the same time, the <a href="https://wasi.dev">WebAssembly System Interface (WASI)</a> can offer a safe execution environment outside the browser. Several posts on this blog have highlighted the use of WebAssembly for cheminformatics (<a href="/articles/2020/03/02/compiling-inchi-to-webassembly-part-2-from-molfile-to-inchi/">example</a>).</p>
+<p><a href="https://github.com/rustwasm/wasm-bindgen">wasm-bindgen</a> gives Rust a powerful suite of tools for compilation to WebAssembly. Auto-generated two-way bindings of both objects and functions are available.</p>
+<h2 id="minimalmoleculeapi">Minimal Molecule API</h2>
+<p>ChemCore's <code>Molecule</code> trait is based on a <a href="/articles/2020/04/06/a-minimal-molecule-api/">minimal Molecule API</a>, which itself is based on a <a href="/articles/2020/01/06/a-minimal-graph-api/">minimal Graph API</a>. The main takeaway is that a fully functional <code>Molecule</code> can be implemented with just 19 simple methods. ChemCore includes two <code>Molecule</code> implementations, one in the <code>molecule</code> package and the other in the <code>daylight</code> package. Although restricted to two-atom bonding at this stage, the minimal Molecule API was designed to be compatible with <a href="/articles/2020/04/27/multi-atom-bonding-in-cheminformatics/">multi-atom bonding</a> extensions.</p>
+<h2 id="hydrogensuppression">Hydrogen Suppression</h2>
+<p><a href="/articles/2020/05/18/hydrogen-suppression-in-cheminformatics/">Hydrogen suppression</a> is a surprisingly complex topic that leads to enormous confusion. Most of it results form the conflation of two related but distinct forms of hydrogen suppression: implicit hydrogen and <a href="/articles/2019/11/06/virtual-hydrogens/">virtual hydrogen</a>. ChemCore simplifies the situation by using virtual hydrogen exclusively. This approach allows interchange formats used by ChemCore to support readers and writers that operate with 100% fidelity.</p>
+<h2 id="smiles">SMILES</h2>
+<p>ChemCore's <code>Molecule</code> should be compatible with both SMILES and Molfile. Currently, ChemCore only supports SMILES input through the <code>daylight::Molecule.build</code> method. <a href="/articles/2020/02/10/a-comprehensive-treatment-of-aromaticity-in-the-smiles-language/">Kekulization</a> is not yet supported, so SMILES encoding aromaticity features result in panic. Given <a href="/articles/2019/04/02/the-maximum-matching-problem/">maximum Graph matching</a> support, it should be straightforward to add kekulization to the SMILES reader.</p>
+<h2 id="modulesnotmonoliths">Modules, Not Monoliths</h2>
+<p>ChemCore has adopted a core module approach, meaning that it will focus on an essential set of cheminformatics functionality related to creating <code>Molecule</code> objects and manipulating them as graphs. Rust's package manager, Cargo, will enable ChemCore to both depend on low-level functionality and become a dependency for higher-level crates. For examples of the former kind of composition, see the <a href="https://crates.io/crates/gamma">Gamma</a> and <a href="https://crates.io/crates/purr">Purr</a> crates. Gamma is a graph library that defines a <code>Graph</code> trait and functions operating over it. Purr is a SMILES/SMARTS library focused on low-level i/o and supporting data structures. For an example of what a crate using ChemCore as a dependency might look like, see <a href="https://github.com/thesketh/oxmol">oxmol</a>, Python bindings for ChemCore's precursor.</p>
+<h2 id="roadmap">Roadmap</h2>
+<p>Even at this proof-of-concept stage, ChemCore offers the outlines of a unique cheminformatics platform. The next several releases will focus on putting in place robust support for cheminformatics' two standard input/output formats SMILES and Molfile. After that, ChemCore will begin to offer capabilities to support application-level features including 2D substructure search; coordinate generation; fingerprints; and molecular descriptors.</p>
+<p>Along the way, it's very likely that APIs will break and things could get chaotic for a time. If that kind of thing isn't a problem and you'd like to try using ChemCore to build a pet project, I'd be happy to help get you up to speed.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>ChemCore is a new cheminformatics toolkit for Rust. The software was created to fill a need for a compact, fast, easy-to-build, easy-to-deploy, permissively-licensed toolkit that works well in many application scenarios. Integrating several new ideas about molecule and graph APIs, ChemCore's focus is forward-looking. ChemCore can currently read SMILES without aromatic features, and will support input/output with both SMILES and Molfile. Further releases will focus on supporting higher-level cheminformatics functionality with an eye toward advanced desktop and Web applications.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

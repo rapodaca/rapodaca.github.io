@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The Best API May Be No API At All - PubChem and PDB | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The Best API May Be No API At All - PubChem and PDB</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-08-13T00:00:00.000Z">2007-08-13T00:00:00.000Z</time>
+      </header>
+      <p>Both <a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem</a> and the <a href="http://www.rcsb.org/pdb/home/home.do">Protein Data Bank</a> (PDB) maintain vast collections of molecular data. Individual users are free to view and search these collections via standard Web browsers. But what are the options if you're developing software to interact with these databases?</p>
+<p>Various application programming interfaces (APIs) are available for accessing PubChem and PDB records. For example, PubChem recently introduced its <a href="/articles/tag/pug">Power User Gateway</a> (PUG), an XML-based query language. But writing APIs is extremely difficult; reconciling the need for simplicity with the need for rich functionality is a tough balancing act. Where do you draw the line?</p>
+<p>Recently, <a href="http://boscoh.com/">Bosco</a> described a <a href="http://boscoh.com/protein/fetching-pdb-files-remotely-in-pure-python-code">remarkably short method</a> to retrieve PDB records using nothing more than standard Python. Given the similarities between Python and Ruby, it seemed reasonable that his method could be adapted to Ruby.</p>
+<p>The following Ruby library accepts a PDB identifier and returns the corresponding PDB record:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'net/http'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">PDB</span></span>
+  <span class="hljs-comment"># Returns a PDB record for the given id</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">get_record</span> <span class="hljs-title">id</span></span>
+    Net::HTTP.get_response(<span class="hljs-string">'www.rcsb.org'</span>, <span class="hljs-string">"/pdb/files/<span class="hljs-subst">#{id}</span>.pdb"</span>).body
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Notice how the business end of this library is nothing more than a single line of Ruby code.</p>
+<p>The library can be tested by saving it in a file called <code>pdb.rb</code> and invoking interactive Ruby (irb):</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'pdb'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; puts PDB::get_record(<span class="hljs-string">'1hpn'</span>)
+HEADER    GLYCOSAMINOGLYCAN                       17-JAN-95   1HPN
+TITLE     N.M.R. AND MOLECULAR-MODELLING STUDIES OF THE SOLUTION
+TITLE    2 CONFORMATION OF HEPARIN
+
+[truncated]
+</code></pre>
+<p>Several months ago, a D-F article described a related, but somewhat lengthier approach to <a href="/articles/2006/08/30/hacking-pubchem-with-ruby">retrieving PubChem molfiles</a>. Using the same approach we used for PDB, we can create the world's shortest PubChem library:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'net/http'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">PubChem</span></span>
+  <span class="hljs-comment"># Returns a molfile for the given PubChem CID</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">get_molfile</span> <span class="hljs-title">cid</span></span>
+    Net::HTTP.get_response(<span class="hljs-string">'pubchem.ncbi.nlm.nih.gov'</span>, <span class="hljs-string">"/summary/summary.cgi?cid=<span class="hljs-subst">#{cid}</span>&amp;disopt=DisplaySDF"</span>).body
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span> 
+</code></pre>
+<p>This library can be tested by saving it in a file called <code>pubchem.rb</code> followed by running irb:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'pubchem'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; puts PubChem::get_molfile(<span class="hljs-string">'969472'</span>) <span class="hljs-comment">#eszopiclone (Lunesta)</span>
+969472
+  -OEChem-08130700422D
+
+ 44 47  0     1  0  0  0  0  0999 V2000
+    9.2619   -2.2732    0.0000 Cl  0  0  0  0  0  0  0  0  0  0  0  0
+
+[truncated]
+</code></pre>
+<p>Both of these Ruby libraries leverage one the most versatile and robust protocols ever developed: plain old http. The last few years have witnessed a renaissance in using bare http as platform for building simplified yet powerful Web APIs with less software. Referred to as <a href="http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm">REST</a>, the approach has gained traction partly in response to the wasteful complexities introduced by various XML-based approaches. Although <a href="/articles/2007/05/30/restful-cheminformatics">slow to catch on in cheminformatics</a>, REST has enormous potential in unifying <a href="/articles/2007/01/24/thirty-two-free-chemistry-databases">a diverse array</a> of isolated database systems.</p>
+<p>One limitation of the approach described here is that the PubChem (or PDB) folks may get upset if you use it a lot. For example, if you examine the <a href="http://pubchem.ncbi.nlm.nih.gov/robots.txt">PubChem robots.txt file</a>, you'll notice that access to the <tt>summary.cgi</tt> resource, which our library makes use of, is prohibited to robots:</p>
+<pre><code class="hljs http language-http">...
+
+User-agent: *
+
+...
+Disallow: /summary/summary.cgi
+...
+</code></pre>
+<p>What makes a "robot" and does your software qualify for exclusion? The answer is not enirely clear-cut, especially in the era of browser-side scripting.</p>
+<p>Regardless, it looks like PubChem's policy was put in place in 2004, long before PubChem had experience with usage patterns for its service. It may be that this restriction could be relaxed without adversely affecting PubChem's ability to operate efficiently. It may even be possible to offer a low-level http retrieval method alongside PubChem's PUG interface on a machine dedicated to automated queries (i.e., <a href="http://eutils.ncbi.nlm.nih.gov/entrez/query/static/eutils_help.html">Entrez eUtils</a>).</p>
+<p>As developers, our mission is to deliver functionality, not to write software. We should extract every possible ounce of value from established protocols and APIs before writing a single line of additional code. REST, and the creative use of good old http, are powerful tools to do so.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

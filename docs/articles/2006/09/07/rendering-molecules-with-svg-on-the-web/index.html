@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Rendering Molecules with SVG on the Web | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Rendering Molecules with SVG on the Web</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-09-07T00:00:00.000Z">2006-09-07T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://www.w3.org/Graphics/SVG/">Scalable Vector Graphics</a> (SVG) is an XML-based language for encoding graphical content. Unlike raster image formats such as PNG, JPEG, and GIF, SVG images can be scaled to any resolution without pixelation. Given that 2-D structure diagrams are essentially line drawings, SVG seems like a natural fit for this type of representation. SVG also boasts several advanced features that make it an especially intriguing choice.</p>
+<p>In this first article of a series on SVG and chemical informatics, I'll start by showing some embedded SVG images of molecules (also see <a href="http://www.adobe.com/svg/demos/devtrack/chemical.html">this demo</a>). Later articles will discuss technical details such as writing, reading, animating, scripting, editing, annotating, and distributing 2-D structures encoded as SVG.</p>
+<h2 id="nowthebadnews">Now, the Bad News</h2>
+<p>SVG is a work in progress. Browser support and performance can vary widely. If you are using <a href="http://www.mozilla.com/firefox/">Firefox</a> version 1.5 or better, you should be able to see all of the images in this article without doing anything.</p>
+<p>Unfortunately for Internet Explorer users, Microsoft's browser lacks built-in SVG support. Still worse, IE 7 appears ready to continue this perplexing tradition. Fortunately, Adobe offers an <a href="http://www.adobe.com/svg/viewer/install/main.html">SVG plugin for IE</a>.</p>
+<p>Although this page was tested in both IE 6 (with Adobe's plugin) and Firefox 1.5 (both Windows and Linux), your particular configuration may vary. Please feel free to post your experiences.</p>
+<h2 id="somesimplesvgstructures">Some Simple SVG Structures</h2>
+<p>The examples below illustrate how SVG images of molecules can be embedded in an HTML document. These images just scratch the surface of what is possible. If you don't see 2-D structures, your browser may lack SVG support.</p>
+<p><img src="/images/posts/20060907/ascorbic_acid.svg" alt="Ascorbic Acid"></p>
+<p><img src="/images/posts/20060907/alprazolam.svg" alt="Alprazolam"></p>
+<p><img src="/images/posts/20060907/furosemide.svg" alt="Furosemide"></p>
+<p><img src="/images/posts/20060907/ddt.svg" alt="DDT"></p>
+<p><em>Note: if you're viewing this article in a feed aggregator, the SVG images may have been stripped out. If so, please see the <a href="http://depth-first.com/articles/2006/09/07/rendering-molecules-with-svg-on-the-web">original article</a>.</em></p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

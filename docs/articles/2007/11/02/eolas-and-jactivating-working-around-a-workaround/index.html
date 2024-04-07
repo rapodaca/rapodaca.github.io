@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Eolas and jActivating - Working Around a Workaround | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Eolas and jActivating - Working Around a Workaround</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-11-02T00:00:00.000Z">2007-11-02T00:00:00.000Z</time>
+      </header>
+      <p>If you've spent any time using Java applets, you may have run across an annoying little "feature" of Internet Explorer 6/7. Before interacting with an applet, it's outlined in gray and displays the mouseover message "Click to activate and use this control."</p>
+<p>This may not seem like much of an inconvenience, but it seems wrong to waste precious time explaining this kind of thing away to hundreds of perplexed users. Web applications should work intuitively; clicking to activate something is just counterintuitive.</p>
+<p>Earlier versions of IE lacked this feature. It was added as the result of a patent lawsuit that Microsoft lost (and I was actually rooting for them that time!). The suit was filed by a company called <a href="http://www.eolas.com/">Eolas</a> who were granted patent number 5,838,906 in 1998 for the invention of:</p>
+<blockquote>
+  <p>A system allowing a user of a browser program on a computer connected to an open distributed hypermedia system to access and execute an embedded program object."</p>
+</blockquote>
+<p>In other words, browser plugins.</p>
+<p>As a result of <a href="http://en.wikipedia.org/wiki/EOLAS">losing the Eolas suit</a>, Microsoft was forced to cripple IE with the bizarre "click to activate" workaround.</p>
+<p>Regardless of your thoughts on the validity or utility of software patents, the Eolas case has very real effects for Web developers everywhere.</p>
+<p>Fortunately, there are a variety of workarounds to this problem. Two of the most effective are:</p>
+<ol>
+<li>Replace all <code>&lt;applet&gt;</code> or <code>&lt;object&gt;</code> tags with JavaScript calls to <code>document.write</code>. This function must be called from a file separate from the HTML file itself.</li>
+<li>Use the excellent <a href="http://jactivating.sf.net">jActivating</a> library.</li>
+</ol>
+<p>While both solutions work, jActivating does so without requiring you to touch your HTML markup. Simply include a small JavaScript file in your <code>&lt;head&gt;</code> tag and be done with it.</p>
+<p>Behind the scenes, jActivating strips out your <code>&lt;applet&gt;</code> and <code>&lt;object&gt;</code> tags, replacing them with dynamically-generated tags that apparently fall outside the scope of the Eolas Patent.</p>
+<p>Let's hear it for workarounds!</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

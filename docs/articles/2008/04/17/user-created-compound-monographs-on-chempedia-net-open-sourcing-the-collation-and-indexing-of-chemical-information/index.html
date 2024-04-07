@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>User-Created Compound Monographs on Chempedia.net - Open Sourcing the Collation and Indexing of Chemical Information | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>User-Created Compound Monographs on Chempedia.net - Open Sourcing the Collation and Indexing of Chemical Information</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-04-17T00:00:00.000Z">2008-04-17T00:00:00.000Z</time>
+      </header>
+      <p>Printed encyclopedias of chemical information like the <a href="http://www.merckbooks.com/mindex/">Merck Index</a> suffer from the problem of becoming obsolete on publication. When new compounds are discovered, or when the information about a compound changes, those changes can take many months or years to appear in print form due to the high cost of publication. It doesn't have to be that way. This article introduces a new feature to the free online chemical encyclopedia <a href="http://chempedia.com">Chempedia</a> that lets working scientists update is contents via <a href="http://wikipedia.org">Wikipedia</a>.</p>
+<h2 id="aboutchempedianet">About Chempedia.net</h2>
+<p>A <a href="/articles/2008/04/04/chempedia-net-mashing-up-pubchem-and-wikipedia">recent article</a> introduced <a href="http://chempedia.com">Chempdia</a>, the free online chemical encyclopedia. This service is built on two of the largest <a href="/articles/2007/01/24/thirty-two-free-chemistry-databases">free and open repositories of chemical information</a> in existence: <a href="http://wikipedia.org">Wikipedia</a> and <a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem</a>. PubChem supplies low-level chemical information such as connection tables, and Wikipedia supplies free-text descriptions of the properties and uses of certain molecules.</p>
+<h2 id="whichmolecules">Which Molecules?</h2>
+<p>Currently, Chempedia.net only includes <a href="/articles/2008/04/02/wikipedia-for-cheminformatics-a-simple-web-api-for-finding-cas-numbers-in-compound-monographs">compound monographs</a> for about 1,000 of its over 300,000 molecules. These monographs were located by a manual process in which the titles for all Wikipedia articles were downloaded in alphabetized form; this process clustered titles that represented IUPAC nomenclature due to its use of leading numbers and symbols. IUPAC nomenclature titles were extracted, and then a script was written to extract the chemical information from these titles and combine it with that from PubChem.</p>
+<p>This method, although useful for getting a service running, is clearly flawed. The biggest problem is in how to discover new compound monographs.</p>
+<h2 id="whynotputusersincontrol">Why Not Put Users in Control?</h2>
+<p>Chempedia users themselves are in the best position to know when an existing Wikipedia compound monograph should appear in Chempedia but doesn't, when an existing monograph needs to be updated, or when a new monograph is written and needs to be linked.</p>
+<p>How can the process be <a href="/articles/2006/08/19/history-of-abstracting-at-chemical-abstracts-service">automated</a>?</p>
+<p>As a partial answer to this question, users <a href="http://chempedia.net/articles/new">now have the ability to notify Chempedia of any changes to a Wikipedia compound monograph</a>, and to have those changes immediately reflected in the next viewing of a Chempedia compound monograph.</p>
+<h2 id="anexample">An Example</h2>
+<p>As an example, let's take <a href="http://en.wikipedia.org/wiki/anandamide">anandamide</a>, a compound I've had some experience with during my time as a medicinal chemist. Although the <a href="http://chempedia.net/compounds/6030">Chempedia entry for ananandamide</a> exists, there is (or as of today - was) no link to the Wikipedia compound monograph. Let's create one.</p>
+<p>At the top of <a href="http://chempedia.com/">Chempedia's main menu</a>, you'll see a link titled '<a href="http://chempedia.net/articles/new">Update</a>'. Choosing this link leads to a form that will ask for two pieces of information: (1) the title of the Wikipedia article to which you want Chempedia to link - in this case '<a href="http://en.wikipedia.org/wiki/anandamide">anandamide</a>'; and (2) <a href="/articles/2007/09/18/six-reasons-i-like-recaptcha-or-how-to-build-a-web-service-worth-talking-about">reCaptcha</a> text to keep robots from making mischief.</p>
+<p>Submitting this information is all that's needed to create a new or updated link from Chempedia to Wikipedia. Chempedia handles the rest.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Wikipedia is a vast source of free, high-quality, semi-structured chemical information just waiting to have good chemically-aware interfaces applied to it. Chempedia.net is an attempt to do just that, but it's a bit more as well. Although it may appear that Chempedia is the major beneficiary in this relationship, Wikipedia also benefits. When chemists have a tool that allows them to query and visualize Wikipedia using their native language (the chemical structure) they're in a better position to both use and contribute to Wikipedia itself - something I've started to do.</p>
+<p>This positive feedback effect is the real value of exposing Web services. The question is: who in cheminformatics is willing and able to take the risk to discover this simple principle and its benefits?</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

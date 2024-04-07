@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Big Reaction Data | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2022/02/23/big-reaction-data/">
+      <meta property="og:title" content="Big Reaction Data">
+      <meta property="og:description" content="Ways to bring a comprehensive, open collection of reaction data closer to reality.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20220223/summary.png">
+      <meta content="Ways to bring a comprehensive, open collection of reaction data closer to reality." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Big Reaction Data</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2022-02-23T18:00:00Z">2022-02-23T18:00:00Z</time>
+      </header>
+      <p>Broad access to chemical information remains a largely unrealized goal. Back in 2006 the <a href="/articles/2006/08/12/changes/">second post on this blog</a> noted the recent introduction of PubChem and ZINC as game-changing developments. But despite progress in the creation of open structure collections, repositories linking molecular structure with properties are much less well-developed.</p>
+<p>An important frontier in this area is open reaction data. The release of the <a href="/articles/2019/01/28/the-nextmove-patent-reaction-dataset/">USPTO reaction dataset</a> added a powerful tool for organic reaction study and application. But beyond this data set lie even larger troves of reaction data, locked away in silos large and small. A new wave of tools like <a href="https://doi.org/10.1021/acs.accounts.0c00714">Chematica</a> hints at the kinds of breakthroughs that could become regular occurrences given an open and comprehensive repository of all known reactions.</p>
+<h2 id="aproposal">A Proposal</h2>
+<p>A <a href="https://doi.org/10.1021/acs.jcim.1c01140">recent proposal</a> by Pierre Baldi seeks to consummate chemistry's decades-long flirtation with big data. The idea is as simple as it is ambitious: create and maintain a centralized repository of every known chemical reaction. Both the Large Hadron Collider and the Human Genome Project are cited as inspirations. The effort would be set up as a consortium with the US NIH and NSF at the helm. Five activities would lay the groundwork:</p>
+<ol>
+<li>Seed the repository with the USPTO reaction data set.</li>
+<li>Negotiate permissive licenses to commercial reaction data sets.</li>
+<li>"Crowd-source" the assembly and quality control of reaction data to academic labs and other organizations.</li>
+<li>Develop automated tools for scraping reaction data from the primary literature.</li>
+<li>Legislate the free distribution of reaction data by chemical vendors.</li>
+</ol>
+<h2 id="whynot">Why Not?</h2>
+<p>The creation of a comprehensive, open database of all known chemical reactions would mark a transformative moment in chemistry. The proposal offers a way forward, but in my view it only partially addresses or neglects a few major roadblocks. All of them are surmountable given enough resources, but only when recognized as the formidable forces that they are.</p>
+<p>First up is constituency, or more precisely the lack thereof. The Baldi proposal would require a substantial (yet unknown) amount of US government funding. That means US Congressional authorization, and more specifically convincing the right lawmakers to support the initiative. Given its long-standing history of lobbying, the American Chemical Society (ACS) might seem like an obvious choice. According to Opensecrets.org, <a href="https://www.opensecrets.org/federal-lobbying/clients/summary?cycle=2019&amp;id=D000046878">the ACS spent over $200,000 dollars</a> on congressional lobbying in 2021, employing a group of five. But the ACS's dual role as overseer of a multi-million dollar enterprise and a scientific society presents a major conflict of interest. ACS has already proven <a href="https://cen.acs.org/articles/83/i24/NIH-ACS-SPAR-OVER-PUBCHEM.html">by its actions</a> a commitment to work against initiatives that threaten its <a href="/articles/2012/09/20/follow-the-money-american-chemical-society-income-at-a-glance/">core revenue stream</a>.</p>
+<p>Along the same lines, it seems implausible that ACS, Elsevier, and other major players would license their reaction data under the liberal terms needed to support the proposal. Blanket agreements would undermine the business model itself, which is to sell access to a private collection of valuable data to paying customers on an ongoing basis. Baldi notes <a href="https://cen.acs.org/physical-chemistry/computational-chemistry/CAS-opens-data-vault-MIT/98/web/2020/11">a recent agreement</a> opening CAS to a data mining group. However, the agreement covered "several million" reactions, whereas CAS itself <a href="https://www.cas.org/cas-data/cas-reactions">notes</a> that the collection contains more than "142 million single- and multi-step reactions." This minified approach is consistent with <a href="https://commonchemistry.cas.org">Common Chemistry</a>, which licenses a small subset of the CAS Registry under a <a href="https://creativecommons.org/licenses/by-nc/4.0/">Non-Commercial Creative Commons license</a>.</p>
+<p>It may yet be possible to convince ACS that its <a href="https://www.acs.org/content/dam/acsorg/about/governance/charter/acsgovdocs-jan2022.pdf">Charter mandate</a> "to increase and diffuse chemical knowledge" overrides financial expediency. But barring a major governance shakeup, the prospect seems remote.</p>
+<p>Assuming that government funding for the Baldi proposal could be found, it's not clear exactly what it would buy. The author notes in the conclusion that:</p>
+<blockquote>
+  <p>… Substantial care would have to be dedicated to the database’s initial design, kinds of information to be included (reaction conditions, reaction rates, side products, mechanisms, etc.), and mechanisms by which it could be expanded, with or without large-scale crowd sourcing and data curation. …</p>
+</blockquote>
+<p>Scope, limitations, and design matter because mistakes at this level can become technically and politically entrenched, jeopardizing the project's long-term viability. The chemistry community's collective experience with the creation and maintenance of large-scale reaction databases is insignificant compared to that of commercial vendors such as ACS and Elsevier.</p>
+<p>Even so, the technical challenges are substantial. In particular, the underlying data representations would require, as Baldi puts it, "substantial care" to get get right. As one example, capturing every reaction requires the ability to accurately represent every molecule. As readers of this blog are well aware, that capability does not yet exist in any industry-standard format. Such limitations can be addressed by either solving the technical challenges directly or narrowing the project scope. Either path risks losing supporters.</p>
+<p>The last word, "curation," is a minefield. PubChem accepts compound depositions from the public through a straightforward process. You obtain an account, and for the most part upload whatever you want. Within certain parameters, it does not matter whether the molecule being uploaded has ever been made, or ever can be made. Things get more interesting when synonyms are attached to molecular data. What should be allowed, and how should that information be vetted? My own company has faced this problem with its <a href="https://metamolecular.com/consulting/">CAS Number/Molecule interconversion service</a>. The current attitude at PubChem tends toward <em>laissez-faire</em>. The validation burden falls in large part to the users of the database. However, such a stance on a reaction database could render the entire effort useless as speculative or even impossible reactions are deposited, with no scalable way to verify the assertions being made.</p>
+<p>Chemistry is different than gene sequencing or building a supercollider in one other way: the space is practically unbounded. Sequencing a genome produces a clear end point. So does building a collider. But no effort to map chemical reaction space will ever be complete. Organic chemistry alone has been in the business of finding surprises for over two centuries. If anything the pace of new reaction discoveries has accelerated. There is no "done" state with an effort like this. And that translates into substantial, hard-to-define, ongoing maintenance and curation costs.</p>
+<p>Not only might it be too politically early for a publicly-funded comprehensive and open reaction database, but it might also be too technically early as well.</p>
+<p>One more point deserves attention. Although the author notes the essential role played by the small-science academic-led ZINC effort in creating PubChem, he then brushes that aside with the following claim:</p>
+<blockquote>
+  <p>… Academic laboratories can be used to nucleate a central database but are not suited to sustain it in the long run as it is not their mission nor do they have the funding, hardware, and software infrastructure to do so. …</p>
+</blockquote>
+<p>The author makes this claim despite the ongoing operation of numerous small-molecule databases run by academic laboratories, either alone or in consortiums. <a href="https://doi.org/10.1021/ci049714+">ZINC</a> itself has been in continuous operation since before 2004. Several EU and Asian efforts, though not as long-lived, continue to function while performing ongoing quality-control. Limitations in funding or mandate may exist, but they appear to be surmountable given sufficient alignment of interests.</p>
+<p>In zeroing-in on a US government-led coalition, the author also ignores another category of sponsor: the small technology company. <a href="https://www.emolecules.com">e-Molecules</a>, for example, has for many years offered its considerable catalog of small molecules <a href="https://downloads.emolecules.com/free/">free for download</a>. Some of its peers also do the same, not out of altruism, but out of enlightened self-interest. There could be many as-yet unrecognized common interests between small companies and reaction survey initiatives.</p>
+<h2 id="knowyourcustomers">Know Your Customers</h2>
+<p>Political, technical, and organizational challenges would all require massive efforts, but the proposal doesn't address the most important factor of all: the customers. An effort like the one proposed by Baldi would serve not one, but two distinct groups of customers: consumers and producers. Consumers would use the database in read-only mode. Their use cases are enumerated in the proposal. Producers of reaction data would use the system in write mode, adding new reactions and data on an ongoing basis. They're generally lab chemists who perform reactions on a daily basis. Although the proposal alludes to them in the context of "crowd-sourcing," the picture this paints is far from complete.</p>
+<p>What motivates chemists to contribute to a reaction database? The answers will set hard boundaries around the scope and limitations of the system. Here are four classes of incentive that might motivate chemists individually or in groups to contribute to a reaction database:</p>
+<ol>
+<li>Force. Enact laws requiring that certain actions be taken by those who have the means to contribute. Publishers might be compelled to license their data stores under compatible licenses. Chemical suppliers might be forced to deposit reaction data as a condition of commerce.</li>
+<li>Coercion. Threaten negative consequences if the desired actions are not taken. Funding agencies might withhold grants from groups whose chemists do not deposit a set quota of reactions.</li>
+<li>Compensation. Payments of various kinds. Examples might include DOIs to establish priority and leaderboards to increase research visibility.</li>
+<li>Utility. Make the system an essential part of the business of chemistry.</li>
+</ol>
+<p>A system built on the first two incentives will not have much of a future. Force not only sends the wrong message, but it's likely to short-circuit many kinds of otherwise productive collaborations. Coercion requires some metric or quota to be satisfied, and that metric is likely to be gamed. If the goal is to capture literally every known reaction as it's discovered, the incentives will need to be much more deeply rooted in the needs of producers.</p>
+<p>This is where compensation and utility come in. Keep in mind that I'm speaking from the perspective of data producers, not consumers. Those conducting reactions have many needs around data management, career advancement, and collaboration. A system that fills these needs has the potential to become deeply entrenched and therefore indispensible.</p>
+<p>What might such a system look like?</p>
+<h2 id="databasevsnetwork">Database vs. Network</h2>
+<p>Baldi casts his proposal as a database, but I think this unnecessarily restricts the possible solutions. Databases are how information consumers see the world. Information producers see databases as busywork. Self-sustaining systems take both perspectives into account and operate more like a <em>network</em> that brings consumers and producers together. Very successful networks even blur the line between consumers and producers.</p>
+<p>It turns out that serving the needs of two different groups of users is extremely difficult. Consumers will only take a network seriously if it has lots of producers. Producers will only care if lots of consumers are present. This sets up a <a href="https://en.wikipedia.org/wiki/Two-sided_market">two-sided market</a> and a Catch-22 scenario. Fortunately, a lot has been learned about starting and maintaining two-sided markets over the last fifteen years or so. It seems possible that some of those lessons could be applied to the creation of a universal reaction network to serve the entire chemistry community.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/LIJ7UhRGN2c" allowfullscreen=""></iframe>
+</div>
+<p>For a glimpse into what this network might look like, consider <a href="https://www.chemotion.net">Chemotion ELN</a>. As described in a <a href="https://doi.org/10.1186/s13321-017-0240-0">2017 paper</a>, Chemotion meets many of the minimum requirements for a synthetic chemistry ELN that solves real problems faced by chemists on a daily basis. Features include:</p>
+<ul>
+<li>reaction and molecule registration and search</li>
+<li>reagent lookup</li>
+<li>sample tracking</li>
+<li>property calculation</li>
+<li>automatic experimental section production</li>
+<li>analytical instrument integration</li>
+<li>integration with third-party databases</li>
+</ul>
+<p>Chemotion can be used as either a hosted service or an open source software package (<a href="https://github.com/ComPlat/che…">available from GitHub</a>) that can be installed and run by any lab desiring to do so. Development is active, with the <a href="https://github.com/ComPlat/chemotion_ELN/commit/367c17e0e02b5f90dbed18e4be8cb13ee36d7638">last commit</a> to the GitHub repository having been made less than a month ago.</p>
+<p>Chemotion positions itself as a solution for reaction data producers, but buried within it lies a potential solution for the problems faced by reaction data consumers, namely access to high-quality reaction data. In addition to Chemotion's authoring capabilities, the software supports reaction publication features.</p>
+<figure>
+  <img alt="Chemotion Repository" src="/images/posts/20220223/chemotion-repository.png">
+  <figcaption>
+    <strong>Chemotion Repository.</strong> A single-reaction publication platform loosely-coupled to Chemotion ELN.
+  </figcaption>
+</figure>
+<p>The screenshot above is a <a href="https://www.chemotion-repository.net/home/publications/">view</a> into the Chemotion Repository, a single-reaction publication platform. Chemotion Repository is a separate service from Chemotion ELN, although the two services share a common user interface. Moreover, the two services are integrated in the sense that Repository accepts data imports generated by the ELN. In other words, a chemist can use Chemotion ELN as a daily lab notebook and when the time comes publish to Chemotion Repository with little added effort.</p>
+<figure>
+  <img alt="Reaction Summary Page" src="/images/posts/20220223/chemotion-repository-reaction-summary.png">
+  <figcaption>
+    <strong>Reaction Summary Page.</strong> Each reaction has a dedicated landing page that reads like a mini-publication.
+  </figcaption>
+</figure>
+<p>Each reaction has a dedicated page such as <a href="https://www.chemotion-repository.net/home/publications/reactions/5909">this one</a>. The page reads like a mini-publication complete with authors, institutional affiliations, DOI, and graphical abstract. A full experimental procedure follows. Moreover, the page offers something often lacking in the traditional literature, namely complete analytical data including raw <sup>1</sup>H, <sup>13</sup>C, IR and mass spectral data. We find all of this and a liberal <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC-BY license</a> to boot.</p>
+<p>To be sure, there are several steps that could be taken to improve Chemotion's utility to data consumers. Some are quite low-hanging fruit. One improvement would be to enable bulk downloads of the kind offered by, for example, <a href="https://ftp.ncbi.nlm.nih.gov/pubchem/">PubChem</a>. Another would be to add syndication (RSS, Atom) for automated updates. Yet another would be to add a Web API, essentially a machine-readable version of every publication page.</p>
+<p>It's not hard to imagine a system like Chemotion that integrates the functions of ELN, peer-review, and publication into a single network. Such a system would address the needs of both reaction data consumers and producers. In fact, it could blur the lines between consumers and producers in the sense that laboratory work begins to rely on the instant availability of previously-published and vetted procedures. New kinds of collaboration between consumers and producers might become possible, deepening the value and use of the system.</p>
+<p>Initiatives like Chemotion have costs, so who funds it? Initial funding was provided by the German government and <a href="https://www.kit.edu/english/index.php">Karlsruhe Institute of Technology (KIT)</a>. More recently, the German <a href="https://www.nfdi.de/?lang=en">Nationale Forschungsdateninfrastruktur (NFDI)</a> has joined. NFDI is an <a href="https://www.rdm.kit.edu/english/network_nfdi.php">umbrella organization</a> headquartered at KIT with a mission to fund research infrastructure projects in Germany. The chemistry branch <a href="https://riojournal.com/article/55852/">NFDI4Chem</a> has taken on a significant financial role in ensuring the continued development of Chemotion, as evidenced by a <a href="https://www.youtube.com/playlist?list=PLlTKDYkC1Ls8qss_8q7qefE8WNOrAnn0D">recent meeting</a>.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/rxTpJ6fRZnc" allowfullscreen=""></iframe>
+</div>
+<p>Aside from the focus on data capture, what distinguishes Chemotion from the Baldi proposal is scale. Chemotion started as a project whose scope and rollout were small. Over time it has grown to become the core of a much larger consortium effort. In the process, numerous problems have surfaced and been addressed. Others are ongoing and likely to be faced by follower projects. Although a Big Science approach might seem appealing, there are so many problems to work out that funding several smaller efforts may offer a better risk/reward profile.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Wider availability of reaction data is crucial for accelerating the pace of chemical innovation. A recent proposal for a large government-led consortium may seem like an attractive path forward. However, chemistry has little collective experience in this area; both data and administrative know-how tend to occupy silos. Beyond this lies a social and political structure resistant to change. Big Science may not be the best approach. As demonstrated by Chemotion, a case can be made for smaller projects that grow as they succeed.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

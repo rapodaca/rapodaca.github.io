@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Exhaustive Cycle Enumeration in Rust | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2023/01/26/exhaustive-cycle-enumeration-in-rust/">
+      <meta property="og:title" content="Exhaustive Cycle Enumeration in Rust">
+      <meta property="og:description" content="Generating the set of all cycles for undirected graphs.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20230126/summary.png">
+      <meta content="Generating the set of all cycles for undirected graphs." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Exhaustive Cycle Enumeration in Rust</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2023-01-26T15:30:00Z">2023-01-26T15:30:00Z</time>
+      </header>
+      <p>Enumeration of all cycles is a useful graph operation. This is especially true in cheminformatics, where the set of all cycles is required in tasks ranging from 2D structure layout to electronic characterization and descriptor calculation. Although restricted cycle sets are suitable for some applications, others require exhaustive enumeration. This article introduces a Rust crate for doing that.</p>
+<h2 id="introducingciclo">Introducing Ciclo</h2>
+<p><a href="http://github.com/metamolecular/ciclo/">Ciclo</a> (cì·clo, Italian for "cycle") offers a suite of tools for working with cycles, including a function for exhaustive cycle enumeration (<code>all_cycles</code>). Graphs can currently be encoded in <a href="https://en.wikipedia.org/wiki/Edge_list">edge list</a> form. Nodes can be any type implementing the <code>Eq</code>, <code>Hash</code>, <code>Clone</code>, and <code>Debug</code> traits. Ciclo can be installed from <a href="https://crates.io/crates/ciclo">crates.io</a>. For now, Ciclo's scope is limited to exhaustive graph enumeration, but additional cycle utilities might be added later.</p>
+<p>The following illustrates the construction of a graph and the enumeration of its cycles.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> ciclo::Graph;
+<span class="hljs-keyword">use</span> ciclo::all_cycles;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">test</span></span>() {
+    <span class="hljs-keyword">let</span> graph = Graph::from_edges(<span class="hljs-built_in">vec!</span>[
+        (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>),
+        (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>),
+        (<span class="hljs-number">2</span>, <span class="hljs-number">0</span>),
+    ]).unwrap();
+
+    <span class="hljs-built_in">println!</span>(all_cycles(graph));
+}
+</code></pre>
+<p>More examples can be found in the project's unit test suite.</p>
+<h2 id="comparingcyclesets">Comparing Cycle Sets</h2>
+<p>If you run the code snippet in the preceding section you may notice run-to-run variations. All reported cycles should all be equivalent, but they may not be strictly equal. This results from <code>Graph</code>'s use of <code>HashMap</code>, whose key iteration order is non-deterministic.</p>
+<p>It's inconvenient to work with cycle sets that may not be strictly equal to each other, especially during development and testing. To solve this problem, Ciclo includes the <code>Cycle</code> type. <code>Cycle</code> can be added to hash maps and sets, allowing the direct comparison of cycle sets, regardless of the manner in which they were generated.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> std::collections::HashSet;
+<span class="hljs-keyword">use</span> ciclo::Graph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">test</span></span>() {
+    <span class="hljs-keyword">let</span> left = Cycle::new(<span class="hljs-built_in">vec!</span>[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>]);
+    <span class="hljs-keyword">let</span> right = Cycle::new(<span class="hljs-built_in">vec!</span>[<span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>]);
+
+    <span class="hljs-built_in">assert_eq!</span>(left, right)
+
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> set = HashSet::new();
+
+    set.insert(left);
+
+    <span class="hljs-built_in">assert!</span>(set.contains(&amp;right))
+}
+</code></pre>
+<p><code>BTreeMap</code> might look like an option here, but it's not. The order in which cycles are iterated and expressed linearly depends on the implementations of <code>Graph</code> and <code>all_cycles</code>. A hashable <code>Cycle</code> type prevents test suites from failing under future optimization.</p>
+<h2 id="aboutthealgorithm">About the Algorithm</h2>
+<p>Ciclo's <code>all_cycles</code> function is based on an algorithm described in <a href="https://doi.org/10.1021/ci960322f"><em>A New Algorithm for Exhaustive Ring Perception in a Molecular Graph</em></a>. The foundation of this algorithm is the iterative removal of nodes from a <em>path graph</em>. A path graph is an undirected graph where each edge is labeled with a sequence of nodes representing a path.</p>
+<p>Removing a node results in the update of all affected edges through <em>path reduction</em>. Path reduction removes a node between two other nodes, updating the respective edges accordingly.</p>
+<figure>
+  <img alt="path-graph-reduction" src="/images/posts/20230126/path-graph-reduction.png">
+  <figcaption>
+    <strong>Path Graph Reduction.</strong> Cycles are exposed through iterative node removal from a path graph. [<a href="https://doi.org/10.1021/ci960322f">source</a>].
+  </figcaption>
+</figure>
+<p>In some cases, path reduction leads to pseudocycles, as below. Such cycles are not reported.</p>
+<figure>
+  <img alt="pseudocycle" src="/images/posts/20230126/pseudocycle.png">
+  <figcaption>
+    <strong>Pseudocycle.</strong> Reduction can generate path graph cycles, but these are not reported. [<a href="https://doi.org/10.1021/ci960322f">source</a>].
+  </figcaption>
+</figure>
+<p>If the node removed from a path graph bears a loop (source and target nodes are identical), a cycle has been detected. The set of all such loops comprises the reported cycle enumeration. The algorithm finishes with the removal of the last node.</p>
+<figure>
+  <img alt="loop" src="/images/posts/20230126/loop.png">
+  <figcaption>
+    <strong>Exposing a loop.</strong> A loop is exposed through removal of the penultimate node in a cycle. This cycle is reported when the last remaining node in the cycle is removed. [<a href="https://doi.org/10.1021/ci960322f">source</a>].
+  </figcaption>
+</figure>
+<h2 id="conclusion">Conclusion</h2>
+<p>Applications in cheminformatics and graph theory more broadly may require access to a graph's set of all cycles. This article introduces a Rust implementation of an algorithm capable of doing so.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

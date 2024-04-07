@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Painless Source Code Highlighting with Prettify | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Painless Source Code Highlighting with Prettify</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-05-28T00:00:00.000Z">2009-05-28T00:00:00.000Z</time>
+      </header>
+      <p>If you've ever created Web documents containing source code, you may have wondered how to easily add syntax highlighting. Over at the <a href="http://products.metamolecular.com">Metamolecular Products Blog</a>, we needed source code highlighting and decided to find the best solution available.</p>
+<p><a href="http://depth-first.com">Depth-First</a> uses a highlighter that's installed as a server-side plugin. This is inconvenient because language support is limited (for example, there's no Java or JavaScript support), and upgrades require a time-consuming deployment and integration step. The other problem is that enabling syntax highlighting requires the use of plugin-specific syntax within each post.</p>
+<p>It turns out that another solution is much easier to use and aware of more languages. <a href="http://code.google.com/p/google-code-prettify/">Prettify.js</a> is an unobtrusive JavaScript library that automatically applies colored syntax highlighting to source code fragments. Among the many languages supported are Ruby, Python, Java, JavaScript, and XML. Customization of font weight, size, style, and color are all possible by editing your site's stylesheet. There's no need to specify a language; Prettify can handle that for you if you'd prefer. Prettify is also widely used, with one of the biggest installations being <a href="http://stackoverflow.com">StackOverflow</a>.</p>
+<p>Installing Prettify.js was a simple matter of copying the Javascript file to the server and applying the correct &lt;script&gt; tag in the page template head element. <a href="http://google-code-prettify.googlecode.com/svn/trunk/README.html">Detailed instructions</a> are available on the Prettify.js site.</p>
+<p>For an example using XML, see <a href="http://products.metamolecular.com/2009/05/26/substructure-search-with-the-chemcaster-web-api">this post</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

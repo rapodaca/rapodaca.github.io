@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>An Introduction to the ChemDraw CDXML Format | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/04/07/an-introduction-to-the-chemdraw-cdxml-format/">
+      <meta property="og:title" content="An Introduction to the ChemDraw CDXML Format">
+      <meta property="og:description" content="Filling in some blanks for one of the most important standards in chemistry.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20210407/summary.png">
+      <meta content="Filling in some blanks for one of the most important standards in chemistry." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>An Introduction to the ChemDraw CDXML Format</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-04-07T17:00:00Z">2021-04-07T17:00:00Z</time>
+      </header>
+      <p>Although it receives relatively little attention in cheminformatics, ChemDraw may be the most important piece of software in chemistry. Every chemist with experience beyond high school will probably have at least heard of it. ChemDraw is the de facto standard for creating graphics for publications and presentations, with every major journal providing settings for authors. It's also one of the formats accepted by the USPTO for patents and patent applications. Over the years, ChemDraw's list of features has grown from chemical structure and reaction drawing to other tasks, including: biopolymer drawing; physical property calculation; name/structure conversion; NMR simulation; and database integration. On ChemDraw's 30th anniversary, C&amp;EN ran a <a href="https://cen.acs.org/articles/92/i33/Reflections-ChemDraw.html">feature</a> about the software's transformative role in chemistry.</p>
+<p>ChemDraw stores documents in one of two formats: CDX and CDXML. CDX is a binary format, whereas CDXML is an XML-based file format. With minor differences, both formats share similar semantics. For this reason, this article will refer to the combined binary and XML ChemDraw format as CDX/ML. Although isolated CDX/ML files may be encountered in the wild, it's more common to find them embedded in Microsoft Office or ChemOffice documents. Often, CDX/ML makes its way from these embedded environments to the outside world via the system clipboard.</p>
+<p>This article presents a high-level overview of the ChemDraw CDXML format.</p>
+<h2 id="cdxmlinanutshell">CDXML in a Nutshell</h2>
+<p>As an XML format, CDXML encodes information in three ways:</p>
+<ul>
+<li><strong>Elements.</strong> An XML element consists of a named opening tag and a closing tag wrapped in angle brackets (<code>&lt;</code> and <code>&gt;</code>). Elements may be nested, yielding a tree. The CDXML documentation refers to elements as "Objects."</li>
+<li><strong>Attributes.</strong> Each element stores a key/value dictionary as a set of named attributes. Most CDXML attributes are optional.</li>
+<li><strong>Element text.</strong> In rare cases (e.g., the <code>Style</code> object), an element may contain text data.</li>
+</ul>
+<p>The <a href="https://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/IntroCDXML.htm">authoritative specification</a> from Perkin Elmer (PE) offers a starting point for understanding CDXML. Elements ("Objects") and attributes ("Properties") are both enumerated and individually documented. The PE specification lists 263 attributes and 38 elements. Although this documentation is mostly complete, several items are missing. For example, details on the <code>Arrow</code> element are not available; its <a href="https://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/Arrow.htm">hyperlink</a> redirects to the Perkin Elmer homepage. Several years ago, I wrote an email to technical support noting this problem, but received no response. Those wanting a complete CDXML specification may need to construct one themselves using reverse engineering techniques.</p>
+<p>Aside from the official PE specification, not a lot of third party CDXML documentation has been published. Two years ago, a paper describing <a href="https://github.com/complat/chem_scanner">an open source system capable of reading CDXML files</a> was published (<a href="https://doi.org/10.1186/s13321-019-0400-5">ChemScanner</a>). Although the paper says little about the CDXML format itself, the source code may be helpful as a kind of documentation. In a similar vein, <a href="http://openbabel.org/wiki/Main_Page">Open Babel</a> supports <a href="https://open-babel.readthedocs.io/en/latest/FileFormats/ChemDraw_binary_format.html">reading ChemDraw files</a>, but incompletely. Finally, four previous Depth-First articles discuss the CDX binary format:</p>
+<ul>
+<li><a href="https://depth-first.com/articles/2010/09/13/a-brief-introduction-to-the-chemdraw-cdx-file-format">A Brief Introduction to the ChemDraw CDX File Format</a></li>
+<li><a href="https://depth-first.com/articles/2010/09/17/reading-and-translating-chemdraw-cdx-files-with-openbabel">Reading and Translating ChemDraw CDX Files with OpenBabel</a></li>
+<li><a href="https://depth-first.com/articles/2010/09/21/making-sense-of-the-chemdraw-cdx-file-format-with-cdxhexdumper">Making Sense of the ChemDraw CDX File Format with CDXHexDumper</a></li>
+<li><a href="https://depth-first.com/articles/2012/06/01/reading-and-rendering-chemdraw-cdx-files-in-javascript">Reading (and Rendering) ChemDraw CDX Files in JavaScript</a></li>
+</ul>
+<p>CDX/ML is an odd cheminformatics file format in that is mixes a molecular graph encoding system with visual elements and styling. For example, a given CDX/ML file may contain a chemical structure together with a TLC plate. Each individual bond can be colored, and the text on atom labels can bear custom colors, fonts, and layout instructions.</p>
+<p>Sometimes visual elements can carry chemical meaning. For example, an arrow may be part of a reaction scheme. Likewise, a bracket may surround the repeating unit of a polymer.</p>
+<p>This broad scope, in which chemically meaningful elements are mixed with visual layout and arbitrary vector graphics, makes CDX/ML one the most complicated file formats in cheminformatics. Coupled with the useful, but incomplete PE specification, CDX/ML is not an easy format to understand or use. The purpose of this article is to fill in some of the blanks.</p>
+<h2 id="objects">Objects</h2>
+<p>Objects (aka "Elements") express the high-level features of every CDXML document. The PE specification enumerates the following Object types:</p>
+<ul>
+<li><code>Document.</code> The root element in the XML tree.</li>
+<li><code>Page.</code> A drawing space.</li>
+<li><code>Group.</code> An arbitrary collection of Objects.</li>
+<li><code>Fragment.</code> Roughly, a molecular graph.</li>
+<li><code>Node.</code> Often an atom, but can take many forms.</li>
+<li><code>Bond.</code> A connection between two <code>Nodes</code>.</li>
+<li><code>Text.</code> A block of styled text runs.</li>
+<li><code>Graphic.</code> A geometric shape such as an arc, line, or arrow.</li>
+<li><code>Bracketed Group.</code> A group surrounded by brackets.</li>
+<li><code>Bracket Attachment.</code> Links the content of a bracketed group with an external feature.</li>
+<li><code>Crossing Bond.</code> Links a <code>Bracket Attachment</code> with a <code>Bond</code>.</li>
+<li><code>Curve.</code> A Bézier curve.</li>
+<li><code>Embedded Object.</code> An operating system-specific object.</li>
+<li><code>Table.</code> A grid of <code>Page</code>s.</li>
+<li><code>Named Alternative Group.</code> Links <code>Text</code> with a <code>Group</code> or <code>Fragment</code>.</li>
+<li><code>Template Grid.</code> A grid of templates used by the ChemDraw user interface.</li>
+<li><code>Registry Number.</code> Not written or read.</li>
+<li><code>Reaction Scheme.</code> An ordered list of <code>Reaction Step</code>s.</li>
+<li><code>Reaction Step.</code> A single step reaction consisting of reactants, products, plus signs, arrow(s), reagents, and conditions.</li>
+<li><code>Spectrum.</code></li>
+<li><code>Object Tag.</code> A custom object.</li>
+<li><code>Sequence.</code> </li>
+<li><code>Cross-Reference.</code> Links objects together, possibly across CDXML documents.</li>
+<li><code>Border.</code> The edges of a rectangular object, typically <code>Page</code>.</li>
+<li><code>Geometry.</code> A geometrical relationship between objects.</li>
+<li><code>Constraint.</code> A geometrical constraint (distance, angle) between objects.</li>
+<li><code>TLC Plate.</code> A thin-layer chromatography plate.</li>
+<li><code>TLC Lane.</code> A column within a TLC plate.</li>
+<li><code>TLC Spot.</code> A spot on a TLC plate.</li>
+<li><code>Splitter.</code> Not used or written.</li>
+<li><code>Chemical Property.</code> A property, typically computed by ChemDraw.</li>
+<li><code>Color Table.</code> An ordered list of <code>Color</code>s.</li>
+<li><code>Color.</code> An RGB color.</li>
+<li><code>Font Table.</code> An ordered list of <code>Font</code>s.</li>
+<li><code>Font.</code> A font consisting of name and character set.</li>
+<li><code>Style.</code> A run of styled text.</li>
+<li><code>Represents Property.</code> Notification that a graphical object represents a chemical property. For example, a circle-plus may represent the formal charge of a <code>Node</code>.</li>
+<li><code>Arrow.</code> A graphical arrow with heads, curvature, and other styling.</li>
+</ul>
+<p>The most obvious challenge here is the quantity of Objects. As previously noted, ChemDraw combines elements of chemical graphs and vector graphics within the same format. A less obvious challenge is how some Objects seem to recapitulate others (e.g., <code>Geometry</code> vs. <code>Constraint</code>, and <code>Graphic</code> vs. <code>Arrow</code>). ChemDraw is a format that has undergone decades of evolution, a fact evidenced throughout the PE specification.</p>
+<p>But perhaps the biggest problem is grappling with the complex ways that the many CDXML Objects can interact with each other.</p>
+<h2 id="entityrelationshipdiagrams">Entity-Relationship Diagrams</h2>
+<p>The PE specification provides a lot of the information needed to piece together the relationships between Objects. Unfortunately, the technique used by PE (hyperlinking) doesn't lend itself well to high-level thinking or visualization. What's needed is a way to see the big picture all at once, visually.</p>
+<p>Enter <em>Entity-Relationship Diagrams</em> (ERDs). An ERD is a drawing in which the nouns of a system are connected by lines whose terminators represent allowed quantities. An ERD creates a high-level overview of a complex system that can be interpreted and improved by subject matter experts regardless of their level of technical expertise.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/lAtCySGDD48" allowfullscreen=""></iframe>
+</div>
+<p>The most distinctive feature of an ERD is the graphical expression of quantifier relationships. Quantifiers appear at line terminals, and give information about the cardinality of a relationship. For example, a line terminating with a "zero or one" relationship says that the noun at the end of the line is associated with the noun at the beginning of the line zero or more times. A line without a quantifier indicates no association.</p>
+<table>
+  <thead>
+    <tr>
+      <th>Quantifier</th><th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><img alt="Zero or One" src="/images/posts/20210407/zero-or-one.png"></td><td style="vertical-align: middle">zero or one</td>
+    </tr>
+    <tr>
+      <td><img alt="One and Only One" src="/images/posts/20210407/one-and-only-one.png"></td><td style="vertical-align: middle">one and only one</td>
+    </tr>
+    <tr>
+      <td><img alt="Zero or Many" src="/images/posts/20210407/zero-or-many.png"></td><td style="vertical-align: middle">zero or many</td>
+    </tr>
+    <tr>
+      <td><img alt="One or Many" src="/images/posts/20210407/one-or-many.png"></td><td style="vertical-align: middle">one or many</td>
+    </tr>
+  </tbody>
+</table>
+<p>Many drawing tools support the creation and editing of ERDs. One I've found especially useful is <a href="https://draw.io">draw.io</a>. This open source drawing tool runs in a browser and requires no subscription. ERDs can be stored locally in a custom XML format for later use. Export to SVG and PNG is also supported. Although commercial tools for this kind of thing exist, I find draw.io to be superior in every way. As an added bonus, <a href="https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio">a VS Code plugin for draw.io</a> is available, allowing the viewing and editing of ERDs from within a project repository.</p>
+<h2 id="chemdrawerd">ChemDraw ERD</h2>
+<p>Using information presented in the PE CDXML specification, it's possible to construct the following ERD:</p>
+<figure>
+  <img alt="CDXML ERD" src="/images/posts/20210407/cdxml-erd.png">
+  <figcaption>
+    <strong>CDXML ERD.</strong> An entity-relationship diagram for the ChemDraw CDXML format. Parent-child (ownership) relationships are solid lines, with referential relationships (references) dashed. Not all Objects or relationships are depicted. All properties are omitted.
+  </figcaption>
+</figure>
+<p>The ERD I created, incomplete though it is, clearly has a lot going on. In fact, there's far too much to absorb non-graphically in my view. The most obvious feature is the large number of Objects associated with a <code>Page</code>. Also apparent from the diagram is the high level of connectivity among <code>Graphic</code>, <code>Named Alternative Group</code>, and <code>Group</code> Objects. Due to space constraints, the full connectivity of a few Objects (e.g., <code>Reaction Step</code>, <code>Color</code>, and <code>Font</code>) is not depicted. Including such relationships would add considerable complexity to an already complex system.</p>
+<p>Perhaps surprisingly, <code>Node</code> and <code>Bond</code>, although central features in every other cheminformatics format, play a relatively minor role here. Most of the information associated with these two Objects is carried by attributes on the corresponding XML nodes.</p>
+<p>In contrast, the objects appearing near the bottom of this diagram have relatively few associations. For example, we can see that a <code>TLC Plate</code> has zero or more <code>TLC Lane</code>s, each of which has zero or more <code>TLC Spot</code>s. None of the child Objects in this lineage refers to its parent. An outlier is <code>Table</code>, which can be associated with many pages and which itself can have many pages.</p>
+<p>Although most of the lines connecting Objects are solid, some are dashed. Solid lines represent ownership (nesting) relationships. For example, a <code>Page</code> is nested within a <code>Document</code>. In terms of XML itself, a <code>Page</code> node is a child of a <code>Document</code> node. Dashed lines represent reference relationships. CDXML Objects carry an optional <code>id</code> attribute. One Object references another by including its <code>id</code> attribute value as an attribute value. CDXML Object can reference a single Object, or a list of them, by reference.</p>
+<p>One of the more serious limitations of the PE specification is that it fails to identify quantifier relationships between some Objects. The specification has no systematic way to report this information, opting instead to include it in within text descriptions. As a result, the quantifiers presented in the above diagram are drawn when possible from freeform descriptions found in the specification, and my own reverse engineering attempts otherwise.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>CDXML is an important file format due to the ubiquity of ChemDraw in chemistry. Although a written specification exists, it is objectively incomplete. This article takes a first step toward filling in some of the gaps with a description of the CDXML format from a high level using ERD as a graphical tool.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

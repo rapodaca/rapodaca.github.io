@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Standard InChI | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/05/19/standard-inchi/">
+      <meta property="og:title" content="Standard InChI">
+      <meta property="og:description" content="Expectation meets reality in this benchmarking puzzle.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20210519/summary.png">
+      <meta content="Expectation meets reality in this benchmarking puzzle." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Standard InChI</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-05-19T20:00:00Z">2021-05-19T20:00:00Z</time>
+      </header>
+      <p><a href="https://iupac.org/who-we-are/divisions/division-details/inchi/">InChI</a> is an IUPAC-sponsored project aimed at creating a distributed chemical identifier system. Centralized identifiers like <a href="https://en.wikipedia.org/wiki/CAS_Registry_Number">CAS Registry Numbers</a> operate through intermediaries who curate entries, resolve conflicts, and often charge a substantial fee for the service. InChI is different in that identifiers are generated deterministically through software, independent of an intermediary.</p>
+<p>Useful though this distributed model may be, it's not without tradeoffs. The most important of these is the inherent tension between universality and flexibility. A universal identifier must necessarily be rigidly defined, but rigidity conflicts with chemistry's inherent messiness. This article explores the tension between these requirements within the context of a surprise I found during a benchmarking study.</p>
+<h2 id="aboutstandardinchi">About Standard InChI</h2>
+<p>InChI's approach to a universal yet flexible identifier system is <em>standard InChI</em>. Standard InChI is a kind of identifier generated through a specific configuration of the InChI software. Standard InChIs identify themselves with a prefix containing the letter <code>S</code> (e.g., <code>InChI=1S/C2H6/c1-2/h1-2H3</code>). Non-standard InChIs lack the <code>S</code> prefix (e.g., <code>InChI=1/C2H6/c1-2/h1-2H3</code>).</p>
+<p>By default, all InChIs produced by the InChI software are standard. In other words, if no flags are passed, the software yields standard InChIs that can be compared to any other similarly-generated standard InChI. Several flags passed to the software will result in a non-standard InChI. The <a href="https://www.inchi-trust.org/downloads/">InChI User Guide</a> notes that these flags include:</p>
+<ul>
+<li><code>SUU</code>. Always include omitted unknown/undefined stereo.</li>
+<li><code>SLUUD</code>. Use different labels for omitted unknown/undefined stereo.</li>
+<li><code>RecMet</code>. Preserve bonds to metal atoms.</li>
+<li><code>FixedH</code>. Generate the fixed-hydrogens layer.</li>
+<li><code>KET</code>, Account for experimental 1,3-tautomerism.</li>
+<li><code>15T</code>. Account for experimental 1,5-tautomerism.</li>
+<li><code>SRel</code>. Use relative stereo.</li>
+<li><code>SRac</code>. Use racemic stereo.</li>
+<li><code>SUCF</code>. Consume the molfile chiral flag.</li>
+</ul>
+<p>A few flags can be passed <em>without</em> triggering non-standard output, including:</p>
+<ul>
+<li><code>NEWPSOFF</code>. Perceive stereocenters on both ends of a wedge/hash bond.</li>
+<li><code>DoNotAddH</code>. Don't add hydrogen layer.</li>
+<li><code>SNon</code>. Ignore all stereo information.</li>
+<li><code>LooseTSACheck</code>. Enable detection of ambiguous (large-angled) bonds in cycles. Added in InChI v 1.06.</li>
+</ul>
+<p>It should be emphasized that the distinction between standard and non-standard InChI only applies to properly-configured software, and to software operating directly on source molfiles. If anything comes between the molfile and the InChI software, all bets are off.</p>
+<h2 id="troublebrewing">Trouble Brewing</h2>
+<p>As part of <a href="/articles/2007/10/31/jinchi-run-inchi-anywhere-java-runs/">a long-standing effort</a> to expand the range of computing environments on which InChI runs, I recently succeeded in <a href="/articles/2021/03/25/running-inchi-anywhere-with-webassembly/">compiling the InChI C source to WebAssembly</a>. The result was <a href="https://github.com/rapodaca/inchi-wasm">InChI-Wasm</a>, from which a build system, compiled Wasm file, and demonstration HTML document can be obtained.</p>
+<p>Two kinds of performance were evaluated with a <a href="https://github.com/rapodaca/inchi-benchmark">benchmark</a>. In it, InChI-Wasm was matched with a counterpart library, also compiled from the InChI source, but as a native macOS dylib binary. Glue code in the form of JavaScript running on Node.js allowed a fair comparison of performance for the two ways of running InChI.</p>
+<p>As a data set, I turned to something I hadn't used before: <a href="https://www.surechembl.org">SureChEMBL</a>. SureChEMBL is a patent database operated by the <a href="https://en.wikipedia.org/wiki/European_Molecular_Biology_Laboratory">European Molecular Biology Laboratory</a> (EMBL). Given that structures are drawn from the patent literature, the set seemed like a good performance test. Like many other public-facing chemical databases, SureChEMBL provides raw data files that can be downloaded in <a href="/articles/2020/07/13/the-sdfile-format/">SDfile format</a> and reprocessed. The presence of InChI field in the data set made it convenient to compare the identifiers reported by InChI-Wasm and SureChEMBL.</p>
+<p>With the SureChEMBL data set and the two InChI versions in hand, two kinds of benchmarks were run. The first compared run time, finding that InChI-Wasm ran within a factor of two of the run time of the natively-compiled library.</p>
+<p>The second performance test compared the output of InChI-Wasm with the InChIs reported by SureChEMBL. Out of 114,000 records, there were 155 discrepancies and 3 errors. Although this may seem low, it's not zero, which was my expectation. Due to time constraints, I simply noted these differences. But the question remained. Why do the InChIs reported by SureChEMBL not match those generated by InChI-Wasm?</p>
+<p>Given the natively-compiled InChI library, it was easy to rule out compilation to WebAssembly as the source of the problem. Comparison of the output from both libraries (Wasm and native) yielded the same InChI output.</p>
+<p>Wherever the discrepancy between InChI-Wasm and SureChEMBL identifiers may lie, it had nothing to do with WebAssembly.</p>
+<h2 id="isolatingtheproblem">Isolating the Problem</h2>
+<p>In many applications, InChI is run via the <code>inchi-1</code> executable. This executable is compiled from C source that defines a <code>main</code> function accepting various inputs and which generates outputs.</p>
+<p>But it's also possible to run InChI as a library by writing code that interacts with the InChI API. My benchmark used this method. A convenient entry point into the InChI library is the <code>MakeInChIFromMolfileText</code> function.</p>
+<p><code>MakeINCHIFromMolfileText</code> is a convenience function that accepts as input a molfile and flags (as discussed above), writing InChI output in response. The <a href="https://www.inchi-trust.org/downloads/">InChI API documentation</a> has the following to say about <code>MakeINCHIFromMolfileText</code>:</p>
+<blockquote>
+  <p>This function creates InChI from Molfile supplied as a null-terminated string.
+  That is, it automates reading/parsing Molfile, creation of InChI input and generation of InChI string. Notably, it relies on the same Molfile parser as inchi-1 executable <strong>thus ensuring that any correct caller will produce the same result as inchi-1</strong>. [emphasis added]</p>
+</blockquote>
+<p>If for some reason the inchi-1 <code>main</code> method either didn't use <code>MakeINCHIFromMolfileText</code> or used it differently than documented, that could be the source of the SureChEMBL discrepancy.</p>
+<p>To test this idea, I ran the <code>inchi-1</code> executable on the <a href="https://ftp.ebi.ac.uk/pub/databases/chembl/SureChEMBL/data/">decompressed SureChEMBL SDfile</a>. To simplify comparison with the output from InChI-Wasm, I invoked the executable like so:</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> inchi-1 -AuxNone -OutErrInChI SureChEMBL_20210101_27.sdf</span>
+</code></pre>
+<p>The resulting file (<code>SureChEMBL_20210101_26.sdf.txt</code>) contained two lines per entry: the first contained a record number and the second contained the InChI produced from the molfile. The <code>-AuxNone</code> flag suppresses auxiliary information, which is not needed. The <code>OutErrInChI</code> flag adds a line containing <code>InChI=1S//</code> in the event of a processing error. The final step was to remove the file header line, which was done either as a shell one-liner or with a text editor.</p>
+<p>Next, I built <a href="https://github.com/rapodaca/inchi-surechembl-differences">a new test bench</a> that uses InChI-Wasm to generate a text file with an identical format to the one created by the <code>inchi-1</code> executable. The two files, one made by the official InChI executable and the other made by code using the InChI API and compiled to Wasm, could then be compared using the Unix <a href="https://man7.org/linux/man-pages/man1/diff.1.html">diff</a> utility.</p>
+<p>The result showed both files to be identical. For completeness sake, I did the same analysis against <code>inchi-1</code> compiled from both v 1.05 and v 1.06 (the most recent release and the one used by InChI-Wasm). The results were the same. The differences seen between InChIs reported by SureChEMBL and InChI-Wasm had nothing to do with WebAssembly, the version if InChI being used, or the way the InChI API was being accessed.</p>
+<h2 id="asurveyofdifferences">A Survey of Differences</h2>
+<p>To gain some insights into the 155 structures behind the identifiers that didn't match, I filtered the SureChEMBL SDfile file to retain only the conflicting records. Then I manually inspected several of them.</p>
+<p>The most obvious thing to check was the <code>LooseTSACheck</code> flag. Recall that this flag was added in InChI v 1.06, and it enables the perception of stereochemistry on distorted tetrahedral centers within cycles. Setting this flag eliminated conflicts in about ten of the mismatched records.</p>
+<p>Many of the remaining conflicts arose from structures containing metals. For example, <a href="https://www.surechembl.org/chemical/SCHEMBL22832217">SCHEMBL22832217</a> is the complex between methyl isobutyrate and potassium. What form of potassium, ion or atom, you ask? That's a good question.</p>
+<p>The InChI produced by the InChI-Wasm benchmark was:</p>
+<pre><code class="hljs console language-console">InChI=1S/C5H10O2.K.H/c1-4(2)5(6)7-3;;/h4H,1-3H3;;
+</code></pre>
+<p>Whereas the InChI reported by SureChEMBL was:</p>
+<pre><code class="hljs console language-console">InChI=1S/C5H10O2.K/c1-4(2)5(6)7-3;/h4H,1-3H3;
+</code></pre>
+<p>The disagreement here revolves around the question of whether or not the potassium atom is bound to a hydrogen atom. This is no small question. The answer implies completely different molecular formulas and weights, and of course identifiers.</p>
+<p>As noted on this blog previously, <a href="/articles/2020/04/13/hydrogen-suppression-in-molfiles/">V2000 molfiles support virtual hydrogens</a> through the awkward but workable mechanism of specifying <em>valence</em>. Implicit hydrogens are not assigned to metals, so setting valence on a metal is usually not productive in a molfile.</p>
+<p>But InChI's approach to metals is a bit odd. As <a href="/articles/2021/03/10/parsing-inchi-its-complicated/">noted here</a>, bonds to metals are always disconnected by default. However, virtual hydrogens are also assigned to metals! This leads to the counterintuitive situation in which a free metal will be saturated to satisfy InChI's own valence model, but those hydrogens won't be covalently attached.</p>
+<figure>
+  <img alt="InChI Standard Valences" src="/images/posts/20210519/inchi-standard-valences.png">
+  <figcaption>
+    <strong>InChI Standard Valences.</strong> Valence model used by InChI and applied to some metals to obtain a hydrogen count. [<a href="https://www.inchi-trust.org/downloads/">source: InChI Technical Manual</a>]
+  </figcaption>
+</figure>
+<p>However, metal saturation can be disabled by setting the corresponding molfile valence flag to 15 (zero valence). In other words, InChI will saturate metals with hydrogens according to its own internal rules, but not if the metal's valence property is set by the molfile.</p>
+<p>Taking all of this into account leads to the following hypothesis. At least in some cases, SureChEMBL's raw data file does not include the exact molfile used as input into the InChI software. Instead, something has processed the molfile in such a way as to set metal atom valences to zero.</p>
+<p>This same pattern appeared to play out in other records that I spot checked. One or more transformations intervene between the reported molfile and InChI for some records. This could be a normalization utility that transforms valences, coordinates, and other properties to a second molfile which is them passed to InChI. Or it could be normalized data structures that get passed to a low-level InChI API call.</p>
+<p>Additional classes of structure for which InChI-Wasm and SureChEMBL didn't agree included:</p>
+<ul>
+<li>several cases involving trivalent sulfur and ChemAxon V2000 valence extensions;</li>
+<li>many cases of stereochemistry-containing structures whose overlapping atomic coordinates are not readily apparent when viewing a 2D graphical representation;</li>
+<li>V3000 molfiles, which I did not check;</li>
+<li>as described previously, a few cases of <code>LooseTSACheck</code> yielding different results while still yielding a standard InChI.</li>
+</ul>
+<h2 id="whyconsistencymatters">Why Consistency Matters</h2>
+<p>Reporting an inconsistent molfile/InChI pair, as appears to have been done by SureChEMBL, complicates the goal of reproducibility. Recall that <a href="/articles/2021/03/10/parsing-inchi-its-complicated/">InChI identifiers can't in general be parsed</a> to yield molfiles. So it's reasonable to expect that when a database contains a molfile and an InChI, the molfile was directly used to generate the InChI. Confusion resulting from a mismatch of molfile and InChI is to be expected.</p>
+<p>It seems likely that a molfile representing the actual SureChEMBL input to the InChI software exists somewhere. If so, why not report that instead of the raw input? Business rules could offer one explanation. If multiple sources submit molfiles into SureChEMBL, it may be reasonable to report them exclusively. The presence of both V2000 and V3000 molfiles in the data set lends support to the idea that representations are being obtained form multiple sources. Indeed, the <a href="https://ftp.ebi.ac.uk/pub/databases/chembl/SureChEMBL/data/">README</a> for the SureChEMBL download notes:</p>
+<blockquote>
+  <p>NB, this is the raw compound feed and is provided without further curation.</p>
+</blockquote>
+<h2 id="conclusion">Conclusion</h2>
+<p>Standard InChIs make it possible to satisfy two constituencies: those who want a universal InChI identifier that can be used with any database, and those who want InChI to be flexible for special cases. But no matter how simple the idea may seem, nuances pop up in unexpected places. It's possible to set some flags, changing the identifier, but without triggering a non-standard InChI. It's also possible to pair a standard InChI with a molfile that didn't generate it. Both appear to have been done in the case of SureChEMBL.</p>
+<p>Despite the issues I encountered with this particular data set, the identifiers obtained from InChI-Wasm and the official InChI distribution were identical. This bodes well for future use of InChI-Wasm as a platform-independent, high-performance alternative for natively-compiled InChI.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

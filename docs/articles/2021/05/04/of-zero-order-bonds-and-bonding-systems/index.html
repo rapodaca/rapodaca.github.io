@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Of Zero-Order Bonds and Bonding Systems | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/05/04/of-zero-order-bonds-and-bonding-systems/">
+      <meta property="og:title" content="Of Zero-Order Bonds and Bonding Systems">
+      <meta property="og:description" content="In search of a backward-compatible upgrade path to multi-atom bonding.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20210505/summary.png">
+      <meta content="In search of a backward-compatible upgrade path to multi-atom bonding." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Of Zero-Order Bonds and Bonding Systems</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-05-05T18:00:00Z">2021-05-05T18:00:00Z</time>
+      </header>
+      <p>Cheminformatics and chemistry don't always move in tandem. A case in point is <a href="/articles/2020/04/27/multi-atom-bonding-in-cheminformatics/">multi-atom bonding</a>. Organometallic species, which have been made, characterized, and used for decades serve as the most obvious example. But there are more subtle cases as well, such as tautomers and mesomers. These species all highlight the problems of building cheminformatics on the shaky ground of <a href="https://en.wikipedia.org/wiki/Valence_bond_theory">valence bond theory</a>.</p>
+<p>Useful thought it may be for certain molecules, the two-atom valence bond is too restrictive for general use. What's needed is a more generalized concept for bonding. Many articles on this blog have documented the problem and possible solutions. See, for example <em><a href="/articles/2020/04/27/multi-atom-bonding-in-cheminformatics/">Multi-Atom Bonding in Cheminformatics</a></em>. A deep-rooted overhaul like this is bound to be disruptive, which in part explains the relative lack of progress.</p>
+<p>Instead of a giant leap, is it possible to take baby steps? If so, what form might those steps take? This article describes one possibility.</p>
+<h2 id="thezeroorderbond">The Zero-Order Bond</h2>
+<p>In 2010, <a href="https://cheminf20.org/about/">Alex Clark</a> proposed <a href="https://pubs.acs.org/doi/10.1021/ci200488k">an approach</a> to the problem of multi-atom bonding. Its purpose was to accomplish three goals:</p>
+<ol>
+<li>Capture all meaningful pairwise atomic interactions.</li>
+<li>Ensure the accuracy of implicit hydrogen counts.</li>
+<li>Enable maximum backward-compatibility with existing tools and practices.</li>
+</ol>
+<p>To accomplish these goals, the proposal updates the molecular data structure in the following two ways:</p>
+<ol>
+<li>Each bond has a <code>bond_order</code> property that can assume one value chosen from the set { 0, 1, 2, 3 }.</li>
+<li>Each atom has a <code>hydrogens</code> property that can assume one value chosen from the set { <code>automatic</code>, 0, 1, 2, … }.</li>
+</ol>
+<p>The assignment of the <code>bond_order</code> property is restricted in the sense that a value of zero <em>must</em> be used if either of the following is true:</p>
+<ul>
+<li>The bond is dative, without atomic charge correction. In other words, it is a single bond in which both electrons come from the same atom, and atomic charges don't reflect that fact.</li>
+<li>The bond order is any value other than 1, 2, or 3.</li>
+</ul>
+<p>Only the elements C, N, P, O, and S are eligible for <code>automatic</code> hydrogen counting. Atoms containing any other element must use a numerical value. The following formulas are used to compute an automatic hydrogen count:</p>
+<ul>
+<li>carbon: 4 - |<code>charge</code>| - <code>unused_electrons</code> - <code>valence</code>;</li>
+<li>nitrogen and phosphorous: 3 - |<code>charge</code>| - <code>unused_electrons</code> - <code>valence</code>;</li>
+<li>oxygen and sulfur: 2 + |<code>charge</code>| - <code>unused_electrons</code> - <code>valence</code>;</li>
+</ul>
+<p>where:</p>
+<ul>
+<li><code>unused_electrons</code> is the number of unused bonding electrons, which will be non-zero for radicals and carbenes;</li>
+<li><code>valence</code> is the sum of bond orders.</li>
+</ul>
+<p>Readers of this blog will recognize the <code>hydrogens</code> property as a form of <a href="/articles/2020/05/18/hydrogen-suppression-in-cheminformatics/">hydrogen suppression</a>. The <code>automatic</code> setting corresponds to implicit hydrogen, whereas a numerical value corresponds to <a href="/articles/2019/11/06/virtual-hydrogens/">virtual hydrogens</a>.</p>
+<p>In this article, I'll use the abbreviation ZOB ("zero-order bond") when referring to this proposal, but the part about counting hydrogens is crucial. Having laid out the rules for the ZOB proposal, let's have a look at how to use it in practice.</p>
+<h2 id="examples">Examples</h2>
+<p>The <a href="https://en.wikipedia.org/wiki/Coordinate_covalent_bond">coordinate covalent bond</a> (i.e., "dative bonding") is a type of single bond in which one atom contributes both electrons. A simple example is the ammonia-borane adduct. The B-N bond can be thought of as containing <em>two</em> electrons drawn from nitrogen and <em>zero</em> electrons drawn from boron.</p>
+<p>Applying a zero-order bond representation to this case is straightforward. We start with hydrogen count, noting that nitrogen can use <code>automatic</code> counting but boron can not. The B-N bond is dative, so its order is set to 0. The implicit hydrogen count on nitrogen is computed to be 3 (3 - 0 - 0 - 0). This representation succeeds in capturing the important B-N dative bond while also yielding an accurate hydrogen count for all atoms.</p>
+<figure>
+  <img alt="Borane-Ammonia Adduct with Zero-Order Bond" src="/images/posts/20210505/borane-ammonia-adduct-with-zero-order-bond.png">
+  <figcaption>
+    <strong>Borane-Ammonia Adduct with Zero-Order Bond.</strong> The hydrogen count on boron is set to 3, and the count on nitrogen is set to automatic (resulting in 3). An an important interaction between the atoms is represented by the zero order bond.
+  </figcaption>
+</figure>
+<p>Alternatively, the bond between nitrogen and boron could be single, with atomic charges modified to ensure correct implicit hydrogen counts. This is the most likely representation today.</p>
+<figure>
+  <img alt="Borane-Ammonia Adduct with Single Bond and Charges" src="/images/posts/20210505/borane-ammonia-adduct-with-single-bond-and-charges.png">
+  <figcaption>
+    <strong>Borane-Ammonia Adduce with Single Bond and Charges.</strong> The traditional view of the coordinate-covalent bond in which the donor is positively-charged and the acceptor is negatively-charged.
+  </figcaption>
+</figure>
+<p>Zero-order bonds can be generalized to many other kinds of metal complexes. For example, the ZOB paper notes the advantages of using zero-order bonds with complexes such as [Co(NH<sub>3</sub>)<sub>6</sub>]<sup>3+</sup>: human-readability; the charge on the metal is unsurprising; implicit (<code>automatic</code>) hydrogen counting on nitrogen just works; and the important interaction between the metal and the nitrogen atoms is captured. Other representations using charge separation, a plain single bond, or even double bonds don't work as well.</p>
+<figure>
+  <img alt="Metal-Amine Complex" src="/images/posts/20210505/metal-amine-complex.png">
+  <figcaption>
+    <strong>Metal-Amine Complex.</strong> Zero-order bonds (dotted lines) don't count toward valence calculations and so don't interfere with implicit hydrogen counting on nitrogen.
+  </figcaption>
+</figure>
+<p>Multi-centered bonding like the kind found in organometallics poses especially tough challenges in cheminformatics. The very nature of the phenomenon is precluded by the two-atom valence bond model ubiquitous in file formats, drawing tools, and toolkits. Zero-order bonds can be used here as well, as illustrated by the <a href="https://en.wikipedia.org/wiki/Allylpalladium_chloride_dimer">allylpalladium chloride dimer</a>.</p>
+<figure>
+  <img alt="Allylpalladium Chloride Dimer" src="/images/posts/20210505/allylpalladium-chloride-dimer.png">
+  <figcaption>
+    <strong>Allylpalladium Chloride Dimer.</strong> The dotted (zero-order) bonds ensure that the implicit hydrogen counts on carbons will be correct while also conveying meaningful interactions between Pd-C and Pd-Cl pairs.
+  </figcaption>
+</figure>
+<p>Notice the mixed use of single and zero-order bonds between Pd-C and Pd-Cl pairs. This allows all meaningful interactions between atom pairs to be recorded, without distorting implicit hydrogen counts. Similar considerations apply with more complex examples, including metallocenes and cage compounds. However, the approach does introduce artificially asymmetrical bonding relationships. We'll return to this point later.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Backward-compatibility is an important design goal with the ZOB proposal. To illustrate, the paper explains how to retrofit the properties block of the V2000 molfile format to support zero-order bonding. Three new properties are added: </p>
+<ul>
+<li><code>M  ZCH</code>. Overrides the built-in charge property (<code>M  CHG</code>).</li>
+<li><code>M  HYD</code>. The <code>hydrogens</code> atomic property as defined above. If this property is not set for an atom, then it defaults to <code>automatic</code>.</li>
+<li><code>M  ZBO</code>. Overrides bond order given in the bond block.</li>
+</ul>
+<p>The example of the borane-ammonia complex discussed above would be represented in a ZBO-aware V2000 molfile as follows:</p>
+<pre><code class="hljs console language-console">Molecule Name
+File Descriptor
+Comments
+  2  1  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 B   0  5  0  0  0  0  0  0  0  0  0  0
+    1.5000    0.0000    0.0000 N   0  3  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+M  CHG  2   1  -1   2   1
+M  ZCH  2   1   0   2   0
+M  HYD  1   1   3
+M  ZBO  1   1   0
+M  END
+</code></pre>
+<p>Backward-compatibility with non-ZBO implementations is possible because the V2000 specification states that unrecognized properties are ignored. This means that a reader that doesn't understand ZBO will interpret the file as a charge-separated, single bond representation.</p>
+<p>But ZBO-aware implementations will behave differently. Noting the <code>M  ZCH</code> property, the charges on each atom will be set to zero. The <code>M  HYD</code> property will set the hydrogen count on boron (Atom 1) to 3. Finally, the <code>M  ZBO</code> property will set the order of the B-N bond to zero.</p>
+<p>What this treatment ignores is the somewhat obscure fact that <a href="/articles/2020/04/13/hydrogen-suppression-in-molfiles/">V2000 defines its own rules for hydrogen counting</a>. Both implicit and virtual hydrogens are supported. The way this works is neither intuitive nor easy to explain. For details, see the linked article. The system is arcane enough that I suspect it would be non-trivial to implement and test an extension that correctly handled every possible way in which native and ZBO hydrogen suppression could interact. </p>
+<h2 id="applications">Applications</h2>
+<p>Although first described ten years ago, the ZBO proposal has gained renewed current relevance as a possible way to extend InChI for use with organometallics. The idea is covered in at least five public documents:</p>
+<ul>
+<li><a href="https://github.com/aclarkxyz/data_coordinchi">Coordination Complexes for InChI: preliminary study</a>. A validation set and an interactive tool with a proof-of-concept for organometallic InChI. The README explains the theory behind the implementation.</li>
+<li><a href="https://github.com/aclarkxyz/data_coordinchi/blob/master/READMEph2.md">Coordination Complexes for InChI: phase 2 study</a>. Addresses comments and issues raised in response to Phase 1, in particular ways to address stereochemistry.</li>
+<li><a href="https://cheminf20.org/2020/10/18/coordination-inchi-for-inorganics-now-with-stereochemistry/">Coordination InChI for inorganics: now with stereochemistry</a>. Discusses non-traditional stereochemistry and InChI in the context of inorganics and organometallics.</li>
+<li><a href="https://cheminf20.org/2019/09/10/inchi-for-inorganics/">InChI for inorganics</a>. Explains the method used to obtain real-world examples of organometallics from the <a href="https://www.ccdc.cam.ac.uk/solutions/csd-core/components/csd/">CCCD</a>.</li>
+<li><a href="https://www.slideshare.net/aclarkxyz/coordination-inchi-2019">Coordination InChI: Preliminary survey of organic compounds</a>. A slide deck from 2019 that sets the stage for adapting InChI for organometallics.</li>
+</ul>
+<p>The ZBO proposal factors prominently in each of these documents, if not explicitly.</p>
+<h2 id="tradeoffs">Tradeoffs</h2>
+<p>There are reasons that cheminformatics lags chemistry when it comes to the representation of bonding in organometallics: the problem is very hard and current solutions are entrenched. Every new solution brings with it tradeoffs of one kind or another. Finding a representational system is only one part of the problem because any new system has the potential to break what currently works. The ZBO proposal is no different.</p>
+<p>An obvious tradeoff of using ZBO is that in some cases, formal charge and bond order become meaningless. Sometimes this won't matter, but sometimes it will. Knowing the difference can be extraordinarily difficult without in-depth knowledge of exactly how bonds are being used.</p>
+<p>Take molecular descriptors, for example. Many of them rely on bond orders. What should happen when a descriptor calculation encounters a zero-order bond? Should it be ignored? Should it be flagged and/or logged? Should an attempt be made to compute a fractional bond order? What changes if the computation only uses atomic degree (number of attached atoms) rather than valence? These are not easy questions.</p>
+<p>Similarly, zero-order bonds can complicate certain kinds of database queries. For example, a query requesting all cases of nitrogen bound to boron may fail if zero-order bonds are disregarded by the algorithm prior to search.</p>
+<figure>
+  <img alt="Allylpalladium Chloride Dimer" src="/images/posts/20210505/allylpalladium-chloride-dimer.png">
+  <figcaption>
+    <strong>Allylpalladium Chloride Dimer.</strong> The dotted (zero-order) bonds ensure that the implicit hydrogen counts on carbons will be correct while also conveying meaningful interactions between Pd-C and Pd-Cl pairs.
+  </figcaption>
+</figure>
+<p>Another tradeoff is asymmetry. Specifically, zero-order bonds introduce <em>artificial</em> asymmetry. Consider once again the representation of allylpalladium chloride dimer. Organometallic chemists would be quick to point out that the symmetry of the two terminal carbon atoms is artificially broken when implementing the ZOB proposal. Sometimes distinctions like this will not matter, but sometimes they'll matter a lot.</p>
+<p>Notice, however, that these tradeoffs are beyond the scope of the ZOB proposal's goals, which to re-iterate are capturing all meaningful pairwise atomic interactions; ensuring correct hydrogen counts; and backward-compatibility.</p>
+<h2 id="thebiggerpicture">The Bigger Picture</h2>
+<p>In some ways, the tradeoffs of the ZOB proposal merely reflect the problems of the status quo reliance on the two-atom valence bond model. </p>
+<p>To understand the underlying problem and its solutions, it's helpful to define two terms in the context of molecular representations:</p>
+<ul>
+<li><strong>attribute</strong>: An assignable value. The term is derived from the French for "to assign".</li>
+<li><strong>computation</strong>: A mathematical operation over one or more molecular attributes.</li>
+</ul>
+<p>Both ZOB and the status quo view bonder order and formal charge as attributes. This means that both values are assignable values within a molecular graph. Finding the order of a bond means looking up the value assigned to that property. Likewise, to get an atom's formal charge, read the charge value.</p>
+<p>In an earlier article, <em><a href="/articles/2020/03/16/formal-charge-and-bond-order-are-side-effects/">Formal Charge and Bond Order are Side Effects</a></em>, I explained some of the problems with this model. I also described a system that eliminates these problems. Rather than viewing bond order as an assignable property, it is better viewed as computation.  Likewise, formal charge results from a computation. In other words, formal charge and bond order are computed from molecular attributes.</p>
+<p>It may not be obvious, but this alternative view places particle counts at the center of focus. If a value does not represent a particle count, it's likely to be a computation. Viewed from this perspective it's clear why both formal charge and bond order would be considered computations, not attributes. It's also clear why proton count, neutron count, electron count, and virtual hydrogen count would all be considered attributes.</p>
+<p>Although the ZOB proposal does not share this particle-centric perspective, it does offer qualities that could be complementary.</p>
+<h2 id="welcometoelectrondelocalizationisland">Welcome to Electron Delocalization Island</h2>
+<p>One of the topics covered in <em><a href="https://github.com/aclarkxyz/data_coordinchi">Coordination Complexes for InChI: preliminary study</a></em> is how to translate ZOB representations into something that can be processed by InChI software. In doing so, the concept of <em>electron delocalization island</em> is introduced:</p>
+<blockquote>
+  <p>The concept of an electron delocalisation island is that each of these marks a subgraph whereby electrons can freely equilibrate. Making use of this idea is best done by enumerating the exceptions: for simple cheminformatics purposes, it is a reasonable working rule that electrons do not jump between connected components; and, heavily saturated main group atoms with no pi-bonds, or charges, or Lewis acid/base characteristics, generally do not allow electrons to pass. The most common example is sp3 carbon, but there are other judgment calls that can also be made about when an atom is considered "blocking".</p>
+</blockquote>
+<p>The document then offers some graphical examples with electron delocalization islands in gray:</p>
+<figure>
+  <img alt="Electron Delocalization Islands" src="/images/posts/20210505/dotpaths.png">
+  <figcaption>
+    <strong>Electron Delocalization Islands.</strong> The molecular subgraphs highlighted in gray represent electron delocalization islands. [<a href="https://github.com/aclarkxyz/data_coordinchi">source</a>]
+  </figcaption>
+</figure>
+<p>Confusingly, the same concept also appears to go by other names, including <a href="https://github.com/aclarkxyz/data_coordinchi/blob/master/READMEph2.md#dotpath">"dot paths"</a> and "islands of resonance:"</p>
+<blockquote>
+  <p>The first stage of creating the coordination layer involves processing the molecule by distilling the atom and bond properties into a limited form. When valence counting rules are applied to a hydrogen-suppressed organic structure, having bond orders, charges, radicals and hydrogen counts is an overspecification: one or two of these properties can be removed with most information still intact. The standard InChI algorihm [sic] emits a graph that lacks bond order and radical status, but includes charges and hydrogens. The "DotPath" algorithm takes a similar approach, except that it takes into account the fact that the realm of inorganic chemistry does not provide for any reasonable set of rules to localise charges on specific atoms. It is, however, possible to identify "islands of resonance" within graph components, sum up the formal charges within each of these islands, and treat the charge as being delocalised within that scope.</p>
+</blockquote>
+<p>Although the document doesn't describe the algorithm for finding electron delocalization islands in detail, the texts hint at how this might be accomplished. An implementation can be found within a separate <a href="https://github.com/aclarkxyz/web_molkit/blob/master/src/data/DotPath.ts">source code repository</a>. A <a href="https://molmatinf.com/coordinchi/">working demonstration</a> of the dot path algorithm is available online.</p>
+<figure>
+  <a href="https://molmatinf.com/coordinchi/"><img alt="Finding Electron Delocalization Islands" src="/images/posts/20210505/finding-electron-delocalization-islands.png"></a>
+  <figcaption>
+    <strong>Finding Electron Delocalization Islands.</strong> An online demo illustrates the algorithm in action. [<a href="https://molmatinf.com/coordinchi/">source</a>]
+  </figcaption>
+</figure>
+<p>Electron delocalization islands may bring to mind a related concept: <a href="/articles/2020/02/10/a-comprehensive-treatment-of-aromaticity-in-the-smiles-language/">Kekulé structures and aromaticity</a>. An aromatic bond is a multi-atom arrangement that can only be represented as a superposition of valence bonds. To address this problem, the aromatic bond is "Kekulized" to yield a single arbitrary Kekulé form consisting of only two-centered bonds. The Kekulé form makes it possible to deal with aromatic bonding at the expense of introducing artificial asymmetry. In a similar way, zero-order bonds could allow file formats and toolkits to work with organometallics, but at the cost of introducing artificial asymmetry, and possibly rendering the concepts of bond order and formal charge meaningless.</p>
+<h2 id="bondingsystem">Bonding System</h2>
+<p>Electron delocalization islands bear a striking similarity to a concept known as <em>bonding system</em> first described by Andreas Dietz in his paper <em><a href="https://doi.org/10.1021/ci00027a001">Yet Another Representation of Molecular Structure</a></em>.</p>
+<p>In a nutshell, a bonding system is a connected molecular subgraph of degree two or higher with an associated electron count attribute. In other words, a bond is merely a special case of a bonding system, but restricted to a single edge. Bonding systems generalize the traditional two-atom bond to multiple atoms. Fractional bond orders and formal charges fall out naturally from a suitably configured molecular graph. Organometallics, inorganics, mesomers, and tautomers can all be handled by a single, uniform abstraction, with no need to identify or separately treat special cases.</p>
+<p>Given a molecular graph with atomic attributes and all bonding systems, the exact formal charge for any atom and the exact formal bond order across any edge can be computed. The computation is described in detail in both Dietz's paper and <a href="/articles/2020/03/16/formal-charge-and-bond-order-are-side-effects/">my writeup</a>.</p>
+<p>The main tradeoff when using bonding systems is complexity. Representation is more complex because bonding systems have many edges rather than just one. Analysis is more complex because calculations of formal charge, valence, and bond order need to account for the possibility of multi-atom bonding systems.</p>
+<p>In practice, I've developed an optimization that eliminates a lot of the complexity. A <a href="/articles/2020/04/06/a-minimal-molecule-api/">molecular API</a> can be crafted that simplifies implementation for traditional bonds while hiding the fact that this optimization has taken place.</p>
+<h2 id="outlook">Outlook</h2>
+<p>Perhaps the biggest headwind facing any attempt to upgrade molecular representation is inertia. Chemists must be made aware of the problem and how it affects them. Toolkit vendors must recognize the problem and move to address it. Algorithms previously written for two-centered non-dative bonds need to be upgraded. End user tools must change the ways that user interfaces work. Change is never easy, and the status quo has served chemistry well over the years.</p>
+<p>Even so, a growing number of chemists understand the problem and are starting to take steps to address it. The work on zero-order bonds speaks to this, as do the 20+ chemists in attendance at the last <a href="http://www-jmg.ch.cam.ac.uk/inchi/">InChI working group on organometallics</a> in April.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The Zero-Order Bond (ZOB) proposal offer a pragmatic solution to the problem of accurately encoding extended bonding arrangements. To the extent that the idea can be retrofitted onto current tools and practices, ZOB may eventually gain widespread adoption, at least incrementally. Zero-order bonds could also serve as a bridge between today's molecular representations and more generalized representations, such as those based on bonding systems that offer greater expressiveness.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

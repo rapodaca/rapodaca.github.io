@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Interconvert Database Formats in Rails with YamlDB | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Interconvert Database Formats in Rails with YamlDB</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-03-06T00:00:00.000Z">2009-03-06T00:00:00.000Z</time>
+      </header>
+      <p>The database backends for both <a href="http://zusammen.metamolecular.com">Zusammen</a> and the <a href="http://products.metamolecular.com">Metamolecular Product Blog</a> started out as <a href="http://www.sqlite.org/">SQLite</a> databases during development. If you're not familiar with SQLite, it's a fast, single-file, zero-administration database system. And it works very well in some cases, such as when you're developing a Web application.</p>
+<p>But deployment is another matter. In Rails, for example, the SQLite database file lives inside your project directory. This means that it takes some finagling to get it to work right with automated deployment systems such as <a href="http://www.capify.org/">Capistrano</a>. Everything I read on this subject pointed to overcomplexity, so I decided to revert back to MySQL.</p>
+<p>Surprisingly, converting from SQLite to MySQL format is not easy, as <a href="http://stackoverflow.com/questions/18671/quick-easy-way-to-migrate-sqlite3-to-mysql">this question on StackOverflow</a> demonstrates. Fortunately, buried in the discouraging responses to this question was a true gem: <a href="http://blog.heroku.com/archives/2007/11/23/yamldb_for_databaseindependent_data_dumps/">YamlDB</a> from Adam at <a href="http://blog.heroku.com">Heroku</a>.</p>
+<p>YamlDB dumps any Rails database into an intermediate YAML format, which you can then import back into any other database format. This bypasses the thorny problem of incompatible database dump file formats. Although others had reported some problems, in my case it worked perfectly the first time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

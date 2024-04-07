@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Computing Extended Connectivity Fingerprints | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2019/01/11/extended-connectivity-fingerprints/">
+      <meta property="og:title" content="Computing Extended Connectivity Fingerprints">
+      <meta property="og:description" content="ECFPs offer a number of advantages over other kinds of fingerprints. This article describes the structure and generation of ECFPs at a high level.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20190114/summary.png">
+      <meta content="ECFPs offer a number of advantages over other kinds of fingerprints. This article describes the structure and generation of ECFPs at a high level." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Computing Extended Connectivity Fingerprints</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2019-01-14T16:30:00.000Z">2019-01-14T16:30:00.000Z</time>
+      </header>
+      <p>A fingerprint is a useful kind of low-resolution molecular representation. Fingerprints come in a many forms and have been applied to a diverse range of problems over the last few decades. Extended Connectivity Fingerprints (ECFPs, or "Circular Fingerprints") offer a number of advantages over other schemes. This article describes the structure and generation of ECFPs at a high level.</p>
+<p>ECFPs were first introduced in 2000 with the release of <a href="https://en.wikipedia.org/wiki/Pipeline_Pilot">Pipeline Pilot</a>. A 2010 paper by <a href="https://dx.doi.org/10.1021/ci100050t">Rogers and Hahn</a> described the generation of ECFPs in detail.</p>
+<h2 id="alittleaboutthemorganalgorithmandsmilescanonicalization">A Little About the Morgan Algorithm and SMILES Canonicalization</h2>
+<p>The core idea behind ECFPs traces its origin to the <a href="https://dx.doi.org/10.1021/c160017a018">Morgan algorithm</a>. This algorithm seeks to assign a unique, sequential atom numbering for any given molecule. Unique atom numbering underpins all widely-used methods for molecule identification, including those used by InChI and the CAS Registry.</p>
+<p>The Morgan algorithm takes place in two phases, the first of which is the enumeration of all atom assignments (numberings) obeying the following rules:</p>
+<ol>
+<li>A random atom is selected and labeled "1".</li>
+<li>Each unlabeled neighbor of Atom 1 is iterated in random order and assigned the next highest available number ("2", "3", and so on).</li>
+<li>Each newly-labeled atom is iterated in order of its label, and its neighbors are numbered according to Step (2).</li>
+</ol>
+<p>This procedure continues until all atoms have been labeled. The result is a set of atom assignments, each one containing a unique numbering. For example, the molecule:</p>
+<p><a href="https://dx.doi.org/10.1021/c160017a018"><img src="/images/posts/20190114/morgan-unlabled-molecule.png" alt="Unlabeled Molecule" title="Unlabeled Molecule"></a></p>
+<p>yields the following 12 assignments:</p>
+<p><a href="https://dx.doi.org/10.1021/c160017a018"><img src="/images/posts/20190114/morgan-assignments.png" alt="Assignments" title="Assignments"></a></p>
+<p>The second phase of the Morgan algorithm iteratively eliminates assignments until only one remains. The key element of this process is a procedure in which each atom's connectivity is perceived at ever greater distance. First, each atom is assigned an initial "connectivity value" equal to the number of heavy atoms attached to it. Subsequent iterations replace the previous connectivity value with a new one computed as the sum of neighbor connectivity values. The process terminates when the number of unique connectivity values decreases from one round to the next. The connectivity values in the final round are used to eliminate assignments and ultimately arrive at a unique atom numbering for a given molecule.</p>
+<p>A similar procedure is used to generate <a href="https://doi.org/10.1021%2Fci00062a008">unique SMILES</a> via the CANGEN algorithm. In this case, however, the initial value assigned to each atom accounts for the following atomic invariants:</p>
+<ol>
+<li>number of heavy atom connections;</li>
+<li>number of non-hydrogen bonds;</li>
+<li>atomic number;</li>
+<li>sign of charge;</li>
+<li>absolute charge;</li>
+<li>number of attached hydrogens.</li>
+</ol>
+<p>These properties can be conveniently encoded as integer values. In this article these values will be referred to as "atom identifiers," although the term used in the CANGEN paper is "invariant." For example, the atoms of pentane can be encoded according to the following scheme:</p>
+<p><a href="https://doi.org/10.1021%2Fci00062a008"><img src="/images/posts/20190114/pentane-invariants.png" alt="Invariants for Pentane" title="Invariants for Pentane"></a></p>
+<p>The next phase of the CANGEN algorithm follows a pattern analogous to the second stage of the Morgan algorithm. The initial integer identifiers are iteratively replaced with new ones derived from neighbor identifiers until a stable assignment of labels results.</p>
+<h2 id="extendedconnectivity">Extended Connectivity</h2>
+<p>The terms "extended connectivity" and "circular" hint at an underlying connection between ECFPs, the CANGEN algorithm, and the Morgan algorithm. Namely, each atom in a molecule can be viewed as the center of a radius of perception or "orbit." Information about an atom can be iteratively gathered by first examining immediate neighbors, then the neighbors of those neighbors, and so on.</p>
+<p>However, the algorithm to generate ECFPs differs from the algorithms for Morgan/CANGEN in two important ways:</p>
+<ol>
+<li>Intermediate atom identifiers are stored.</li>
+<li>A completely unique set of atom identifiers isn't required, which enables many optimizations.</li>
+</ol>
+<h2 id="whatisanecfp">What is an ECFP?</h2>
+<p>An ECFP is defined as the set of all atom identifiers for each radius of perception up to the limit <em>n</em>. As the radius of perception expands (<em>n</em> increases), this set includes all identifiers found in both previous iterations and the current one. For example, the ECFP for <em>n</em>=0 consists of the set of unique atom identifiers. An ECFP for <em>n</em>=1 augments the members for the <em>n</em>=0 set with identifiers computed by examining each atom and its immediate neighbors, and so on.</p>
+<p><a href="https://dx.doi.org/10.1021/ci100050t"><img src="/images/posts/20190114/radius-of-perception.png" alt="Radius of Perception" title="Radius of Perception"></a></p>
+<p>As such, an ECFP atom identifier can be considered as a special kind of substructure key. Here, "substructure" refers to a central atom and its neighbors grouped by distance to the center. The presence of a key suggests that the corresponding molecule contains the substructure producing the key.</p>
+<p>Atom identifiers can be stored using any convenient method. For example, some applications might use a set-like data structure such as the ones offered by the <code>Set</code> class found in ES6 and Python, or Java's <code>java.util.Set</code> implementations. Alternatively, probabilistic binary data structures such as Bloom filters and the like may also be used.</p>
+<h2 id="theviewfrom20000feet">The View from 20,000 Feet</h2>
+<p>ECFP computation occurs in three stages:</p>
+<ol>
+<li><strong>Initial assignment.</strong> Each atom is assigned an integer identifier.</li>
+<li><strong>Iterative update.</strong> Atom identifiers are augmented with information gathered from the immediate atom neighborhood.</li>
+<li><strong>Duplicate processing.</strong> Multiple instances of the same feature are either deleted or counted.</li>
+</ol>
+<p>Simple ECFP algorithms can be developed from this description alone. For example, we might base ECFPs on atomic mass. In Step 1, we store the mass of each atom in a molecule within a set. This set becomes the Iteration 0 ECFP.</p>
+<p>An Iteration 1 ECFP can be prepared by continuing the algorithm. To the already-obtained set of identifiers we add another group consisting of the sum of a central atom's atomic mass and the mass of its immediate neighbors.</p>
+<p>Depending on specific application, duplicate atom identifiers may either be deleted or counted. If, for example, an application requires only the presence of an atom identifier to be recorded, duplicates can be deleted. If on the other hand, an application calls for counting identifier occurrences, a counter can be used.</p>
+<p>We can iteratively continue to add identifiers up to any arbitrary radius of perception <em>n</em>. Notice that with increasing <em>n</em>, each identifier carries information about atoms ever further away from the central atom.</p>
+<h2 id="ecfpcomputationsteps">ECFP Computation Steps</h2>
+<p>The simplified algorithm described in the previous section omits a lot of potentially useful information. In practice ECFP atom identifiers will be derived from a much wider assortment of properties than just atomic mass. Below is an ECFP generation algorithm that can handle arbitrary atom and bond properties.</p>
+<ol>
+<li>Create a set (<em>S</em>) for storing atom identifiers.</li>
+<li>Label each atom with a 32-bit integer. Obtain this value by computing the CANGEN atom invariant, then hash the result (see: <a href="#hash-function">Hash Function</a>).</li>
+<li>Add each atom identifier to <em>S</em>.</li>
+<li>If <em>n</em>=0, exit, otherwise continue to Step (5).</li>
+<li>For each atom, create a list of all bonds to neighboring atoms. Sort the list by (a) ascending bond order; and (b) ascending neighbor identifier.</li>
+<li>Using the sorted bond list from Step (5), prepare a feature list (<em>F</em>) composed of the following ordered list of elements: <code>n</code>, <code>identifier</code>, <code>bo1</code>, <code>aid1</code>, <code>bo2</code>, <code>aid2</code>, etc, where <code>n</code> is the iteration index (initially 1), <code>boX</code> is the order of bond X, and <code>aidX</code> is the current atom identifier for the neighbor attached to bond X.</li>
+<li>Compute the hash value of the feature list from Step (6). This will become the atom's new identifier.</li>
+<li>Add the identifier to <em>S</em>, but only if it is structurally unique (see the <a href="#functional-equivalence">next section</a>).</li>
+<li>If further iterations are desired, increment the iteration counter <code>n</code> and proceed to Step (5).</li>
+</ol>
+<h2 id="structuralduplication">Structural Duplication</h2>
+<p>Atom identifiers exhibit two forms of duplication relative to the identifier set <em>S</em>. The first form relates to value equality. An atom identifier is only added to the identifier set if its value hasn't previously been added. This constraint will usually be enforced by the data structure being used to store identifiers.</p>
+<p>Two identifiers may be unequal yet nevertheless equivalent, a situation called "structural duplication." Structural duplication arises when two identifiers represent the same molecular features. Structural duplicates must be identified and handled to avoid the introduction of useless noise into an ECFP.</p>
+<p>It illustrate, imagine generating an ECFP for ethanol that disregards structural duplication. In the first iteration (<em>n</em>=0), atom identifiers for the methyl and hydroxyl groups are generated. At this point, there is no structural duplication.</p>
+<p>But the situation changes for the next iteration (<em>n</em>=1). Here, two new atom identifiers are generated. The first uses the carbon atom as the center of the radius of perception. The second uses oxygen.</p>
+<p>Although two unequal atom identifiers are generated at this stage, they nevertheless cover the same set of atoms and bonds. Adding both identifiers to <em>S</em> doesn't increase the set's descriptive ability. For this reason, a method is needed to identify and either count or eliminate the structurally equivalent identifier.</p>
+<p>The paper offers a slightly more complex example:</p>
+<p><a href="https://dx.doi.org/10.1021/ci100050t"><img src="/images/posts/20190114/structural-duplication.png" alt="Structural Duplication" title="Structural Duplication"></a></p>
+<p>Rogers and Hall outline a procedure that can be used to prevent structural duplication. Each atom identifier added to <em>S</em> is associated with the substructure giving rise to it. Before a new atom identifier is added, its occurrence among the current members of the set is checked. If no match is found, the new identifier is added. Otherwise, a two-part procedure is used to decide which structural duplicate will be kept:</p>
+<ol>
+<li>Discard any new identifier if a structural duplicate from an earlier iteration is already present in <em>S</em>.</li>
+<li>Given two structurally equivalent identifiers generated at the same iteration, discard the one with the higher value.</li>
+</ol>
+<p><a href="https://dx.doi.org/10.1021/ci100050t"><img src="/images/posts/20190114/removing-structural-duplicates.png" alt="Removing Structural Duplicates" title="Removing Structural Duplicates"></a></p>
+<h2 id="hashfunction">Hash Function</h2>
+<p>Rogers and Hahn have this to say on the subject of the hash function to be used:</p>
+<blockquote>
+  <p>We do not describe the particular hash function used in our calculation because any "reasonable" hash function can be used, and the scientific validity of the results is equivalent. What is most important is to have the hash function map arrays of integers randomly and uniformly into the 2<sup>32</sup>-size space of all possible integers; without uniform coverage, the collision rate may increase, leading to a loss of information. …</p>
+</blockquote>
+<p>In other words, all that's needed is a hash function capable of generating identifiers evenly distributed over a sufficiently large range.</p>
+<p>A good candidate is one of the cyclic redundancy check (CRC) functions such as the widely-used <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">CRC-32</a>. This hash function was first explicitly <a href="https://cheminf20.org/2014/02/21/open-source-ecfpfcfp-circular-fingerprints-in-cdk/">documented by Alex Clark</a> for use in <a href="https://github.com/cdk/cdk/blob/master/descriptor/fingerprint/src/main/java/org/openscience/cdk/fingerprint/CircularFingerprinter.java">the Chemistry Development Kit's circular fingerprint implementation</a>.</p>
+<p>CRC-32 returns a signed 32-bit integer given an arbitrary byte array. Implementations are available for most languages. For example, the <a href="https://www.npmjs.com/package/crc-32">CRC-32 Node JS package works as follows</a>:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">import</span> hash <span class="hljs-keyword">from</span> <span class="hljs-string">'crc-32'</span>;
+
+<span class="hljs-keyword">const</span> feature = [ <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span> ];
+<span class="hljs-keyword">const</span> identifier = hash.buf(feature); <span class="hljs-comment">// -1237517363</span>
+</code></pre>
+<h2 id="resonance">Resonance</h2>
+<p>Like any fingerprint implementation, ECFP requires special attention to resonance forms. In particular, it's essential to generate the same ECFP for all resonance forms of the same molecule. Two conceptual approaches are feasible:</p>
+<ol>
+<li>Find a canonical resonance form before computing an ECFP fingerprint.</li>
+<li>Avoid using explicit bond information.</li>
+</ol>
+<p>Of these two approaches, (2) appears the most practical. For example, two changes to the bond-specific algorithm outlined above would eliminate resonance form degeneracy. First, ensure that the atom invariant computation includes an atom's degree of unsaturation. Second, replace Step (6) with:</p>
+<ol start="6">
+  <li>For each bond in the list, prepare a feature list (<em>F</em>) in this order: <code>n</code>, <code>identifier</code>, <code>aid1</code>, <code>aid2</code>, etc.,  where <code>n</code> is the zero-base iteration index (initially 0), and <code>aidX</code> is the atom neighbor identifier computed in step (1).</li>
+</ol>
+<h2 id="functionalclassfingerprints">Functional-Class Fingerprints</h2>
+<p>As the previous section illustrates, the base ECFP algorithm lends itself to modification. One of them, "Functional-Class Fingerprints" (FCFPs), is described in the paper. Rather than basing the original atom identifier on CANGEN properties, a six-bit code is used in which setting a bit indicates the presence of a "pharmacophoric" property:</p>
+<ol>
+<li>hydrogen bond acceptor;</li>
+<li>hydrogen bond donor;</li>
+<li>negatively ionizable;</li>
+<li>positively ionizable;</li>
+<li>aromatic; and</li>
+<li>halogen</li>
+</ol>
+<p>A similar approach could be used to assign atom identifiers based on the presence of other feature classes, including graph properties (e.g., ring membership, hydrogen count, or stereochemical configuration), or physical properties (e.g., pK<sub>a</sub>, electronegativity, isotopic mass).</p>
+<h2 id="namingconvention">Naming Convention</h2>
+<p>Given the ease with which new ECFP variants can be created, a systematic method of naming them is helpful. Pipeline Pilot developed a two-part naming convention. First, a four-character base algorithm identifier is chosen. Two have already been mentioned (ECFP and FCFP). Others include SCFP (Sybil atom types) and aLogP atom codes (LCFP). The second part is a number obtained by multiplying the final radius of perception <em>n</em> by 2. The two parts are separated by an underscore ("_") character. For example, an ECFP accounting for atom type only would be called "ECFP_0." An ECFP including nearest neighbors would be called "ECFP_2," and so on.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>ECFPs offer three features rooted in their construction that make them especially useful compared to other options:</p>
+<ol>
+<li><strong>Simplicity.</strong> The base ECFP algorithm is composed of very few units, making implementation straightforward;</li>
+<li><strong>Flexibility.</strong> Many variations on the base algorithm are possible;</li>
+<li><strong>Readily Computed.</strong> The radius of perception can be changed to strike a balance between computational complexity and functionality</li>
+</ol>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

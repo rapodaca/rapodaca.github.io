@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fast Substructure Search Using Open Source Tools Part 3 - A CRUD API for Fingerprints in Ruby | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Fast Substructure Search Using Open Source Tools Part 3 - A CRUD API for Fingerprints in Ruby</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-10-06T00:00:00.000Z">2008-10-06T00:00:00.000Z</time>
+      </header>
+      <p>The previous article in this series showed how to perform fingerprint screens for substructure searches <a href="/articles/2008/10/03/fast-substructure-search-using-open-source-tools-part-2-fingerprint-screen-with-sql">using nothing more than SQL</a>. Although this is significant progress, working at the level of SQL queries to perform create, read, update, and delete operations (<a href="http://en.wikipedia.org/wiki/Create,_read,_update_and_delete">CRUD</a>) on our fingerprint table is more work than it needs to be. We'd really prefer to use an API written in a high-level programming language. This article describes a simple Ruby API for managing and querying a database of molecular fingerprints.</p>
+<p>All Articles in this Series:</p>
+<ul>
+<li><a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">Part 1: Fingerprints and Databases</a></li>
+<li><a href="/articles/2008/10/03/fast-substructure-search-using-open-source-tools-part-2-fingerprint-screen-with-sql">Part 2: Fingerprint Screen With SQL</a></li>
+<li>Part 3: A CRUD API for Fingerprints in Ruby</li>
+<li><a href="/articles/2008/10/15/fast-substructure-search-using-open-source-tools-part-4-creating-fingerprints-from-chemical-structures">Part 4: Creating Fingerprints from Chemical Structures</a></li>
+<li><a href="/articles/2008/10/21/fast-substructure-search-using-open-source-tools-part-5-relating-molecules-to-fingerprints-with-sql">Part 5: Relating Molecules to Fingerprints with SQL</a></li>
+<li><a href="/articles/2008/10/29/fast-substructure-search-using-open-source-tools-part-6-modelling-a-one-to-many-relationship-between-fingerprints-and-compounds-in-ruby">Part 6: Modelling a One-To-Many Relationship Between Fingerprints and Compounds in Ruby</a></li>
+</ul>
+<h2 id="somechangestothedatabaseschema">Some Changes to the Database Schema</h2>
+<p>Before we move forward, we must deal with one minor detail. By default <a href="http://dev.mysql.com/doc/refman/4.1/en/numeric-types.html">MySQL uses signed 64-bit integers</a>. This gives a range for integers of -9223372036854775808 to 9223372036854775807. Ruby, on the other hand, can work with integers of any size through the <code>Bignum</code> class - and we'll be taking full advantage of this feature.</p>
+<p>If we want to avoid the headache of constantly accounting for the difference, we need to tell our database to use unsigned integers in the fingerprints table. This can be done by first dropping the old table:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; drop table fingerprints;
+Query OK, 0 rows affected (0.00 sec)
+</code></pre>
+<p>Now let's create a new table in which the <code>fp&lt;sub&gt;n&lt;/sub&gt;</code> columns store unsigned integers only. While we're at it, let's change the naming of these columns from <code>fp&lt;sub&gt;n&lt;/sub&gt;</code> to the more descriptive <code>byte&lt;sub&gt;n&lt;/sub&gt;</code> and set a default value of zero.</p>
+<p>The new table can be created with with:</p>
+<pre><code class="hljs bash language-bash">mysql&amp;gt; create table fingerprints(id int not null auto_increment, primary key(id), byte0 bigint(64) unsigned default 0, byte1 bigint(64) unsigned default 0, byte2 bigint(64) unsigned default 0, byte3 bigint(64) unsigned default 0, byte4 bigint(64) unsigned default 0, byte5 bigint(64) unsigned default 0, byte6 bigint(64) unsigned default 0, byte7 bigint(64) unsigned default 0, byte8 bigint(64) unsigned default 0, byte9 bigint(64) unsigned default 0, byte10 bigint(64) unsigned default 0, byte11 bigint(64) unsigned default 0, byte12 bigint(64) unsigned default 0, byte13 bigint(64) unsigned default 0, byte14 bigint(64) unsigned default 0, byte15 bigint(64) unsigned default 0);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql&gt; describe fingerprints;
++--------+---------------------+------+-----+---------+----------------+
+| Field  | Type                | Null | Key | Default | Extra          |
++--------+---------------------+------+-----+---------+----------------+
+| id     | int(11)             | NO   | PRI | NULL    | auto_increment | 
+| byte0  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte1  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte2  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte3  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte4  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte5  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte6  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte7  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte8  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte9  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte10 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte11 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte12 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte13 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte14 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte15 | bigint(64) unsigned | YES  |     | 0       |                | 
++--------+---------------------+------+-----+---------+----------------+
+17 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.01 sec)
+</code></pre>
+<p>We're now ready to create the Ruby API.</p>
+<h2 id="theapi">The API</h2>
+<p>The code below is all we need to begin querying and managing our fingerprint database in Ruby:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'active_record'</span>
+
+ActiveRecord::Base.establish_connection(
+  <span class="hljs-symbol">:adapter</span>    =&amp;gt; <span class="hljs-string">'mysql'</span>,
+  <span class="hljs-symbol">:host</span>       =&amp;gt; <span class="hljs-string">'localhost'</span>,
+  <span class="hljs-symbol">:username</span>   =&amp;gt;  <span class="hljs-string">'root'</span>,
+  <span class="hljs-symbol">:password</span>   =&amp;gt;  <span class="hljs-string">''</span>,
+  <span class="hljs-symbol">:database</span>   =&amp;gt;  <span class="hljs-string">'compounds'</span>
+)
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Fingerprint</span> &amp;<span class="hljs-title">lt</span>;</span> ActiveRecord::Base
+  @@bytes_prefix = <span class="hljs-string">"byte"</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">each_byte</span></span>
+    <span class="hljs-number">0</span>.upto(byte_count - <span class="hljs-number">1</span>) {<span class="hljs-params">|i|</span> <span class="hljs-keyword">yield</span> send(<span class="hljs-string">"<span class="hljs-subst">#{@@bytes_prefix}</span><span class="hljs-subst">#{i}</span>"</span>)  }
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">each_byte_with_index</span></span>
+    <span class="hljs-number">0</span>.upto(byte_count - <span class="hljs-number">1</span>) {<span class="hljs-params">|i|</span> <span class="hljs-keyword">yield</span> send(<span class="hljs-string">"<span class="hljs-subst">#{@@bytes_prefix}</span><span class="hljs-subst">#{i}</span>"</span>), i  }
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fill_bytes</span></span>
+    <span class="hljs-number">0</span>.upto(byte_count - <span class="hljs-number">1</span>) {<span class="hljs-params">|i|</span> send(<span class="hljs-string">"<span class="hljs-subst">#{@@bytes_prefix}</span><span class="hljs-subst">#{i}</span>="</span>, <span class="hljs-keyword">yield</span>(i))}
+
+    <span class="hljs-keyword">self</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">to_byte_array</span></span>
+    Array.new(<span class="hljs-number">16</span>).fill{<span class="hljs-params">|i|</span> send(<span class="hljs-string">"<span class="hljs-subst">#{@@bytes_prefix}</span><span class="hljs-subst">#{i}</span>"</span>)}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">byte_count</span></span>
+    result = <span class="hljs-number">0</span>
+
+    <span class="hljs-keyword">while</span> respond_to? <span class="hljs-string">"<span class="hljs-subst">#{@@bytes_prefix}</span><span class="hljs-subst">#{result}</span>"</span>
+      result += <span class="hljs-number">1</span>
+    <span class="hljs-keyword">end</span>
+
+    result
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">bitstring</span></span>
+    result = <span class="hljs-string">""</span>
+
+    each_byte {<span class="hljs-params">|byte|</span> result +=  sprintf(<span class="hljs-string">"%064b"</span>, byte)}
+
+    result
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">cardinality</span></span>
+    bitstring.count(<span class="hljs-string">"1"</span>)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">eql?</span><span class="hljs-params">(other)</span></span>
+    to_byte_array.eql?(other.to_byte_array)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">save</span></span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span> <span class="hljs-keyword">unless</span> Fingerprint.find_by_fingerprint(<span class="hljs-keyword">self</span>).empty?
+
+    <span class="hljs-keyword">super</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">find_by_fingerprint</span> <span class="hljs-title">fingerprint</span></span>
+    Fingerprint.find_by_sql sql_for_find_by_fingerprint(fingerprint)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">find_children_by_fingerprint</span> <span class="hljs-title">fingerprint</span></span>
+    Fingerprint.find_by_sql sql_for_find_children_by_fingerprint(fingerprint)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">sql_for_find_by_fingerprint</span> <span class="hljs-title">fingerprint</span></span>
+    result = <span class="hljs-string">"select fingerprints.* from fingerprints where "</span>
+    last = fingerprint.byte_count - <span class="hljs-number">1</span>
+
+    fingerprint.each_byte_with_index <span class="hljs-keyword">do</span> <span class="hljs-params">|byte, i|</span>
+      result += <span class="hljs-string">"<span class="hljs-subst">#{@@bytes_prefix}</span><span class="hljs-subst">#{i}</span>=<span class="hljs-subst">#{byte}</span>"</span> + ((i ==last) ? <span class="hljs-string">""</span> : <span class="hljs-string">" and "</span>)
+    <span class="hljs-keyword">end</span>
+
+    result
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">sql_for_find_children_by_fingerprint</span> <span class="hljs-title">fingerprint</span></span>
+    result = <span class="hljs-string">"select fingerprints.* from fingerprints where "</span>
+    last = fingerprint.byte_count - <span class="hljs-number">1</span>
+
+    fingerprint.each_byte_with_index <span class="hljs-keyword">do</span> <span class="hljs-params">|byte, i|</span>
+      result += <span class="hljs-string">"<span class="hljs-subst">#{@@bytes_prefix}</span><span class="hljs-subst">#{i}</span>&amp;<span class="hljs-subst">#{byte}</span>=<span class="hljs-subst">#{byte}</span>"</span> + ((i ==last) ? <span class="hljs-string">""</span> : <span class="hljs-string">" and "</span>)
+    <span class="hljs-keyword">end</span>
+
+    result
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<h2 id="testingtheapi">Testing the API</h2>
+<p>We can test this library from interactive ruby (irb). Let's add two fingerprints - the first consisting of all bits set to "1" and the second consisting of alternating "1" and "0" bits:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&amp;gt; require <span class="hljs-string">'fingerprint'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; f1=Fingerprint.new.fill_bytes{<span class="hljs-string">"ffffffffffffffff"</span>.hex}
+=&gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: nil, byte0: 18446744073709551615, byte1: 18446744073709551615, byte2: 18446744073709551615, byte3: 18446744073709551615, byte4: 18446744073709551615, byte5: 18446744073709551615, byte6: 18446744073709551615, byte7: 18446744073709551615, byte8: 18446744073709551615, byte9: 18446744073709551615, byte10: 18446744073709551615, byte11: 18446744073709551615, byte12: 18446744073709551615, byte13: 18446744073709551615, byte14: 18446744073709551615, byte15: 18446744073709551615&gt;</span>
+irb(main):003:0&gt; f1.save
+=&gt; <span class="hljs-literal">true</span>
+irb(main):004:0&gt; f2=Fingerprint.new.fill_bytes{<span class="hljs-string">"aaaaaaaaaaaaaaaa"</span>.hex}
+=&gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: nil, byte0: 12297829382473034410, byte1: 12297829382473034410, byte2: 12297829382473034410, byte3: 12297829382473034410, byte4: 12297829382473034410, byte5: 12297829382473034410, byte6: 12297829382473034410, byte7: 12297829382473034410, byte8: 12297829382473034410, byte9: 12297829382473034410, byte10: 12297829382473034410, byte11: 12297829382473034410, byte12: 12297829382473034410, byte13: 12297829382473034410, byte14: 12297829382473034410, byte15: 12297829382473034410&gt;</span>
+irb(main):005:0&gt; f2.save
+=&gt; <span class="hljs-literal">true</span>
+</code></pre>
+<p>Let's find the fingerprint in which all bits are turned on:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&amp;gt; require <span class="hljs-string">'fingerprint'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; query=Fingerprint.new.fill_bytes{<span class="hljs-string">"ffffffffffffffff"</span>.hex}
+=&gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: nil, byte0: 18446744073709551615, byte1: 18446744073709551615, byte2: 18446744073709551615, byte3: 18446744073709551615, byte4: 18446744073709551615, byte5: 18446744073709551615, byte6: 18446744073709551615, byte7: 18446744073709551615, byte8: 18446744073709551615, byte9: 18446744073709551615, byte10: 18446744073709551615, byte11: 18446744073709551615, byte12: 18446744073709551615, byte13: 18446744073709551615, byte14: 18446744073709551615, byte15: 18446744073709551615&gt;</span>
+irb(main):003:0&gt; Fingerprint.find_by_fingerprint query
+=&gt; [<span class="hljs-comment">#&amp;lt;Fingerprint id: 111, byte0: 18446744073709551615, byte1: 18446744073709551615, byte2: 18446744073709551615, byte3: 18446744073709551615, byte4: 18446744073709551615, byte5: 18446744073709551615, byte6: 18446744073709551615, byte7: 18446744073709551615, byte8: 18446744073709551615, byte9: 18446744073709551615, byte10: 18446744073709551615, byte11: 18446744073709551615, byte12: 18446744073709551615, byte13: 18446744073709551615, byte14: 18446744073709551615, byte15: 18446744073709551615&gt;]</span>
+</code></pre>
+<p>Our query has found an exact match for the query fingerprint in the database at row 111. (This id is not 1 because previous automated tests that I wrote and executed have added and removed rows, advancing the id counter).</p>
+<p>We can also search the database for the children of an arbitrary fingerprint query. A test fingerprint A is a "child" of query Q if all of the set bits in Q are also set in A. Notice that this leaves open the possibility that A has <em>more</em> bits set than Q. For example:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&amp;gt; require <span class="hljs-string">'fingerprint'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; query=Fingerprint.new.fill_bytes{<span class="hljs-string">"aaaaaaaaaaaaaaaa"</span>.hex}
+=&gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: nil, byte0: 12297829382473034410, byte1: 12297829382473034410, byte2: 12297829382473034410, byte3: 12297829382473034410, byte4: 12297829382473034410, byte5: 12297829382473034410, byte6: 12297829382473034410, byte7: 12297829382473034410, byte8: 12297829382473034410, byte9: 12297829382473034410, byte10: 12297829382473034410, byte11: 12297829382473034410, byte12: 12297829382473034410, byte13: 12297829382473034410, byte14: 12297829382473034410, byte15: 12297829382473034410&gt;</span>
+irb(main):003:0&gt; results = Fingerprint.find_children_by_fingerprint query
+=&gt; [<span class="hljs-comment">#&amp;lt;Fingerprint id: 112, byte0: 12297829382473034410, byte1: 12297829382473034410, byte2: 12297829382473034410, byte3: 12297829382473034410, byte4: 12297829382473034410, byte5: 12297829382473034410, byte6: 12297829382473034410, byte7: 12297829382473034410, byte8: 12297829382473034410, byte9: 12297829382473034410, byte10: 12297829382473034410, byte11: 12297829382473034410, byte12: 12297829382473034410, byte13: 12297829382473034410, byte14: 12297829382473034410, byte15: 12297829382473034410&gt;, #&amp;lt;Fingerprint id: 111, byte0: 18446744073709551615, byte1: 18446744073709551615, byte2: 18446744073709551615, byte3: 18446744073709551615, byte4: 18446744073709551615, byte5: 18446744073709551615, byte6: 18446744073709551615, byte7: 18446744073709551615, byte8: 18446744073709551615, byte9: 18446744073709551615, byte10: 18446744073709551615, byte11: 18446744073709551615, byte12: 18446744073709551615, byte13: 18446744073709551615, byte14: 18446744073709551615, byte15: 18446744073709551615&gt;]</span>
+</code></pre>
+<p>It worked - both fingerprints stored in the database were found.</p>
+<p>We can delete a <code>Fingerprint</code> like this:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&amp;gt; require <span class="hljs-string">'fingerprint'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; f=Fingerprint.find 112
+=&gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: 112, byte0: 12297829382473034410, byte1: 12297829382473034410, byte2: 12297829382473034410, byte3: 12297829382473034410, byte4: 12297829382473034410, byte5: 12297829382473034410, byte6: 12297829382473034410, byte7: 12297829382473034410, byte8: 12297829382473034410, byte9: 12297829382473034410, byte10: 12297829382473034410, byte11: 12297829382473034410, byte12: 12297829382473034410, byte13: 12297829382473034410, byte14: 12297829382473034410, byte15: 12297829382473034410&gt;</span>
+irb(main):003:0&gt; f.destroy
+=&gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: 112, byte0: 12297829382473034410, byte1: 12297829382473034410, byte2: 12297829382473034410, byte3: 12297829382473034410, byte4: 12297829382473034410, byte5: 12297829382473034410, byte6: 12297829382473034410, byte7: 12297829382473034410, byte8: 12297829382473034410, byte9: 12297829382473034410, byte10: 12297829382473034410, byte11: 12297829382473034410, byte12: 12297829382473034410, byte13: 12297829382473034410, byte14: 12297829382473034410, byte15: 12297829382473034410&gt;</span>
+irb(main):004:0&gt; Fingerprint.count
+=&gt; 1
+</code></pre>
+<h2 id="activerecordandthefingerprintapi">Active Record and the Fingerprint API</h2>
+<p>The <code>Fingerprint</code> class is so concise because it takes advantage of the Ruby library called <a href="http://ar.rubyonrails.com/">ActiveRecord</a>. ActiveRecord is the object-relational mapping system used in <a href="http://rubyonrails.com/">Ruby on Rails</a>. ActiveRecord can be used outside of Rails, as was done for this library, by including the code at the top of the file beginning with "ActiveRecord::Base.establish_connection…", where you'd use the parameters specific to your database.</p>
+<p>We gain three key advantages with this approach: (1) we have very little SQL to code; (2) we have access to all of ActiveRecord's built-in CRUD operations such as counting records through Fingerprint.count and deleting <code>Fingerprints</code> with <code>destroy</code> without writing anything ourselves; and (3) we can easily integrate the <code>Fingerprint</code> class into any Ruby on Rails application.</p>
+<h2 id="variations">Variations</h2>
+<p>At least two other Object-Ralational Mapping systems could be used from Ruby, <a href="http://datamapper.org/">DataMapper</a>, and <a href="http://sequel.rubyforge.org/">Sequel</a>. The approach described here could be adapted to these other ORMS with minimal effort.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>We now have a working fingerprint screening system built solely from open source components. MySQL houses the data and provides for highly-optimized queries. A concise Ruby API created with ActiveRecord now allows us to deal with our fingerprint database as a collection of objects in a high-level language. We can perform all CRUD operations without writing a line of SQL.</p>
+<p>We've come a long way, but we're still not dealing with molecules. We previously saw how Open Babel can <a href="/articles/2008/10/03/fast-substructure-search-using-open-source-tools-part-2-fingerprint-screen-with-sql">generate fingerprints</a> with which we could, in principle, populate and query our database. The next article in this series will use this capability in creating a more chemically-aware system.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

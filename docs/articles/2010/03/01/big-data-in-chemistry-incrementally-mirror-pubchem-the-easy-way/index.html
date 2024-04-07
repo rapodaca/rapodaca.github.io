@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Big Data in Chemistry: Incrementally Mirror PubChem the Easy Way | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Big Data in Chemistry: Incrementally Mirror PubChem the Easy Way</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-03-01T00:00:00.000Z">2010-03-01T00:00:00.000Z</time>
+      </header>
+      <p>The previous article in this series described a simple way to <a href="/articles/2010/02/09/big-data-in-chemistry-mirroring-pubchem-the-easy-way-part-2">set up your own PubChem mirror</a>. By using some simple Unix command line tools, I showed one way to maintain a fully up-to-date snapshot of PubChem.</p>
+<p>But how do you continue to maintain a dataset based on PubChem days, weeks, and months after you import the initial snapshot? The PubChem dataset will be simply too large to process every time you refresh your snapshot. You'll need something more incremental.</p>
+<p>Fortunately, there's an answer. In addition to all of the other cool things wget can do with the PubChem FTP site, it can also be used to maintain a set of incremental updates.</p>
+<p>This command does it:</p>
+<pre><code class="hljs bash language-bash">wget --mirror --accept <span class="hljs-string">"*.sdf.gz,killed-SIDs,killed-CIDs"</span> --<span class="hljs-built_in">wait</span> 1 ftp://ftp.ncbi.nlm.nih.gov/pubchem/{Compound,Substance}/Daily/
+</code></pre>
+<p>We tell wget to mirror the daily Compound and Substance directories on the PubChem FTP server. In addition to sdfgz files, we include the files listing obsolete Compound and Structure records. Because we'll be making a lot of requests, we play nice by adding a one second delay between them.</p>
+<p>Although the daily archives are rotated weekly, our local copy will contain <em>all</em> updates - as long as we don't delete them manually, and the script is run at least once per week.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

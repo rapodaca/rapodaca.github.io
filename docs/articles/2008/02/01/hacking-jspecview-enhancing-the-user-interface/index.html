@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hacking JSpecView - Enhancing the User Interface | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Hacking JSpecView - Enhancing the User Interface</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-02-01T00:00:00.000Z">2008-02-01T00:00:00.000Z</time>
+      </header>
+      <p>The <a href="/articles/2008/01/28/hacking-jspecview-creating-an-html-test-harness">last installment</a> of this series showed how to set up an HTML testing harness for JSpecView. With the preliminaries taken care of, this installment will show how to enhance the user interface.</p>
+<h2 id="thegoal">The Goal</h2>
+<p>The live applet shown above illustrates the changes that were made. As you move your mouse cursor into the spectrum area, you'll see a vertical red line appear and track the movements of the mouse. As you presss the mouse key to begin a selection, a grey rectangle will show you exactly where the selection area will be.</p>
+<p>If you can't view the applet, be sure you system has <a href="http://www.java.com/en/download/index.jsp">JDK 1.5 or higher</a> installed, and that you've enabled applets for your browser.</p>
+<p>Clearly, these modifications need more work. For example, you can extend the selection box outside the boundary of the spectrum area. And green might be a better color for the cursor. Then again, maybe the cursor should use an alpha channel. But I digress.</p>
+<h2 id="onemorething">One More Thing</h2>
+<p>Being a <a href="/articles/2008/01/11/my-favorite-eclipse-shortcut-quick-fix">longtime Eclipse user</a>, I prefer this tool for my Java development. So far, only the use of Ant has been described. Fortunately, Eclipse offers an elegant way to import an existing Ant project. File-&gt;New gives a dialog like the one shown below:</p>
+<p><img src="/images/posts/20080201/new_project.png" alt="New Project" title="New Project"></p>
+<p>Selecting "Java Project from Existing Ant Buildfile" gives this dialog:</p>
+<p><img src="/images/posts/20080201/create_project.png" alt="Create Project" title="Create Project"></p>
+<p>Filling in the fields as shown should give a fully-functional Eclipse project.</p>
+<h2 id="stillonemorething">Still One More Thing</h2>
+<p>If you check the HTML source for this page, you'll notice that the <code>applet</code> tag is used to display the applet. Yet on Internet Explorer, there is no "click to activate" message. The reason is that Depth-First is using the excellent JavaScript library <a href="/articles/2007/11/02/eolas-and-jactivating-working-around-a-workaround">JActivating</a>, which re-writes the <code>applet</code> tag so that it isn't detected by the Eolas workaround. This lets us stick with plain HTML, rather than using <code>document.write</code> to specify the applet.</p>
+<h2 id="changingthesourcecode">Changing the Source Code</h2>
+<p>Too many changes were made to detail individually. In general, they related to:</p>
+<ul>
+<li>Removing non-applet classes such as those involved with the desktop application.</li>
+<li>Removing code flagged by Eclipse as unused.</li>
+<li>Editing the <code>jspecview.common.JSVPanel</code> source to add the UI modifications. The <code>drawGraph</code>, <code>drawCursor</code>, and <code>drawZoomBox</code> methods contained most of the changes.</li>
+</ul>
+<p>The complete Eclipse project should be <a href="http://sourceforge.net/project/showfiles.php?group_id=161398&amp;package_id=260592">available from SourceForge</a> shortly.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Given the right tools, modifying JSpecView is not that difficult. We've gone from raw souce code to a complete Eclipse project, and even added some functionality in the process.</p>
+<p>Where would you like to take JSpecView?</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

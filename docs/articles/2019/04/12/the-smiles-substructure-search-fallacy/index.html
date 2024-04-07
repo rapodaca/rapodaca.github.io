@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The SMILES Substructure Search Fallacy | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2019/04/12/the-smiles-substructure-search-fallacy/">
+      <meta property="og:title" content="The SMILES Substructure Search Fallacy">
+      <meta property="og:description" content="Beautiful though it may appear, this glittering idea is fool&#x27;s gold.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20190412/summary.png">
+      <meta content="Beautiful though it may appear, this glittering idea is fool&#x27;s gold." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The SMILES Substructure Search Fallacy</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2019-04-12T13:20:00.000Z">2019-04-12T13:20:00.000Z</time>
+      </header>
+      <p>Meet Jane, a Web developer tasked with implementing structure search on a customer website. Jane has just learned that small organic molecules can be represented by short text strings called SMILES. Relieved that the structure search problem isn't nearly as complicated as it first sounded, Jane tells her customer not to worry — structure search will be ready ahead of schedule and within budget.</p>
+<p>Jane's plan is simple. A SMILES encodes a molecule, allowing her to transform the substructure search problem into a substring matching problem. When a user submits a substructure request, Jane's software will first transform the query structure into a SMILES query string. For each target SMILES in the collection, the software will attempt a substring match against the query string. Returning the hits to the user completes the search. Voilà!</p>
+<p><img src="/images/posts/20190412/fallacy.png" alt="Fallacy"></p>
+<p>Jane doesn't know it yet, but she's about to have one angry customer. This article explains why.</p>
+<h2 id="forthecheminformaticians">For the Cheminformaticians</h2>
+<p>Those who have worked in cheminformatics before may consider Jane's idea a non-starter and wonder how anyone could seriously consider it. Nevertheless, over the last few years I have witnessed multiple instances of web development teams thinking exactly like Jane. Often, this approach is the first thing developers unfamiliar with cheminformatics will reach for. It's far from obvious to a novice why it can't work.</p>
+<h2 id="moleculargraphs">Molecular Graphs</h2>
+<p>A molecule can be thought of as an <a href="https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)">undirected simple graph</a>, meaning that edges have no directionality and can never join the same node, nor can two nodes be joined by more than one edge. In a molecular graph, nodes map to atoms and edges map to bonds, more or less in a 1:1 fashion.</p>
+<p>Dealing with graphs is much more complicated than dealing with common data structures such as strings, arrays, and hashes. For one thing, graph are multifaceted objects when properly implemented. Their memory requirements are high and their APIs must support <a href="/articles/2019/03/04/class-free-object-oriented-programming/">several vital operations</a>. Whereas linear data structures can be iterated from start to end deterministically, graphs must be traversed. The complexity of these traversals dwarfs those for strings, arrays, and hashes.</p>
+<p>Most importantly, graphs can not be compared for full or partial equality using the same linear procedures as strings, hashes, and arrays.</p>
+<h2 id="subgraphisomorphismandstructuresearch">Subgraph Isomorphism and Structure Search</h2>
+<p>It's often necessary to determine whether a query graph is embedded within a target graph. This well-known problem goes by the name <em>subgraph isomorphism</em>.</p>
+<p>There's a clear correspondence between the subgraph isomorphism problem and the substructure search problem. As a result, substructure search inherits all of the computational properties of subgraph isomorphism. The most notable of these is complexity.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/yFpRpxOry-A" allowfullscreen=""></iframe>
+</div>
+<p>The brute force "atom-by-atom search" strategy boils down to considering every possible way of mapping query nodes to target nodes. Start by picking one random node each from the query and target graphs. Test for a match by, for example, looking at atom labels. If there's no match, choose a different target node and try again. If there is a match, pick a neighbor of the previous query node and a neighbor of the last matched target node. On reaching a dead end, trace back to your last branch point and consider an alternative. Keep going until either: (1) you map every query node onto one target node; or (2) you run out of possibilities to try. Specifics vary by procedure, but all subgraph isomorphism algorithms follow a similar script.</p>
+<p>For these reasons, <a href="/articles/2008/11/13/one-of-these-things-is-not-like-the-other/">implementing substructure search from scratch</a> is non-trivial. Not only are the algorithms themselves complex, but inherent computational properties ensure that memory and time performance will remain constant concerns.</p>
+<h2 id="whysubstringsearch8800substructuresearch">Why Substring Search ≠ Substructure Search</h2>
+<p><img src="/images/posts/20190412/pyridine.png" alt="Pyridine"></p>
+<p>To understand why Jane's plan to use substring search as a proxy for substructure search won't work, consider a counterexample. Pyridine can be represented using the SMILES:</p>
+<p><code>n1ccccc1</code>.</p>
+<p>But pyridine can also be represented by five other equivalent SMILES strings:</p>
+<ul>
+<li><code>c1ncccc1</code></li>
+<li><code>c1cnccc1</code></li>
+<li><code>c1ccncc1</code></li>
+<li><code>c1cccnc1</code></li>
+<li><code>c1ccccn1</code></li>
+</ul>
+<p>SMILES are generated from a depth-first traversal of the corresponding molecular graph. Different starting atoms and different neighbor atom traversals will yield different SMILES as a result. The presence of cycles only adds fuel to the fire. From this perspective it's clear why a simple linear substring comparison should be expected to fail most of the time.</p>
+<p>It gets worse. SMILES supports multiple encoding schemes for double bonds. The aromatic notation for pyridine is one form. Another form uses capital letters and the equals character (<code>=</code>) to denote a double bond. Six possibilities are:</p>
+<ul>
+<li><code>N1=CC=CC=C1</code></li>
+<li><code>C1=NC=CC=C1</code></li>
+<li><code>C1=CN=CC=C1</code></li>
+<li><code>C1=CC=NC=C1</code></li>
+<li><code>C1=CC=CN=C1</code></li>
+<li><code>C1=CC=CC=N1</code></li>
+</ul>
+<p>It gets worse still. Single bonds are optional, meaning that <code>N1=CC=CC=C1</code> is equivalent to <code>N-1=C-C=C-C=C-1</code>. Likewise, aromatic bonds are optional, meaning that <code>c1ncccc1</code> is equivalent to <code>c:1:n:c:c:c:c:1</code>. Nor do the problems end there. Notice how obviously wrong the substring matching approach becomes with a good counterexample. Also consider the number of simple cases that will work perfectly.</p>
+<p>No matter how hard Jane tries to patch her substring search method, another special case will rear its head to mess things up. If she has little experience with chemistry or cheminformatics (as is common among web developers), Jane may not fully appreciate the scope of the problem, making the incremental approach of trying to patch the previous iteration attractive. In this way, Jane can be lead, step by painful step, down a path destined to result in delays, cost overruns, and tarnished reputations.</p>
+<h2 id="smilesandexactstructuresearch">SMILES and Exact Structure Search</h2>
+<p>Hopefully you are now convinced that naive substring search will never work as a proxy for substructure search. If you're not, chances are very good that you don't yet understand the problem. Keep thinking about it until the flaws become crystal clear.</p>
+<p>But what about exact structure search? Can SMILES uniquely encode a molecular structure and thereby offer a fast method to compare two molecules for exact equality? This may work, but not without considerable effort. A molecule can be expressed as a unique ("canonical") SMILES, but only with the assistance of sophisticated (and often expensive) software. A more practical option is to use <a href="https://en.wikipedia.org/wiki/International_Chemical_Identifier">InChI</a>. InChI is a unique molecular identifier generated by an open source software package distributed by the international standards body IUPAC.</p>
+<h2 id="integration">Integration</h2>
+<p>Although implementing substructure search from scratch is very difficult, many libraries have been created to solve the problem. Some of them are open source. They tend to run on a back end, and as such require the installation of binaries and in most cases the alteration of database schema and/or software.</p>
+<p>Ease of integration for any particular package depends largely on the underlying web stack. To streamline integration, my company offers <a href="https://metamolecular.com/chemserver/">ChemServer</a>, a simple substructure search engine suitable for collections of up to around 10,000 in size. For larger collections, my company offers <a href="https://metamolecular.com/consulting/">consulting services</a>.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Text matching on SMILES strings seems like a natural, simple solution to the substructure search problem. But this is a mirage. The futility of this approach may only become apparent after weeks or even months of effort. Regardless of the specific implementation, any robust solution must compare molecules as graphs.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

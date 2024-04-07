@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The Other Vector Graphics Markup Language | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The Other Vector Graphics Markup Language</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-06-06T00:00:00.000Z">2008-06-06T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable Vector Graphics</a> (SVG) is a technology that enables the creation and publication of high quality images that can be scaled to any resolution. SVG is ideally suited for the Web, and all major browsers now support it - except Internet Explorer (IE). This poses a problem: vector graphics are by far superior to raster images for many applications, but the lack of native IE support makes SVG a non-starter for most developers. This article discusses a little known IE capability that might provide a solution.</p>
+<h2 id="ohbrotherwhereartthou">Oh Brother, Where Art Thou?</h2>
+<p>Way back in 1998 a group of companies including Microsoft submitted a proposal for a vector graphics language called <a href="http://www.w3.org/TR/1998/NOTE-VML-19980513">Vector Markup Language</a> (VML) to the W3C. This set in motion a series of events that culminated in the development of what we know today as SVG. But while use of SVG quickly expanded, VML remained almost exclusively limited to Microsoft products.</p>
+<p>Soon after, IE 5 <a href="http://www.infoloom.com/gcaconfs/WEB/granada99/wu.HTM">introduced the ability</a> to decode and display VML - a capability that exists today in IE 7.</p>
+<p>SVG and VML are two vector graphics languages, each designed to do essentially the same thing. For basic shape rendering, their similarities outweigh their differences.</p>
+<h2 id="aboutvml">About VML</h2>
+<p>To understand why VML never caught on, you need look no further than the documentation - or the lack thereof. The <a href="http://www.w3.org/TR/1998/NOTE-VML-19980513">original VML submission</a> is a decade old and has not been updated.</p>
+<p>For the most part, VML documentation is scattered and incomplete. Nevertheless, there are some useful resources. Here, in no particular order are some of them:</p>
+<ul>
+<li><a href="http://msdn.microsoft.com/en-us/library/bb250524(VS.85).aspx">Microsoft Documentation</a> Authoritative, but lacking in examples.</li>
+<li><a href="http://weborama.blogspot.com/2006/01/vml-svg-and-canvas.html">VML, SVG, and Canvas</a> Discusses some of the differences between VML and SVG.</li>
+<li><a href="http://www.robweir.com/blog/2006/07/cum-mortuis-in-lingua-mortua.html">Cum mortuis in lingua mortua</a> Good history of VML.</li>
+<li><a href="http://www.sjsu.edu/faculty/watkins/vml.htm">Examples of the Vector Markup Lanugauge</a> There are far too few of this kind of site.</li>
+<li><a href="http://vitali.web.cs.unibo.it/Progetti/VectorConverter">VectorConverer</a>
+A PHP library that uses XSLT to interconvert SVG and VML. Unfortunately, the stylesheet didn't work in my hands under <a href="http://vitali.web.cs.unibo.it/Progetti/VectorConverter">Xalan</a> or Ruby/xslt - and I know almost nothing about PHP.</li>
+<li><a href="http://www.cs.sjsu.edu/faculty/pollett/masters/Semesters/Fall03/JulieNabong/index.shtml?cs298proposal.html">Julie Nabong's Masters Thesis</a> Julie wrote and documented an SVG/VML XSLT for interconverting the two languages.</li>
+</ul>
+<h2 id="jsdrawinginterconvertingvectorlanguagesonthefly">JSDrawing: Interconverting Vector Languages on the Fly</h2>
+<p>One VML resource deserves special note - <a href="http://www.kevlindev.com/projects/jsdrawing/index.htm">JSDrawing</a>. This library seems to be capable of generating Flash, VML, or SVG from a common vector graphics language precursor. I'm not sure how practical this approach would be, but it does provide some food for thought.</p>
+<h2 id="whyitmatters">Why It Matters</h2>
+<p>Chemistry is in a good position to take advantage of vector graphics. Chemical structures, being closely based on graph theoretical constructs, would seem to be a perfect match for vector languages like SVG and VML, especially on the Web. So far it hasn't happened, primarily for the reasons outlined above.</p>
+<p>Currently, if you want to display 2D chemical structures in Web pages you're faced with some tradeoffs:</p>
+<ol>
+<li><strong>Raster Images.</strong> This is by far the most common practice. This option unfortunately makes it very difficult to redesign the layout of a site or support multiple views of the same structure, especially with databases of one million plus compounds becoming commonplace. Even if images are never regenerated, they need to be stored and retrieved, adding to cost and complexity. Images could be dynamically generated, but at the expense of substantial memory and CPU requirements.</li>
+<li><strong>Applets.</strong> This is the approach currently taken by <a href="http://chempedia.com">Chempedia</a>, the free chemical encyclopedia, and gives complete flexibility in page layout and structure appearance. Changing the dimensions of a structure is as simple as changing the size of a div. Unfortunately, some browsers handle multiple applets better than others. Firefox on OS X is very slow at refreshing applets while scrolling, and IE requires a <a href="/articles/2007/11/02/eolas-and-jactivating-working-around-a-workaround">Javascript trick</a> to remove the 'click to active' message that causes some flashing when in progress.</li>
+<li><strong>Vector Graphics Through Plugins</strong> There are at least two SVG plugins for IE (<a href="http://www.adobe.com/svg/viewer/install/main.html">one by Adobe</a> and <a href="http://www.examotion.com/index.php?id=product_player">the other from Examotion</a>). Will all of your users be able to find and install them? Unless the answer to both questions is 'yes', this option is probably best left as a last resort. Another option is to render SVG on IE through the Flash or <a href="http://silverlight.net/">Silverlight</a> plugins. But as far as I can tell, neither approach is ready for prime-time.</li>
+<li><strong>Native Vector Graphics</strong> Available on all major browsers including Internet Explorer 5/6/7, Firefox 1/2, and Opera 8/9. Combines the flexibility, lossless depiction, inlineability and low data storage/retrieval overhead of applets with the speed of images. Interactivity and other special effects can be achieved through DOM manipulation. All of this depends, of course, on the vector graphics format being compatible with the rendering engine.</li>
+</ol>
+<p>In some circumstances, serving VML to IE clients and SVG to everyone else would be a viable option - if it were possible to generate VML.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Vector graphics have a lot to offer chemistry, especially when used with Web applications. The combination of VML and SVG offers a proven technology platform that's ready today, but only if you can generate VML.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>CouchDB for Chemistry | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>CouchDB for Chemistry</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-04-22T00:00:00.000Z">2009-04-22T00:00:00.000Z</time>
+      </header>
+      <p>Creating useful data-driven applications for chemists is not an easy job. Data heterogeneity represents one of the stumbling blocks. Chemists create and use so many different kinds of data, from spectra in XY format to raw FIDs to PDFs to chemical structures to in vivo biological results, that deciding the structure of a database up-front, as required by relational databases can be difficult at best. As a project grows, its data needs can change, putting further stress on the system.</p>
+<h2 id="alittleaboutcouchdb">A Little About CouchDB</h2>
+<p>Every once in awhile a technology comes along that forces me to rethink my "standard" toolset. One that I've recently found is <a href="http://couchdb.apache.org/">CouchDB</a>, a <a href="http://www.ibm.com/developerworks/opensource/library/os-couchdb/index.html">document-oriented database</a>.</p>
+<p>Rather than working with tables and rigid schema, CouchDB works with documents, just like the people using it. </p>
+<p>If that were all that was different about CouchDB, it would be worth giving it a spin. But there's much more to the story than that. Consider:</p>
+<ul>
+<li>You communicate with CouchDB through RESTful HTTP.</li>
+<li>Documents are added and returned in <a href="http://www.json.org/">JavaScript Object Notation</a> (JSON).</li>
+<li>Queries are written in JavaScript.</li>
+<li>CouchDB was designed with high concurrency in mind.</li>
+</ul>
+<h2 id="installing">Installing</h2>
+<p>Following the tutorial posted by <a href="http://barkingiguana.com">Craig Webster</a>, I was able to easily <a href="http://barkingiguana.com/2008/06/28/installing-couchdb-080-on-ubuntu-804">get CouchDB 0.8.0 installed and running on my Ubuntu Linux system</a>. Instructions for installing on other systems are available <a href="http://wiki.apache.org/couchdb/Installation">here</a>.</p>
+<h2 id="browserbasedadmin">Browser-Based Admin</h2>
+<p>CouchDB comes with an excellent admin tool that works with a browser. Loading <a href="http://localhost:5984/_utils/">http://localhost:5984/_utils/</a> serves the main admin page. From here, clicking on the "Create Database …" link guides you through the process.</p>
+<p>After creating a database called "chempedia," I added a document with "Create Document …". Using "benzene" for the name, I then added a molfile field with "Add Field". Using JSON as the format, I entered the following:</p>
+<pre><code class="hljs bash language-bash">{<span class="hljs-string">"string"</span> : <span class="hljs-string">"[NO NAME]\n  CHEMWRIT          2D\nCreated with ChemWriter - http://metamolecular.com/chemwriter\n  6  6  0  0  0  0  0  0  0  0  0 V2000\n    4.3501   -4.7508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.2161   -5.2508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.0821   -4.7508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.0821   -3.7508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.2161   -3.2508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.3501   -3.7508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  2  0  0  0  0\n  2  3  1  0  0  0  0\n  3  4  2  0  0  0  0\n  4  5  1  0  0  0  0\n  5  6  2  0  0  0  0\n  6  1  1  0  0  0  0\nM  END"</span>}
+</code></pre>
+<p>After saving the document with "Save Document", my database had one document called "benzene." Now it's time to read it.</p>
+<h2 id="restfulreading">RESTful Reading</h2>
+<p>You can interface with CouchDB using many HTTP clients. For example, with cURL, the command to get a list of available databases might look like:</p>
+<pre><code class="hljs bash language-bash">curl -X GET http://127.0.0.1:5984/_all_dbs
+[<span class="hljs-string">"chempedia"</span>]
+</code></pre>
+<p>And the benzene document I previously stored can be read back with:</p>
+<pre><code class="hljs bash language-bash">curl -X GET http://127.0.0.1:5984/chempedia/benzene
+{<span class="hljs-string">"_id"</span>:<span class="hljs-string">"benzene"</span>,<span class="hljs-string">"_rev"</span>:<span class="hljs-string">"2318173959"</span>,<span class="hljs-string">"molfile"</span>:{<span class="hljs-string">"string"</span>:<span class="hljs-string">"[NO NAME]\n  CHEMWRIT          2D\nCreated with ChemWriter - http:\/\/metamolecular.com\/chemwriter\n  6  6  0  0  0  0  0  0  0  0  0 V2000\n    4.3501   -4.7508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.2161   -5.2508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.0821   -4.7508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.0821   -3.7508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.2161   -3.2508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.3501   -3.7508    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  2  0  0  0  0\n  2  3  1  0  0  0  0\n  3  4  2  0  0  0  0\n  4  5  1  0  0  0  0\n  5  6  2  0  0  0  0\n  6  1  1  0  0  0  0\nM  END"</span>}}
+</code></pre>
+<p>Of course, this is just the beginning. But even from this simple example the intuitive way CouchDB works should be clear.</p>
+<p>Using raw HTTP is certainly one way to use CouchDB, but fortunately, many libraries now exist for doing so with a native feel in your language of choice. </p>
+<h2 id="wherenow">Where Now?</h2>
+<p>As a way to teach myself more about CouchDB, I'll be building something practical and chemically-oriented with it. As I do so, I'll post updates here and compare the process to the ways I've built database systems before. I'm kicking around some ideas, but if there's something you'd like to see, feel free to drop me a line.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

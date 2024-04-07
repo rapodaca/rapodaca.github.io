@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building Chempedia - Start Simple, Then Iterate | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building Chempedia - Start Simple, Then Iterate</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-05-13T00:00:00.000Z">2008-05-13T00:00:00.000Z</time>
+      </header>
+      <p>As a medium for building software, the Web offers unparalleled adaptability. With nothing to download or install, users of Web applications automatically see the newest version - always. This may sound like a small thing, and technically it is. But it dramatically increases the effectiveness with which software can be created. <a href="/articles/2008/04/28/building-chempedia-indexing-wikipedias-6-411-compound-monographs">The previous article in this series</a> introduced <a href="http://chempedia.com">Chempedia</a>, the free Chemical encyclopedia and cheminformatics Web application. This article will discuss the process by which Chempedia will become a better service over time.</p>
+<h2 id="iterativewebapplicationdevelopment">Iterative Web Application Development</h2>
+<p>Chempedia, like all actively-developed software, is a work in progress. It will be built in stages starting with the addition of new features, followed by a round of user feedback, bug fixing, and stabilization. This will then be followed by the next major iteration, and so on.</p>
+<p>This iterative design style is ideally suited for Web applications. Because the barrier to pushing out new versions is essentially non-existent, a Web application can evolve at a much more rapid rate than other kinds of software. Indeed, the first version of a Web application need only work well enough to prove a point.</p>
+<p>One of the keys to iterative Web development is a technology framework designed to facilitate it. Chempedia is being developed with <a href="http://rubyonrails.com/">Ruby on Rails</a>, a tool that enables Web developers to take full advantage of the iterative development style the Web makes possible.</p>
+<p>Another key element of iterative Web development is users willing to explore the system and offer criticism. Evolution succeeds only when the environment stresses an ecosystem; the same is true in Web application development.</p>
+<p>Chempedia will take full advantage of the evolutionary nature of Web application development. As features are added and (hopefully) use of the service grows, Chempedia will evolve in ways that are impossible to predict today.</p>
+<h2 id="whatswrongwithchempedia">What's Wrong With Chempedia?</h2>
+<p>If you happened to take a look at Chempedia last week (that version is now no longer visible), you probably noticed many, many things that needed improvement. Some concerns were in the areas of:</p>
+<ul>
+<li>Navigation. Navigation works best when the right granularity of options is achieved. Chempedia's navigation system grouped both closely-related and dissimilar actions at the same level.</li>
+<li>Metaphor. The initial idea behind Chempedia was to see what happened when PubChem's chemical structures were mashed up with Wikiepia articles, using <a href="/articles/2007/05/21/simple-cas-number-lookup-with-pubchem">CAS numbers</a> as the common link. The site design reflected this, with no clear organizing principle other than mashup. However, after the initial demonstration of the success of this approach, it became clear that Chempedia was strikingly similar in both form and function to the <a href="/articles/2008/04/28/building-chempedia-indexing-wikipedias-6-411-compound-monographs">Merck Index</a>. Perhaps this should be used as a clue in deriving a better organizing principle.</li>
+<li>Wikipedia integration. The old Chempedia site didn't make it nearly as convenient as is should be to create or edit compound monographs. Because Chempedia serves as a chemically-aware front-end for Wikipedia, the easier it is to get to Wikipedia from Chempedia, the better.</li>
+</ul>
+<h2 id="whatchanged">What Changed?</h2>
+<p>During the process of trying to fix Chempedia's problems, it became clear that a major redesign was in order. This consisted of:</p>
+<ul>
+<li><strong>Creating a landing page oriented toward search.</strong> Using the Merck Index as a metaphor suggested that <a href="http://chempedia.com">Chempedia's landing page</a> should be designed around search, not browsing - as it was originally designed.</li>
+<li><strong>Emphasizing compound monographs, not compounds.</strong> Chempedia's central organizing principle is now the Compound Monograph. One way this is seen is in the new URL structure, which makes it very easy to see where a Chempedia link is about to take you. For example, consider the URL for <a href="http://chempedia.com/monographs/benzene">benzene</a>. Another way this can be seen is in the inclusion of <a href="http://chempedia.com/monographs/virginiamycin">Compound Monographs lacking a chemical structure</a>.</li>
+<li><strong>Designing a streamlined menu system.</strong> The main menu system has been broken down into just three main categories: <a href="http://chempedia.com/">Search</a>; <a href="http://chempedia.com/monographs">Browse</a>; and <a href="http://chempedia.com/monographs/new">Create</a>. These headings refer to actions on Compound Monographs, again in line with their importance as an organizing principle.</li>
+<li><strong>Promoting better integration with Wikipedia.</strong> After experimenting with a few implementation possibilities, it is now possible to edit Wikipedia articles directly from the Chempedia site, thanks to the use of <a href="http://en.wikipedia.org/wiki/IFrame">inline frame</a>. Once again, this capability is tied to the Compound Monograph, from which editing and updating links are accessible.</li>
+<li><strong>Striving for comprehensive Wikipedia coverage.</strong> Wikipedia had far more compound monographs than could be found on Chempedia, <a href="/articles/2008/04/28/building-chempedia-indexing-wikipedias-6-411-compound-monographs">6,411 of them</a>, to be precise. Chempedia now contains all of them, regardless of whether a chemical structure can be found based on a CAS number in PubChem. This includes inorganics, organometallics, polymers, mixtures, and polypeptides.</li>
+</ul>
+<h2 id="milestogoyet">Miles to Go Yet</h2>
+<p>Chempedia is far from being finished. For example, you'll notice many instances in which a Compound Monograph is <a href="http://chempedia.com/monographs/parthenolide">truncated</a>. This arises from difficulties in parsing Wikipedia's <a href="http://en.wikipedia.org/wiki/Wikilink">Wikitext</a> format (more on this later).</p>
+<p>Ultimately, the full text of each Wikipedia article will be present on Chempedia rather than just the first introductory paragraph. But it will take a significant amount of work to ensure that each article's Wikitext entry can be parsed faithfully.</p>
+<p>Chempedia allows search by CAS number, PubChem CID and exact title. Full-text searching is not yet implemented, nor is autocomplete search, both of which would greatly enhance the usability of the service.</p>
+<p>Exact structure searching is made possible by the <a href="http://metamolecular.com/chemwriter">ChemWriter</a> editor in combination with <a href="http://en.wikipedia.org/wiki/SHA-1">SHA-1</a> hashed <a href="/articles/2007/09/27/inchi-for-newbies">InChIs</a>. Substructure search and query atom search will ultimately be added, but for an encyclopedia containing relatively few molecules, most of which having trivial names, this isn't yet seen as being critical.</p>
+<p>You'll notice many Monographs on Chempedia that have no structure information. Behind the scenes, Chempedia uses the 350,000+ CAS numbers now contained in the <a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem</a> database to associate a chemical structure with a Wikipedia article. In the future, these associations will be made by Chempedia and Wikipedia users, which will allow every Chempedia small-molecule Monograph to have a structure associated with it. (It will also create a rather large, publicly-curated, open database of CAS numbers linked to chemical structures, but that's a story for another time).</p>
+<h2 id="yourfeedbackisessential">Your Feedback is Essential</h2>
+<p>Finally, many of the changes made in this iteration were the result of conversions with chemists and developers. If you see something on Chempedia that just doesn't work for you, please don't be shy about <a href="http://chempedia.com/messages/new">saying so</a>. Feedback is an essential ingredient in making Chempedia the best service it can be.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

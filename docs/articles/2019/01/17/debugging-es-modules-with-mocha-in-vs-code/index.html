@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Debugging ES Modules in Node.js and Mocha Using VS Code | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2019/01/17/debugging-es-modules-with-mocha-in-vs-code/">
+      <meta property="og:title" content="Debugging ES Modules in Node.js and Mocha Using VS Code">
+      <meta property="og:description" content="Integrate in-editor debugging, unit tests, and JavaScript&#x27;s new module system seamlessly with this simple trick.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20190117/summary.png">
+      <meta content="Integrate in-editor debugging, unit tests, and JavaScript&#x27;s new module system seamlessly with this simple trick." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Debugging ES Modules in Node.js and Mocha Using VS Code</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2019-01-17T18:30:00.000Z">2019-01-17T18:30:00.000Z</time>
+      </header>
+      <p>The <a href="https://hacks.mozilla.org/2018/03/es-modules-a-cartoon-deep-dive/">ES Module</a> standard defines a way to build and assemble JavaScript modules. Currently supported in modern browsers and Node.js for many months now, ES Modules will over time render various ad-hoc module systems currently in use obsolete. Given their recent emergence from alpha, however, support for ES Modules can vary across tools. This article describes how to use ES modules within a very specific, but common environment: debugging Mocha tests running on Node.js in Microsoft's <a href="https://code.visualstudio.com">Visual Studio Code</a> (VS Code).</p>
+<p>This article was written with no assumptions other than that your system runs Node 11.6+ and VS Code 1.30.2+. If you're familiar with unit testing JavaScript with Mocha and VS Code debugging, skip to the section <a href="#debuggingwithreify">Debugging with Reify</a>.</p>
+<h2 id="whyesmodules">Why ES Modules?</h2>
+<p>Most programming languages support freestanding code blocks and low-level dependency management out of the box. Not so JavaScript. A browser's JavaScript runtime dumps all variables into the global scope by default. For most of its existence, the only compositional tool was the order in which <code>&lt;script&gt;</code> tags appeared in the parent HTML document. This situation made it very difficult develop and integrate independent software packages.</p>
+<p>A number of solutions to this problem sprang up. The one adopted by Node.js, <a href="https://blog.risingstack.com/node-js-at-scale-module-system-commonjs-require/">CommonJS</a>, treats each file as an independent module with its own scope. A module can export one or more designated objects for use in other files.</p>
+<p>For example, a CommonJS module declares what to export by making assignments to its <code>module</code> object:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// name.js</span>
+
+<span class="hljs-keyword">var</span> name = <span class="hljs-string">'foo'</span>;
+
+<span class="hljs-built_in">module</span>.exports = name;
+</code></pre>
+<p>And a module consumes another module's export by invoking its <code>require</code> function:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// greet.js</span>
+
+<span class="hljs-keyword">var</span> name = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./name.js'</span>);
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Hello, '</span> + name);
+</code></pre>
+<p>This system works well enough for code restricted to server environments, but quickly runs into trouble on the browser. The promise of code that runs unmodified in both environments never quite panned out because of all the ad hoc tooling needed to retrofit a module system onto the browser.</p>
+<p>The solution is the ES Module standard. ES Modules work a lot like node modules. For example, the name/greet example can be recast with the introduction of the <code>export</code> and <code>import</code> statements. An object is exported through declaration:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// name.js</span>
+<span class="hljs-keyword">var</span> name = <span class="hljs-string">'foo'</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> name
+</code></pre>
+<p>and imported with the <code>import</code> statement:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// greet.js</span>
+<span class="hljs-keyword">import</span> name <span class="hljs-keyword">from</span> <span class="hljs-string">'./name.js'</span>
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Hello, '</span> + name);
+</code></pre>
+<p>ES Modules are now natively supported by all major browsers and Node.js. However, changes to the module system cut across a wide range of tools. This becomes most apparent when tools are forced to work together.</p>
+<h2 id="debugginginvscode">Debugging in VS Code</h2>
+<p>The crown jewel of VS Code is its integrated debugger. Set a breakpoint, run the project in debugger mode, and away you go. Hover over a variable in the source code to get its current value. Experiment in the interactive console. All the functionality of the rich in-browser debugging experience is there.</p>
+<p>It's easy to get started. After installing VS Code, set up a test project containing the file <code>test.js</code>:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// test.js</span>
+<span class="hljs-keyword">const</span> foo = <span class="hljs-number">123</span>;
+<span class="hljs-keyword">const</span> bar = <span class="hljs-number">456</span>;
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Sum: <span class="hljs-subst">${foo + bar}</span>`</span>);
+</code></pre>
+<p>Set a breakpoint by left clicking to the left of the line number 3. A filled red circle will appear indicating that the breakpoint has been set. Disable the breakpoint by left-clicking again. Add properties to it by right-clicking.</p>
+<p><img src="/images/posts/20190117/breakpoint.png" alt="Breakpoint" title="Breakpoint"></p>
+<p>Begin a debugging session by clicking on the bug icon to the left. A green triangle sits to the upper left of the palette. Clicking this button runs the current file in debugger mode. Line 4 will be highlighted, and a debugging menu will appear in the center-top part of the screen. To exit, click the filled red square button.</p>
+<p><img src="/images/posts/20190117/debug-mode.png" alt="Debug Mode" title="Debug Mode"></p>
+<h2 id="automatedtestingwithmocha">Automated Testing with Mocha</h2>
+<p><a href="https://mochajs.org">Mocha</a> is an automated testing framework for Node.js and the browser. It supports nested testing contexts, before/after hooks, and plain text descriptions.</p>
+<p>Mocha can be installed through <a href="https://www.npmjs.com">NPM</a>. To do so, create the file <code>package.json</code> at the top-level of your project. VS Code knows about the structure of this file, and so will attempt to guide you with hints and autocompletion.</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"devDependencies"</span>: {
+    <span class="hljs-attr">"mocha"</span>: <span class="hljs-string">"5.2.0"</span>
+  }
+}
+</code></pre>
+<p>(Before creating <code>package.json</code>, it may be necessary to switch contexts by clicking on the document icon on the left tool palette. Right click under <code>test.js</code> and select "New File.")</p>
+<p>The shell command <code>npm install</code> installs the dependencies listed in the <code>package.json</code> file. You could use a separate terminal for this, but it's more convenient to use the one build into VS Code. Activate it by pressing ctrl‑` (control-tilde). After installation, your project contains two new items: the <code>node_modules</code> directory and the <code>package-lock.json</code> file. The terminal can be dismissed by again pressing ctrl‑` or clicking the "X" button.</p>
+<p><img src="/images/posts/20190117/npm-install.png" alt="NPM Install" title="NPM Install"></p>
+<p>By default Mocha looks for test files in the <code>test</code> directory of your project. Create that directory and add the file <code>mocha.spec.js</code> to it.</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// mocha.spec.js</span>
+<span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'assert'</span>);
+
+describe(<span class="hljs-string">'Math#sign'</span>, () =&gt; {
+  it(<span class="hljs-string">'returns -1 given -42'</span>, () =&gt; {
+    assert.strictEqual(<span class="hljs-built_in">Math</span>.sign(<span class="hljs-number">-42</span>), <span class="hljs-number">-1</span>);
+  });
+});
+</code></pre>
+<p>To run the test, create an NPM task for it. Open <code>package.json</code> and edit it to read as follows:</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"devDependencies"</span>: {
+    <span class="hljs-attr">"mocha"</span>: <span class="hljs-string">"5.2.0"</span>
+  },
+  <span class="hljs-attr">"scripts"</span>: {
+    <span class="hljs-attr">"test"</span>: <span class="hljs-string">"mocha"</span>
+  }
+}
+</code></pre>
+<p>Run the test suite by issuing the command <code>npm test</code> from the terminal. This should produce some output ending with the text "1 passing".</p>
+<p><img src="/images/posts/20190117/test-success.png" alt="Test Success" title="Test Success"></p>
+<h2 id="debuggingfromamochatest">Debugging from a Mocha Test</h2>
+<p>My workflow relies heavily on test-driven development. The <a href="http://www.javiersaldana.com/tech/2014/11/26/refactoring-the-three-laws-of-tdd.html">two rules</a> I follow are, in order:</p>
+<ol>
+<li>Write only enough of a test to fail.</li>
+<li>Write only enough production code to make the failing test pass.</li>
+</ol>
+<p>Iterating over these rules keeps my projects in a state in which every module can be exercised to its fullest extent through one or more tests. As such, the test suite provides an ideal platform from which to launch debugging sessions.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/GvAzrC6-spQ" allowfullscreen=""></iframe>
+</div>
+<p>To debug from a Mocha test, VS Code needs some additional configuration. Activate the debug panel by clicking on the debug button from the leftmost palette. Next to the green triangular run button sits a dropdown that should read "No Configuration." Click it and select "Add configuration." A new file will appear called <code>launch.json</code>. Add a debug configuration by clicking the "Add Configuration…" button. Update <code>launch.json</code> as follows:</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"0.2.0"</span>,
+  <span class="hljs-attr">"configurations"</span>: [
+
+    {
+      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"node"</span>,
+      <span class="hljs-attr">"request"</span>: <span class="hljs-string">"launch"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Test"</span>,
+      <span class="hljs-attr">"program"</span>: <span class="hljs-string">"${workspaceFolder}/node_modules/mocha/bin/_mocha"</span>,
+      <span class="hljs-attr">"internalConsoleOptions"</span>: <span class="hljs-string">"openOnSessionStart"</span>
+    }
+  ]
+}
+</code></pre>
+<p>To debug a test, toggle back to the <code>mocha.spec.js</code> file. Add a breakpoint at the line with the <code>assert</code> call. Next, toggle to debug mode. This time, choose the "Test" option from the pulldown and click the run button. VS Code should pause at the breakpoint just as before. The code under test can now be debugged starting from a well-defined state.</p>
+<h2 id="refactoringtoesmodules">Refactoring to ES Modules</h2>
+<p><code>mocha.spec.js</code> runs fine in the default configuration because no ES modules were used. The test can be refactored to use ES Modules as follows:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// mocha.spec.js</span>
+<span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'assert'</span>;
+
+describe(<span class="hljs-string">'Math#sign'</span>, () =&gt; {
+  it(<span class="hljs-string">'returns -1 given -42'</span>, () =&gt; {
+    assert.strictEqual(<span class="hljs-built_in">Math</span>.sign(<span class="hljs-number">-42</span>), <span class="hljs-number">-1</span>);
+  });
+});
+</code></pre>
+<h2 id="debugfail">Debug Fail</h2>
+<p>Unfortunately, running the refactored test with the current debug configuration fails with the following console error:</p>
+<p><code>SyntaxError: Unexpected identifier</code></p>
+<p>Although Node.js 11 supports ES Modules natively, this support is disabled by default. To enable it, Node must be run behind the <a href="https://nodejs.org/api/esm.html"><code>--experimental-modules</code></a> flag. This is the first problem to solve.</p>
+<p>However, even if the debugging session were started behind the flag, Node.js wouldn't support ES modules. Currently, files invoking ES Modules must use the <code>.mjs</code> ("module JavaScript" aka Michael Jackson Script) extension. The files written so far all use the <code>.js</code> extension.</p>
+<p>But even after making these changes, we'd still be stuck because Mocha doesn't recognize test files using the <code>.msj</code> extension. The error "No test files found" would be reported. Nor can Mocha currently work with tests that invoke ES Modules.</p>
+<p>A few solutions to this problem have been reported, such as:</p>
+<ul>
+<li><a href="http://www.albertgao.xyz/2016/12/16/how-to-debug-mocha-tests-in-visual-studio-code-with-es5-or-es6/">Transpile with Babel</a>.</li>
+<li><a href="https://github.com/vitalets/mocha-es6-modules">Run mocha-es6-modules</a>.</li>
+</ul>
+<p>I'd rather not introduce a build system and its attendant complexity where none existed before. I'm also not a fan of deviating from widespread practice for testing without good reason. In any case, I wanted something far simpler than any of the published approaches I was able to find.</p>
+<h2 id="reify">Reify</h2>
+<p><a href="https://www.npmjs.com/package/reify">Reify</a> is a Node module that transparently allows ES Modules to be used without the <code>--experimental-modules</code> flag and without transpilation. It can be used when running applications, test suites, and even interactively in a REPL.</p>
+<p>In a nutshell, Reify is the simple solution that this simple problem demands. The trick is getting it to work with VS Code, Node, and Mocha.</p>
+<h2 id="debuggingwithreify">Debugging with Reify</h2>
+<p>One more bit of configuration is all it takes to allow the debugging of Mocha tests using ES Modules. Begin by adding the Reify dependency to <code>package.json</code>:</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"devDependencies"</span>: {
+    <span class="hljs-attr">"mocha"</span>: <span class="hljs-string">"5.2.0"</span>,
+    <span class="hljs-attr">"reify"</span>: <span class="hljs-string">"0.17.3"</span>
+  },
+  <span class="hljs-attr">"scripts"</span>: {
+    <span class="hljs-attr">"test"</span>: <span class="hljs-string">"mocha"</span>
+  }
+}
+</code></pre>
+<p>Then install Reify with <code>npm install</code>.</p>
+<p>Finally, update <code>launch.json</code>, which is found in your project's <code>.vscode</code> directory by adding a directive to require Reify:</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"0.2.0"</span>,
+  <span class="hljs-attr">"configurations"</span>: [
+    {
+      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"node"</span>,
+      <span class="hljs-attr">"request"</span>: <span class="hljs-string">"launch"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Test"</span>,
+      <span class="hljs-attr">"program"</span>: <span class="hljs-string">"${workspaceFolder}/node_modules/mocha/bin/_mocha"</span>,
+      <span class="hljs-attr">"args"</span>: [
+        <span class="hljs-string">"--require"</span>, <span class="hljs-string">"reify"</span>
+      ],
+      <span class="hljs-attr">"internalConsoleOptions"</span>: <span class="hljs-string">"openOnSessionStart"</span>
+    }
+  ]
+}
+</code></pre>
+<p>Launching the VS Code debugger "Test" task should now allow full debugging functionality.</p>
+<p><img src="/images/posts/20190117/es-module-mocha-debug.png" alt="ES Module Mocha Debug" title="ES Module Mocha Debug"></p>
+<p>Note the use of the older 0.17.3 version of Reify rather than the newer 0.18.1 version. A change was introduced in the 0.18.0 release that breaks Mocha when used with the <code>--watch</code> option. Instead of changes being reflected after Mocha auto-reloads, stale source code continues to be used. The 0.17.3 release is the last version of Reify that can be used with the Mocha <code>--watch</code> option. <a href="https://github.com/benjamn/reify/issues/217">An issue has been filed</a>.</p>
+<h2 id="esmasanalternativetoreify">ESM as an Alternative to Reify</h2>
+<p>A fork of Reify, <a href="https://www.npmjs.com/package/esm">ESM</a>, serves as a drop-in replacement for Reify. There are two caveats:</p>
+<ol>
+<li>A <code>skipFiles</code> entry containing the path to the <code>esm.js</code> file will be needed to get <a href="https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_skipping-uninteresting-code-node-chrome">"Just My Code"</a> debugging.</li>
+<li>In a larger project I'm working on, ESM adds about 3 seconds delay to the Mocha auto-reload when using its <code>--watch</code> option.</li>
+</ol>
+<p>The latter point is the reason I continue to use Reify.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>ES Modules can be debugged through Mocha tests on VS Code with Reify. No transpilation, no build system, and no alternative testing frameworks are needed. Simply require Reify through your project's <code>.vscode/settings.json</code> file.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

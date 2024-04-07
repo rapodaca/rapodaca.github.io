@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Getting Started with RDKit and Jupyter | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/08/17/getting-started-rdkit-and-jupyter/">
+      <meta property="og:title" content="Getting Started with RDKit and Jupyter">
+      <meta property="og:description" content="Quickly set up an environment for cheminformatics and machine learning experimentation.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200817/summary.png">
+      <meta content="Quickly set up an environment for cheminformatics and machine learning experimentation." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Getting Started with RDKit and Jupyter</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-08-17T17:00:00Z">2020-08-17T17:00:00Z</time>
+      </header>
+      <p><a href="https://www.rdkit.org">RDKit</a> is a cheminformatics toolkit with bindings for Python. It's <a href="https://www.rdkit.org/docs/Cookbook.html">packed with functionality</a>, deployed within <a href="https://www.rdkit.org/docs/Overview.html#usage-by-other-open-source-projects">multiple</a> open source projects, and is widely-used in machine learning applications. RDKit can also be difficult to install. This article discusses the problem and a method for using RDKit within Jupyter notebooks.</p>
+<h2 id="installationoptions">Installation Options</h2>
+<p><a href="https://pypi.org">The Python Package Index</a> (aka PyPI, aka <code>pip</code>) is Python's standard package manager. Unfortunately, no PyPI package for RDKit exists, precluding <code>pip install rdkit</code>. A <a href="https://github.com/rdkit/rdkit/issues/1812">two-year old issue</a> explains some of the reasons. A <a href="https://github.com/rdkit/rdkit/pull/2690">pull request</a> is in the works, but with unclear status. For more, see the <a href="http://rdkit.blogspot.com/2019/11/why-rdkit-isnt-available-on-pypi.html">post</a> by project lead Greg Landrum.</p>
+<p>Under the <a href="https://github.com/rdkit/rdkit#installation">"Installation" heading</a> the RDKit README lists several installers built to work with platform-specific package managers. Although your results may vary, my experience with the macOS <a href="https://github.com/rdkit/homebrew-rdkit">Homebrew formula</a> resulted in an <a href="https://github.com/rdkit/homebrew-rdkit/issues/87">error</a> that neither the maintainer nor I could resolve. Ultimately, the maintainer offered the following <a href="https://github.com/rdkit/homebrew-rdkit/issues/87#issuecomment-627027056">advice</a>:</p>
+<blockquote>
+  <p>Try the anaconda installer.</p>
+  <p>I don't like it and I don't use it but it is the officially supported way to install rdkit…</p>
+</blockquote>
+<p>I was trying to avoid this option because Anaconda seems like a sledgehammer when the situation calls for little more than a screwdriver. Moreover, the <a href="https://github.com/rdkit/rdkit">README</a> never specifically recommends Anaconda as the preferred installation method. It does however link to an <a href="https://github.com/rdkit/rdkit/blob/master/Docs/Book/Install.md">Installation document</a> that leads with Anaconda, noting that this is the "fastest install."</p>
+<p>Ultimately, using Anaconda worked. What follows are some notes on my process for setting up RDKit together with Jupyter on a macOS system running Mojave. Many of the points addressed here should apply to other operating systems.</p>
+<h2 id="installanaconda">Install Anaconda</h2>
+<p>After downloading the <a href="https://docs.anaconda.com/anaconda/install/mac-os/">graphical installer</a>, I verified its SHA-256 hash (note the <strong>two spaces</strong> between the hash value and filename):</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">"e095c487d2837e4c984d0fcd2217be42c615504a2d7d6651095d34c2fa9807a0  Anaconda3-2020.07-MacOSX-x86_64.pkg"</span> | shasum -a 256 -c -</span>
+Anaconda3-2020.07-MacOSX-x86_64.pkg: OK
+</code></pre>
+<p>Expected hashes for all Anaconda installers are available <a href="https://docs.anaconda.com/anaconda/install/hashes/all/">here</a>.</p>
+<p>With these preliminaries out of the way, I launched the installer and clicked through the screens.</p>
+<h2 id="allyourbase">All Your Base</h2>
+<p>After installing Anaconda I was greeted by a most unwelcome, persistent, foreign terminal prompt:</p>
+<pre><code class="hljs console language-console">(base) $
+</code></pre>
+<p>Fortunately, the fix was easy:</p>
+<pre><code class="hljs console language-console">conda config --set auto_activate_base False
+source ~/.bash_profile
+</code></pre>
+<p>Should you want to query this flag in the future, use:</p>
+<pre><code class="hljs console language-console">conda config --show | grep auto_activate_base
+</code></pre>
+<p>The explanation can be found in <a href="https://askubuntu.com/questions/1026383/">this question</a>. To understand what this base business is all about, we need to dive deeper into Anaconda.</p>
+<h2 id="aboutanaconda">About Anaconda</h2>
+<p>To say that Anaconda is confusing to the beginner would be an understatement. It's a company. It's a suite of tools, some of which are open source. It contains a package manager ("conda"), hundreds of pre-installed packages, and other things. The <a href="https://www.anaconda.com">Anaconda homepage</a> offers little in the way of usable information, opting instead for marketing speak. I found the answers to <a href="https://stackoverflow.com/questions/38217545/what-is-the-difference-between-pyenv-virtualenv-anaconda">this question</a> and its links much more informative. For an excellent if somewhat dated overview, see <a href="https://jakevdp.github.io/blog/2016/08/25/conda-myths-and-misconceptions/">Conda Myths and Misconceptions</a>.</p>
+<p>For the moment, think of Anaconda as a way to create and manage independent environments containing Python and associated packages. The <code>(base)</code> notation described above conveyed the fact that the Anaconda was using the "base" environment by default.</p>
+<h2 id="installrdkitintoananacondaenvironment">Install RDKit into an Anaconda Environment</h2>
+<p>As per the <a href="https://www.rdkit.org/docs/Install.html">RDKit Installation page</a>, we can create a new Anaconda environment to be used with RDKit as follows:</p>
+<pre><code class="hljs console language-console">conda create -c rdkit -n my-rdkit-env rdkit
+</code></pre>
+<p>Breaking this down as per <a href="https://docs.conda.io/projects/conda/en/latest/commands/create.html">the conda documentation</a>:</p>
+<ul>
+<li><code>-c rdkit</code>: Use the <a href="https://github.com/conda-forge/rdkit-feedstock">rdkit feedstock</a> from <a href="https://conda-forge.org">Conda-Forge</a></li>
+<li><code>-n my-rdkit-env</code>: The arbitrary name of the environment (<code>my-rdkit-env</code>). Pick something you like. For example, <code>rdkit-test</code> also works.</li>
+<li><code>rdkit</code>: The identifier for the package(s) to install</li>
+</ul>
+<p>After some console output, verify the availability of the new environment:</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda env list</span>
+<span class="hljs-meta">#</span><span class="bash"> conda environments:</span>
+<span class="hljs-meta">#</span>
+base                  *  /opt/anaconda3
+my-rdkit-env             /opt/anaconda3/envs/my-rdkit-env
+</code></pre>
+<p>The asterisk indicates the current environment.</p>
+<h2 id="activaterdkitenvironment">Activate RDKit Environment</h2>
+<p>The new environment, which should contain RDKit, can be tested with the following (replace <code>my-rdkit-env</code> with the name of your environment):</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda activate my-rdkit-env</span>
+(my-rdikit-env) $
+</code></pre>
+<p>Doing this should update your command prompt. You're now running an environment into which RDKit has been installed. Test this with the following:</p>
+<pre><code class="hljs console language-console">python
+<span class="hljs-meta">&gt;</span><span class="bash">&gt;&gt; from rdkit import rdBase</span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt;&gt; rdBase.rdkitVersion</span>
+'2020.03.3'
+</code></pre>
+<p>When you're done, deactivate the environment with</p>
+<pre><code class="hljs console language-console">conda deactivate
+</code></pre>
+<h2 id="installjupyter">Install Jupyter</h2>
+<p><a href="https://jupyter.org">Jupyter Notebook</a> is a browser-based environment in which documents containing live code and output can be created and shared. Its many features make Jupyter a popular alternative or addition to the Python REPL. See the next section to get an idea of how this works.</p>
+<p>Jupyter is not accessible by default from new Anaconda environments. It can be made accessible with the <a href="https://github.com/Anaconda-Platform/nb_conda_kernels">nb_conda_kernels extension</a>, which can be installed into an existing environment:</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda install -n my-rdkit-env nb_conda_kernels</span>
+</code></pre>
+<p>Now activate the environment and run Jupyter Notebook with:</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda activate my-rdkit-env</span>
+(my-rdkit-env) $ jupyter notebook
+</code></pre>
+<p>This should produce output indicating that a web server is running. It should also launch your default web browser and direct it to a directory listing page.</p>
+<p>You'll probably recognize the items listed as your current working directory. By default, Jupyter exposes the contents of your working directory, using it to store and load notebooks. To change this behavior, stop the server (control-c), create a directory to hold notebooks, and restart using the <code>notebook-dir</code> option:</p>
+<pre><code class="hljs console language-console">(my-rdkit-env) $ mkdir notebooks
+(my-rdkit-env) $ jupyter notebook --notebook-dir=notebooks
+</code></pre>
+<p>You should see an empty notebook list this time.</p>
+<figure>
+  <img alt="Jupyter First Run" src="/images/posts/20200817/jupyter-first-run.png">
+  <figcaption>
+    <strong>Jupyter First Run.</strong> Running jupyter notebook for the first time from an empty directory.
+  </figcaption>
+</figure>
+<h2 id="hellobenzene">Hello, Benzene</h2>
+<p>At this point, it's straightforward to use RDKit within a Notebook. Be sure your environment is activated, then launch Jupyter:</p>
+<pre><code class="hljs console language-console">(my-rdkit-env) $ jupyter notebook --notebook-dir=notebooks
+</code></pre>
+<p>A pulldown button appears to the upper-right of the screen. Click it and select the entry marked <code>Python [conda env::my-rdkit-env]</code> (where <code>my-rdkit-env</code> is the name of your environment). This will ensure that RDKit is accessible from your new notebook.</p>
+<figure>
+  <img alt="Jupyter New Menu" src="/images/posts/20200817/jupyter-new-menu.png">
+  <figcaption>
+    <strong>Jupyter New Menu.</strong> Create a new notebook with the pulldown fro the "New" button.
+  </figcaption>
+</figure>
+<p>Jupyter is organized into blocks of code (<code>In</code>) and output (<code>Out</code>) collectively known as "cells." Create a cell that will display a 2D representation of a benzene molecule as follows:</p>
+<!-- https://stackoverflow.com/questions/9162933/make-iframe-height-dynamic-based-on-content-inside-jquery-javascript -->
+<iframe src="/images/posts/20200817/hello-benzene.html" onload="this.height=this.contentWindow.document.body.scrollHeight;" scrolling="no" class="jupyter"></iframe>
+<p>Keep two guidelines in mind:</p>
+<ol>
+<li>A cell outputs the value obtained from evaluating the last expression. If this is an RDKit molecule, then a 2D image will be displayed.</li>
+<li>To run a cell, click the "Run" button at the top, or press shift-enter.</li>
+</ol>
+<p>At this point, almost anything possible in RDKit will also be possible from a Notebook. For ideas, check out the <a href="https://www.rdkit.org/docs/Cookbook.html">RDKit Cookbook</a>.</p>
+<h2 id="colab">Colab</h2>
+<p>Getting RDKit installed with Jupyter isn't especially hard, but it's somewhat involved. For an easier setup, consider <a href="https://colab.research.google.com/">Google Colab</a>. Colab is a Notebook server hosted by Google. As described in a series of videos, RDKit can be installed into Colab, eliminating most of the work described in this tutorial.</p>
+<!-- https://www.youtube.com/watch?v=ERvUf_lNopo -->
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/ERvUf_lNopo" allowfullscreen=""></iframe>
+</div>
+<p>The catch is that RDKit <a href="https://stackoverflow.com/questions/63244766/">appears</a> to require re-installation before every use within Colab.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>RDKit has become an essential software package for cheminformatics. Unfortunately, installation of RDKit doesn't follow the happy path of <code>pip install</code>. For now, the most reliable option appears to be Anaconda, as described here. With some additional configuration RDKit and Jupyter Notebooks can be used together seamlessly.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

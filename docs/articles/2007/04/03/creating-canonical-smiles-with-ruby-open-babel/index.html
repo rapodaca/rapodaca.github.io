@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Creating Canonical SMILES with Ruby Open Babel | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Creating Canonical SMILES with Ruby Open Babel</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-04-03T00:00:00.000Z">2007-04-03T00:00:00.000Z</time>
+      </header>
+      <p>Unlike many data types, molecular structure representations are not normally unique. Each numbering system you choose for the atoms and bonds of a molecule gives rise to completely accurate, but degenerate molecular representations. This is one of the fundamental <a href="/articles/2006/09/03/peculiarities-of-chemical-information">peculiarities of chemical information</a> - and the focus of much research activity <a href="/articles/2007/03/14/eleven-qualities-of-the-perfect-line-notation-for-the-web">over the last sixty or so years</a>. One of the most widely-used approaches to this problem is canonicalization.</p>
+<p>This article discusses the <a href="http://sourceforge.net/forum/forum.php?forum_id=629764">SMILES canonicalization capability</a> in the upcoming Open Babel 2.1 release. Among several other enhancements, this release will also feature a brand new Ruby interface. By way of preview, this article will demonstrate just how convenient it has now become to generate canonical SMILES strings with Ruby.</p>
+<p><img src="/images/posts/20070403/aminopterin.png" alt="Aminopterin" title="Aminopterin"></p>
+<p>Consider the putative rodenticide aminopterin, the structure of which is shown above. Regardless of whether it turns out to be the culprit in the <a href="http://www.cbsnews.com/stories/2007/03/23/national/main2600615.shtml">recent pet food poisoning case</a>, it's a relatively complex molecule. And with this complexity comes many possible representations. Here's one of just hundreds, if not thousands, of possible SMILES strings for this molecule:</p>
+<pre><code class="hljs bash language-bash">Nc3nc(N)c2nc(CNc1ccc(C(=O)N[C@@H](CCC(=O)O)C(=O)O)cc1)cnc2n3
+</code></pre>
+<p>If you were developing a database of molecules and needed to support exact structure searching, how would you do it? One way would be to convert a query molecule to a canonical SMILES string, and then simply look for that string in an index of your database's canonical SMILES. This is useful because it allows us to convert a chemistry-specific problem (exact structure search) into a generic computer science problem (text matching).</p>
+<p>We can create a simple Ruby library to convert any SMILES string into an Open Babel canonical SMILES string:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'openbabel'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Can</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
+    @conversion = OpenBabel::OBConversion.new
+    @conversion.set_in_and_out_formats <span class="hljs-string">'smi'</span>, <span class="hljs-string">'can'</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">convert</span> <span class="hljs-title">smiles</span></span>
+    mol = OpenBabel::OBMol.new
+
+    @conversion.read_string mol, smiles
+    @conversion.write_string mol
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Save this code as a file called <strong>can.rb</strong> in your working directory. The library can then be used, for example, via interactive ruby (irb):</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'can'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; c=Can.new
+=&gt; <span class="hljs-comment">#&lt;Can:0x2ac6cc653228 @conversion=#&lt;OpenBabel::Conversion:0x2ac6cc6531d8&gt;&gt;</span>
+irb(main):003:0&gt; puts c.convert(<span class="hljs-string">'Nc3nc(N)c2nc(CNc1ccc(C(=O)N[C@@H](CCC(=O)O)C(=O)O)cc1)cnc2n3'</span>)
+OC(=O)CC[C@@H](NC(=O)c1ccc(NCc2cnc3nc(N)nc(N)c3n2)cc1)C(=O)O
+=&gt; nil
+irb(main):004:0&gt; puts c.convert(<span class="hljs-string">'C1=CC(=CC=C1C(=O)N[C@@H](CCC(=O)O)C(=O)O)NCC2=CN=C3C(=N2)C(=NC(=N3)N)N'</span>)
+OC(=O)CC[C@@H](NC(=O)c1ccc(NCc2cnc3nc(N)nc(N)c3n2)cc1)C(=O)O
+=&gt; nil
+</code></pre>
+<p>Both SMILES strings for aminopterin were converted into the same canonical SMILES string.</p>
+<p>Unlike InChI, which uses a "standard" <a href="/articles/2006/08/12/inchi-canonicalization-algorithm">canonicalization algorithm</a>, SMILES canonicalization varies by software package. As a result, the SMILES canonicalization described here will be most useful <em>within</em> a software package, but probably not <em>externally</em> to it, at least initially.</p>
+<p>Ruby is still an upstart language in cheminformatics. But tools like <a href="/articles/tag/rubycdk">Ruby CDK</a> and Ruby Open Babel offer ample opportunities for learning what this remarkable language can do for the development of chemistry applications.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

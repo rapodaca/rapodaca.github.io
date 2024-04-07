@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiling Open Babel to Pure Java Bytecode with NestedVM - An Unsuccessful First Attempt | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Compiling Open Babel to Pure Java Bytecode with NestedVM - An Unsuccessful First Attempt</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-11-19T00:00:00.000Z">2007-11-19T00:00:00.000Z</time>
+      </header>
+      <p>Wouldn't it be great to be able to compile code written in languages like FORTRAN, C, and C++ to Java bytecode? <a href="http://nestedvm.ibex.org/">NestedVM</a> - almost magically - can do just that. This article documents a failed first attempt to compile the popular cheminformatics toolkit <a href="http://openbabel.sf.net">Open Babel</a>, which is written in C and C++, to pure Java bytecode with NestedVM.</p>
+<p>A previous article described the <a href="/articles/2007/10/31/jinchi-run-inchi-anywhere-java-runs">successful compilation of the InChI toolkit</a>, a C library, to a platform-independent executable jarfile.</p>
+<h2 id="theproblem">The Problem</h2>
+<p><a href="http://openbabel.sf.net">Open Babel</a> is one of cheminformatics' most <a href="http://sourceforge.net/project/stats/?group_id=40728&amp;ugn=openbabel">widely-used</a> open source packages. It interconverts dozens of molecular languages, performs a host of cheminformatics analyses, and serves as a platform for many programs and Web services.</p>
+<p>As useful as Open Babel is, it doesn't run directly on a Java Virtual Machine (JVM). Although an <a href="http://openbabel.sourceforge.net/wiki/Java">Open Babel JNI</a> interface does exist, using it introduces a platform dependency, which in many cases is not acceptable. JNI is a great solution in some cases, but when maintaining a single version of a program is important, or when applets need to be used, or when code needs to work with unusual system configurations, it's a poor choice.</p>
+<p>Our goal is to compile Open Babel's "babel" command-line utility into pure Java bytecode that can be run on any recent JVM without using JNI.</p>
+<h2 id="overviewofnestedvm">Overview of NestedVM</h2>
+<p>In a nutshell, NestedVM converts MIPS binaries to Java class files. In theory, this allows software written in any language that can be compiled to a MIPS binary to be run on a JVM.</p>
+<p>To do this, NestedVM distributes two categories of tools: (1) a complete MIPS cross-compiler toolchain; and (2) a MIPS binary to Java bytecode compiler and accessories.</p>
+<h2 id="buildingnestedvm">Building NestedVM</h2>
+<p>The preferred method to install NestedVM is to compile it from source found in the project repository. There are a number of prerequisites your system must meet in order to be able to do so. For now, this article assumes your system has all of them. Some of the following steps can be found in <a href="http://wiki.brianweb.net/NestedVM/QuickStartGuide">these instructions</a> as well.</p>
+<p>To obtain the source code from the NestedVM darcs repository:</p>
+<pre><code class="hljs bash language-bash">darcs get --repo-name=nestedvm http://nestedvm.ibex.org
+</code></pre>
+<p>Then change into the <strong>nestedvm</strong> directory and build the main code:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> nestedvm
+make
+</code></pre>
+<p>On my machine, this step takes 10-15 minutes.</p>
+<p>To make sure your build works, run the tests:</p>
+<pre><code class="hljs bash language-bash">make <span class="hljs-built_in">test</span>
+...
+1.574000e+00
+-4.315000e+01l
+-43
+-4.315000e+01
+4.315000e+01
+Hello, World
+7F
+fabs(-2.24) = 2.34
+Destructor!
+</code></pre>
+<p>NestedVM doesn't build the g++ compiler by default - it's something that needs to be done manually. Fortunately, it's not difficult to do:</p>
+<pre><code class="hljs bash language-bash">make cxxtest
+...
+java -cp build tests.CXXTest
+Test<span class="hljs-string">'s constructor
+Name: 0x50b40
+Name: PKc
+Is pointer: 1
+Name: 0x50b3c
+Name: i
+Is pointer: 0
+Hello, World from Test
+Now throwing an exception
+sayhi threw: const char *:Hello, Exception Handling!
+Test'</span>s destructor
+</code></pre>
+<p>Finally, with all tools built, we need to set up our environment:</p>
+<pre><code class="hljs bash language-bash">make env.sh
+<span class="hljs-built_in">source</span> env.sh
+</code></pre>
+<p>We're now ready to cross-compile Open Babel.</p>
+<h2 id="crosscompilingopenbabel">Cross-Compiling Open Babel</h2>
+<p>For this tutorial, we'll use the <a href="http://sourceforge.net/project/showfiles.php?group_id=40728&amp;package_id=32894&amp;release_id=521581">Open Babel 2.1.1</a> source distribution. Unpack the tarball and change into the directory.</p>
+<p>Next, we'll need to set up our cross-compiler environment. Fortunately, NestedVM has made this easy. If you check your environment variables, you'll find that <code>CXX</code> and <code>CC</code> have both been set. All that remains is to notify the configure script that we'll be cross-compiling:</p>
+<pre><code class="hljs bash language-bash">./configure --host=mips-unknown-elf
+</code></pre>
+<p>Then we build the MIPS binaries:</p>
+<pre><code class="hljs bash language-bash">make
+</code></pre>
+<p>Peeking into the <code>tools</code> directory, we can see all of the Open Babel command line tools have been built, including <code>babel</code>.</p>
+<p>Unless you're running a MIPS machine, though, this binary won't be executable.</p>
+<p>So far, it looks like everything worked. Although it didn't work the first time I tried it, the NestedVM team <a href="http://groups.google.com/group/nestedvm/browse_thread/thread/7373accf6010d6d7">were most helpful</a>.</p>
+<h2 id="buildingthejavaclassfile">Building the Java Class File</h2>
+<p>We're now ready for the final stage in the process, converting the MIPS binary to a Java class file. Again, NestedVM makes this simple:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> tools
+java org.ibex.nestedvm.Compiler -outfile Babel.class Babel babel
+Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">"main"</span> java.lang.IllegalStateException: unresolved phantom target
+        at org.ibex.classgen.MethodGen.resolveTarget(MethodGen.java:555)
+        at org.ibex.classgen.MethodGen._generateCode(MethodGen.java:664)
+        at org.ibex.classgen.MethodGen.generateCode(MethodGen.java:618)
+        at org.ibex.classgen.MethodGen.dump(MethodGen.java:888)
+        at org.ibex.classgen.ClassFile._dump(ClassFile.java:193)
+        at org.ibex.classgen.ClassFile.dump(ClassFile.java:160)
+        at org.ibex.nestedvm.ClassFileCompiler.__go(ClassFileCompiler.java:380)
+        at org.ibex.nestedvm.ClassFileCompiler._go(ClassFileCompiler.java:72)
+        at org.ibex.nestedvm.Compiler.go(Compiler.java:259)
+</code></pre>
+<p>Unfortunately, NestedVM has blown up with an exception. Although our target class file, <strong>Babel.class</strong> is now in our working directory, it is not complete and won't run.</p>
+<h2 id="whatwentwrong">What Went Wrong?</h2>
+<p>After bringing this problem to the <a href="http://groups.google.com/group/nestedvm">NestedVM mailing list</a>, it appears that this is a <a href="http://groups.google.com/group/nestedvm/browse_thread/thread/b5d114a20a6b672b">NestedVM bug</a>.</p>
+<p>However, the way <code>babel</code> works is to load its various language modules dynamically. It may be possible to fix the problem by producing a version of <code>babel</code> containing all of its modules in a single binary.</p>
+<p>Although there is a major issue to be resolved, this tutorial illustrates the full process of compiling C++ code to Java bytecode using NestedVM.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

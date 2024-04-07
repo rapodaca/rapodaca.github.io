@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hacking JSpecView - Creating an HTML Test Harness | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Hacking JSpecView - Creating an HTML Test Harness</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-01-28T00:00:00.000Z">2008-01-28T00:00:00.000Z</time>
+      </header>
+      <p>The <a href="/articles/2008/01/23/hacking-jspecview-getting-organized-with-ant">previous article in this series</a> discussed the construction of an Ant build environment for <a href="http://jspecview.sourceforge.net/">JSpecView</a>. This article will show how to use Ant to build an HTML harness to test the resulting Applet and jarfile.</p>
+<h2 id="availabilityofsourcecode">Availability of Source Code</h2>
+<p>Robert Lancashire, the lead JSpecView developer, has kindly agreed to host the complete source code for this series of tutorials on the <a href="http://sourceforge.net/project/showfiles.php?group_id=161398&amp;package_id=260592">JSpecView SourceForge project page</a>.</p>
+<h2 id="overview">Overview</h2>
+<p>Our goal for this session is to create an Ant task that will assemble a directory of HTML pages for testing the JSpecView applet. To do this, we'll add a new <code>demo</code> task and some supporting files.</p>
+<h2 id="editingthebuildxmlfile">Editing the build.xml File</h2>
+<p>The main change we'll make is to add the <code>demo</code> task itself:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"demo"</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">"jar"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${demo}"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">copy</span> <span class="hljs-attr">todir</span>=<span class="hljs-string">"${demo}"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">fileset</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${resources-html}"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">copy</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">copy</span> <span class="hljs-attr">file</span>=<span class="hljs-string">"${build-lib}/${unix-name}-${version}.jar"</span> <span class="hljs-attr">tofile</span>=<span class="hljs-string">"${demo}/lib/${unix-name}.jar"</span> /&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
+</code></pre>
+<p>This task creates a <strong>demo</strong> directory and copies into it the contents of a new <strong>resources/html</strong> directory, along with the jarfile built with the <code>jar</code> task.</p>
+<p>Other changes to the <strong>build.xml</strong> file are necessary. In the interest of brevity, they have been omitted. Those interested should <a href="http://sourceforge.net/project/showfiles.php?group_id=161398&amp;package_id=260592">download the source package</a> to be available shortly.</p>
+<h2 id="creatingthestrongresourcesstrongdirectory">Creating the <strong>resources</strong> Directory</h2>
+<p>Think of the <strong>resources</strong> directory as a place to hold non-Java files that will get used by our Ant tasks. Our first addition to this directory will be a directory called html. Here, we'll create a new directory called <strong>demo1</strong>. It will contain an HTML document with an embedded JSpecView applet (<strong>index.html</strong>), along with a JCAMP-DX file (<strong>netanilineH.jdx</strong>) and the excellent <a href="/articles/2007/11/02/eolas-and-jactivating-working-around-a-workaround">JActivating</a> JavaScript tool.</p>
+<h2 id="usingthedemotask">Using the <code>demo</code> Task</h2>
+<p>We can run our new <code>demo</code> task just like the others:</p>
+<pre><code class="hljs bash language-bash">ant demo
+Buildfile: build.xml
+
+init:
+    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build
+    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build/classes
+    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build/lib
+
+compile:
+    [javac] Compiling 48 <span class="hljs-built_in">source</span> files to /home/rich/devel/proj/jspecview/build/classes
+
+jar:
+      [jar] Building jar: /home/rich/devel/proj/jspecview/build/lib/jspecview-20080128.jar
+
+demo:
+    [mkdir] Created dir: /home/rich/devel/proj/jspecview/demo
+     [copy] Copying 3 files to /home/rich/devel/proj/jspecview/demo
+     [copy] Copying 1 file to /home/rich/devel/proj/jspecview/demo/lib
+
+BUILD SUCCESSFUL
+Total time: 3 seconds
+</code></pre>
+<p>If all went well, you should see a new <strong>demo</strong> directory with the following structure:</p>
+<p><img src="/images/posts/20080128/screen.png" alt="Screen" title="Screen"></p>
+<h2 id="viewingtheresult">Viewing the Result</h2>
+<p>You can view the result online <a href="/images/posts/20080128/demo/demo1/index.html">here</a>. The applet loads and displays the JCAMP-DX file <code>[netanilineH.jdx](/images/posts/20080128/demo/demo1/netanilineH.jdx)</code>. Notice that the spectrum is interactive; zoom and display properties can be set by right-clicking in the applet Window.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>This tutorial has show how to build a simple HTML test harness for JSpecView. With this important step complete, we can begin to customize JSpecView itself. Future tutorials will show how.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

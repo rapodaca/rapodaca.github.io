@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>RESTful Substructure Search | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>RESTful Substructure Search</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-06-03T00:00:00.000Z">2009-06-03T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://en.wikipedia.org/wiki/Representational_State_Transfer">REST</a> is an architectural style for Web applications that emphasizes regularity and discoverability. Unlike most other approaches, REST exploits the full power of HTTP, both in terms of expression and performance optimization. This article explores REST from the perspective of cheminformatics Web services, using the specific example of substructure search.</p>
+<h2 id="restandchemicalinformationservices">REST and Chemical Information Services</h2>
+<p>Chemical information systems have a lot to gain from using RESTful architectures. As the number of <a href="http://zusammen.metamolecular.com/2009/03/09/sixty-four-free-chemistry-databases-serialized">free chemistry databases</a> continues to increase, interoperability can serve as a potent tool in counteracting confusion and fatigue on the part of end users. REST offers a low-energy pathway to achieve interoperability among the growing number independent chemical information services.</p>
+<h2 id="restfulsubstructuresearch">RESTful Substructure Search</h2>
+<p>Let's say we run a chemical database that offers programmatic access to substructure search. How should the API to this feature be designed?</p>
+<p>We could start by thinking of a substructure search as being a kind of resource:</p>
+<blockquote>
+  <p>The key abstraction of information in REST is a resource. Any information that can be named can be a resource: a document or image, a temporal service (e.g. "today's weather in Los Angeles"), a collection of other resources, a non-virtual object (e.g. a person), and so on. In other words, any concept that might be the target of an author's hypertext reference must fit within the definition of a resource. A resource is a conceptual mapping to a set of entities, not the entity that corresponds to the mapping at any particular point in time.</p>
+  <p><cite>Roy Fielding <a href="http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm">PhD Dissertation</a></cite></p>
+</blockquote>
+<p>We might call our substructure search resource "Query." Using four HTTP verbs, we could create (POST), read (GET), update (PUT), and destroy (DELETE) queries:</p>
+<pre><code class="hljs bash language-bash">POST   /queries      <span class="hljs-comment"># create a new Query</span>
+GET    /queries/{id} <span class="hljs-comment"># read the results of a Query</span>
+PUT    /queries/{id} <span class="hljs-comment"># edit a previously-created Query</span>
+DELETE /queries/{id} <span class="hljs-comment"># delete a Query </span>
+</code></pre>
+<p>Notice that all four basic HTTP verbs are used. Also notice that specific parameters of a new query are encoded in a formatted payload within the body of a POST request - not in the URL itself.</p>
+<p>A POST request against /queries returns a response body containing the Query {id} that would be the key to future use of the results. It may also contain the full content of the Query results, depending on our goals for the system.</p>
+<p>A Query results set would consist of an array of Structure identifiers. Because Structures are also resources, we operate on them the same way we operate on Queries:</p>
+<pre><code class="hljs bash language-bash">POST   /structures      <span class="hljs-comment"># create a new Structure</span>
+GET    /structures/{id} <span class="hljs-comment"># display a Structure</span>
+PUT    /structures/{id} <span class="hljs-comment"># edit a previously-created Structure</span>
+DELETE /structures/{id} <span class="hljs-comment"># delete a Structure </span>
+</code></pre>
+<p>Workflows in such a system become quite easy to understand and implement. For example, how would we delete all Structures containing a naphthalene ring? The answer should be apparent even with the limited discussion presented here.</p>
+<p>Building our Web API entirely out of resources and the four verbs that act on them results in a system that's easier to maintain, document, understand, and use.</p>
+<h2 id="implications">Implications</h2>
+<p>Defining Query as a full-fledged resource in our system offers some intriguing possibilities for better serving our users.</p>
+<p>For example, Joe might be especially interested in the quinoxalines contained in our heterocycle synthetic methods database. Whenever a new method for preparing quinoxalines appears, he wants to know about it immediately.</p>
+<p>Using our RESTful architecture, Joe can create his query, and then build a custom RSS feed from it:</p>
+<pre><code class="hljs bash language-bash">GET  /queries/1234.rss <span class="hljs-comment">#Query results in RSS format</span>
+</code></pre>
+<p>Now, whenever a new quinoxaline preparation appears, Joe gets instant, unobtrusive notification in his feed reader. Our system may also allow Queries to be shared among users, creating opportunities for users with no previous contact to discover other chemists who share their interest in a particular structural motif.</p>
+<p>Still more interesting possibilities exist for users of our Web API. Our RESTful architecture will be easily understandable by other developers, so the barrier to interoperating will be reduced. A marine natural products database ("AquaBase") may decide to link its structure collection to ours. Whenever a new natural product is added that contains an interesting heterocyclic ring system, AquaBase uses our Web API to find possible syntheses for display to its users.</p>
+<h2 id="examples">Examples</h2>
+<p><a href="http://chemcaster.com">Chemcaster</a>, the cheminformatics Web services platform, has implemented a <a href="http://products.metamolecular.com/2009/05/26/substructure-search-with-the-chemcaster-web-api">RESTful substructure search API</a> that works as described here. Users maintain collections of Structures, against which Queries can be run. Queries can be stored and re-used. One application could be a chemical supplier catalog in which the goal is to automatically create and maintain product categories based on substructure, for example: "indoles"; "imidazoles"; "pyrroles"; and "pyrimidines."</p>
+<p>PubChem's <a href="http://pubchem.ncbi.nlm.nih.gov/pug_soap/pug_soap_help.html">Power User Gateway</a> (PUG) is a cheminformatics Web API that allows substructure searches and is based on SOAP. Even a cursory reading of the documentation will reveal differences with the approach described here. As such, PUG affords an opportunity to assess the tradeoffs between SOAP and REST in cheminformatics.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Disconnected chemical databases live life well below their potential. By designing services with RESTful APIs, the utility of these services can be extended significantly. Even concepts as abstract as "substructure search" can be modeled as resources for use in RESTful systems.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

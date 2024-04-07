@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Types without TypeScript | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/10/20/types-without-typescript/">
+      <meta property="og:title" content="Types without TypeScript">
+      <meta property="og:description" content="Build type-safety into JavaScript projects without sacrificing language or tooling.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20211020/summary.png">
+      <meta content="Build type-safety into JavaScript projects without sacrificing language or tooling." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Types without TypeScript</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-10-21T14:20:00Z">Updated 2021-10-21T14:20:00Z</time>
+      </header>
+      <p>An oft-cited element of JavaScript's success is dynamic typing. The language's minimal type system means that type errors are reported at runtime. This flexibility can be liberating during early work lacking a clear design. But like any technology, there are tradeoffs. A project that grows in size, complexity, or developer count can expose the true costs of dynamic typing. This article takes a look at the problem and offers a detailed solution that works without transpilers, new languages, or unusual tooling.</p>
+<h2 id="quickstart">QuickStart</h2>
+<p>The discussion that follows uses the source code and configurations found in <a href="https://github.com/rapodaca/typed-javascript">this repository</a>. To start using types with JavaScript, clone the repo, run the <code>tsc</code> task, and replace the source code with your own.</p>
+<figure>
+  <img alt="Types in JavaScript" src="/images/posts/20211020/demo.mp4">
+  <figcaption>
+    <strong>Types in JavaScript.</strong> Applying JavaScript type hints through JSDoc tags. The result is valid JavaScript, but with annotations that allow the detection of type errors prior to runtime.
+  </figcaption>
+</figure>
+<h2 id="whynottypescript">Why Not TypeScript?</h2>
+<p>One method of adding types to JavaScript is <a href="https://www.typescriptlang.org">TypeScript</a>. TypeScript is a statically-typed language that compiles to JavaScript. Unlike languages such as Java or Rust, types are optional in TypeScript. In other words, TypeScript lets you pay as you go. Like many statically typed languages, TypeScript supports type inference so that needless type information can be elided, while retaining all of the benefits of typed values.</p>
+<p>Since its introduction in 2012 by Microsoft, the tooling and popularity of TypeScript have grown considerably. The 2021 <a href="https://insights.stackoverflow.com/survey/2021">StackOverflow Developer Survey</a> placed Typescript as the sixth most commonly used programming language and the third "most loved" language. </p>
+<p>Given the activity around TypeScript, why not just use it? There are several reasons:</p>
+<ul>
+<li><em>TypeScript is not JavaScript.</em> Claims that TypeScript is a "superset" of JavaScript, are <a href="https://stackoverflow.com/questions/29918324/">questionable at best</a>. A more accurate model would consider TypeScript and JavaScript to be mutually exclusive languages with a common ancestry. In other words, it's possible to create programs in one language that are incompatible with the other.</li>
+<li><em>TypeScript must be compiled.</em> None of the most prevalent runtimes, either browser-based or Node.js, support TypeScript directly. The only way to use TypeScript programs on these platforms is to transpile it to JavaScript. This dependency can set up a cascade of events that may pose serious challenges for a project. For example, with a compiler comes a <a href="https://dev.to/alekseiberezkin/typescript-is-slow-what-can-we-do-about-it-30hm">compile time</a> that can in extreme cases interfere with development itself. This interference may not be clear until a project is well underway.</li>
+<li><em>All-or-Nothing.</em> Although many things can change during a project, the programming language is the least likely to do so given its all-encompassing nature. Backing out of a TypeScript experiment gone wrong could be expensive.</li>
+<li><em>Future JavaScript compatibility.</em> Although TypeScript and JavaScript may be close cousins, they are separate languages. Each feature added to either language raises the possibility of mutual incompatibility down the road. For example, if syntax-level type annotations (à la Python 3) ever make it into JavaScript, there's no guarantee that they would be compatible with TypeScript.</li>
+<li><em>Maintainability.</em> The more TypeScript and JavaScript diverge, the more difficult it will be to cross-train developers on each language. After a number of years, the current main advantage of TypeScript, close syntactic similarity to JavaScript, could fade. This could cause problems with a TypeScript project's long-term maintenance.</li>
+<li><em>Existing projects must be ported.</em> The mutual incompatibility of the two languages in the general sense means that adopting TypeScript on an existing project guarantees some form of rewrite. The benefits may not justify the costs.</li>
+</ul>
+<p>What if there were a low-risk path from JavaScript to JavaScript with types?</p>
+<h2 id="jsdoc">JSDoc</h2>
+<p><a href="https://jsdoc.app">JSDoc</a> is JavaScript's documentation markup system. One of its most valuable uses is type annotation. A system of tags, preceded by the at symbol (<code>@</code>), makes it possible to describe the shape of data within a JavaScript program at high resolution. Consider the following simple example:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">i</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">j</span></span>
+ * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> add = <span class="hljs-function">(<span class="hljs-params">i, j</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> i + <span class="hljs-built_in">parseFloat</span>(j);
+};
+</code></pre>
+<p>Changing the <code>add</code> function in a way that's incompatible with the JSDoc type annotations causes VS Code to complain noticeably and actionably.</p>
+<figure>
+  <img alt="Type Error" src="/images/posts/20211020/type-error.png">
+  <figcaption>
+    <strong>Types Error.</strong> VS Code detects an attempt to add a number to a string. Without type information, this error may not be apparent.
+  </figcaption>
+</figure>
+<p>Although JSDoc's original purpose was documentation, it is increasingly being used as a detachable type system for JavaScript. I say "detachable" because the type information itself is cleanly separable from the code, unlike TypeScript. Detachable typing has been driven by two major forces over the last dozen years or so:</p>
+<ul>
+<li><a href="https://developers.google.com/closure">Closure Tools</a> (aka "Closure"). Two components, a compiler and a comprehensive standard library, use JSDoc type annotations extensively. Although Closure's importance has waned over the years, it was the first large-scale effort to implement a type system on top of JavaScript. </li>
+<li>TypeScript. In many respects, TypeScript has picked up where Closure left off. There are two factors at play. First, VS Code has for some time provided type hints based on JSDoc. Second, most of TypeScript's type system has been ported to JSDoc.</li>
+</ul>
+<p>The combination of VS Code and JSDoc type annotation tags means that developers can get most of the advantages of statically typed languages without having to sacrifice the tooling, universal deployability, or developer expertise of JavaScript.</p>
+<h2 id="typedjavascript">Typed JavaScript</h2>
+<p>The use of JSDoc as a lightweight typing system for JavaScript yields something I call <em>Typed JavaScript</em>. Typed JavaScript is a system of tooling and conventions that exposes type hints and type errors before a program is run. JavaScript lacks a mandatory compile step, so it doesn't make much sense to talk about <a href="https://en.wikipedia.org/wiki/Type_system">static typing</a>. But Typed JavaScript offers the same main advantage as a compiled, statically typed language.</p>
+<p>The benefits of pre-execution type checking in dynamically-typed languages are worth considering. Unit tests can only address some of the errors that code may be exposed to. Used together with a good test suite, typed JavaScript can make most bugs more visible, and sooner, than would otherwise be possible.</p>
+<p>Developers using Python 3 have come to similar conclusions. For example, the <a href="https://github.com/urllib3/urllib3">urllib3</a> team completed a retrofit of type hints onto the most downloaded package on the Python Package Index. The lead maintainer, <a href="https://sethmlarson.dev/">Seth Larson</a>, recently wrote in detail about the experience, <a href="https://sethmlarson.dev/blog/2021-10-18/tests-arent-enough-case-study-after-adding-types-to-urllib3">concluding</a>:</p>
+<blockquote>
+  <p>Adding type hints to urllib3 was clearly a huge amount of work, hundreds of engineer hours across several months. What we once thought would be a purely developer-facing change ended up making the codebase more robust than ever. Several non-trivial logic errors were fixed and our team is more confident reviewing and merging PRs. This is a big win for our users and a very worthy investment.</p>
+</blockquote>
+<p>JavaScript may lack language support for types in the Python 3 sense, but this can be simulated with Typed JavaScript.</p>
+<h2 id="usingtypedjavascript">Using Typed JavaScript</h2>
+<p>"Typed JavaScript" is a name I made up to describe a loose collection of practices around detachable types in JavaScript. The history and extent of these practices is currently murky. What's clear is that the approach has a following, as evidenced by this <a href="https://stackoverflow.com/questions/45836847/">Question</a> and many like it. In 2019, Stefan Baumgartner described some of the same conventions described here in an article titled <em><a href="https://fettblog.eu/typescript-jsdoc-superpowers/">TypeScript without TypeScript -- JSDoc superpowers</a></em>. Developers are using detachable types, but understanding how is hampered by the lack of a label under which to bring all of the documentation.</p>
+<p>This amorphous quality leads to the main challenge when using Typed JavaScript, lack of documentation. It can be seen most clearly along two axes: syntax and tooling. Syntax is challenging because JSDoc bears the marks of many different influences over many years. As a result, not all type formulations will work with all tools. A lot of documentation is therefore of limited value. </p>
+<p>This brings us to tooling. Typed JavaScript as I'll document it here is powered by <a href="https://code.visualstudio.com">Microsoft Visual Studio Code</a> ("VS Code"). This is the pre-eminent IDE for TypeScript. As a result, it's not hard to find a lot of current, good documentation around using VS Code and TypeScript together. What's much harder is finding good documentation on the alternative approach involving JSDoc comments.</p>
+<p>As I've worked with Typed JavaScript in my current project, one of the biggest gaps I've found is how to formulate JSDoc type tags in a way that VS Code can translate to useful JavaScript type information.</p>
+<h2 id="commontagpatterns">Common Tag Patterns</h2>
+<p>Wikipedia notes that a <a href="https://en.wikipedia.org/wiki/Software_design_pattern">"Design Pattern"</a> embodies a "reusable solution to a commonly occurring problem within a given context of software design." While working with Typed JavaScript, I've found it helpful to compile patterns of common use.</p>
+<p>The following examples stick with the convention I've found handy — use JSDoc annotations exclusively, rather than mixed JSDoc/JavaScript. By mixed JSDoc/JavaScript, I mean something like the following:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">// Mixed JS/JSDoc style is not recommended.</span>
+<span class="hljs-keyword">const</span> Product = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+  <span class="hljs-comment">/**
+   * <span class="hljs-doctag">@param <span class="hljs-type">{Region}</span> <span class="hljs-variable">region</span></span>
+   * <span class="hljs-doctag">@returns <span class="hljs-type">{Currency}</span></span>
+   **/</span>
+  price (region) { <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'unimplemented'</span>); }
+};
+</code></pre>
+<p>For reasons I won't get into now, I find it cleaner and easier to avoid the above style and instead define complex types entirely within JSDoc.</p>
+<p>Microsoft has published a <a href="https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html">JSDoc Reference</a>, which is useful for understanding specific syntax. However, this reference lacks higher-level principles for composing tags. What follows is a small start on that.</p>
+<h3 id="optionalvalue">Optional Value</h3>
+<p>One of the most useful tag patterns is also the simplest. When a value may be of some type or <code>null</code>, a shortcut can be used.</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">first</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">last</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string?}</span> <span class="hljs-variable">middle</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> printName = <span class="hljs-function">(<span class="hljs-params">first, last, middle</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${first}</span> <span class="hljs-subst">${middle === <span class="hljs-literal">null</span> ? <span class="hljs-string">''</span> : middle}</span> <span class="hljs-subst">${last}</span>`</span>;
+};
+</code></pre>
+<p>The question mark (<code>?</code>) after the <code>string</code> type means that the value of <code>middle</code> is "nullable." Attempting to pass anything other than a <code>string</code> or <code>null</code> results in an error.</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">// ERROR: Argument of type 'undefined' is not assignable to parameter of type 'string | null'.ts(2345)</span>
+printName(<span class="hljs-string">'John'</span>, <span class="hljs-string">'Public'</span>, <span class="hljs-literal">undefined</span>);
+</code></pre>
+<p>A different kind of type restriction may be desired. For example, to restrict a value to <code>string</code> or <code>undefined</code>, use the following syntax:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">first</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">last</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string|undefined}</span> <span class="hljs-variable">middle</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> printName2 = <span class="hljs-function">(<span class="hljs-params">first, last, middle</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${first}</span> <span class="hljs-subst">${middle === <span class="hljs-literal">null</span> ? <span class="hljs-string">''</span> : middle}</span> <span class="hljs-subst">${last}</span>`</span>;
+};
+
+<span class="hljs-comment">// No error.</span>
+printName2(<span class="hljs-string">'John'</span>, <span class="hljs-string">'Public'</span>, <span class="hljs-literal">undefined</span>);
+</code></pre>
+<h3 id="struct">Struct</h3>
+<p>Many languages have the concept of a bag of values or "struct." JavaScript has object literals, but values can assume any type by default. To constrain values, use the <a href="https://jsdoc.app/tags-typedef.html"><code>@typedef</code></a> tag:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">User</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{string}</span> <span class="hljs-variable">first_name</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{string}</span> <span class="hljs-variable">last_name</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
+ */</span>
+</code></pre>
+<p>The following would assign a value of type <code>User</code>:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> user = { <span class="hljs-attr">first_name</span>: <span class="hljs-string">'Alice'</span>, <span class="hljs-attr">last_name</span>: <span class="hljs-string">'Smith'</span>, <span class="hljs-attr">id</span>: <span class="hljs-number">123</span> };
+</code></pre>
+<h3 id="uniontype">Union Type</h3>
+<p>It's sometimes helpful to designate a data structure as satisfying more than one type constraint. The idea is somewhat analogous to multiple inheritance. This can be accomplished through a union type:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Foo</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{string}</span> <span class="hljs-variable">name</span></span>
+ *
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Bar</span></span>
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{number}</span> <span class="hljs-variable">age</span></span>
+ *
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{Foo &amp; Bar}</span> <span class="hljs-variable">FooBar</span></span>
+ */</span>
+</code></pre>
+<p>Object literals like the one below would satisfy <code>Foo</code> type constraints, and would be usable wherever a <code>Foo</code> or a <code>Bar</code> is required:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> foobar = { <span class="hljs-attr">name</span>: <span class="hljs-string">'John'</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">42</span> };
+
+<span class="hljs-comment">/** 
+ * @param {Foo} foo 
+ * @returns {string}
+ */</span>
+<span class="hljs-keyword">const</span> checkFoo = <span class="hljs-function">(<span class="hljs-params">foo</span>) =&gt;</span> foo.name;
+
+<span class="hljs-comment">/** 
+ * @param {Bar} bar 
+ * @returns {string}
+ */</span>
+<span class="hljs-keyword">const</span> checkBar = <span class="hljs-function">(<span class="hljs-params">bar</span>) =&gt;</span> bar.name;
+
+checkFoo(foobar);
+checkBar(foobar);
+</code></pre>
+<h3 id="generics">Generics</h3>
+<p>In statically typed languages, we think of generics as broadening the range of possible types a value may assume. In JavaScript, however, it makes more sense to view generics as <em>constraining</em> the allowed types of a value. Consider a generic <code>Range</code> data structure, for example:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@template <span class="hljs-variable">T</span></span>
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Range</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{T}</span> <span class="hljs-variable">start</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{T}</span> <span class="hljs-variable">end</span></span>
+ */</span>
+</code></pre>
+<p>A range comprised of two different types makes little sense. So the type parameter <code>T</code> constrains the allowed values of <code>start</code> and <code>end</code>. Whatever type we use for one property must match the other. The following object literal satisfies the constraints of <code>Range</code> because <code>start</code> and <code>end</code> properties are of the same type (<code>number</code>):</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> alphabet = {
+  <span class="hljs-attr">start</span>: <span class="hljs-number">13</span>,
+  <span class="hljs-attr">end</span>: <span class="hljs-number">42</span>
+};
+</code></pre>
+<p>Passing type parameters narrows the range of types even further. For example, a function can restrict itself to only numerical ranges as follows:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{Range&lt;number&gt;}</span></span>
+ * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> distance = <span class="hljs-function"><span class="hljs-params">range</span> =&gt;</span> {
+  <span class="hljs-comment">// find distance implied by range</span>
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'not implemented'</span>);
+};
+</code></pre>
+<p>Later we may decide that <code>distance</code> should only work with types whose values conform to a <code>Comparable</code> interface. In that case, the range of allowed types can be restricted by a type parameter of type <code>Comparable</code>:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Comparable</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{function(Comparable): number}</span> <span class="hljs-variable">compare</span></span>
+ */</span>
+
+<span class="hljs-comment">/**
+ * <span class="hljs-doctag">@template <span class="hljs-type">{Comparable}</span> <span class="hljs-variable">T</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{Range&lt;T&gt;}</span> <span class="hljs-variable">first</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{Range&lt;T&gt;}</span> </span>second 
+ * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> distance2 = <span class="hljs-function">(<span class="hljs-params">first, second</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (first.start.compare(second.start) &gt; <span class="hljs-number">0</span>) {
+    <span class="hljs-comment">// first precedes second</span>
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-comment">// second precedes first</span>
+  }
+
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'not implemented'</span>);
+};
+</code></pre>
+<h3 id="function">Function</h3>
+<p>Because functions can be passed as parameters, it makes sense to restrict the parameters associated with them. This comes up, for example, in <a href="https://en.wikipedia.org/wiki/Higher-order_function">higher-order functions</a>. The types associated with a function can be constrained using the <a href="https://jsdoc.app/tags-callback.html"><code>@callback</code></a> tag. It might seem as if <a href="https://jsdoc.app/tags-function.html"><code>@function</code></a> would be a better choice, but it is currently not recognized by VS Code:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@callback <span class="hljs-variable">add</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">i</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">j</span></span>
+ * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ */</span>
+</code></pre>
+<p>The following would satisfy the restrictions for <code>add</code>:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@type <span class="hljs-type">{add}</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> myAdd = <span class="hljs-function">(<span class="hljs-params">i, j</span>) =&gt;</span> i + <span class="hljs-built_in">parseFloat</span>(j);
+</code></pre>
+<p>Alternatively, a function parameter or return type can be specified inline.</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">attenuation</span></span>
+ * <span class="hljs-doctag">@returns <span class="hljs-type">{function(number, number): number}</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> createAdder = <span class="hljs-function"><span class="hljs-params">attenuation</span> =&gt;</span> {
+  <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">i, j</span>) =&gt;</span> attenuation * (i + j);
+};
+</code></pre>
+<h3 id="enum">Enum</h3>
+<p>Sometimes we want to restrict the range of specific values a particular type may assume. This can be accomplished with enums.</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Car</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{'GM'|'Ford'|'Chrysler'|'Tesla'|'Toyota'}</span> <span class="hljs-variable">make</span></span>
+ */</span>
+</code></pre>
+<p>The following object literal would satisfy the <code>Car</code> type constraint:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> car = { <span class="hljs-attr">make</span>: <span class="hljs-string">'Tesla'</span> };
+</code></pre>
+<h3 id="record">Record</h3>
+<p>Some situations call for a dictionary-like data structure with values of the same type. For example, a web application may extract query parameters from a URL. If all values of are the same type (e.g., <code>string</code>), a <code>Record</code> can be used.</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{Record&lt;'first_name'|'last_name', string?&gt;}</span> <span class="hljs-variable">query</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> handle = <span class="hljs-function"><span class="hljs-params">query</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> { first_name, last_name } = query;
+};
+</code></pre>
+<p><code>Record</code> is an example of TypeScript's built-in <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html">utility types</a>.</p>
+<h3 id="utilitytypes">Utility Types</h3>
+<p>One of TypeScript's best features is utility types. As <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html">documented by Microsoft</a>, utility types "facilitate common type transformations."</p>
+<p>Consider a situation in which we want to ensure the immutability of a value passed to a function. This can be accomplished with the <code>Readonly</code> utility type:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Person</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> </span>experience (in years)
+ * 
+ * <span class="hljs-doctag">@param <span class="hljs-type">{Readonly&lt;Array&lt;Person&gt;&gt;}</span> <span class="hljs-variable">people</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> cumulativeExperience = <span class="hljs-function"><span class="hljs-params">people</span> =&gt;</span> {
+  people.pop(); <span class="hljs-comment">// ERROR: Property 'pop' does not exist on type 'readonly Person[]'.ts(2339)</span>
+
+  <span class="hljs-keyword">return</span> people.reduce(<span class="hljs-function">(<span class="hljs-params">total, person</span>) =&gt;</span> total + person.experience, <span class="hljs-number">0</span>);
+};
+</code></pre>
+<p>Several other utility types are available.</p>
+<h3 id="interface">Interface</h3>
+<p>An interface is a collection of methods associated with the same value. Although JavaScript lacks the concept of interface, it can be simulated as a <code>typedef</code>.</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Animal</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{function(string): string}</span> <span class="hljs-variable">talk</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{function(): string}</span> <span class="hljs-variable">walk</span></span>
+ */</span>
+
+<span class="hljs-comment">/** <span class="hljs-doctag">@type </span>Animal */</span>
+<span class="hljs-keyword">const</span> duck = {
+  <span class="hljs-attr">talk</span>: <span class="hljs-function"><span class="hljs-params">name</span> =&gt;</span> <span class="hljs-string">`Quack quack, <span class="hljs-subst">${name}</span>`</span>,
+  <span class="hljs-attr">walk</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-string">'Waddle, waddle.'</span>
+};
+</code></pre>
+<h3 id="asyncawait">Async/Await</h3>
+<p>JavaScript implements async/await on top of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promises</a>. This legacy shows through in the type signature for async functions (<code>@returns {Promise&lt;T&gt;}</code>).</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Employee</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> <span class="hljs-variable">wage</span></span>
+ * 
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Database</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{function(number): Employee}</span> <span class="hljs-variable">getEmployeeById</span></span>
+ * 
+ * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{Database}</span> <span class="hljs-variable">db</span></span>
+ * <span class="hljs-doctag">@returns <span class="hljs-type">{Promise&lt;number&gt;}</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> wage = <span class="hljs-keyword">async</span> (id, db) =&gt; {
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> db.getEmployeeById(id).wage
+};
+</code></pre>
+<h2 id="imports">Imports</h2>
+<p>It's common practice to define a type in one JavaScript file and use it in another. Two procedures are available, both of which use the <code>import</code> directive.</p>
+<p>But before getting to the syntax, a crucial point must be understood. Types will be assigned to a global namespace unless they reside in a module. To add a type to a module, ensure that it is defined within a file that uses the <code>export</code> keyword. Every Typed JavaScript type definition should reside in a module.</p>
+<p>The following illustrates a minimal type definition and export:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/** <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> </span>Foo */</span>
+
+<span class="hljs-keyword">export</span> { }
+</code></pre>
+<p>Given that a type is defined within a module, it can be imported with:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">// ./point.js</span>
+<span class="hljs-comment">/**
+ * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Point</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> <span class="hljs-variable">x</span></span>
+ * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> <span class="hljs-variable">y</span></span>
+ */</span>
+
+<span class="hljs-keyword">export</span> { }
+
+<span class="hljs-comment">// ./functions/x-distance.js</span>
+<span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{import('../point.js').Point}</span> <span class="hljs-variable">point</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">x</span></span>
+ * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> xDistance = <span class="hljs-function">(<span class="hljs-params">point, x</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> x - point.x
+};
+
+<span class="hljs-keyword">export</span> { }
+</code></pre>
+<p>Alternatively, types can be imported using an ES6 module style as follows:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/** <span class="hljs-doctag">@typedef <span class="hljs-type">{import('../point.js').Point}</span> </span>Point */</span>
+
+<span class="hljs-comment">/**
+ * <span class="hljs-doctag">@param <span class="hljs-type">{Point}</span> <span class="hljs-variable">point</span></span>
+ * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">x</span></span>
+ * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ */</span>
+<span class="hljs-keyword">const</span> xDistance = <span class="hljs-function">(<span class="hljs-params">point, x</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> x - point.x
+};
+
+<span class="hljs-keyword">export</span> { }
+</code></pre>
+<p>I favor the latter style because it better parallels the structure of most ES6 code. JSDoc <code>import</code> directives can be placed at the top of a file, just after the ES6 imports.</p>
+<h2 id="usingtypescriptlibraries">Using TypeScript Libraries</h2>
+<p>JavaScript runtimes expose various objects that can be used without instantiation or explicit import. Out of the box, VS Code won't know which of these objects can be referenced safely. For example, the <code>console</code> object exists both in browsers and Node.js contexts.</p>
+<p>However, using <code>console</code> will generate a VS Code error by default:</p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Wat?'</span>); <span class="hljs-comment">// ERROR: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.ts(2584)</span>
+</code></pre>
+<p>Unfortunately, the error message's suggestion is misleading. The way to resolve the error is to add "@types/node" to your NPM dev dependencies, followed by invocation of <code>npm i</code>:</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"module"</span>,
+  <span class="hljs-attr">"devDependencies"</span>: {
+    <span class="hljs-attr">"typescript"</span>: <span class="hljs-string">"4.4.4"</span>,
+    <span class="hljs-attr">"@types/node"</span>: <span class="hljs-string">"16.11.1"</span>
+  }
+}
+</code></pre>
+<p>The line containing "@types/node" points to the <a href="https://www.npmjs.com/package/@types/npm">Types NPM Package</a>. This is a suite of TypeScript type definitions that can be used from VS Code to silence errors and provide useful type information — not only for Node.js but many NPM packages.</p>
+<h2 id="vscode">VS Code</h2>
+<p>So far this article has mentioned VS Code as a context through which type errors will manifest themselves, without describing how to get this working in practice. Although the process is not complicated, it is also not well-documented. Here are the steps I used.</p>
+<p>First, create a blank VS Code project and open it. The project should be devoid of files.</p>
+<p>Next, add the following as <code>./package.json</code>:</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"module"</span>,
+  <span class="hljs-attr">"devDependencies"</span>: {
+    <span class="hljs-attr">"typescript"</span>: <span class="hljs-string">"4.4.4"</span>,
+    <span class="hljs-attr">"@types/node"</span>: <span class="hljs-string">"16.11.1"</span>
+  }
+}
+</code></pre>
+<p>Create the file <code>./.vscode/tasks.json</code> (notice the dot preceding "vscode") and add the following content to it:</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"2.0.0"</span>,
+  <span class="hljs-attr">"tasks"</span>: [
+    {
+      <span class="hljs-attr">"label"</span>: <span class="hljs-string">"tsc"</span>,
+      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"shell"</span>,
+      <span class="hljs-attr">"command"</span>: <span class="hljs-string">"./node_modules/typescript/bin/tsc"</span>,
+      <span class="hljs-attr">"presentation"</span>: {
+        <span class="hljs-attr">"echo"</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">"reveal"</span>: <span class="hljs-string">"never"</span>,
+        <span class="hljs-attr">"focus"</span>: <span class="hljs-literal">false</span>,
+        <span class="hljs-attr">"panel"</span>: <span class="hljs-string">"shared"</span>,
+        <span class="hljs-attr">"showReuseMessage"</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">"clear"</span>: <span class="hljs-literal">false</span>
+      },
+      <span class="hljs-attr">"args"</span>: [<span class="hljs-string">"--noEmit"</span>, <span class="hljs-string">"--watch"</span>],
+      <span class="hljs-attr">"problemMatcher"</span>: [
+        <span class="hljs-string">"$tsc-watch"</span>
+      ],
+      <span class="hljs-attr">"isBackground"</span>: <span class="hljs-literal">true</span>
+    }
+  ]
+}
+</code></pre>
+<p>Finally, create the file <code>./tsconfig.json</code> with the following content:</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"compilerOptions"</span>: {
+    <span class="hljs-attr">"outDir"</span>: <span class="hljs-string">"./dummy"</span>,
+    <span class="hljs-attr">"target"</span>: <span class="hljs-string">"ES6"</span>,
+    <span class="hljs-attr">"lib"</span>: [<span class="hljs-string">"ES6"</span>],
+    <span class="hljs-attr">"checkJs"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">"allowJs"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">"skipLibCheck"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">"moduleResolution"</span>: <span class="hljs-string">"node"</span>,
+    <span class="hljs-attr">"strictNullChecks"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">"allowSyntheticDefaultImports"</span>: <span class="hljs-literal">true</span>
+  },
+  <span class="hljs-attr">"exclude"</span>: [
+      <span class="hljs-string">"node_modules"</span>
+  ],
+  <span class="hljs-attr">"include"</span>: [
+    <span class="hljs-string">"index.js"</span>,
+    <span class="hljs-string">"lib/**/*.js"</span>,
+    <span class="hljs-string">"test/**/*.js"</span>
+  ]
+}
+</code></pre>
+<p>The purposes of the three configuration files are as follows:</p>
+<ul>
+<li><code>./package.json</code> Installs the TypeScript package, preventing a host of inscrutable errors that will arise if it is absent.</li>
+<li><code>./tsconfig.json</code> Instructs the TypeScript compiler on where to find source files, what to exclude, and how to process the files it finds. Comprehensive documentation on this file can be found <a href="https://www.typescriptlang.org/tsconfig">here</a>.</li>
+<li><code>./.vscode/tasks.json</code> Adds a new task to VS Code (tsc) that detects type errors while running in the background.</li>
+</ul>
+<p>Alternatively, you can clone the [Typed JavaScript Project](), which includes everything needed to get started.</p>
+<p>With all files in place, it's time to install the NPM dependencies:</p>
+<pre><code class="hljs bash language-bash">npm i
+</code></pre>
+<p>Before starting with Typed JavaScript, there's one final step. In VS Code, select the <code>Terminal</code> menu, then choose the <code>Run Task</code> option. Type <code>tsc</code> into the search bar and press enter. This runs the <code>tsc</code> (TypeScript compiler) task defined by the file at <code>./.vscode/tasks.json</code>.</p>
+<p>The <code>tsc</code> task is a workaround to a <a href="https://github.com/microsoft/TypeScript/issues/21435">longstanding VS Code issue</a>. Although VS Code checks types in opened files, it does not check types in closed files. This means that if editing the current file leads to errors in other closed files, those errors will not show up in the Explorer panel. Many language have this feature, so its absence from TypeScript makes using Typed JavaScript harder that it needs to be. The task I provide synthesizes various workarounds reported on the GitHub page for the issue.</p>
+<h2 id="observations">Observations</h2>
+<p>I've been using Typed JavaScript, as described here, for about a month on a no-framework web application project. Prior to that I dabbled with JSDoc type hints in VS Code. Years before that I built <a href="https://chemwriter.com">a complex JavaScript project</a> using Closure Tools. With this background in mind, I make the following miscellaneous observations:</p>
+<ul>
+<li>Avoid using <a href="https://www.typescriptlang.org/docs/handbook/declaration-files/templates/module-d-ts.html"><code>*.d.ts</code></a> files. These files are intended for external consumers of your libraries. I have run into hard-to-diagnose problems when trying to repurpose these files for internal use.</li>
+<li>Typed JavaScript types work in the VS Code debugger.</li>
+<li>A <code>typedef</code> without properties equals the any (<code>*</code>) type. This can be confusing because it looks like the <code>typedef</code> was not found. Be sure to give a <code>typedef</code> at least one property to make sure it's working.</li>
+<li>Type hints in Typed JavaScript are much more syntactically verbose than in TypeScript. However, there are ways to cut down on the clutter. For example, a type hint can be tucked between a variable declaration keyword and its name (e.g., <code>let /** @type{string} */ myString;</code>)</li>
+<li>VS Code can infer many types without type annotations. Learn where this applies to avoid cluttering your code with useless definitions.</li>
+<li>Many languages will alert you to types that go unused, but Typed JavaScript will not.</li>
+<li>There is no "go to/open definition" navigation in VS Code running Typed JavaScript. Although you can hover the name of a value to see its type, you can't navigate to its definition.</li>
+<li>Error messages can be verbose. This applies most noticeably to <code>typedef</code> errors, where an entire struct is replicated in the error, causing considerable clutter.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Typed JavaScript offers many of the benefits of TypeScript, but without the disruption caused by a change of language. Implemented through JSDoc type tags and Visual Studio Code, Typed JavaScript requires no breaking syntax changes or unusual tools. As such, Typed JavaScript could offer an alternative for those cases in which TypeScript's costs are too high. Although Typed JavaScript is not new, it has so far lacked a name, comprehensive documentation, and a set of conventions for use. This article is a first attempt at addressing that problem.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

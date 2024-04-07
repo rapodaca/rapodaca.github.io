@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>From C Source Code to Platform-Independent Executable Jarfile - Using NestedVM to Build JInChI | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>From C Source Code to Platform-Independent Executable Jarfile - Using NestedVM to Build JInChI</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-12-03T00:00:00.000Z">2007-12-03T00:00:00.000Z</time>
+      </header>
+      <p>A recent series of articles discussed in some detail the process of compiling source code written in C and C++ to pure Java bytecode with <a href="http://nestedvm.ibex.org/">NestedVM</a>. But the full conversion process, starting with source and finishing with an executable jarfile, has to my knowledge never been documented. This article uses the InChI toolkit to illustrate the complete process for converting a real-world C source distribution into a platform-independent, executable jarfile that can be run with any modern Java Virtual Machine (JVM).</p>
+<h2 id="aboutinchi">About InChI</h2>
+<p>The previous article in this series <a href="/articles/2007/10/31/jinchi-run-inchi-anywhere-java-runs">introduced JInChI</a>, the first and only pure Java implementation of the <a href="http://www.iupac.org/inchi/">IUPAC/NIST InChI toolkit</a>. This toolkit is used to convert molecular connection tables encoded in <a href="http://www.mdli.com/downloads/public/ctfile/ctfile.jsp">MDL's SD File format</a> into ASCII character strings called 'InChIs' that have a <a href="/articles/2007/09/27/inchi-for-newbies">variety of applications in the field of cheminformatics</a>. Although an excellent <a href="/articles/2007/10/10/jruby-for-cheminformatics-reading-and-writing-inchis-via-the-java-native-interface">JNI-InChI</a> interface is available, JNI won't be a viable option in every situation. Our pure Java implementation nicely complements the JNI-InChI library.</p>
+<p>In this tutorial, we'll build version 1.0.2b of the InChI toolkit. This version, among other features, supports the generation of <a href="/articles/2007/05/09/hashing-inchis">InChI Keys</a>.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This article assumes you've already <a href="http://wiki.brianweb.net/NestedVM/QuickStartGuide">installed NestedVM</a> on your system. Building NestedVM required the installation of many dependencies and was a fairly lengthy, but straightforward, process on my Linux system.</p>
+<h2 id="step1prepareyourenvironment">Step 1: Prepare Your Environment</h2>
+<p>Before building anything, we'll need to set up our environment. NestedVM makes this simple:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> /your/path/to/nestedvm/
+<span class="hljs-built_in">source</span> env.sh
+</code></pre>
+<p>Next, let's create a directory to hold the various components we'll need during the build process:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> /your/projects/directory
+mkdir jinchi
+<span class="hljs-built_in">cd</span> jinchi
+</code></pre>
+<p>Next, we'll download and unpack the InChI source distribution:</p>
+<pre><code class="hljs bash language-bash">wget http://www.iupac.org/inchi/download/inchi102b.zip
+unzip inchi102b.zip
+</code></pre>
+<h2 id="step2crosscompileinchi">Step 2: Cross-Compile InChI</h2>
+<p>We now have everything we need to begin cross-compiling. NestedVM uses a two-part process in which source code is first cross-compiled to a MIPS binary. That MIPS binary is then translated to Java bytecode. We start by invoking <code>make</code> with the appropriate cross-compiler flags (which I found by looking through the InChI <strong>Makefile</strong>):</p>
+<pre><code class="hljs bash language-bash">make C_COMPILER=mips-unknown-elf-gcc LINKER=mips-unknown-elf-gcc
+</code></pre>
+<p>This creates a MIPS binary (<code>cInChI-1</code>). Unless you're running on a MIPS machine, this binary won't be executable.</p>
+<pre><code class="hljs bash language-bash">./cInChI-1
+bash: ./cInChI-1: cannot execute binary file
+</code></pre>
+<p>We can now translate the MIPS binary into pure Java bytecode:</p>
+<pre><code class="hljs bash language-bash">java org.ibex.nestedvm.Compiler -outfile JInChI.class JInChI cInChI-1
+</code></pre>
+<p>This produces a Java class file:</p>
+<pre><code class="hljs bash language-bash">ll JInChI.class
+-rw-r--r-- 1 rich rich 4372362 Nov 30 08:27 JInChI.class
+</code></pre>
+<p>We can verify that the classfile has been compiled correctly by running it:</p>
+<pre><code class="hljs bash language-bash">java JInChI
+InChI ver 1, Software version 1.02-beta August 2007.
+
+Usage:
+cInChI-1 inputFile [outputFile [logFile [problemFile]]] [-option[ -option...]]
+
+Options:
+  SNon        Exclude stereo (Default: Include Absolute stereo)
+  SRel        Relative stereo
+
+-- truncated --
+</code></pre>
+<p>We have now done something truly remarkable: we've taken a standard C source code distribution and converted it into an executable Java class file. It runs, but only because the NestedVM runtime is on our classpath (thanks to the <code>source</code> command we used at the beginning of the process).</p>
+<p>What we really want is a self-contained, executable jarfile that can be run, unmodified, on any system with Java installed.</p>
+<h2 id="step3buildthejinchijarfile">Step 3: Build the JInChI Jarfile</h2>
+<p>We begin by moving up the the root directory of our jinchi project, creating a new directory to hold our java-specific files (the <strong>JInChI.class</strong> file and the NestedVM runtime), and copying them into it:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> ../../..
+mkdir jinchi-1.0.2b.1
+mv InChI-1-software-1-02-beta/cInChI/gcc_makefile/JInChI.class jinchi-1.0.2b.1/
+cp -r /your/path/to/nestedvm/build/org/ jinchi-1.0.2b.1
+</code></pre>
+<p>An executable jarfile generally needs a manifest to point to the main execution class. One way to do that is to first create a manifest:</p>
+<pre><code class="hljs bash language-bash">vi jinchi-1.0.2b.1/MANIFEST.MF
+</code></pre>
+<p>It's essential that this file end with a newline.</p>
+<pre><code class="hljs bash language-bash">cat jinchi-1.0.2b.1/MANIFEST.MF
+Main-Class: JInChI
+</code></pre>
+<p>With everything in place, we can create the jarfile:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> jinchi-1.0.2b.1/
+ls
+JInChI.class  MANIFEST.MF  org/
+jar -cfm jinchi-1.0.2b.1.jar MANIFEST.MF *
+ls
+jinchi-1.0.2b.1.jar  JInChI.class  MANIFEST.MF  org/
+</code></pre>
+<p>We've successfully converted standard C source code into a platform independent executable jarfile. But does it work?</p>
+<h2 id="step4testjinchi">Step 4: Test JInChI</h2>
+<p>We can confirm that the process has worked by running the jarfile (you should do this in a new shell session to verify that the jarfile is indeed independent of your NestedVM installation).</p>
+<pre><code class="hljs bash language-bash">java -jar jinchi-1.0.2b.1.jar
+InChI ver 1, Software version 1.02-beta August 2007.
+
+Usage:
+cInChI-1 inputFile [outputFile [logFile [problemFile]]] [-option[ -option...]]
+
+Options:
+  SNon        Exclude stereo (Default: Include Absolute stereo)
+  SRel        Relative stereo
+</code></pre>
+<p>That's all there is to it! Your shiny new jarfile can be run on any system with a JVM installed. The one created here has been successfully tested on Mac OS X, Linux, and Windows.</p>
+<p>If you'd prefer to download the JInChI jarfile, it can be obtained <a href="http://sourceforge.net/project/showfiles.php?group_id=142870&amp;package_id=250448&amp;release_id=558625">from SourceForge</a>.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>This article has illustrated in detail the process of converting a standard C source distribution into a platform-independent executable jarfile. Given the appropriate MIPS cross-compiler (many of which come with the NestedVM distribution), the same process can be repeated with code written in a variety of other languages.</p>
+<p>You may be wondering what kind of performance hit you can expect with the approach outlined here. After all, we'd be comparing a native binary to something running on top of two abstraction layers: the NestedVM runtime and a JVM. It's not as bad as you might think, but that's a story for another time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Interactive Rust in a REPL and Jupyter Notebook with EVCXR | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/09/21/interactive-rust-in-a-repl-and-jupyter-notebook-with-evcxr/">
+      <meta property="og:title" content="Interactive Rust in a REPL and Jupyter Notebook with EVCXR">
+      <meta property="og:description" content="Explore Rust and its libraries with immediate feedback.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200921/summary.png">
+      <meta content="Explore Rust and its libraries with immediate feedback." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Interactive Rust in a REPL and Jupyter Notebook with EVCXR</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-09-21T14:00:00Z">2020-09-21T14:00:00Z</time>
+      </header>
+      <p>Interactive programming, in which expressions are entered and evaluated in real-time, can be a powerful tool for exploring a language and problem solving. This capability is most often associated with dynamically evaluated languages such as JavaScript and Python. Compiled languages such as Java and C++ can also be used interactively, but tooling tends to lag by many years. Rust is a newer compiled language for which interactive programming has recently emerged. This article discusses interactive programming with Rust courtesy of the <a href="https://github.com/google/evcxr">EVCXR</a> crate.</p>
+<h2 id="ofreplsandnotebooks">Of REPLs and Notebooks</h2>
+<p>Two broad approaches to interactive programming can be found today:</p>
+<ul>
+<li>REPL ("read-eval-print loop"). Expressions are entered and evaluated, one at a time, from a terminal. A history allows retrieval of previous entries. Examples include the Python interpreter and the JavaScript browser console.</li>
+<li>Notebook. Expression and output blocks are grouped into cells displayed within a Web browser. Some expressions can evaluate to graphical output such as images and charts. The result can be stored, published, and replayed. Examples include <a href="https://jupyter.org">Jupyter</a> and <a href="https://github.com/fonsp/Pluto.jl">Pluto</a>.</li>
+</ul>
+<p>Using EVCXR, both modes of interactive programming are now possible using Rust.</p>
+<h2 id="repl">REPL</h2>
+<p>The EVCXR REPL can be installed with the following command:</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> cargo install evcxr_repl</span>
+</code></pre>
+<p>Installation provides the <code>evcxr</code> command,. As a demonstration, consider a simple "Hello, World" program, written interactively.</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> evcxr</span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; <span class="hljs-built_in">let</span> mut s = String::from(<span class="hljs-string">"Hello, "</span>);</span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; s.push_str(<span class="hljs-string">"World!"</span>);</span>
+<span class="hljs-meta">&gt;</span><span class="bash"> s</span>
+"Hello, World!"
+</code></pre>
+<p>EVCXR supports the inclusion of private and public crates through the <code>:dep</code> command. For example, the following snippet adds <a href="https://github.com/rapodaca/chemcore">ChemCore</a>, a cheminformatics toolkit written in Rust. Once added, the dependency works as expected.</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> evcxr</span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; :dep chemcore = <span class="hljs-string">"0.2.1"</span></span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; :dep gamma = <span class="hljs-string">"0.6.1"</span></span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; extern crate chemcore;</span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; use chemcore::molecule::Molecule;</span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; use gamma::graph::Graph;</span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; <span class="hljs-built_in">let</span> m = chemcore::daylight::<span class="hljs-built_in">read</span>(&amp;<span class="hljs-string">"[13c]1ccccc1"</span>).unwrap();</span>
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; m.degree(0)</span>
+Ok(2)
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; m.neighbors(0)</span>
+Ok([5, 1])
+<span class="hljs-meta">&gt;</span><span class="bash">&gt; m.edges()</span>
+[(0, 5), (0, 1), (1, 2), (2, 3), (3, 4), (4, 5)]
+</code></pre>
+<p>The additional dependency <a href="https://github.com/metamolecular/gamma"><code>gamma</code></a> (the graph library on which ChemCore is based) brings the <code>Graph</code> methods of <code>Molecule</code> into scope.</p>
+<h2 id="jupyterkernel">Jupyter Kernel</h2>
+<p>Extensions to Jupyter are called "kernels," EVCXR offers a Jupyter kernel capable of allowing Rust to be used within a notebook. Installation is a straightforward adaption of <a href="/articles/2020/08/17/getting-started-rdkit-and-jupyter/">a procedure recently published here</a>.</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda create --name evcxr</span>
+<span class="hljs-meta">$</span><span class="bash"> conda activate evcxr</span>
+<span class="hljs-meta">$</span><span class="bash"> conda install -y -c conda-forge nb_conda_kernels</span>
+<span class="hljs-meta">$</span><span class="bash"> cargo install evcxr_jupyter</span>
+<span class="hljs-meta">$</span><span class="bash"> evcxr_jupyter --install</span>
+<span class="hljs-meta">$</span><span class="bash"> jupyter notebook</span>
+</code></pre>
+<p>The EVCXR project maintains a <a href="https://github.com/google/evcxr/blob/master/evcxr_jupyter/samples/evcxr_jupyter_tour.ipynb">Jupyter tour</a> showcasing the capabilities of the kernel. The REPL examples from the previous section should run unmodified within Jupyter.</p>
+<p>A very handy feature of of the EVCXR Jupyter kernel is custom HTML-based display. To access it, implement a <code>Debug</code> trait on the type of interest. Anything that can be rendered in HTML can then be displayed in a cell's output field. This is a particularly attractive feature in cheminformatics, where many data types have a preferred graphical representation.</p>
+<p>To take a simple example, a Rust <code>Vector</code> can be represented as an HTML ordered list.</p>
+<iframe src="/images/posts/20200921/display-custom.html" onload="this.height=this.contentWindow.document.body.scrollHeight;" scrolling="no" class="jupyter"></iframe>
+<p>The <a href="https://github.com/google/evcxr/blob/master/evcxr_jupyter/README.md">EVCXR kernel documentation</a> lists several projects with custom display support. In my hands, however, only one of them worked as described. <a href="https://docs.rs/petgraph/0.5.0/petgraph/">Petgraph</a> is a graph data structures library that I <a href="/articles/2020/02/03/graphs-in-rust-an-introduction-to-petgraph/">previously reviewed</a>. <a href="https://github.com/timthelion/petgraph-evcxr">Petgraph-evcxr</a> makes it possible to visualize Petgraph graphs in Jupyter cells.</p>
+<iframe src="/images/posts/20200921/petgraph-notebook.html" onload="this.height=this.contentWindow.document.body.scrollHeight;" scrolling="no" class="jupyter"></iframe>
+<h2 id="justbecauseyoucandoesntmeanyoushould">Just Because You Can Doesn't Mean You Should</h2>
+<p>EVCXR is a wonderful tool that can be used to great effect. Like all tools, however, it has limitations. The most important of these is that writing long programs within a REPL or in a notebook is not a great experience. Productivity will likely be much higher using proper tooling to produce lengthy Rust listings. Reserving the REPL and notebook environments to high-level manipulations plays to the strengths of all tools involved.</p>
+<h2 id="moreresources">More Resources</h2>
+<p>Despite its recent appearance, EVCXR has already inspired a book: <em><a href="https://datacrayon.com/shop/product/data-analysis-with-rust-notebooks/">Data Analysis with Rust Notebooks</a></em>. I haven't read it yet, but it contains several examples of data manipulation and visualization using EVCXR, and apparently some videos as well.</p>
+<p><a href="https://github.com/kurtlawrence/papyrus">Papyrus</a> is still another Rust REPL. A <a href="https://kurtlawrence.github.io/papyrus/intro.html">book</a> on installing and using it is available.</p>
+<p>Beyond REPLs and notebooks, Rust offers a <a href="https://github.com/ruse-lang/langs-in-rust">growing collection</a> of scripting languages offering conveniences of both approaches to varying degrees. Examples include:</p>
+<ul>
+<li><a href="https://github.com/jonathandturner/rhai">Rhai</a></li>
+<li><a href="https://github.com/zesterer/forge">Forge</a></li>
+<li><a href="https://github.com/gluon-lang/gluon">Gluon</a></li>
+<li><a href="https://github.com/pistondevelopers/dyon">Dyon</a></li>
+</ul>
+<p>A less interactive but notable alternative is the <a href="https://play.rust-lang.org">Rust Playground</a>. This Web application accepts Rust code as input and displays any output generated. It's not the same thing as a REPL or notebook, but can serve some of the same purposes.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Rust supports a growing suite of interactive programming options including the EVCXR REPL, a Jupyter Rust kernel, and several scripting languages. Within certain constraints, these tools can make the process of using code written in Rust more visual and spontaneous. Beginners can dive right into examples with minimal ceremony. And experienced Rust developers can display their work to a much wider audience through interactive snippets than might otherwise be feasible</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

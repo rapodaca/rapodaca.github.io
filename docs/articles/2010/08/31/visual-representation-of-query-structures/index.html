@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Visual Representation of Query Structures | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Visual Representation of Query Structures</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-08-31T00:00:00.000Z">2010-08-31T00:00:00.000Z</time>
+      </header>
+      <p>As the size of a chemical structure database increases, so does the need for advanced query tools. A common feature of large structure databases is hitset pruning through the use of query atoms and query bonds. But how should the necessary 'query structures' be displayed to chemists?</p>
+<p><a href="http://dx.doi.org/10.1021/ci100209a"><img src="/images/posts/20100831/smarts_depict.png" alt="SMARTS Depict"></a></p>
+<p>It turns out that different drawing packages use different methods of depiction. For example, two such packages are the <a href="http://pubchem.ncbi.nlm.nih.gov/edit2/index.html">PubChem Sketcher</a> and <a href="http://www.symyx.com/micro/getdraw/">Symyx/Draw</a>, which you can see above offer different renderings of a sulfonamide-based molecular query structure.</p>
+<p>Query structures will be an important new feature of <a href="http://depth-first.com/articles/2010/08/10/building-chemwriter-2-javascript-all-the-way-down">ChemWriter 2</a>, so it's important to provide a display method that's both clear and as expressive as possible. But how should we do this?</p>
+<p>A recent paper from <a href="http://www.zbh.uni-hamburg.de/staff.php?mode=_details&amp;id=rarey&amp;language=en">Rarey's group</a> describing a new method for <a href="http://dx.doi.org/10.1021/ci100209a">the display of query structures</a> caught my eye. Like IUPAC's <a href="http://www.iupac.org/publications/pac/80/2/0277/">Graphical Representation Standards for Structure Diagrams</a> from which it draws inspiration, this new study seeks to offer specific guidelines for visual structure representation, but from the perspective of molecular queries.</p>
+<p>The authors report an intriguing system for the graphical representation of query structure elements, including those for atoms:</p>
+<p><a href="http://dx.doi.org/10.1021/ci100209a"><img src="/images/posts/20100831/atoms_depics.png" alt="Atoms Depict" title="Atoms Depict"></a></p>
+<p>and bonds:</p>
+<p><a href="http://dx.doi.org/10.1021/ci100209a"><img src="/images/posts/20100831/bonds_depict.png" alt="Bonds Depict" title="Bonds Depict"></a></p>
+<p>A <a href="http://smartsview.zbh.uni-hamburg.de/">SMARTS query viewer</a> based on these principles is now available, as are a number of examples - in the paper itself and <a href="http://smartsview.zbh.uni-hamburg.de/home/gallery">online</a>. <a href="http://pubs.acs.org/doi/suppl/10.1021/ci100209a">The paper's supplementary material</a> contains both graphical legends and examples that help explain the new system.</p>
+<p>An open question at this point is to what extent chemists will feel comfortable with the Rarey query display system. Although some motifs such as ring membership will look familiar, others such as red color coding for the "NOT" boolean operator will be less so.</p>
+<p>On the other hand, it could be argued that any system that attempts to display query structures in all their detail to chemists will encounter the same problem; the work by Rarey's group simply attempts to provide a standardized way for doing so that harnesses the power of modern computer graphics.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

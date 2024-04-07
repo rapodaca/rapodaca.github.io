@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiling the InChI Toolkit to Pure Java Bytecode with NestedVM | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Compiling the InChI Toolkit to Pure Java Bytecode with NestedVM</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-10-29T00:00:00.000Z">2007-10-29T00:00:00.000Z</time>
+      </header>
+      <p>Some time ago, a Depth-First article discussed some methods for <a href="/articles/2006/10/16/compiling-c-to-java-bytecode">compiling C to Java bytecode</a>. Many factors make this approach attractive compared to the JNI approach. Some of them include security, portability, and use within applets. Unfortunately, none of the approaches discussed in the earlier article seemed particularly general.</p>
+<p>Many cheminformatics libraries are written in C and C++; being able to reliably and automatically port them to Java could potentially save a great deal of effort.</p>
+<p>One of the more important cheminformatics C libraries written in recent years is the <a href="http://www.iupac.org/inchi/">InChI toolkit</a>. With no pure Java port of this library, JNI is the <a href="/articles/2007/10/10/jruby-for-cheminformatics-reading-and-writing-inchis-via-the-java-native-interface">only way</a> to use InChI with Java. In some situations, this approach is either overly complicated or simply unacceptable.</p>
+<p>All of this leaves us with the question: how can the InChI toolkit be converted into a pure Java library without writing any new code?</p>
+<p>A partial answer to this question came from Evan Jones, who suggested I look at <a href="http://nestedvm.ibex.org/">NestedVM</a>. From the website:</p>
+<blockquote>
+  <p>NestedVM provides binary translation for Java Bytecode. This is done by having GCC compile to a MIPS binary which is then translated to a Java class file. Hence any application written in C, C++, Fortran, or any other language supported by GCC can be run in 100% pure Java with no source changes.</p>
+</blockquote>
+<p>And it worked!</p>
+<p>NestedVM was successfully used compile the InChI-API distribution to a Java class file that executed on nothing more than a standard JVM -- and with no JNI code. The InChI classfile and nestedvm runtime jarfile can be <a href="http://sourceforge.net/project/showfiles.php?group_id=142870&amp;package_id=250448&amp;release_id=550390">downloaded from SourceForge</a>. Future articles in this series will describe the compilation, installation, and use of NestedVM, as well as the Java class file that it produced.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Google Closure - Synchronize the Closure Library SVN Using a Git Submodule | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Google Closure - Synchronize the Closure Library SVN Using a Git Submodule</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-11-29T00:00:00.000Z">2010-11-29T00:00:00.000Z</time>
+      </header>
+      <p>The last post in this series <a href="/articles/2010/11/22/google-closure-building-complex-applications-with-javascript/">introduced Google Closure</a>, a suite of JavaScript tools for building and maintaining complex JavaScript projects. Whether you're just starting out with Closure or have been using it awhile, an important problem you'll have to solve is how to keep your copy of the Closure Library up-to-date with the Google Closure SVN. This article describes one method for doing so using git.</p>
+<h2 id="allarticlesinthisseries">All Articles in this Series</h2>
+<ol>
+<li><a href="/articles/2010/11/22/google-closure-building-complex-applications-with-javascript/">Google Closure - Building Complex Applications with JavaScript</a></li>
+<li>Synchronize the Closure Library SVN Using a Git Submodule</li>
+</ol>
+<h2 id="alittleabouttheclosurelibrary">A Little About the Closure Library</h2>
+<p>Google Closure goes beyond any JavaScript toolkit in its functionality and scope. Many JavaScript libraries such as <a href="http://jquery.com/">jQuery</a>, <a href="http://www.dojotoolkit.org/">Dojo</a>, and <a href="http://www.prototypejs.org/">Prototype</a> are mainly just that - libraries. In addition to offering library functionality more advanced than most other JavaScript toolkits, Closure offers two other components that set it apart: the <a href="http://code.google.com/closure/compiler/">Closure Compiler</a> and <a href="http://code.google.com/closure/templates">Soy Templates</a>. This article will only discuss creating and maintaining a copy of the Closure Library. Future articles may discuss working with these other tools.</p>
+<h2 id="usecase">Use Case</h2>
+<p><a href="http://chemwriter.com/signups/new">ChemWriter 2</a> is a rewrite of my company's web-based chemical structure editor from Java to JavaScript.  When it became clear that we'd be using Closure to create ChemWriter 2, we know we'd need a way to continuously merge changes to the Closure Library into our source tree.</p>
+<p>The Closure Library is enormous. We didn't want to directly keep the Closure source in the ChemWriter repository due to its size. We also knew we'd be using git, whereas the Closure Library team uses Subversion as its public-facing version control system.</p>
+<p>We needed a way to do the following:</p>
+<ol>
+<li>Use the Closure Library from within the ChemWriter project without committing and tracking the Closure Library source directly.</li>
+<li>Synchronize the Closure Library SVN repository with our own clone of the Closure Library maintained with git.</li>
+</ol>
+<p>To my knowledge, the Closure team has not yet produced a release of either the Closure Library or other tools, so for now pulling source directly from repositories is the only way to go.</p>
+<h2 id="submodulestotherescue">Submodules to the Rescue</h2>
+<p>Git submodules turned out to the be answer to the biggest part of the problems above. For the unfamiliar, a submodule enables one repository to be embedded within another repository. From <a href="http://www.kernel.org/pub/software/scm/git/docs/git-submodule.html">the documentation</a>:</p>
+<blockquote>
+  <p>Submodules allow foreign repositories to be embedded within a dedicated subdirectory of the source tree, always pointed at a particular commit.</p>
+  <p>They are not to be confused with remotes, which are meant mainly for branches of the same project; submodules are meant for different projects you would like to make part of your source tree, while the history of the two projects still stays completely independent and you cannot modify the contents of the submodule from within the main project. If you want to merge the project histories and want to treat the aggregated whole as a single project from then on, you may want to add a remote for the other project and use the subtree merge strategy, instead of treating the other project as a submodule. Directories that come from both projects can be cloned and checked out as a whole if you choose to go that route.</p>
+</blockquote>
+<p>Great - we've got a way to track changes to the Closure Library without bloating our own repository with all that foreign code. But how do we create and maintain an up-to-date git repository containing the Closure Library to start with?</p>
+<h2 id="forkingtheclosurelibrary">Forking the Closure Library</h2>
+<p>Fortunately, StackOverflow helps out with an <a href="http://stackoverflow.com/questions/796991/fork-and-sync-google-code-svn-into-github">answer to the question of how to fork and sync a Google Code Subversion repository using Git</a>. We're going to use Git's built-in ability to manipulate SVN repositories by creating our own fork.</p>
+<p>Pick a place to host the Closure Library fork. Then:</p>
+<pre><code class="hljs bash language-bash">git svn <span class="hljs-built_in">clone</span> http://closure-library.googlecode.com/svn/trunk/ closure-library -s
+</code></pre>
+<p>It's that simple. My company uses a <a href="https://github.com/metamolecular/closure-library">public-facing Closure Library clone</a>. We set it up with two commands:</p>
+<pre><code class="hljs bash language-bash">git remote add origin git@github.com:metamolecular/closure-library.git
+git push origin master
+</code></pre>
+<p>As you can see, all changes to our public Closure Library clone track the changes to the original SVN repo maintained by Google itself.</p>
+<h2 id="updatingyourclosurelibrarygitclone">Updating Your Closure Library Git Clone</h2>
+<p>The same StackOverflow question that discusses forking an SVN repo into Git also reveals how to push changes to it. We simply change into our local closure-library directory and execute:</p>
+<pre><code class="hljs bash language-bash">git svn rebase
+git push
+</code></pre>
+<p>We synchronize our public Closure Library git repo with the official Google SVN weekly using the above two commands. Doing so regularly helps to ensure that we're always compiling and testing ChemWriter against an up-to-date version of the Closure Library.</p>
+<p>So far, we haven't had the need (or desire) to alter the Closure Library ourselves. But should the need arise, we can use this system to push any changes we make out to our public git repo.</p>
+<h2 id="aclosurelibrarysubmodule">A Closure Library Submodule</h2>
+<p>We have a synchronized git clone of the Closure Library. Now we need to create a submodule from it in a test project. Let's start out by creating an empty git repository:</p>
+<pre><code class="hljs bash language-bash">mkdir <span class="hljs-built_in">test</span>
+<span class="hljs-built_in">cd</span> <span class="hljs-built_in">test</span>
+git init .
+</code></pre>
+<p>We can now add the closure-library submodule:</p>
+<pre><code class="hljs bash language-bash">git submodule add git@github.com:metamolecular/closure-library.git lib/closure
+</code></pre>
+<p>This tells git to store our submodule in lib/closure at the top level of our project. To store it elsewhere, replace the last argument with your path of choice. Remember, although git will know about this submodule, the Closure Library files themselves will not be stored in our project repository.</p>
+<p>When cloning this project, it will be necessary to pull in and configure the closure-library submodule with:</p>
+<pre><code class="hljs bash language-bash">git submodule init
+git submodule update
+</code></pre>
+<p>We've created a Closure Library submodule, but how do we propagate changes from our cloned git repository?</p>
+<h2 id="synchronizingthesubmodule">Synchronizing the Submodule</h2>
+<p>After synchronizing our git clone of the Closure Library SVN repository, we'll need to pull those changes into our closure-library submodule. Fortunately, there's nothing tricky here, although the solution may not be at first glance obvious. From within our test project:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> lib/closure
+git pull
+<span class="hljs-built_in">cd</span> ../..
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>The article has described one way to set up and synchronize the Google Closure Library in your own JavaScript project. But how do we actually code against this library in our project? Future articles will show one way by describing up a build system.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

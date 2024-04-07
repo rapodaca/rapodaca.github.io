@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Parsing SD Files with Ruby and Rubidium | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Parsing SD Files with Ruby and Rubidium</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-11-12T00:00:00.000Z">2007-11-12T00:00:00.000Z</time>
+      </header>
+      <p>Reading SD files is a bread-and-butter cheminformatics operation. At a minimum, a cheminformatics toolkit needs to parse the individual entries of an SD file, and provide access to the embedded molfile and data hash for each.</p>
+<p>Recent articles have introduced <a href="http://rbtk.rubyforge.org">Rubidium</a>, a Ruby cheminformatics scripting environment. The Rubidium team now announces the release of <a href="http://rubyforge.org/frs/?group_id=4671">Rubidium-0.1.1</a>, which, among other features, introduces the ability to parse SD files.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Rubidium is designed to run on <a href="http://jruby.codehaus.org/">JRuby</a>. Installing JRuby is straightforward on unix-like systems. First, download the <a href="http://dist.codehaus.org/jruby/jruby-bin-1.1b1.tar.gz">JRuby-1.1b1 binary release</a>. Then, unpack the archive to your directory of choice. Set <code>$JRUBY\_HOME</code> and <code>$JAVA\_HOME</code>. Finally, add <code>$JRUBY_HOME/bin</code> to your path.</p>
+<h2 id="installingrubidium011">Installing Rubidium-0.1.1</h2>
+<p>Generally speaking, it should be possible to install Rubidium with a one-line command to RubyGems:</p>
+<pre><code class="hljs bash language-bash">jruby -S gem install rbtk
+</code></pre>
+<p>Unfortunately at the time of this writing, I was receiving the mysterious <a href="http://www.google.com/search?q=rubygems+%22ERROR:++While+executing+gem+…+OpenURI::HTTPError%22&amp;hl=en&amp;pwst=1&amp;start=0&amp;sa=N">RubyGems 404 error</a> with the RubyForge remote repository:</p>
+<pre><code class="hljs bash language-bash">jruby -S gem install rbtk
+Select <span class="hljs-built_in">which</span> gem to install <span class="hljs-keyword">for</span> your platform (java)
+ 1. rbtk 0.1.1 (java)
+ 2. rbtk 0.1.0 (java)
+ 3. Skip this gem
+ 4. Cancel installation
+&gt; 1
+ERROR:  While executing gem ... (OpenURI::HTTPError)
+    404 Not Found
+</code></pre>
+<p>This appears to affect only certain RubyGems on RubyForge - possibly only those with multiple versions. It seems to be an error on the RubyForge server that occasionally appears and then disappears.</p>
+<p>As a workaround, you can <a href="http://rubyforge.org/frs/download.php/27819/rbtk-0.1.1-jruby.gem">download the Rubidium gem</a> and install it manually:</p>
+<pre><code class="hljs bash language-bash">$ jruby -S gem install tmp/rbtk-0.1.1-jruby.gem
+</code></pre>
+<p>Because Rubidium-0.1.1 introduces an <a href="http://rubyforge.org/projects/activesupport/">Active Support</a> dependency, you will need to install that library before installing Rubidium:</p>
+<pre><code class="hljs bash language-bash">jruby -S gem install tmp/rbtk-0.1.1-jruby.gem
+ERROR:  While executing gem ... (RuntimeError)
+    Error instaling tmp/rbtk-0.1.1-jruby.gem:
+        rbtk requires activesupport &gt;= 1.4.2
+$ jruby -S gem install activesupport
+Successfully installed activesupport-1.4.4
+Installing ri documentation <span class="hljs-keyword">for</span> activesupport-1.4.4...
+Installing RDoc documentation <span class="hljs-keyword">for</span> activesupport-1.4.4...
+$ jruby -S gem install tmp/rbtk-0.1.1-jruby.gem
+Successfully installed rbtk, version 0.1.1
+Installing ri documentation <span class="hljs-keyword">for</span> rbtk-0.1.1-jruby...
+Installing RDoc documentation <span class="hljs-keyword">for</span> rbtk-0.1.1-jruby...
+</code></pre>
+<p>It's possible that the RubyForge 404 issue will be resolved by the time you read this article, so <code>jruby -S gem install rbtk</code> should be tried first.</p>
+<h2 id="parsingansdfile">Parsing an SD File</h2>
+<p>Let's say we'd like to extract all InChIs from a PubChem dataset. If you don't have one handy, a compilation of about 2000 PubChem benzodiazepines has been <a href="http://rubyforge.org/frs/download.php/27768/pubchem_benzodiazepine_20071110.sdf.gz">deposited on RubyForge</a>.</p>
+<p>With our unzipped datafile in our working directory, we can now test the SD File parser by saving the following library to a file called <strong>parse.rb</strong>:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+gem <span class="hljs-string">'rbtk'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rubidium/sdf'</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">parse_sd</span> <span class="hljs-title">filename</span></span>
+  p = Rubidium::SDF::Parser.new File.new(filename)
+
+  p.each <span class="hljs-keyword">do</span> <span class="hljs-params">|entry|</span>
+    puts <span class="hljs-string">"InChI: <span class="hljs-subst">#{entry[<span class="hljs-string">'PUBCHEM_NIST_INCHI'</span>]}</span>"</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>which can be tested with <code>jirb</code>:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'parse'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; parse_sd <span class="hljs-string">'pubchem_benzodiazepine_20071110.sdf'</span>
+InChI: InChI=1/C16H12Cl2N2O/c1-20-14-7-6-12(18)8-13(14)16(19-9-15(20)21)10-2-4-11(17)5-3-10/h2-8H,9H2,1H3
+
+[truncated]
+</code></pre>
+<h2 id="rspecandbehaviordrivendevelopment">RSpec and Behavior-Driven Development</h2>
+<p>If you <a href="http://rubyforge.org/frs/download.php/27820/rbtk-0.1.1.tar.gz">check out the Rubidium source distribution</a>, you'll notice that the SD parser library is tested with <a href="http://rspec.rubyforge.org/">RSpec</a>, the <a href="http://en.wikipedia.org/wiki/Behavior_driven_development">BDD</a> framework for Ruby. Ultimately, all components of Rubidium will be tested and documented this way.</p>
+<h2 id="acknowledgments">Acknowledgments</h2>
+<p>Rubidium's new SD file parser was written by <a href="http://www.moseshohman.com/">Moses Hohman</a>. It was kindly donated by <a href="http://www.collaborativedrug.com/">Collaborative Drug Discovery</a>, who have built their drug discovery application using <a href="http://rubyonrails.com">Ruby on Rails</a>.</p>
+<h2 id="futuredirections">Future Directions</h2>
+<p>One problem in working with SD files is pinpointing encoding errors. A parser should not only raise an exception, but point to a line number and identify offending text to aid debugging. Rubidium's SD parser will eventually incorporate these enhancements.</p>
+<p>Because Rubidium runs on JRuby, performance gains may be achievable by re-writing select portions in Java.</p>
+<p>Parsing SD files is only the beginning of the story. Many cheminformatics applications need a convenient, fast, and robust method for <em>writing</em> molfiles. This is also something Rubidium will attempt to provide.</p>
+<p>If your company or organization is curious about Ruby and cheminforamatics, give Rubidium a try. Rubidium is licensed under the permissive <a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a> to make collaboration as simple as possible.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

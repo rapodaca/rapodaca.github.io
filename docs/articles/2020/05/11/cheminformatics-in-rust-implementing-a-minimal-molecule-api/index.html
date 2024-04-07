@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cheminformatics in Rust: Implementing a Minimal Molecule API | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/05/11/cheminformatics-in-rust-implementing-a-minimal-molecule-api/">
+      <meta property="og:title" content="Cheminformatics in Rust: Implementing a Minimal Molecule API">
+      <meta property="og:description" content="Laying the foundation for a new cheminformatics toolkit.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200511/summary.png">
+      <meta content="Laying the foundation for a new cheminformatics toolkit." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Cheminformatics in Rust: Implementing a Minimal Molecule API</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-05-11T14:00:00Z">2020-05-11T14:00:00Z</time>
+      </header>
+      <p>A cheminformatics toolkit, like most software, is made of layers. The bottom layer deals with graphs and their manipulation. Above that sits a tightly coupled layer dedicated to the representation of molecular objects. All of a toolkit's strengths and limitations ultimately evolve from these two layers.</p>
+<p>Previous articles have described minimal APIs for <a href="/articles/2020/01/06/a-minimal-graph-api/">Graph</a> and <a href="/articles/2020/04/06/a-minimal-molecule-api/">Molecule</a>. This article moves the discussion one step further — into the realm of implementation. Tying together <a href="/articles/2020/01/20/cheminformatics-in-rust/">yet another thread</a>, the language I'll be using is Rust.</p>
+<h2 id="thecode">The Code</h2>
+<p>A repository containing the code discussed in this post can be found on <a href="https://github.com/rapodaca/molecule.rs">GitHub</a>. Using it will require a <a href="https://rustup.rs">Rust installation</a>.</p>
+<p>Clone the repository and run its test suite with the following commands:</p>
+<pre><code class="hljs bash language-bash">git <span class="hljs-built_in">clone</span> https://github.com/rapodaca/molecule.rs
+<span class="hljs-built_in">cd</span> molecule.rs
+cargo <span class="hljs-built_in">test</span>
+</code></pre>
+<p>The remainder of this article describes the design and implementation of the molecule.rs repository. </p>
+<h2 id="moleculetrait">Molecule Trait</h2>
+<p>The focal point of molecule.rs is the <code>Molecule</code> trait. This trait extends the <code>Graph</code> trait from <a href="/articles/2020/02/17/graphs-in-rust-introducting-graphcore/">Gamma</a>, a Rust graph library. Eight new methods are contained within the <code>Molecule</code> trait, and excerpt of which appears below.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// imports</span>
+
+<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Molecule</span></span>&lt;<span class="hljs-symbol">'a</span>, N: <span class="hljs-symbol">'a</span>&gt;: Graph&lt;<span class="hljs-symbol">'a</span>, <span class="hljs-built_in">usize</span>&gt; {
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">element</span></span>(&amp;<span class="hljs-keyword">self</span>, id: &amp;<span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;Element, Error&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">isotope</span></span>(&amp;<span class="hljs-keyword">self</span>, id: &amp;<span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">u16</span>&gt;, Error&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">electrons</span></span>(&amp;<span class="hljs-keyword">self</span>, id: &amp;<span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">u8</span>, Error&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hydrogens</span></span>(&amp;<span class="hljs-keyword">self</span>, id: &amp;<span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">u8</span>, Error&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">charge</span></span>(&amp;<span class="hljs-keyword">self</span>, id: &amp;<span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">i8</span>, Error&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">atom_parity</span></span>(&amp;<span class="hljs-keyword">self</span>, id: &amp;<span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Option</span>&lt;Parity&gt;, Error&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">bond_order</span></span>(&amp;<span class="hljs-keyword">self</span>, sid: &amp;<span class="hljs-built_in">usize</span>, tid: &amp;<span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">u8</span>, Error&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">bond_parity</span></span>(
+        &amp;<span class="hljs-keyword">self</span>, sid: &amp;<span class="hljs-built_in">usize</span>, tid: &amp;<span class="hljs-built_in">usize</span>
+    ) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Option</span>&lt;Parity&gt;, Error&gt;;
+}
+</code></pre>
+<p>These methods trace their origins to a previously-presented <a href="/articles/2020/04/06/a-minimal-molecule-api/">minimal molecule API</a>. The main idea is that the smaller this API can be made, the simpler it will be to learn, implement, and use. Accordingly, the methods found in <code>Molecule</code> represent an irreducible core for a cheminformatics toolkit. All of them expose metadata associated with either the nodes or edges of an underlying graph.</p>
+<p>Having already addressed the most difficult questions about design, implementation becomes a matter of satisfying unit tests and the Rust compiler.</p>
+<h2 id="theinvisibleatompattern">The Invisible Atom Pattern</h2>
+<p>There will be many ways to implement the <code>Molecule</code> trait. The approach used in <code>molecule.rs</code> is something I call <em>the invisible atom pattern</em>.</p>
+<p>The invisible atom pattern relies on objects of type <code>Atom</code> to perform most of the heavy lifting behind the <code>Molecule</code> trait. For example, <code>Atom</code> has a method called <code>#electrons</code> that returns a valence electron count. A <code>Molecule</code> implementation delegates method calls to <code>Atom#electrons</code>. The remaining methods in the <code>Molecule</code> interface are implemented similarly.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// imports</span>
+
+<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Atom</span></span> {
+    element: Element,
+    nonbonding_electrons: <span class="hljs-built_in">u8</span>,
+    bonding_electrons: <span class="hljs-built_in">u8</span>,
+    hydrogens: <span class="hljs-built_in">u8</span>,
+    isotope: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">u16</span>&gt;,
+    parity: <span class="hljs-built_in">Option</span>&lt;Parity&gt;,
+    bonds: <span class="hljs-built_in">Vec</span>&lt;Bond&gt;,
+    neighbors: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">usize</span>&gt;
+}
+
+<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>&gt; Atom {
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">build</span></span>(spec: spec::Atom) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-keyword">Self</span>, Error&gt; {
+      <span class="hljs-comment">// Use the specification object spec to construct the initial internal</span>
+      <span class="hljs-comment">// state of the Atom</span>
+    }
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">element</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; Element {
+        <span class="hljs-keyword">self</span>.element
+    }
+
+    <span class="hljs-comment">// other instance methods providing Graph and Molecule services</span>
+}
+</code></pre>
+<p><code>Atom</code> is invisible in the sense that it lives in a private package invisible to the outside world. Why this approach? The main reason is that <code>Atom</code> is an implementation detail. Recall that the <code>Molecule</code> API requires no handles to an atom-like object, nor does it expose any. Instead, atomic attributes and behaviors are accessed through opaque numerical indexes (type <code>usize</code>). This approach happens to work well given Rust's <a href="/articles/2020/01/27/rust-ownership-by-example/">ownership model</a>. It also translates to other languages.</p>
+<p>The <code>build</code> function associated with <code>Atom</code> uses a parameter called <code>spec</code>. I'll have more to say about this technique later.</p>
+<h2 id="moleculeimplementation">Molecule Implementation</h2>
+<p>The <code>Molecule</code> trait is implemented by <code>DefaultMolecule</code> (found in <code>default_molecule.rs</code>). Only three pieces of data are needed: an array of atoms; an array of atom indexes; and an array of edges. From these data structures, all of the methods of both <code>Graph</code> and <code>Molecule</code> are implemented.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// imports</span>
+
+<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">DefaultMolecule</span></span> {
+    atoms: <span class="hljs-built_in">Vec</span>&lt;Atom&gt;,
+    indices: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">usize</span>&gt;,
+    edges: <span class="hljs-built_in">Vec</span>&lt;(<span class="hljs-built_in">usize</span>, <span class="hljs-built_in">usize</span>)&gt;
+}
+
+<span class="hljs-keyword">impl</span> DefaultMolecule {
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">build</span></span>(spec: spec::Molecule) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-keyword">Self</span>, Error&gt; {
+      <span class="hljs-comment">// Use the specification object spec to initialize the internal state</span>
+      <span class="hljs-comment">// of a DefaultMolecule</span>
+    }
+}
+
+<span class="hljs-comment">// ...</span>
+
+<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>&gt; Graph&lt;<span class="hljs-symbol">'a</span>, <span class="hljs-built_in">usize</span>&gt; <span class="hljs-keyword">for</span> DefaultMolecule {
+    <span class="hljs-comment">// ... required iterator definitions</span>
+    <span class="hljs-comment">// implement Graph methods in terms of the DefaultMolecule struct</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">is_empty</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">bool</span> {
+        <span class="hljs-keyword">self</span>.atoms.is_empty()
+    }
+
+    <span class="hljs-comment">// remaining Graph methods</span>
+}
+
+<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>&gt; Molecule&lt;<span class="hljs-symbol">'a</span>, <span class="hljs-built_in">usize</span>&gt; <span class="hljs-keyword">for</span> DefaultMolecule {
+  <span class="hljs-comment">// implement Molecule methods in terms of the DefaultMolecule struct</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">element</span></span>(&amp;<span class="hljs-keyword">self</span>, id: &amp;<span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;Element, GraphError&gt; {
+        <span class="hljs-keyword">match</span> <span class="hljs-keyword">self</span>.atoms.get(*id) {
+            <span class="hljs-literal">Some</span>(node) =&gt; <span class="hljs-literal">Ok</span>(node.element()),
+            <span class="hljs-literal">None</span> =&gt; <span class="hljs-literal">Err</span>(GraphError::UnknownNode)
+        }
+    }
+
+    <span class="hljs-comment">// remaining Molecule methods</span>
+}
+</code></pre>
+<p>Like the <code>Graph</code> trait, the <code>Molecule</code> trait has no mutator methods. This fits well with Rust, where mutators can quickly lead to unwanted complications.</p>
+<p>Given there are no mutators, how does a <code>Molecule</code> ever get built? The answer lies with the <code>build</code> function associated with <code>DefaultMolecule</code>. It accepts a specification object (<code>spec</code>) as an argument, using its attributes to build an internal <code>Molecule</code> state. <code>build</code> returns an error value when inconsistent state is detected.</p>
+<h2 id="specificationobjects">Specification Objects</h2>
+<p><code>Atom</code> and <code>DefaultMolecule</code> are constructed with the help of <em>specification objects</em>. A specification object is a dumb data structure encoding the state of some object to be constructed. By "dumb" I mean that no methods are defined - just attributes. As such, specification objects are lightweight precursors to more complex object. They can be created, copied, stored, and passed efficiently. Think of a specification object as something that can be directly translated to JSON.</p>
+<p>Specification objects are versatile and inexpensive. Using them helps keep method signatures small. Coupled with Rust's static typing system, specification objects make the construction of new <code>Molecule</code> objects reliable and unsurprising.</p>
+<h2 id="rustiteratorsaretricky">Rust Iterators are Tricky</h2>
+<p>The most difficult part of implementing <code>Molecule</code> was getting its <code>Iterator</code>s to work correctly. Because <code>Molecule</code> implements the <code>Graph</code> trait, <code>DefaultMolecule</code> must define three <code>Iterator</code> types: one over all nodes; another for a node's neighbors; and a third for all edges. Rust's famously strict type system and ownership model joined forces here to make what should have been straightforward job difficult.</p>
+<p>My original plan for <code>DefaultMolecule#nodes</code> was to return an <code>Iterator</code> over the indices of the underlying <code>Vec</code> of atoms. Surprisingly, however, this does not seem to be possible. To solve this problem, a separate array, <code>indices</code> is maintained. <code>DefaultMolecule#nodes</code> returns an iterator over this vector's elements.</p>
+<p><code>DefaultMolecule#neighbors</code> followed a similar pattern. The method returns an <code>Iterator</code> over the indexes of an atom's neighbors. As with other atom-specific tasks, this one is delegated to <code>Atom</code>. <code>Atom#neighbors</code> in turn returns an <code>Iterator</code> over the elements of its <code>neighbors</code> vector. An alternative approach in which neighbor indices were dynamically iterated via a call to <code>map</code> hit a <a href="https://stackoverflow.com/a/27648199/54426">problem</a> that apparently has no solution.</p>
+<p>In contrast, <code>DefaultMolecule#edges</code> uses a custom iterator (<code>EdgeIterator</code>) to iterate edges. On the surface, it appeared as if returning an iterator over the <code>edges</code> vector should have sufficed. However, this iterator generates tuples of indices, not tuples of index references. <code>EdgeIterator</code> provides the necessary translation.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">EdgeIterator</span></span>&lt;<span class="hljs-symbol">'a</span>&gt; {
+    cursor: <span class="hljs-built_in">usize</span>,
+    edges: &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">Vec</span>&lt;(<span class="hljs-built_in">usize</span>, <span class="hljs-built_in">usize</span>)&gt;
+}
+
+<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>&gt; EdgeIterator&lt;<span class="hljs-symbol">'a</span>&gt; {
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(edges: &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">Vec</span>&lt;(<span class="hljs-built_in">usize</span>, <span class="hljs-built_in">usize</span>)&gt;) -&gt; <span class="hljs-keyword">Self</span> {
+        EdgeIterator { cursor: <span class="hljs-number">0</span>, edges }
+    }
+}
+
+<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>&gt; <span class="hljs-built_in">Iterator</span> <span class="hljs-keyword">for</span> EdgeIterator&lt;<span class="hljs-symbol">'a</span>&gt; {
+    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Item</span></span> = (&amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">usize</span>, &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">usize</span>);
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">usize</span>, &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">usize</span>)&gt; {
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>((sid, tid)) = <span class="hljs-keyword">self</span>.edges.get(<span class="hljs-keyword">self</span>.cursor) {
+            <span class="hljs-keyword">self</span>.cursor += <span class="hljs-number">1</span>;
+
+            <span class="hljs-literal">Some</span>((&amp;sid, &amp;tid))
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-literal">None</span>
+        }
+    }
+}
+</code></pre>
+<p>Attempts to replace <code>DefaultMolecule</code>'s <code>edges</code> vector with one using the correct form failed. This failure resulted from the return of borrowed references to data (indices) owned by the <code>build</code> function. I suspect that a simpler approach eliminating the need for <code>EdgeIterator</code> is possible.</p>
+<h2 id="whatnext">What Next?</h2>
+<p><code>DefaultMolecule</code> implements all services defined by the minimum molecule API. As such, it should be feasible to build a cheminformatics toolkit of arbitrary complexity based on <code>DefaultMolecule</code>.</p>
+<p>A useful first step on that path would be to implement a SMILES reader and writer. The use of specification objects is simple but verbose. A function that could return <code>Molecule</code> implementations given valid SMILES strings would be a big step forward, as would a function that could write SMILES given a <code>Molecule</code>.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Previous posts introduced the concept of the minimum Molecule API. This post presents an implementation in Rust. No insurmountable restrictions were found, although Rust's ownership model did present some challenges not likely to found in other languages. A repository with all source and a complete suite of unit tests is available from GitHub.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

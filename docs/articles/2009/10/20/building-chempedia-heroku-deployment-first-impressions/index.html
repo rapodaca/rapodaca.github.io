@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building Chempedia - Heroku Deployment First Impressions | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building Chempedia - Heroku Deployment First Impressions</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-10-20T00:00:00.000Z">2009-10-20T00:00:00.000Z</time>
+      </header>
+      <p>One of the most important decisions we faced in the re-launch of <a href="http://chempedia.com">Chempedia</a> was how to deploy it. Although deployment tends not to get the attention that Web application development gets, it's every bit as important in determining how the fruits of your labors are perceived by end users.</p>
+<p><a href="http://heroku.com">Heroku</a> is a Rails application deployment platform that's unique for its laser focus on scalability and ease of use. Heroku enables application development teams to <a href="http://heroku.com/how/architecture">forget about servers</a> and focus on building great applications. Heroku provides a well-crafted abstraction layer on top of <a href="http://aws.amazon.com/ec2/">Amazon's Elastic Compute Cloud</a> (EC2) that offers a much better mental map for how an application should interact with its deployment environment.</p>
+<p>For the re-launch of Chempedia, we've decided to try Heroku, in part based on an <a href="/articles/2009/10/02/tech-fridays-deploying-rails-and-rack-applications-with-heroku">excellent presentation by Heroku at SD Ruby</a> and the <a href="/articles/2009/10/02/tech-fridays-deploying-rails-and-rack-applications-with-heroku">unbeatable price</a> - free for a minimal setup!</p>
+<p>I've been quite impressed with Heroku so far, but there have been some gotchas along the way. Most of them relate to the fact that Heroku has eliminated a lot of choices (and therefore complexity) from the deploy process. Here, in no particular order are some initial findings:</p>
+<ul>
+<li>Deployment really is as easy as advertised. It took all of about 90 minutes to go from a local development version of Chempedia to one hosted on Heroku. A simple git push is all it takes to deploy. And a single heroku rake call is all it takes to perform database migration.</li>
+<li>You'll be running PostreSQL - period. At <a href="http://metamolecular.com">Metamolecular</a>, we've standardized on MySQL. If your application was also developed and tested with MySQL, you'll need to be aware of the differences between the two, such as <a href="http://stackoverflow.com/questions/203399/how-do-you-write-a-case-insensitive-query-for-both-mysql-and-postgres">case-sensitive queries</a>.</li>
+<li>The filesystem is read-only. This has a number of important consequences. For example, Chempedia generates <em>a lot</em> of images. These can't be cached on the local filesystem in the way we've done before. Instead, we need to rely either on straight HTTP caching, or better, on <a href="http://aws.amazon.com/s3/">Amazon S3</a>.</li>
+<li>Use config vars. One problem with a git-only deployment system is what to do with all of those private configuration settings such as usernames and passwords for third-party web services. Heroku's answer is <a href="http://docs.heroku.com/config-vars">config variables</a>, a system that's quite easy to implement, provided that you're aware of it.</li>
+<li>No local fragment caching. Another important consequence of a read-only filesystem is that local fragment caching is not possible. Currently Heroku offers a beta for <a href="http://heroku.com/pricing#blossom-1">memcached</a> that I'm hoping to get access to.</li>
+<li>No Sphinx. Chempedia allows users to submit text-searches to locate substances. A natural solution to this problem was <a href="http://www.sphinxsearch.com/">Sphinx</a>. Unfortunately, Sphinx is not supported by Heroku. Although both Ferret and Solr are, both have important limitations. Fortunately, a workaround was feasible by changing the Chempedia code. Here's hoping that Sphinx is supported on Heroku soon.</li>
+<li>HTTP caching just works. Set the headers and you're done. Heroku uses <a href="http://varnish.projects.linpro.no/">Varnish</a> as its high-performance <a href="http://railslab.newrelic.com/2009/02/26/episode-11-advanced-http-caching">reverse proxy cache</a>. This works for general-purpose pages, but anything displaying a username and/or reputation score (as Chempedia does) requires fragment caching. Thus, the need for <a href="http://www.danga.com/memcached/">memcached</a>.</li>
+<li>Restricted access to application log. Although it's possible to read the last few entries from the production log file, I've found no way to extend the length of what's returned.</li>
+<li>Random system outages. This one was surprising. Twice so far it's been necessary to create a ticket because the Chempedia testing instance wasn't responding. Fortunately, both times the resolution of the problem took less than 15 minutes. With access to more of the log file, it might be possible to find out whether the problem lies with the Chempedia code or Heroku; so far the jury's still out.</li>
+</ul>
+<p>Most of the problems we've faced with Chempedia on Heroku were addressable with minimal effort. All in all, the tradeoffs have so far been worth it.</p>
+<h2 id="aboutchempedia">About Chempedia</h2>
+<p><a href="http://chempedia.com">Chempedia</a> is the free and open chemical substance registry. Embracing both peer-review and the best practices of new social media, Chempedia offers a modern platform for the next generation of Web-based chemistry applications. We continue to look for testers during the re-design of Chempedia; if you're interested in taking a peek, please <a href="http://metamolecular.com/contact">drop us a line</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

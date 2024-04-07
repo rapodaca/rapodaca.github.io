@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Encapsulated PostScript for Cheminformatics | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Encapsulated PostScript for Cheminformatics</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-08-07T00:00:00.000Z">2008-08-07T00:00:00.000Z</time>
+      </header>
+      <p>Previous articles have discussed ways to display chemical structures in a variety of vector graphics formats, including <a href="/articles/2006/09/09/generating-and-serving-2-d-molecular-svgs">Scalable Vector Graphics</a> (SVG), <a href="/articles/2008/07/22/vector-markup-language-for-cheminformatics">Vector Markup Language</a> (VML), and <a href="/articles/2008/06/10/adobe-flash-for-cheminformatics-fast-scalable-and-attractive-2d-depiction-of-chemical-structures-with-vector-graphics">Shockwave Flash</a> (SWF, or "Flash"). There is one other vector graphics format still in common use that has so far not been discussed: <a href="http://en.wikipedia.org/wiki/Encapsulated_PostScript">Encapsulated PostScript</a> (EPS).</p>
+<p>EPS is a vector graphics format developed by Adobe Systems specifically for desktop publishing. Apparently, the last revision to the EPS Specification, Version 3.0, was <a href="http://partners.adobe.com/public/developer/en/ps/5002.EPSF_Spec.pdf">published</a> in 1992. Although ancient as technologies go, EPS can still be found in use today. Like the other vector graphics formats discussed here, EPS has all of the features necessary to create high-quality 2D images of chemical structures.</p>
+<p>To demonstrate, a development version of <a href="http://metamolecular.com/chemwriter">ChemWriter</a> was used to convert a molfile representing <a href="http://chempedia.com/monographs/rosuvastatin">rosuvastatin</a> (Crestor) into the corresponding color EPS file. The result can be <a href="/images/posts/20080807/rosuvistatin.eps">downloaded here</a>.</p>
+<p>An open source library, <a href="http://jlibeps.sourceforge.net/">jlibeps</a>, can be used to encode EPS in Java. The business end of the library is an EPS encoding class that extends Graphics2D, enabling most Java2D rendering to be converted into EPS. If you've worked with the <a href="http://xmlgraphics.apache.org/batik/">Batik</a> SVG toolkit, the concept is similar.</p>
+<p>Although jlibeps is a good solution, EPS shares enough similarities to other vector graphics languages that directly encoding EPS output is also a viable option, and the one that was used in the rosuvastatin example above.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

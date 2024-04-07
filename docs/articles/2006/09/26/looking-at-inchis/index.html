@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Looking at InChIs | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Looking at InChIs</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-09-26T00:00:00.000Z">2006-09-26T00:00:00.000Z</time>
+      </header>
+      <p>InChI identifiers can be viewed both as unique molecular keys and as a language encoding molecular structure. With the right software, it is possible to decode any InChI to arrive at a human-readable molecular structure. This tutorial will show how to convert InChI identifiers into 2-D molecular renderings using open source tools.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>The InChI to 2-D image conversion process requires two pieces of software:</p>
+<ul>
+<li><a href="http://depth-first.com/articles/2006/09/19/decoding-inchis-with-rino">Rino</a> decodes InChI identifiers into molfiles. The resulting atomic coordinates are set to zero.</li>
+<li><a href="http://depth-first.com/articles/2006/09/25/cdk-the-ruby-way-rcdk-0-2-0">RCDK</a> assigns coordinates to the molfile produced by Rino, and renders the result.</li>
+</ul>
+<h2 id="bringonthecode">Bring on the Code</h2>
+<p>The following Ruby code illustrates how the InChI for the pesticide fipronil (Regent) can be translated into a PNG image:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+require_gem <span class="hljs-string">'rino'</span>
+require_gem <span class="hljs-string">'rcdk'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'util'</span>
+
+inchi = <span class="hljs-string">'InChI=1/C12H4Cl2F6N4OS/c13-5-1-4(11(15,16)17)2-6(14)8(5)24-10(22)9(7(3-21)23-24)26(25)12(18,19)20/h1-2H,22H2'</span> <span class="hljs-comment">#fipronil</span>
+reader = Rino::InChIReader.new
+molfile1 = reader.read(inchi) <span class="hljs-comment"># lacks 2-D atomic coordinates</span>
+molfile2 = RCDK::Util::XY.coordinate_molfile(molfile1) <span class="hljs-comment"># has 2-D atomic coordinates</span>
+
+RCDK::Util::Image.molfile_to_png(molfile2, <span class="hljs-string">'fipronil.png'</span>, <span class="hljs-number">350</span>, <span class="hljs-number">300</span>)
+</code></pre>
+<p>Running this code produces the image <strong>fipronil.png</strong> in your working directory:</p>
+<p><img src="/images/posts/20060926/fipronil.png" alt="Fipronil"></p>
+<h2 id="limitations">Limitations</h2>
+<p>The technique illustrated here is subject to the same limitations as the underlying software. For Rino, this means that stereochemistry is ignored. For RCDK, this means that implicit hydrogen atoms, isotopes, and charges are omitted, and that layout of macrocycles and other complex ring systems may not subjectively appear very refined.</p>
+<h2 id="othersoftwarethatdoesthis">Other Software that Does This</h2>
+<p>To my knowledge, only one other Open Source package, <a href="http://bkchem.zirael.org/inchi_en.html">BKChem</a>, is capable of rendering InChIs as described here. BKChem's underlying InChI translation and depiction software, OASA, can also be <a href="http://inchi.info/converter_en.html">accessed online</a>. For comparison, OASA produces the following image for for the fipronil InChI:</p>
+<p><img src="/images/posts/20060926/fipronil_bkchem.png" alt="Fipronil BKChem"></p>
+<p>The <a href="http://pubchem.ncbi.nlm.nih.gov/edit/">PubChem editor</a> can also translate and render InChIs, but no source code appears to be available. PubChem's InChI translation and rendering output for fipronil is:</p>
+<p><img src="/images/posts/20060926/fipronil_pubchem.png" alt="Fipronil PubChem"></p>
+<p><a href="http://cdk.sf.net">The Chemistry Development Kit</a>, on which RCDK is based, was recently upgraded to support reading InChI identifiers. For some time, CDK has been able to generate 2-D atomic coordinates.</p>
+<p>More information on InChI software can be found at Beda Kosata's <a href="http://inchi.info/index.html">InChI.info</a> site.</p>
+<h2 id="thefinalword">The Final Word</h2>
+<p>Within certain limitations, it is quite feasible to programatically obtain a 2-D molecular image for any InChI identifier. Combining this capability with other chemical informatics software and services offers numerous possibilities to use InChI in innovative ways.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

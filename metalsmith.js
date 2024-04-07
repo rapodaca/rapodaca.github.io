@@ -10,7 +10,7 @@ const handlebars = require('./lib/handlebars');
 
 const app = metalsmith(__dirname)
   .source('src')
-  .destination('build')
+  .destination('docs')
   .use(collections({
     articles: {
       pattern: 'articles/*.md',

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Streamlining Cheminformatics on the Web - Let InChI Do the Heavy Lifting and Get Some REST | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Streamlining Cheminformatics on the Web - Let InChI Do the Heavy Lifting and Get Some REST</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-10-01T00:00:00.000Z">2007-10-01T00:00:00.000Z</time>
+      </header>
+      <p>A recent Depth-First article discussed the advantages of <a href="/articles/2007/08/13/the-best-api-may-be-no-api-at-all-pubchem-and-pdb">minimal Web APIs in Cheminformatics</a>. Recently, Antony Williams unveiled some <a href="http://www.chemspider.com/blog/?p=179">simplified ChemSpider URL schemes</a>, mainly from the perspective of enabling Google indexing. However, it's possible to take this scheme much, much further. Here I present a proposal for radically simplifying (and unifying) the development of cheminformatics Web APIs and the software that interacts with them.</p>
+<h2 id="thenewchemspiderurls">The New ChemSpider URLs</h2>
+<p>ChemSpider now has several new kinds of URLs. For the purposes of this article, the most interesting of these are of the format:</p>
+<ul>
+<li><a href="http://www.chemspider.com/InChIKey=DEIYFTQMQPDXOT-RERXVCSDCZ">http://www.chemspider.com/InChIKey=DEIYFTQMQPDXOT-RERXVCSDCZ </a></li>
+<li><a href="http://www.chemspider.com/InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H">http://www.chemspider.com/InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H</a></li>
+</ul>
+<p>These URLs may seem unremarkable, but there's much more than meets the eye. They let anonymous developers query ChemSpider about specific substances - without needing to know much at all about how ChemSpider itself works. Goodbye API. Goodbye API support. Goodbye API documentation. Goodbye angle brackets. Hello to getting stuff done. It's all very <a href="/articles/2007/05/30/restful-cheminformatics">RESTful</a>. Well, at least it could be that way with some minor modification.</p>
+<h2 id="somerecommendations">Some Recommendations</h2>
+<p>ChemSpider hasn't quite reached that place where the API <a href="http://wwmm.ch.cam.ac.uk/blogs/downing/?p=128">just disappears</a>. The problem is that the ChemSpider URLs listed above point to query results pages, not compound summary pages. Were these URLs to redirect to a summary page, we could construct the following URLs to extract ChemSpider resources (I've replaced the '=' sign with a '/' for simplicity):</p>
+<ul>
+<li><strong>…/InChIKey/DEIYFTQMQPDXOT-RERXVCSDCZ</strong> Get all resources for the molecule identified by the given InChIKey - i.e., "Compound summary page"</li>
+<li><strong>…/InChIKey/DEIYFTQMQPDXOT-RERXVCSDCZ/molfile.mol</strong> Get the molfile for the molecule identified by the given InChIKey</li>
+<li><strong>…/InChIKey/DEIYFTQMQPDXOT-RERXVCSDCZ/large_image.png</strong> Get the large image for the molecule identified by the given InChIKey.</li>
+<li><strong>…/InChIKey/DEIYFTQMQPDXOT-RERXVCSDCZ/citations.xml</strong> Get the list of citations for the molecule identified by the given InchIKey, in XML format.</li>
+</ul>
+<p>Jane, a developer building Web applications on top of this new ChemSpider API, would immediately notice that things just work. Let's say her online database stores IC<sub>50</sub>s at the dopamine D<sub>2</sub> receptor. On the summary page for each molecule, she wants to link out to the ChemSpider compound summary page, if available. She would simply construct the InChIKey on her server, build the needed ChemSpider URL and GET it. An HTTP 404 would indicate no molecule with that Key exists on ChemSpider and so no link would be shown. An HTTP 200 would indicate ChemSpider has the molecule, and so the link would appear.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>It would be interesting enough if ChemSpider adopted a system like that described here. But the real power of this approach would emerge if multiple Web services were to adopt it. By following a simple set of conventions, these services would enable third party developers to elegantly <a href="/articles/2006/09/23/mashups-for-fun-and-profit">mashup</a> all manner of cheminformatics resources into applications unimaginable today.</p>
+<p>Technically, there's nothing that prevents this system from being implemented on every <a href="/articles/2007/01/24/thirty-two-free-chemistry-databases">free chemistry database</a> in existence today. However, doing so would transfer a significant degree of control from service operators to third-party developers. Not all providers will be comfortable with that idea.</p>
+<p>Cheminformatics Web service providers need to carefully consider whether they're trying to develop a <a href="/articles/2007/07/04/pubchem-is-a-platform">platform or an integrated service</a>. As history has shown, the strategies, and upside potential, for each approach can differ dramatically.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

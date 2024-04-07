@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Interactive Ruby Open Babel | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Interactive Ruby Open Babel</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-05-16T00:00:00.000Z">2007-05-16T00:00:00.000Z</time>
+      </header>
+      <p>One of my favorite features of Ruby is the <a href="http://tryruby.hobix.com/">Interactive Ruby</a> (irb) shell. For those who haven't used it, irb lets you interactively create Ruby programs. Are you not exactly sure how to use that new library? Do you want to be able to "play" with an object to see how it works? Then irb is the perfect tool.</p>
+<p>One of the new features contained in <a href="http://sourceforge.net/project/showfiles.php?group_id=40728&amp;package_id=32894&amp;release_id=499413">Open Babel 2.1</a> is a <a href="http://depth-first.com/articles/2007/04/09/painless-installation-of-ruby-open-babel">Ruby interface</a>. The power and convenience of irb makes it an excellent tool for exploring Open Babel. With some minor customizations, it can be even better.</p>
+<h2 id="customizingirb">Customizing irb</h2>
+<p>Your irb sessions can be customized by creating and editing the <strong>.irbrc</strong> file located in your home directory. This file, containing standard Ruby, is loaded prior to the start of your irb session.</p>
+<h2 id="tabcompletion">Tab Completion</h2>
+<p>Code completion is one of those things that, once you've used it, you wonder how you ever got by without. Although it tends not to be activated by default, irb fully supports code completion with the "Tab" key.</p>
+<p>To activate this feature, add the following line to your <strong>.irbrc</strong> file:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'irb/completion'</span>
+</code></pre>
+<p>As an example, let's say you'd like to use irb to understand how <code>OpenBabel::OBMol</code> objects work. Entering the following code gets you there:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'openbabel'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; mol=OpenBabel::OBMol.new
+=&gt; <span class="hljs-comment">#&amp;lt;OpenBabel::OBMol:0xb7cd30a4&amp;gt;</span>
+</code></pre>
+<p>What exactly can this OBMol do? Let's start with the "get" methods. Entering <code>mol.get</code> followed by the Tab key gives the following:</p>
+<pre><code class="hljs bash language-bash">irb(main):003:0&gt; mol.get
+mol.get_angle                    mol.get_gidvector
+mol.get_atom                     mol.get_givector
+mol.get_bond                     mol.get_gtdvector
+mol.get_conformer                mol.get_internal_coord
+mol.get_conformers               mol.get_mod
+mol.get_coordinates              mol.get_mol_wt
+mol.get_data                     mol.get_residue
+mol.get_dimension                mol.get_spaced_formula
+mol.get_energy                   mol.get_sssr
+mol.get_exact_mass               mol.get_title
+mol.get_first_atom               mol.get_torsion
+mol.get_flags                    mol.get_total_charge
+mol.get_formula                  mol.get_total_spin_multiplicity
+irb(main):003:0&gt; mol.get_
+</code></pre>
+<p>If you were interested in molecular weight, you'd see the <code>mol.get\_mol\_wt</code> method, which you could fully enter by typing <code>mol.get\_mol</code> followed by the Tab key.</p>
+<p>Tab completion also works with module names. What are the complete contents of the <code>OpenBabel</code> module? Just type <code>OpenBabel::</code> followed by the Tab key. There are over 400 possibilities, so you might want to narrow it down a bit. For example, <code>OpenBabel::OBM</code> followed by the Tab key gives:</p>
+<pre><code class="hljs bash language-bash">irb(main):003:0&gt; OpenBabel::OBM
+OpenBabel::OBMessageHandler  OpenBabel::OBMolAtomDFSIter  OpenBabel::OBMolRingIter
+OpenBabel::OBMol             OpenBabel::OBMolAtomIter     OpenBabel::OBMolTorsionIter
+OpenBabel::OBMolAngleIter    OpenBabel::OBMolBondIter
+OpenBabel::OBMolAtomBFSIter  OpenBabel::OBMolPairIter
+irb(main):003:0&gt; OpenBabel::OBM 
+</code></pre>
+<h2 id="persistentcommandhistory">Persistent Command History</h2>
+<p>Just like other shell environments, irb supports a command line history through the up and down arrows. Like Tab completion, it's one of those things you can't work without.</p>
+<p>As you use irb, you'll find yourself exiting and re-entering frequently. By default, irb doesn't support persistent command histories. This means your previous commands are lost every time you exit. What a pain.</p>
+<p>Luckily, it's easy to create a persistent command history. Fire up your text editor and make the following changes to <strong>.irbrc</strong>:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'irb/completion'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'irb/ext/save-history'</span>
+
+ARGV.concat [ <span class="hljs-string">"--readline"</span>, <span class="hljs-string">"--prompt-mode"</span>, <span class="hljs-string">"simple"</span> ]
+IRB.conf[<span class="hljs-symbol">:SAVE_HISTORY</span>] = <span class="hljs-number">100</span>
+IRB.conf[<span class="hljs-symbol">:HISTORY_FILE</span>] = <span class="hljs-string">"<span class="hljs-subst">#{ENV[<span class="hljs-string">'HOME'</span>]}</span>/.irb-save-history"</span>
+</code></pre>
+<p>From now on, your last 100 irb commands will be just a single key away, regardless of how many sessions ago they were entered.</p>
+<p>One caveat: if you compile Ruby from source, you may notice that the command history doesn't work. Instead, pressing the up-arrow displays "[[A".</p>
+<p>I found the fix in <a href="http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-core/5118">this list posting</a>. In your Ruby source distribution directory, execute the following commands:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> ext/readline
+ruby extconf.rb
+make
+sudo make install
+</code></pre>
+<p>Why this extension doesn't compile by default is beyond me, but at least the solution is simple.</p>
+<h2 id="othercustomizations">Other Customizations</h2>
+<p>You can customize irb in many other ways. For some ideas, see <a href="http://www.rubycentral.com/book/irb.html">The Pickaxe Book</a> and <a href="http://wiki.rubygarden.org/Ruby/page/show/Irb/TipsAndTricks">RubyGarden</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

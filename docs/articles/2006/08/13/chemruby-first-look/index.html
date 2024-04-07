@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ChemRuby First Look | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>ChemRuby First Look</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-08-13T00:00:00.000Z">2006-08-13T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://ruby-lang.org/en">Ruby</a> is a dynamic object oriented scripting language. First released in 1995 by a Japanese programmer, it has recently begun to attract a worldwide audience.</p>
+<p>The use of Ruby in chemical informatics, although currenly rare, can be expected to increase. One especially interesting project is <a href="http://chemruby.org">ChemRuby</a>. Although the website is written in Japanese, there is enough English to get a feel for what ChemRuby is all about.</p>
+<p>I was unsuccessful in installing the 1.0 source due to a failed dependency on the Ruby library "dbm". I was, however, able to install version 0.9.3 via RubyGems (<code>sudo gem install chemruby</code>).</p>
+<p>The code snippet below creates cyclohexane from the corresponding SMILES string, and then prints out the the number of atoms and molecular weight.</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+require_gem <span class="hljs-string">'chemruby'</span>
+
+mol = SMILES(<span class="hljs-string">'C1CCCCC1'</span>)
+
+puts mol.nodes.size
+puts mol.molecular_weight
+</code></pre>
+<p>Browsing the API documentation shows some interesting functionality, including ring perception, cannonical SMILES, and isomorphism detection.</p><p></p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

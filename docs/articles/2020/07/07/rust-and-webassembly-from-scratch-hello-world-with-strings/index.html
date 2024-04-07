@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Rust and WebAssembly from Scratch: Hello World with Strings | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/07/07/rust-and-webassembly-from-scratch-hello-world-with-strings/">
+      <meta property="og:title" content="Rust and WebAssembly from Scratch: Hello World with Strings">
+      <meta property="og:description" content="Bare bones approach to two-way string passing - without wasm-bindgen.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200707/summary.png">
+      <meta content="Bare bones approach to two-way string passing - without wasm-bindgen." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Rust and WebAssembly from Scratch: Hello World with Strings</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-07-07T04:00:00Z">2020-07-07T04:00:00Z</time>
+      </header>
+      <p>Like most successful duos, Rust and WebAssembly (Wasm) complement each other. Rust is a typesafe systems language with modern tooling and high-level features. WebAssembly is a portable compilation target/execution environment for the Web browser and beyond. The combination makes it possible to write fast, stable software that runs anywhere without recompilation.</p>
+<p>But there's a catch. Wasm only supports numeric types as function arguments, and documentation describing how to transfer strings is scarce. A vast network of tools such as <a href="https://github.com/rustwasm/wasm-bindgen">wasm-bindgen</a> has sprung up to make two-way data sharing more convenient. An advantage in some situations, these tools complicate understanding what's going on behind the scenes or if such abstraction is even necessary.</p>
+<p>This article takes a different approach with a simple Hello World written in Rust that compiles to WebAssembly using minimal tooling. Custom JavaScript executes the compiled Rust. <a href="https://github.com/rapodaca/hello_world_rust_wasm">The complete project</a> can be downloaded from GitHub. For the first article in this series, see <a href="/articles/2020/06/29/compiling-rust-to-webassembly-a-simple-example/">Compiling Rust to WebAssembly: A Simple Example</a>. That article contains some background information not re-iterated here.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Begin by installing the Rust language tools with rustup if you haven't already. Next, install the Wasm toolchain:</p>
+<pre><code class="hljs bash language-bash">rustup target add wasm32-unknown-unknown
+</code></pre>
+<p>Finally, create a test project and change into it:</p>
+<pre><code class="hljs bash language-bash">cargo new hello --lib
+
+<span class="hljs-built_in">cd</span> hello
+</code></pre>
+<h2 id="updatecargotoml">Update <code>Cargo.toml</code></h2>
+<p>The file <a href="http://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/cargo/reference/manifest.html"><code>Cargo.toml</code></a> (aka "manifest") contains the project's configuration. Leave everything, but append a new block called <code>[lib]</code>. The result should look something this:</p>
+<pre><code class="hljs toml language-toml"><span class="hljs-comment"># Cargo.toml</span>
+<span class="hljs-section">[package]</span>
+<span class="hljs-attr">name</span> = <span class="hljs-string">"hello"</span>
+<span class="hljs-attr">version</span> = <span class="hljs-string">"0.1.0"</span>
+<span class="hljs-attr">authors</span> = [<span class="hljs-string">"Richard Apodaca &lt;rich.apodaca@gmail.com&gt;"</span>]
+<span class="hljs-attr">edition</span> = <span class="hljs-string">"2018"</span>
+
+<span class="hljs-section">[dependencies]</span>
+
+<span class="hljs-comment"># new material</span>
+<span class="hljs-section">[lib]</span>
+<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">"cdylib"</span>]
+</code></pre>
+<h2 id="alittleaboutlinearmemory">A Little About Linear Memory</h2>
+<p>JavaScript and WebAssembly work together using a feature called <a href="http://webassembly.org/docs/semantics/#linear-memory">linear memory</a>. On the JavaScript side, linear memory is usually represented as a regular <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays">typed array</a> such as <code>Uint8Array</code>. On the WebAssembly/Rust side, linear memory looks like regular memory. Both sides can write to linear memory, but they do so in different ways.</p>
+<h2 id="therustside">The Rust Side</h2>
+<p>From Rust we export three functions:</p>
+<ul>
+<li><code>alloc</code> allocates a block of linear memory, returning a pointer to it</li>
+<li><code>dealloc</code> deallocates a previously-allocated block of linear memory given a pointer to it</li>
+<li><code>greet</code> uses a pointer passed to it to read <code>&lt;name&gt;</code> from linear memory, and write the greeting "Hello, <code>&lt;name&gt;</code>!".</li>
+</ul>
+<p>Here's the complete listing:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// lib.rs</span>
+<span class="hljs-keyword">use</span> std::mem;
+<span class="hljs-keyword">use</span> std::ffi::{CString, CStr};
+<span class="hljs-keyword">use</span> std::os::raw::c_void;
+
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">alloc</span></span>() -&gt; *<span class="hljs-keyword">mut</span> c_void {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> buf = <span class="hljs-built_in">Vec</span>::with_capacity(<span class="hljs-number">1024</span>);
+    <span class="hljs-keyword">let</span> ptr = buf.as_mut_ptr();
+
+    mem::forget(buf);
+
+    ptr
+}
+
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">dealloc</span></span>(ptr: *<span class="hljs-keyword">mut</span> c_void) {
+    <span class="hljs-keyword">let</span> _ = <span class="hljs-built_in">Vec</span>::from_raw_parts(ptr, <span class="hljs-number">0</span>, <span class="hljs-number">1024</span>);
+}
+
+<span class="hljs-meta">#[no_mangle]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">greet</span></span>(ptr: *<span class="hljs-keyword">mut</span> <span class="hljs-built_in">u8</span>) {
+    <span class="hljs-keyword">let</span> str_content = CStr::from_ptr(ptr <span class="hljs-keyword">as</span> *<span class="hljs-keyword">const</span> <span class="hljs-built_in">i8</span>).to_str().unwrap();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> string_content = <span class="hljs-built_in">String</span>::from(<span class="hljs-string">"Hello, "</span>);
+
+    string_content.push_str(str_content);
+    string_content.push_str(<span class="hljs-string">"!"</span>);
+
+    <span class="hljs-keyword">let</span> c_headers = CString::new(string_content).unwrap();
+
+    <span class="hljs-keyword">let</span> bytes = c_headers.as_bytes_with_nul();
+
+    <span class="hljs-keyword">let</span> header_bytes = std::slice::from_raw_parts_mut(ptr, <span class="hljs-number">1024</span>);
+    header_bytes[..bytes.len()].copy_from_slice(bytes);
+}
+</code></pre>
+<p>Nothing in the Rust code couples it to the environment in which it will run. All that's needed is the <a href="https://doc.rust-lang.org/std/ffi/index.html">FFI</a> module built into the standard library. As such, the same code could be used to create C or Python bindings. Coupling to WebAssembly occurs at compile time.</p>
+<p>The project can be compiled with:</p>
+<pre><code class="hljs bash language-bash">cargo build --target wasm32-unknown-unknown --release
+</code></pre>
+<h2 id="thejavascriptside">The JavaScript Side</h2>
+<p>One the JavaScript side, three helper functions are used:</p>
+<ul>
+<li><code>createInstance</code> creates the WebAssembly instance from the compiled wasm file</li>
+<li><code>write</code> writes a string to Wasm linear memory</li>
+<li><code>read</code> reads a string from Wasm linear memory</li>
+</ul>
+<p>An anonymous IIFE function orchestrates the action, creating a Wasm instance, writing a name to linearm memory, executing the Wasm function <code>greet</code>, then reading the result from linear memory.</p>
+<p>Here's a complete listing, including the wrapping HTML boilerplate, which should be saved as <code>index.html</code> in your project:</p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>title<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+      <span class="hljs-keyword">const</span> createInstance = <span class="hljs-keyword">async</span> () =&gt; {
+        <span class="hljs-keyword">const</span> path = <span class="hljs-string">'target/wasm32-unknown-unknown/release/hello.wasm'</span>;
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(path);
+        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
+        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, { });
+
+        <span class="hljs-keyword">return</span> instance;
+      };
+
+      <span class="hljs-keyword">const</span> write = <span class="hljs-function">(<span class="hljs-params">string, buffer, pointer</span>) =&gt;</span> {
+        <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(buffer, pointer, <span class="hljs-number">1024</span>);
+        <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> TextEncoder();
+
+        view.set(encoder.encode(string));
+      }
+
+      <span class="hljs-keyword">const</span> read = <span class="hljs-function">(<span class="hljs-params">buffer, pointer</span>) =&gt;</span> {
+        <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(buffer, pointer, <span class="hljs-number">1024</span>);
+        <span class="hljs-keyword">const</span> length = view.findIndex(<span class="hljs-function"><span class="hljs-params">byte</span> =&gt;</span> byte === <span class="hljs-number">0</span>);
+        <span class="hljs-keyword">const</span> decoder = <span class="hljs-keyword">new</span> TextDecoder();
+
+        <span class="hljs-keyword">return</span> decoder.decode(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(buffer, pointer, length));
+      };
+
+      <span class="hljs-function">(<span class="hljs-params"><span class="hljs-keyword">async</span>(</span>) =&gt;</span> {
+        <span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">await</span> createInstance();
+        <span class="hljs-keyword">const</span> memory = instance.exports.memory;
+        <span class="hljs-keyword">const</span> pointer = instance.exports.alloc();
+
+        write(<span class="hljs-string">'Satoshi'</span>, memory.buffer, pointer);
+        instance.exports.greet(pointer);
+
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'greeting'</span>, read(memory.buffer, pointer));
+        instance.exports.dealloc(pointer);
+      })();
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<h2 id="watchitrun">Watch It Run</h2>
+<p>After starting an HTTP server:</p>
+<pre><code class="hljs bash language-bash">python -m SimpleHTTPServer
+</code></pre>
+<p>browse to <a href="http://localhost:8000">http://localhost:8000</a>. After opening a developer console, you should see the greeting.</p>
+<figure>
+  <img alt="Hello, World!" src="/images/posts/20200707/hello-world.png">
+  <figcaption>
+    <strong>Hello, World!</strong> The name is supplied by JavaScript. The greeting is created by Rust compiled to WebAssembly.
+  </figcaption>
+</figure>
+<h2 id="workingwithwasmmemory">Working with Wasm Memory</h2>
+<p>You may have noticed the the call to <code>dealloc</code> on the JavaScript side. This call isn't strictly needed because all Wasm memory is deallocated when JavaScript finishes execution. It does, however, illustrate how to free linear memory in case that's needed in your situation.</p>
+<p>Adding a second call to <code>dealloc</code> after the first results in a memory error. On Safari, it reads: <code>Unhandled Promise Rejection: Error: Out of bounds memory access (evaluating 'instance.exports.dealloc(pointer)')</code>. With this message the Rust memory allocator is reporting an attempt to manipulate memory that can no longer be used. This is exactly what we would expect.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This tutorial illustrates two-way string communication between a WebAssembly instance compiled from Rust on one side, and JavaScript running in a browser on the other. No special tools are needed.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Simple and Portable Ruby Interface to InChI Part 2 - Silencing Console Output | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Simple and Portable Ruby Interface to InChI Part 2 - Silencing Console Output</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-05-30T00:00:00.000Z">2008-05-30T00:00:00.000Z</time>
+      </header>
+      <p>The previous article in this series described a <a href="http://depth-first.com/articles/2008/05/29/a-simple-and-portable-ruby-interface-to-inchi">simple and portable method</a> for interfacing Ruby to the cInChI-1 binary. One disadvantage was noisy console output. This article offers a minor modification to disable it.</p>
+<h2 id="thecode">The Code</h2>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">InChI</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">inchi_for</span> <span class="hljs-title">molfile</span></span>
+    output = <span class="hljs-string">%x[echo "<span class="hljs-subst">#{molfile}</span>" | cInChI-1 -STDIO 2&amp;gt;/dev/null]</span>
+
+    output.eql?(<span class="hljs-string">""</span>) ? <span class="hljs-string">""</span> : output.split(<span class="hljs-regexp">/\n/</span>)[<span class="hljs-number">1</span>]
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Here, we're taking advantage of the ability to redirect certain output streams to <code>/dev/null</code>.</p>
+<h4>Testing the Code</h4>
+<p>Saving the above in a file called <strong>inchi.rb</strong>, we can test it from IRB. To make things interesting, let's pull a molfile from <a href="http://chempedia.com">Chempedia</a>:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&amp;gt; require <span class="hljs-string">'open-uri'</span>
+=&amp;gt; <span class="hljs-literal">true</span>
+irb(main):002:0&amp;gt; require <span class="hljs-string">'inchi'</span>
+=&amp;gt; <span class="hljs-literal">true</span>
+irb(main):003:0&amp;gt; include InChI
+=&amp;gt; Object
+irb(main):004:0&amp;gt; open <span class="hljs-string">'http://chempedia.com/compounds/83490.mol'</span> <span class="hljs-keyword">do</span> |f|
+irb(main):005:1*   puts inchi_for(f.read)
+irb(main):006:1&amp;gt; end
+InChI=1/C15H15NO3S/c17-14(16-18)11-20(19)15(12-7-3-1-4-8-12)13-9-5-2-6-10-13/h1-10,15,18H,11H2,(H,16,17)
+=&amp;gt; nil
+</code></pre>
+<p>We should be able to run this code unmodified on any UNIX-like system in which the <strong>cInChI-1</strong> binary is on the path. And of course we could take this one step further by allowing <a href="http://depth-first.com/articles/2007/03/19/customize-inchi-output-with-rino">command line options</a> to be passed in as parameters to the <code>inchi_for</code> method.</p>
+<p>Simplicity has its advantages.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

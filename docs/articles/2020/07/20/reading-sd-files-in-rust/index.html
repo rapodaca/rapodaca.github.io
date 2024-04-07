@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Reading Large SDfiles in Rust | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/07/20/reading-sd-files-in-rust/">
+      <meta property="og:title" content="Reading Large SDfiles in Rust">
+      <meta property="og:description" content="Learn the basics of Rust file I/O and Iterators while solving a common cheminformatics problem.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200720/summary.jpg">
+      <meta content="Learn the basics of Rust file I/O and Iterators while solving a common cheminformatics problem." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Reading Large SDfiles in Rust</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-07-22T19:00:00Z">2020-07-22T19:00:00Z</time>
+      </header>
+      <p>Chemical data analysis pipelines often start with reading <a href="/articles/2020/07/13/the-sdfile-format/">SDfiles</a>, the field's de facto standard for information exchange. Given the growing size of many chemistry data sets, efficient methods for reading SDfiles have become ever more important. As part of a continuing series on <a href="/articles/2020/01/20/cheminformatics-in-rust/">Rust for Cheminformatics</a>, this article takes a hands-on first look at reading arbitrarily large SDfiles in Rust. A recent article by Noel O'Boyle on <a href="https://baoilleach.blogspot.com/2020/05/python-patterns-for-processing-large.html">reading large SDfiles in Python</a> offers a good comparison.</p>
+<h2 id="dataset">Data Set</h2>
+<p>SDfiles are not hard to find, but large SDfile might be. If you're drawing a blank on where to find SDfiles in the gigabyte range, consider <a href="https://pubchem.ncbi.nlm.nih.gov/">PubChem</a>. Specifically, the <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/">bulk download FTP server</a> offers a wide selection of large SDfiles. This tutorial uses the <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/Compound_000000001_000500000.sdf.gz">first Compound file</a>. For now, unzip it.</p>
+<h2 id="hellosdfilecountinglines">Hello, SDfile: Counting Lines</h2>
+<p>Before diving into record parsing, let's start with the simpler case of counting lines. Doing so offers insights into some important points.</p>
+<p>If you haven't done so already, <a href="https://rustup.rs">install Rust</a>. Next, create a blank project using Cargo, Rust's build system:</p>
+<pre><code class="hljs bash language-bash">cargo new sdread &amp;&amp; <span class="hljs-built_in">cd</span> sdread
+</code></pre>
+<p>Your project will contain a source file at <code>src/main.rs</code>. Replace its contents with the following:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> std::io::prelude::*;
+<span class="hljs-keyword">use</span> std::io::BufReader;
+<span class="hljs-keyword">use</span> std::fs::File;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; std::io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
+    <span class="hljs-comment">// replace this with the full path to your SDfile</span>
+    <span class="hljs-keyword">let</span> name = <span class="hljs-string">"/Users/rich/Downloads/Compound_000000001_000500000.sdf"</span>;
+    <span class="hljs-keyword">let</span> file = File::open(name)?;
+    <span class="hljs-keyword">let</span> reader = BufReader::new(file);
+    <span class="hljs-keyword">let</span> count = reader.lines().fold(<span class="hljs-number">0</span>, |sum, _| sum + <span class="hljs-number">1</span>);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"line count: {}"</span>, count);
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>Rust programs start execution at the <code>main</code> function. Unlike other languages, <code>main</code> requires no arguments or return value. In this example, we've opted to return a value of type <code>std::io::Result</code> so that I/O errors will be propagated with the <a href="https://doc.rust-lang.org/edition-guide/rust-2018/error-handling-and-panics/the-question-mark-operator-for-easier-error-handling.html">try operator</a> (<code>?</code>).</p>
+<p><code>main</code> begins by opening the file and creating a buffered reader (<code>BufReader</code>). The reader implements Rust's <a href="/articles/2020/06/22/returning-rust-iterators/"><code>Iterator</code> trait</a>, opening many possibilities. In this case, we use the <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.fold"><code>Iterator#fold</code></a> method to count lines. <code>fold</code> updates the previous (or initial) value by applying a closure for each element, and then returns the final result. In this case, we start with an initial count of zero and increment the count every time the reader returns another line. Analogous methods can be found in many functional languages.</p>
+<p><code>BufReader</code> is a good first choice for those situations in which it's unclear whether a file will fit in memory. Instead of loading all bytes into memory, they're streamed one line at a time.</p>
+<p>Next, build the project with Cargo:</p>
+<pre><code class="hljs bash language-bash">cargo build
+</code></pre>
+<p>Execution time on my system clocked in at a rather alarming two minutes. What gives?</p>
+<pre><code class="hljs bash language-bash">time ./target/debug/sdread
+line count: 91736104
+
+real    2m23.095s
+user    2m19.330s
+sys     0m1.364s
+</code></pre>
+<h2 id="compileareleasebuildwhenperformancecounts">Compile a Release Build When Performance Counts</h2>
+<p>When a Rust program takes longer than expected to execute, a good first step is to check the compile target. The previous section used a <em><a href="https://users.rust-lang.org/t/why-does-cargo-build-not-optimise-by-default/4150/2">debug build</a></em>. Such a build includes overhead that isn't needed during normal execution. Removing it can lead to a substantial reduction in execution time.</p>
+<p>Switch to a release build with:</p>
+<pre><code class="hljs bash language-bash">cargo build --release
+</code></pre>
+<p>Running the release build yields a much more reasonable execution time:</p>
+<pre><code class="hljs bash language-bash">time ./target/release/sdread
+line count: 91736104
+
+real    0m14.629s
+user    0m14.017s
+sys     0m0.593s
+</code></pre>
+<h2 id="iteratethefirstrecord">Iterate the First Record</h2>
+<p>Counting lines is instructive, but SDfiles are all about the records. Let's modify the example to return the first record of the SDfile as a <code>String</code>. Here we'll introduce a custom <code>Iterator</code> implementation. For background, see <em><a href="/articles/2020/06/22/returning-rust-iterators/">Returning Rust Iterators</a></em>. Replace the content of <code>src/main.rs</code> with the following:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> std::io::Lines;
+<span class="hljs-keyword">use</span> std::io::BufRead;
+<span class="hljs-keyword">use</span> std::io::BufReader;
+<span class="hljs-keyword">use</span> std::fs::File;
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Records</span></span> {
+    iter: Lines&lt;BufReader&lt;File&gt;&gt;
+}
+
+<span class="hljs-keyword">impl</span> <span class="hljs-built_in">Iterator</span> <span class="hljs-keyword">for</span> Records {
+    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Item</span></span> = <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">String</span>&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Self::Item&gt; {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> lines = <span class="hljs-built_in">vec!</span>[ ];
+
+        <span class="hljs-keyword">loop</span> {
+            <span class="hljs-keyword">match</span> <span class="hljs-keyword">self</span>.iter.next() {
+                <span class="hljs-literal">Some</span>(result) =&gt; <span class="hljs-keyword">match</span> result {
+                    <span class="hljs-literal">Ok</span>(line) =&gt; {
+                        <span class="hljs-keyword">if</span> line == <span class="hljs-string">"$$$$"</span> {
+                            <span class="hljs-keyword">break</span> <span class="hljs-literal">Some</span>(lines)
+                        } <span class="hljs-keyword">else</span> {
+                            lines.push(line)
+                        }
+                    },
+                    <span class="hljs-literal">Err</span>(error) =&gt; <span class="hljs-built_in">panic!</span>(error)
+                },
+                <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">break</span> <span class="hljs-literal">None</span>
+            }
+        }
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; std::io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">let</span> name = <span class="hljs-string">"/Users/rich/Downloads/Compound_000000001_000500000.sdf"</span>;
+    <span class="hljs-keyword">let</span> file = File::open(name)?;
+    <span class="hljs-keyword">let</span> reader = BufReader::new(file);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> records = Records { iter: reader.lines() };
+
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(record) = records.next() {
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"record: {:?}"</span>, record);
+    }
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>The <code>main</code> function here resembles the previous version. But this time the reader is wrapped in a custom <code>Records</code> iterator. The first record (provided it exists), is then printed through a call to <code>next</code>.</p>
+<p>The custom <code>Records</code> iterator is implemented as follows. Within the <code>Records</code> implementation (<code>impl Iterator for Records</code>), we declare the type of the item that will be iterated (in this case a vector of <code>String</code>). Then, the <code>next</code> method is implemented. A functional <code>Iterator</code> requires just these two elements.</p>
+<p>The <code>next</code> method adds lines to a vector buffer until finding the SDfile record terminator (<code>$$$$</code>). When that happens the vector of lines is returned.</p>
+<h2 id="countallrecords">Count All Records</h2>
+<p>The <code>Records</code> type serves as a gateway into a vast range of powerful tools open to Rust iterators. But first we begin on a humble note: counting all of the records contained in the SDfile.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> std::io::Lines;
+<span class="hljs-keyword">use</span> std::io::BufRead;
+<span class="hljs-keyword">use</span> std::io::BufReader;
+<span class="hljs-keyword">use</span> std::fs::File;
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Records</span></span> {
+    iter: Lines&lt;BufReader&lt;File&gt;&gt;
+}
+
+<span class="hljs-keyword">impl</span> <span class="hljs-built_in">Iterator</span> <span class="hljs-keyword">for</span> Records {
+    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Item</span></span> = <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">String</span>&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Self::Item&gt; {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> lines = <span class="hljs-built_in">vec!</span>[ ];
+
+        <span class="hljs-keyword">loop</span> {
+            <span class="hljs-keyword">match</span> <span class="hljs-keyword">self</span>.iter.next() {
+                <span class="hljs-literal">Some</span>(result) =&gt; <span class="hljs-keyword">match</span> result {
+                    <span class="hljs-literal">Ok</span>(line) =&gt; {
+                        <span class="hljs-keyword">if</span> line == <span class="hljs-string">"$$$$"</span> {
+                            <span class="hljs-keyword">break</span> <span class="hljs-literal">Some</span>(lines)
+                        } <span class="hljs-keyword">else</span> {
+                            lines.push(line)
+                        }
+                    },
+                    <span class="hljs-literal">Err</span>(error) =&gt; <span class="hljs-built_in">panic!</span>(error)
+                },
+                <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">break</span> <span class="hljs-literal">None</span>
+            }
+        }
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; std::io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">let</span> name = <span class="hljs-string">"/Users/rich/Downloads/Compound_000000001_000500000.sdf"</span>;
+    <span class="hljs-keyword">let</span> file = File::open(name)?;
+    <span class="hljs-keyword">let</span> reader = BufReader::new(file);
+    <span class="hljs-keyword">let</span> count = (Records { iter: reader.lines() })
+        .fold(<span class="hljs-number">0</span>, |count, _| count + <span class="hljs-number">1</span>);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"records: {}"</span>, count);
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>Here, <code>Records</code> hasn't changed, but <code>main</code> has. The <code>fold</code> method makes another appearance, but instead of counting lines, <code>fold</code> is counting records. Compile the release binary (<code>cargo build --release</code>) then execute:</p>
+<pre><code class="hljs bash language-bash">time ./target/release/sdread
+records: 442655
+
+real    0m20.696s
+user    0m19.598s
+sys     0m0.781s
+</code></pre>
+<p>The result can be confirmed by counting the number of record terminators (<code>$$$$</code>) in the file:</p>
+<pre><code class="hljs bash language-bash">grep -wc <span class="hljs-string">"\$\$\$\$"</span> /Users/rich/Downloads/Compound_000000001_000500000.sdf
+442655
+</code></pre>
+<p>This is a good time to point out that PubChem periodically culls Compound records and changes the size of its bulk download files. Future records counts may not match the totals presented here.</p>
+<h2 id="compiledatafields">Compile Data Fields</h2>
+<p>The goal of most SDfile parsing is to extract structures and data. We can move one step closer to this goal by capturing Data Items in a <code>HashMap</code>. The listing below shows one way.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/main.rs</span>
+<span class="hljs-keyword">use</span> std::io::Lines;
+<span class="hljs-keyword">use</span> std::io::BufRead;
+<span class="hljs-keyword">use</span> std::io::BufReader;
+<span class="hljs-keyword">use</span> std::fs::File;
+<span class="hljs-keyword">use</span> std::collections::HashMap;
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Records</span></span> {
+    iter: Lines&lt;BufReader&lt;File&gt;&gt;
+}
+
+<span class="hljs-keyword">impl</span> <span class="hljs-built_in">Iterator</span> <span class="hljs-keyword">for</span> Records {
+    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Item</span></span> = HashMap&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">String</span>&gt;;
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Self::Item&gt; {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> result = HashMap::new();
+        <span class="hljs-keyword">let</span> next = <span class="hljs-keyword">self</span>.iter.next();
+
+        <span class="hljs-keyword">if</span> next.is_none() {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span>
+        }
+
+        <span class="hljs-keyword">while</span> next_line(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>.iter) != <span class="hljs-string">"M  END"</span> { }
+
+        <span class="hljs-keyword">loop</span> {
+            <span class="hljs-keyword">let</span> line = next_line(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>.iter);
+
+            <span class="hljs-keyword">if</span> line == <span class="hljs-string">"$$$$"</span> {
+                <span class="hljs-keyword">break</span> <span class="hljs-literal">Some</span>(result);
+            }
+
+            <span class="hljs-keyword">let</span> name = read_name(&amp;line);
+            <span class="hljs-keyword">let</span> data = read_data(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>.iter);
+
+            result.insert(name, data);
+        }
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next_line</span></span>(iter: &amp;<span class="hljs-keyword">mut</span> Lines&lt;BufReader&lt;File&gt;&gt;) -&gt; <span class="hljs-built_in">String</span> {
+    <span class="hljs-keyword">match</span> iter.next() {
+        <span class="hljs-literal">Some</span>(line) =&gt; {
+            line.expect(<span class="hljs-string">"reading line"</span>)
+        },
+        <span class="hljs-literal">None</span> =&gt; <span class="hljs-built_in">panic!</span>(<span class="hljs-string">"unexpected EOF"</span>)
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">read_name</span></span>(line: &amp;<span class="hljs-built_in">String</span>) -&gt; <span class="hljs-built_in">String</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> characters = line.chars();
+
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(first) = characters.next() {
+        <span class="hljs-keyword">if</span> first != <span class="hljs-string">'&gt;'</span> {
+            <span class="hljs-built_in">panic!</span>(<span class="hljs-string">"no leading &gt; on header line"</span>);
+        }
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-built_in">panic!</span>(<span class="hljs-string">"unexpected blank line"</span>);
+    }
+
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> result = <span class="hljs-built_in">String</span>::new();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> capture = <span class="hljs-literal">false</span>;
+
+    <span class="hljs-keyword">for</span> character <span class="hljs-keyword">in</span> characters {
+        <span class="hljs-keyword">if</span> capture {
+            <span class="hljs-keyword">if</span> character == <span class="hljs-string">'&gt;'</span> {
+                <span class="hljs-keyword">return</span> result;
+            } <span class="hljs-keyword">else</span> {
+                result.push(character);
+            }
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">if</span> character == <span class="hljs-string">'&lt;'</span> {
+                capture = <span class="hljs-literal">true</span>;
+            }
+        }
+    }
+
+    <span class="hljs-keyword">if</span> capture == <span class="hljs-literal">true</span> {
+        <span class="hljs-built_in">panic!</span>(<span class="hljs-string">"no closing &gt;"</span>);
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-built_in">panic!</span>(<span class="hljs-string">"no opening &lt;"</span>);
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">read_data</span></span>(iter: &amp;<span class="hljs-keyword">mut</span> Lines&lt;BufReader&lt;File&gt;&gt;) -&gt; <span class="hljs-built_in">String</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> result = next_line(iter);
+
+    <span class="hljs-keyword">loop</span> {
+        <span class="hljs-keyword">let</span> line = next_line(iter);
+
+        <span class="hljs-keyword">if</span> line.is_empty() {
+            <span class="hljs-keyword">break</span> result;
+        }
+
+        result.push_str(&amp;line);
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; std::io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">let</span> name = <span class="hljs-string">"/Users/rich/Downloads/Compound_000000001_000500000.sdf"</span>;
+    <span class="hljs-keyword">let</span> file = File::open(name)?;
+    <span class="hljs-keyword">let</span> reader = BufReader::new(file);
+    <span class="hljs-keyword">let</span> records = Records { iter: reader.lines() };
+    <span class="hljs-keyword">let</span> stop = <span class="hljs-string">"5-(5-diazoimidazol-4-yl)-1H-1,2,4-triazole"</span>;
+
+    <span class="hljs-keyword">for</span> record <span class="hljs-keyword">in</span> records {
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(name) = record.get(<span class="hljs-string">"PUBCHEM_IUPAC_NAME"</span>) {
+            <span class="hljs-keyword">if</span> name == stop {
+                <span class="hljs-keyword">let</span> cid = record.get(<span class="hljs-string">"PUBCHEM_COMPOUND_CID"</span>).expect(<span class="hljs-string">"CID"</span>);
+
+                <span class="hljs-built_in">println!</span>(<span class="hljs-string">"Found name at CID {}"</span>, cid);
+
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">Ok</span>(());
+            }
+        }
+    }
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"name not found"</span>);
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>The <code>main</code> function uses a more complex <code>Records</code> iterator for selective capture of fields from an SDfile. It iterates until the target IUPAC name is found (<code>stop</code>), then prints the Compound Identifier of the corresponding record. This record was chosen to be the last one in the file so that execution time can be compared to that of the previous examples.</p>
+<p><code>HashMap</code> is but one option for capturing Data Items. For example, nothing guarantees the <em>uniqueness</em> of a Field Name within the Data Items section. An alternative approach using vector of tuple (<code>Vec&lt;(String, String)&gt;</code>) might be better suited for general use.</p>
+<h2 id="gotchas">Gotchas</h2>
+<p>When reading lines with the approach presented in this article, the question of newlines might come up. <a href="/articles/2020/07/13/the-sdfile-format/">The spec</a> says nothing on this topic. It turns out that <code>BufReader</code> will work with either <a href="https://stackoverflow.com/questions/1552749/difference-between-cr-lf-lf-and-cr-line-break-types">CR or CRLF encoding</a>, which covers the majority of situation. As noted in the <a href="https://doc.rust-lang.org/std/io/trait.BufRead.html#method.lines">Rust documentation</a>:</p>
+<blockquote>
+  <p>The iterator returned from this function [<code>lines</code>] will yield instances of io::Result<string>. Each string returned will not have a newline byte (the 0xA byte) or CRLF (0xD, 0xA bytes) at the end.</string></p>
+</blockquote>
+<p>Speaking of newlines, reading individual lines may not be the most efficient approach. A reader that reads an entire record (up to <code>$$$$</code>), then works on the resulting full record string in memory may be more efficient. Ultimately, benchmarking with real data sets would be needed.</p>
+<h2 id="futuredirections">Future Directions</h2>
+<p>Although the reader described here is already quite functional, there's more to the story. Here are some possible jumping off points:</p>
+<ul>
+<li>support <code>*.sdf.gz</code> files (see, for example, <a href="https://crates.io/crates/niffler">niffler</a>)</li>
+<li>support <a href="/articles/2010/01/29/pubcouch-streams-arent-just-for-pipeline-pilot/">collections of <code>*sdf.gz</code> files</a></li>
+<li>concurrency, especially crates like <a href="https://github.com/rayon-rs/rayon">Rayon</a> that simplify the job</li>
+<li>better error handling, including validation of Field Names and line number reporting</li>
+<li>support for Data Headers lacking a field name such as "DT13"</li>
+<li>refactor into modules</li>
+<li>unit/integration tests</li>
+<li>consider <a href="https://stackoverflow.com/a/45882510">re-use vs re-allocation</a> within a <code>Records</code> iterator</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>This article offers a series of examples building up to a Rust <code>Iterator</code> for SDfile records. Iterators are quite powerful in Rust, so building on this foundation unlocks a lot of potential. Additionally, the platform presented here can be extended in several ways. Future articles will highlight some of them.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

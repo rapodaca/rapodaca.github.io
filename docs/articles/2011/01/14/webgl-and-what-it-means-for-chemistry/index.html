@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WebGL and What It Means for Chemistry | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>WebGL and What It Means for Chemistry</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2011-01-14T00:00:00.000Z">2011-01-14T00:00:00.000Z</time>
+      </header>
+      <p>Most chemists have used one or more 3D molecular visualization tools in their careers. They can be valuable assets in understanding structure-function relationships in a range of contexts. <a href="/articles/2006/11/02/stone-knives-and-bear-skins/">The first 3-D molecular visualization system</a> (<a href="http://www.umass.edu/molvis/francoeur/levinthal/lev-index.html">the "Kluge"</a>) was built in the mid 1960's by Cyrus Levinthal using a combination of oscilloscope graphics and a dome-like controller. Today these tools are offered in a wide variety of styles and with many different capabilities.</p>
+<h2 id="3dvisualizationchemistryandtheweb">3D Visualization, Chemistry, and the Web</h2>
+<p>Most 3D tools in widespread use have been designed around the desktop. Readers of this blog will recognize a <a href="/articles/2006/11/20/unchaining-chemistry-from-the-desktop/">longstanding thesis</a>: the dominant software development paradigm in chemistry will shift from the desktop to the Web browser. This shift has been years in the making and will likely take a few more years before it becomes widely-recognized and acted on. One challenge is the lack of browser-based data visualization and analysis tools with performance characteristics approaching the capabilities of desktop software.</p>
+<p>To be sure, there are web-based in-browser viewers for 3D chemical structures. One of the best-known is <a href="http://jmol.sourceforge.net/">Jmol</a>. But Jmol's technology platform, Java applets, has not held up well over the years. User-side configuration issues, security concerns, long startup times, neglect by Sun Microsystems, and generally poor and inconsistent browser integration are just a few of the problems plaguing this technology. The lack of support for applets on emerging computing platforms such as iPad and Adroid bodes poorly for the long-term viability of the entire concept.</p>
+<h2 id="newdirections">New Directions</h2>
+<p>An intriguing new direction in 3D chemical visualization tools is exemplified by <a href="https://github.com/baoilleach/twirlymol">TwirlyMol</a> and <a href="http://jolecule.appspot.com/">Jolecule</a>. Requiring no plugins and leveraging the ability of SVG/VML vector graphics or the HTML5 canvas tag, these viewers offer an interesting alternative. But unlike desktop-based viewers, these viewers generate 3D graphics from 2D primitives. The approach works, but at a cost.</p>
+<p>Desktop software can exploit very powerful 3D graphics rendering frameworks, including OpenGL. What about the browser?</p>
+<h2 id="webgl">WebGL</h2>
+<p>Until very recently, there was no support for 3D rendering in browsers - you rolled your own from 2D graphics, as is done in TwirlyMol and Jolecule. The introduction of <a href="http://www.khronos.org/webgl/">WebGL</a> may change all of this. From the homepage:</p>
+<blockquote>
+  <p>WebGL is a cross-platform, royalty-free web standard for a low-level 3D graphics API based on OpenGL ES 2.0, exposed through the HTML5 Canvas element as Document Object Model interfaces. Developers familiar with OpenGL ES 2.0 will recognize WebGL as a Shader-based API using GLSL, with constructs that are semantically similar to those of the underlying OpenGL ES 2.0 API. It stays very close to the OpenGL ES 2.0 specification, with some concessions made for what developers expect out of memory-managed languages such as JavaScript.</p>
+</blockquote>
+<p>In other words, WebGL aims to do for the browser what OpenGL did for the desktop. And at least one company, <a href="http://www.ichemlabs.com/">iChemLabs</a> is now offering <a href="http://web.chemdoodle.com/examples/3d-structure-canvases">a WebGL-based 3D molecular viewer</a>.</p>
+<h2 id="firststepgetawebglbrowser">First Step: Get a WebGL Browser</h2>
+<p>Preview versions of Firefox, Safari, and Chrome have begun to support WebGL, with varying levels of hoop-jumping required by the user. I decided to try out the <a href="http://www.mozilla.com/en-US/firefox/beta/">Firefox 4 Beta</a> on OS X and found the WebGL support to be: (1) automatically enabled by default without anything else to be done; and (2) very good.</p>
+<h2 id="secondstepfindsomedemos">Second Step: Find Some Demos</h2>
+<ol>
+<li><a href="http://www.khronos.org/webgl/wiki/Demo_Repository">Kronos WebGL Demo Repository</a></li>
+<li><a href="http://www.chromeexperiments.com/webgl">Google Chrome WebGL Experiments</a></li>
+<li><a href="http://web.chemdoodle.com/examples/3d-structure-canvases/molgrabber3d-canvas">MolGrabber 3D Canvas</a></li>
+</ol>
+<h2 id="thirdsteplearnwebgl">Third Step: Learn WebGL</h2>
+<ol>
+<li><a href="http://learningwebgl.com/blog/">Learning WebGL Blog</a></li>
+<li><a href="http://www.khronos.org/webgl/wiki/Main_Page">WebGL Public Wiki</a></li>
+</ol>
+<h2 id="flyintheointment">Fly in the Ointment</h2>
+<p>Before getting too excited about WebGL, it might be worth considering to what extent Microsoft is likely to support this new technology. The IE9 beta currently lacks WebGL support and <a href="http://blogs.msdn.com/b/ie/">Microsoft's silence on the issue</a> doesn't inspire confidence. Even more discouraging, Microsoft has a long and well-documented history of going its own way in these matters. 3D graphics acceleration may be coming to IE, but it may take the form of a competitor to WebGL, requiring yet another round of JavaScript facade building.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Fast 3D graphics are coming soon to all browsers. As this technology continues to evolve, the case for building fully-integrated chemical informatics and visualization suites based exclusively on Web browsers will become ever more compelling.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

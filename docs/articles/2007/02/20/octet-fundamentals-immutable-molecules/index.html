@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Octet Fundamentals - Immutable Molecules | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Octet Fundamentals - Immutable Molecules</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-02-20T00:00:00.000Z">2007-02-20T00:00:00.000Z</time>
+      </header>
+      <blockquote>
+  <p>The Immutable pattern increases the robustness of objects that share references to the same object and reduces the overhead of concurrent access to an object. It accomplishes this by forbidding any of an object's state information to change after the object is constructed. The Immutable pattern also avoids the need to synchronize multiple threads of execution that share an object.</p>
+  <p><cite><a href="http://www.amazon.com/gp/product/0471258393?ie=UTF8&amp;tag=depthfirst-20&amp;linkCode=as2&amp;camp=1789&amp;creative=9325&amp;creativeASIN=0471258393">Mark Grand</a></cite></p>
+</blockquote>
+<p>Peruse the <a href="http://depth-first.com/doc/octet/index.html">Octet API Documentation</a> and you may find something surprising about the <a href="http://depth-first.com/doc/octet/net/sf/octet/model/Molecule.html">Molecule</a> interface: it lacks mutator methods. Given that mutators enable the state of an object to change, how can a Molecule ever be created in the first place? Why would anyone even need immutable Molecules?</p>
+<h2 id="mutablemoleculesareunnecessary">Mutable Molecules are Unnecessary</h2>
+<p>Most cheminformatics tools permit the unfettered modification of molecules after their creation. Octet takes a completely different approach. The Molecule contract says that the state of every Molecule will remain constant over its lifetime. Octet then backs up this promise by deliberately defining only accessor methods in the Molecule interface.</p>
+<p>Perhaps the best reason for an immutable Molecule interface is that there are vanishingly few situations in which a Molecule needs to be changed after it's created. The creative use of Design Patterns obviates 80-90% of the perceived need for Molecule mutability.</p>
+<h2 id="thevirtuesofimmutability">The Virtues of Immutability</h2>
+<p>When clients <em>know</em> that a Molecule can never be changed, programming becomes a lot easier and less bug-prone. For example, consider that when a Molecule is immutable:</p>
+<ul>
+<li>defensive copying of Molecules is unnecessary;</li>
+<li>a mechanism that reports changes to internal Molecule state (listeners) is unnecessary;</li>
+<li>memory leaks resulting from failure to disconnect a Molecule listener are eliminated;</li>
+<li>the <code>clone</code> method, and all of its complexities, are unnecessary;</li>
+<li>no special precautions need to be taken to achieve robust, thread-safe code;</li>
+<li>Molecules can safely be used as keys in <code>Hashtables</code>;</li>
+<li>the Molecule API is greatly simplified because all mutators have been removed.</li>
+</ul>
+<p>Octet fully embraces the productivity gains made possible by immutable Molecules. In fact, many of Octet's key interfaces are immutable for precisely the reasons cited above.</p>
+<h2 id="howtobuildimmutablemolecules">How to Build Immutable Molecules</h2>
+<p>Immutable Molecules may be a good idea, but how can they get created in the first place? After all, there are no methods such as <code>addAtom</code> though which a Molecule can be built up!</p>
+<p>Java inner classes and the <a href="http://c2.com/cgi/wiki?BuilderPattern">Builder Pattern</a> provide one solution to this problem. Consider the following Java snippet, which is adapted from the Octet source code:</p>
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BasicMoleculeBuilder</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">MoleculeBuilder</span>
+</span>{
+  <span class="hljs-keyword">private</span> MoleculeImpl molecule;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">BasicMoleculeBuilder</span><span class="hljs-params">()</span></span>{
+    molecule = <span class="hljs-keyword">new</span> MoleculeImpl();
+
+    <span class="hljs-comment">// implement the rest</span>
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addAtom</span><span class="hljs-params">(IsotopicDistribution distribution)</span></span>{
+    AtomImpl atom = <span class="hljs-keyword">new</span> AtomImpl(distribution);
+
+    <span class="hljs-comment">// changing the molecule!</span>
+    molecule.atoms.add(atom);
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> Molecule <span class="hljs-title">releaseMolecule</span><span class="hljs-params">()</span></span>{
+    Molecule result = molecule;
+    molecule = <span class="hljs-keyword">new</span> MoleculeImpl();
+
+    <span class="hljs-keyword">return</span> result;
+  }
+
+  <span class="hljs-comment">// implement the remaining MoleculeBuilder methods</span>
+
+  <span class="hljs-keyword">private</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MoleculeImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Molecule</span>  </span>{
+    <span class="hljs-keyword">private</span> List atoms;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">MoleculeImpl</span><span class="hljs-params">()</span></span>{
+      atoms = <span class="hljs-keyword">new</span> ArrayList();
+    }
+
+    <span class="hljs-comment">// implement the remaining Molecule methods</span>
+  }
+
+  <span class="hljs-keyword">private</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AtomImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Atom</span></span>{
+    <span class="hljs-keyword">private</span> IsotopicDistribution dist;
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">AtomImpl</span><span class="hljs-params">(IsotopicDistribution dist)</span></span>{
+      <span class="hljs-keyword">this</span>.dist = dist;
+    }
+
+    <span class="hljs-comment">// implement the remaining Atom methods</span>
+  }
+}
+</code></pre>
+<p>Notice that the <code>addAtom</code> method changes the state of the Molecule under construction. Strictly speaking, this does violate immutability. In practice, it makes no difference because the changes occur only in the context of <code>BasicMoleculeBuilder</code>, which keeps these changes from propagating to the outside world. Once a client invokes <code>releaseMolecule</code>, <code>BasicMoleculeBuilder</code> loses all contact with the <code>Molecule</code> it created, and so is incapable of further modification.</p>
+<p>Although it may not be immediately apparent, Alan Holub's <a href="http://www.javaworld.com/javaworld/jw-07-1999/jw-07-toolbox.html">brilliant series of articles</a> in <a href="http://javaworld.com">JavaWorld</a> on user interface design are directly applicable here. If you've never been exposed to rigorous object-oriented design, Holub's claims can seem rather bizarre ("get and set functions are evil"). But if you stick with it, you'll be rewarded with a valuable new appreciation for object-oriented programming in Java.</p>
+<p>Although a discussion of the role of the Builder Pattern in the above code is beyond the scope of this article, look to future installments of the "Octet Fundamentals" series for more details.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Molecule immutability is a core Octet principle that results in cleaner, simpler, and more robust client code. Situations that might appear to require the ability to edit Molecules can usually be handled through the creative application of Design Patterns.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

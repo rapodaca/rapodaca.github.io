@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Brief Introduction to Graph Convolutional Networks | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/03/09/a-brief-introduction-to-graph-convolutional-networks/">
+      <meta property="og:title" content="A Brief Introduction to Graph Convolutional Networks">
+      <meta property="og:description" content="Using graphs in machine learning.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200309/summary.jpg">
+      <meta content="Using graphs in machine learning." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Brief Introduction to Graph Convolutional Networks</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-03-09T14:00:00Z">2020-03-09T14:00:00Z</time>
+      </header>
+      <p>The extensive use of graphs in chemistry to model both reactions and molecules creates challenges for machine learning. Most of the previous and ongoing research in the field solves the problem by translating molecular graphs into forms that fit cleanly within existing paradigms and tools: <a href="/articles/2019/02/04/chemception-deep-learning-from-2d-chemical-structure-images/">images</a>; <a href="/articles/2019/03/19/chemical-line-notations-for-deep-learning-deepsmiles-and-beyond/">text</a>; and binary fingerprints. Graph representations themselves seem out-of-place at first.</p>
+<p>However, it's possible to work with graph representations more directly using <em>Graph Convolutional Networks</em> (GCNs). This article gives a quick introduction to the idea.</p>
+<h2 id="circularfingerprints">Circular Fingerprints</h2>
+<p>If you're familiar with <a href="/articles/2019/01/11/extended-connectivity-fingerprints/">extended connectivity fingerprints</a> (aka ECFP or "circular fingerprints") or Morgan's algorithm on which circular fingerprints are based, then graph convolutional networks will seem familiar. A circular fingerprint is a set of feature vectors in which each member represents an atom in a molecule.</p>
+<p>An ECFP is characterized by its diameter of perception, or double the length of the shortest path between the focal atom and the atoms augmenting the feature vector. The simplest form, ECFP_0, disregards neighboring atoms. Its feature vectors would include individual atomic properties only such as: atomic number; isotope; degree; charge; and unsaturation. The next level, ECFP_2, sums the feature vectors of immediate neighbors with that of the central atom. ECFP_4 does the same, but for two layers of neighbors, and so on.</p>
+<p>With each increase in the radius of perception, the atomic feature vectors of a circular fingerprint include more information about the rest of the molecule.</p>
+<h2 id="messagepassing">Message Passing</h2>
+<p>Graph neural networks work on a similar principle called <em>message passing</em>. The procedure can be thought of as working through matrix operations. Given a graph with <em>N</em> nodes, the inputs to a GCN are:</p>
+<ul>
+<li>An <em>N</em>x<em>F<sup>0</sup></em> feature matrix <em>X</em>, where <em>F<sup>0</sup></em> is the number of initial node features; and</li>
+<li>An <em>N</em>x<em>N</em> adjacency matrix.</li>
+</ul>
+<p>Each layer of the GCN defines a propagation rule, also in the form of a matrix. The propagation rule determines how inputs will be transformed before being sent to the next layer. Propagation rules can take many forms. The simplest does little more than multiply the incoming feature matrix by the adjacency matrix.</p>
+<p>For example, consider the following directed graph <em>G</em>:</p>
+<figure>
+  <img alt="Example Graph" src="/images/posts/20200309/graph.png">
+</figure>
+<p>It can be represented by the adjacency matrix <em>A</em>:</p>
+<pre><code class="hljs console language-console">0 1 0 0
+0 0 1 1
+0 1 0 0
+1 0 1 0
+</code></pre>
+<p>A simple feature matrix might be composed of an ordered pair consisting of the node's index and a label equal to the additive inverse of this index. We could represent this as the following feature matrix <em>X</em>:</p>
+<pre><code class="hljs console language-console">0   0
+1  -1
+2  -2
+3  -3
+</code></pre>
+<p>Imagine our propagation rule is to simply multiply <em>A</em> by <em>X</em>. Doing so yields:</p>
+<pre><code class="hljs console language-console">1  -1
+5  -5
+1  -1
+2  -2
+</code></pre>
+<p>Notice how the resulting matix is the same one we'd construct if asked to report the sum of indices for neighboring nodes in the first column and the sum of weights for neighboring nodes in the second column. Multiplying the resulting matrix again by <em>A</em> would give a result that included information about features one node more distant. And so on.</p>
+<p>Although this approach is too simple by itself to yield anything useful computationally, it does illuatrate how the message passing idea can be reduced to practice through matrix arithmetic. For more, see the excellent introduction <em><a href="https://towardsdatascience.com/how-to-do-deep-learning-on-graphs-with-graph-convolutional-networks-7d2250723780">How to do Deep Learning on Graphs with Graph Convolutional Networks</a></em>.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/cWIeTMklzNg" allowfullscreen=""></iframe>
+</div>
+<p>A related presentation from Microsoft is also worth watching.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Message passing bears a striking similarity to Morgan's algorithm and the construction of circular fingerprints. The process forms the basis of Graph Convolutional Networks, a powerful method for using graphs in machine learning.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

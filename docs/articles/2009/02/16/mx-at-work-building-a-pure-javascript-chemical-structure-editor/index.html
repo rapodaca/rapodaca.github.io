@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>MX at Work: Building a Pure JavaScript Chemical Structure Editor | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>MX at Work: Building a Pure JavaScript Chemical Structure Editor</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-02-16T00:00:00.000Z">2009-02-16T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://metamolecular.com/mx/">MX</a> is a fast, lightweight cheminformatics toolkit that can be used in many programming environments. Previous articles have shown how easy it is to use MX in <a href="/articles/2008/11/24/getting-started-with-mx">Ruby</a> and <a href="/articles/2008/12/01/open-source-cheminformatics-in-python-with-mx">Python</a>, but that's just the beginning.</p>
+<p>Because MX is written in Java and is both small and self-contained, it can also be <a href="/articles/2009/01/06/javascript-for-cheminformatics-cross-compiling-java-to-javascript-with-gwt-revisited">compiled into pure JavaScript</a> thanks to the <a href="http://code.google.com/webtoolkit/">Google Web Toolkit</a>.</p>
+<p><a href="http://chemhack.com/">Duan Lian</a> has taken this idea and run with it, creating a <a href="http://chemhack.com/jsmoleditor/">pure JavaScript chemical structure editor called jsMolEdit</a>.</p>
+<p>The <a href="http://chemhack.com/jsmoleditor/">new jsMolEdit demo page</a> is impressive: it reads molfiles, writes molfiles, and supports interactive drawing features such as moving, editing atoms and bonds, zooming in/out, and atom/bond highlighting.</p>
+<p>jsMolEdit doesn't yet support some important features needed by an interactive structure editor, but it's an amazing proof of concept.</p>
+<p>My company sells an applet-based <a href="http://metamolecular.com/chemwriter">chemical structure editor called ChemWriter</a>, from which the MX codebase was extracted. Although ChemWriter has been used successfully as a fast-loading, easy-to-use editor on a number of Web sites, one limitation is that users require a properly configured Java plugin for it to work. The possibility of deploying ChemWriter as a pure JavaScript tool is very attractive for this reason.</p>
+<p>There are many other ways to apply the basic concept. For example, I recently wrote about JSpecView, a spectrum viewer/editor deployed as an applet.</p>
+<p>Based on the jsMolEdit demonstration, it should be clear that this and many other interactive, pure JavaScript tools for chemistry are now well within reach.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Chemical Line Notations for Deep Learning: DeepSMILES and Beyond | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2019/03/19/chemical-line-notations-for-deep-learning-deepsmiles-and-beyond/">
+      <meta property="og:title" content="Chemical Line Notations for Deep Learning: DeepSMILES and Beyond">
+      <meta property="og:description" content="Can machine learning breathe new life into trusty old molecular languages?">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20190319/summary.png">
+      <meta content="Can machine learning breathe new life into trusty old molecular languages?" name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Chemical Line Notations for Deep Learning: DeepSMILES and Beyond</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2019-03-30T15:00:00.000Z">Updated 2019-03-30T15:00:00.000Z</time>
+      </header>
+      <p>Last year marked the 30th anniversary of David Weininger's <a href="https://dx.doi.org/10.1021/ci00057a005">SMILES paper</a>. Although the computing landscape has changed beyond recognition since 1988, the SMILES language has barely changed at all. Sure, there's the alternative line notation <a href="https://iupac.org/who-we-are/divisions/division-details/inchi/">InChI</a> and the <a href="http://opensmiles.org">OpenSMILES specification</a>. But the former hasn't changed SMILES itself, and the latter has mainly narrowed the range of SMILES formulations seen in the wild. New SMILES language features that break backward compatibility, although they <a href="http://opensmiles.org/spec/open-smiles-6-extensions.html">do exist</a>, remain mostly a niche.</p>
+<p>This article takes a look at <a href="https://chemrxiv.org/articles/DeepSMILES_An_Adaptation_of_SMILES_for_Use_in_Machine-Learning_of_Chemical_Structures/7097960/1">DeepSMILES</a>, a line notation based on SMILES. Intended to fill a gap in deep learning tools, DeepSMILES' streamlined syntax could find other applications as well. More than this, DeepSMILES raises the question of what an ideal molecular language for deep learning might look like.</p>
+<h2 id="deepsmilesinanutshell">DeepSMILES in a Nutshell</h2>
+<p>DeepSMILES distinguishes itself from SMILES in two respects:</p>
+<ol>
+<li>ring closures use only one set of ring-closure numbers (rnums); and</li>
+<li>the left parentheses character (<code>(</code>) is not used.</li>
+</ol>
+<p>These syntax changes require some semantic adjustments. Other than that, DeepSMILES and SMILES are identical. The following chart, taken from the DeepSMILES paper, gives some examples.</p>
+<p><a href="https://chemrxiv.org/articles/DeepSMILES_An_Adaptation_of_SMILES_for_Use_in_Machine-Learning_of_Chemical_Structures/7097960/1"><img src="/images/posts/20190319/deepsmiles.png" alt="DeepSMILES" title="DeepSMILES"></a></p>
+<p>The goal is simplification by eliminating balanced tokens. Whereas SMILES encodes rings as a balanced pair of ring opening and ring closing symbols, DeepSMILES uses a single postfix rnum denoting the size of the ring being closed. Ring sizes larger than nine members are supported with <code>%XX</code> notation. As a simple example, consider the respective SMILES and DeepSMILES for benzene:</p>
+<ul>
+<li><code>c1ccccc1</code> (SMILES)</li>
+<li><code>cccccc6</code> (DeepSMILES)</li>
+</ul>
+<p>Not only does this difference simplify DeepSMILES, but DeepSMILES automatically reveals the size of any ring.</p>
+<div class="videowrapper">
+  <iframe src="//www.slideshare.net/slideshow/embed_code/key/l341mPDrTErrPa" allowfullscreen=""></iframe>
+</div>
+<p>A more wide-ranging change can be seen in DeepSMILES' approach to branching. SMILES uses balanced parentheses to denote a branch. Everything within the parentheses is part of a branch, and nesting is allowed. Without a left parentheses character, DeepSMILES needs a different way.</p>
+<p>The solution comes by way of a <em>stack</em>. Fortunately, a DeepSMILES reader only needs to follow two branching rules when using the stack:</p>
+<ol>
+<li>each new atom token encountered in the left-to-right processing of a SMILES string causes the corresponding atom to be bonded to the top stack element (if available) and then pushed; and</li>
+<li>on encountering a right parentheses character (<code>)</code>), the stack is popped.</li>
+</ol>
+<p>Consider the DeepSMILES string <code>CO)C</code>, which corresponds to the SMILES <code>C(O)C</code>. Reading the first atom symbol, "C", causes a carbon atom to be pushed to the stack. Reading the second atom symbol, "O", causes an oxygen atom, connected to the preceding carbon by a single bond, to be pushed to the stack. Reading the closing parentheses symbol <code>)</code> causes the top atom (oxygen) to be popped from the stack. Reading the last atom symbol "C" causes a second carbon atom to be pushed to the stack, connected to the next carbon atom down by a single bond.</p>
+<p><img src="/images/posts/20190319/deepsmiles-stack-one.png" alt="DeepSMILES Stack One" title="DeepSMILES Stack One"></p>
+<p>A more complicated example can be seen with the DeepSMILES <code>Bcccccc6))))))O)O</code> (below). Six sequential right parentheses are used to pop the stack back to the original boron atom. Ring closures, like all other bonding arrangements, survive stack popping operations.</p>
+<p><img src="/images/posts/20190319/deepsmiles-stack-two.png" alt="DeepSMILES Stack Two" title="DeepSMILES Stack Two"></p>
+<p>A command-line utility for the interconversion of SMILES and DeepSMILES is available from <a href="https://github.com/nextmovesoftware/deepsmiles">GitHub</a>.</p>
+<p>Additional points to consider include:</p>
+<ul>
+<li>An invalid DeepSMILES will be generated if too few atoms precede the ring size. For example, the string <code>CC9</code> would not be a valid DeepSMILES.</li>
+<li>The ring closure digit refers to the size, in atoms, of the ring — not a location within the DeepSMILES string. The matching ring closure atom must be found by walking the graph under construction.</li>
+<li>Because only one ring token is available, the atom and bond preceding it must carry conformational, configurational, and bond order information.</li>
+<li>If two ring sizes appear adjacent to each other, either the second must use an explicit bond order (even if single) as a separator, or it must use <a href="http://opensmiles.org/opensmiles.html#ringclosure">percent ("%") rnum notation</a>.</li>
+<li>Some SMILES-&gt;DeepSMILES conversions aren't possible (e.g., <code>CC(C1)CCCC1</code>), however this style is not common.</li>
+<li>Brackets must still be balanced. Bracket atoms can be found in numerous compounds such as secondary pyrroles and indoles, as well as stereocenters. However, brackets never nest, which should make their encoding simpler.</li>
+</ul>
+<h2 id="smilesindeeplearning">SMILES in Deep Learning</h2>
+<p>DeepSMILES will likely benefit only those studies in which line notations directly interact with a neural network. For example, converting line notations to another representation (such as a <a href="/articles/2019/01/11/extended-connectivity-fingerprints/">circular fingerprint</a> or <a href="/articles/2019/02/04/chemception-deep-learning-from-2d-chemical-structure-images/">image</a>) prior to processing by a classifier cancels most of the potential benefit.</p>
+<p>During training, a neural network constructs a model for its input data. That model must capture everything about the training set, including its encoding method. It seems reasonable that a network can perform better given the simplest possible encoding method for input data. Therefore, a better use for DeepSMILES would be in classifiers that accept SMILES directly as input.</p>
+<p>An even more intriguing application would bea  <em>generative</em> neural network that writes line notations directly. Generative machine learning tools are capable of not just classifying or scoring examples, but in producing new examples. A flurry of activity around this approach has appeared in the last four years.</p>
+<p>The idea that a neural network could be trained to generate SMILES strings appears to trace its roots to a <a href="https://arxiv.org/abs/1511.06349">2015 study by Google</a>. In it, a neural network was described that was capable of generating valid English sentences from a training corpus.</p>
+<p>The centerpiece of this work was a kind of neural network known as a variational autoencoder (VAE). A <a href="/articles/2019/02/04/chemception-deep-learning-from-2d-chemical-structure-images/">previous post</a> discussed the structure of neural networks at a high level. To recap, a neural network can be thought of as a directed graph consisting of at least two layers of nodes: input and output. One or more optional "hidden" layers may sit between these two layers.</p>
+<p><a href="https://arxiv.org/abs/1511.06349"><img src="/images/posts/20190319/generating-sentences.png" alt="Generating Sentences" title="Generating Sentences"></a></p>
+<p>A variational autoencoder (VAE) is a specialized neural network containing a hidden layer known as a "bottleneck." Whereas input and output layers contain the same number of nodes, the bottleneck layer contains fewer nodes. This constriction limits the dimensionality with which a model can be represented, leading to a form of compression. In this way the network is challenged to produce an efficient model of the training set.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/Rdpbnd0pCiI" allowfullscreen=""></iframe>
+</div>
+<p>A VAE capable of surmounting the resource constraints imposed by the bottleneck can be applied to problems such as compression and noise reduction. However, these problems already have good solutions. A much more interesting direction applies a VAE to the problem of generating output data that mimics its training data.</p>
+<h2 id="smilesautoencoders">SMILES Autoencoders</h2>
+<p>In 2017 a team led by Alań Aspuru-Guzik described an <a href="https://doi.org/10.1021/acscentsci.7b00572">adaptation</a> of the Google work to SMILES strings. In a thought-provoking twist, the team augmented the VAE with layers to be trained on calculated chemical properties: logP; Synthetic Accessibility Score (SAS); and Quantitative Estimation of Drug-Likeness (QED). The authors found that the network not only generated valid SMILES, but also tended to made good property predictions.</p>
+<p><a href="https://doi.org/10.1021/acscentsci.7b00572"><img src="/images/posts/20190319/smiles-autoencoder.png" alt="SMILES Autoencoder" title="SMILES Autoencoder"></a></p>
+<p>The authors say surprisingly little about invalid SMILES generated by the network, but do note:</p>
+<blockquote>
+  <p>The character-by-character nature of the SMILES representation and the fragility of its internal syntax (opening and closing cycles and branches, allowed valences, etc.) can still result in the output of invalid molecules from the decoder, even with the variational constraint. When converting a molecule from a latent representation to a molecule, the decoder model samples a string from the probability distribution over characters in each position generated by its final layer. As such, multiple SMILES strings are possible from a single latent space representation. We employed the open source cheminformatics suite RDKit to validate the chemical structures of output molecules and discard invalid ones. While it would be more efficient to limit the autoencoder to generate only valid strings, this postprocessing step is lightweight and allows for greater flexibility in the autoencoder to learn the architecture of the SMILES.</p>
+</blockquote>
+<p>In other words, invalid SMILES were generated, but they were filtered after the event. It seems reasonable to suspect that a molecular encoding designed specifically with generative machine learning in mind might allow better resource allocation and therefore better performance. The authors hint that this might indeed be the case:</p>
+<blockquote>
+  <p>We also tested InChI as an alternative string representation, but found it to perform substantially worse than SMILES, presumably due to a more complex syntax that includes counting and arithmetic.</p>
+</blockquote>
+<p>Since the publication of the work by Aspuru-Guzik and coworkers, at least 20 studies using the basic idea have been published. In addition to VAEs, deep recurrent networks (RNNs) have also been used to generate SMILES for molecules having desired properties, as <a href="https://arxiv.org/abs/1712.07449">exemplified</a> by Ertl and coworkers.</p>
+<p>To date, <a href="https://arxiv.org/abs/1811.00761">one study</a> has used DeepSMILES. Unfortunately, this doesn't provide the kind of apples-to-apples comparison with previous work I'd like to see, but rather uses DeepSMILES to encode protein targets while indirectly using SMILES to encode ligands.</p>
+<h2 id="alternativelinenotationsformachinelearning">Alternative Line Notations for Machine Learning</h2>
+<p>The DeepSMILES paper ends with some thought-provoking questions:</p>
+<blockquote>
+  <p>… it is worth considering whether if one were to design from scratch a linear notation for molecules for use in Deep Neural Networks, that syntax would be SMILES, DeepSMILES, or indeed a variant of one of the other chemical line notations. What are the features of these strings that aid learning the underlying chemical structure, and what are those that hinder? Perhaps the perfect notation would be one where (1) every string represents a valid molecular structure, (2) there are few duplicate representations, (3) small changes in the string tend to result in small changes to the structure (and vice versa) and (4) string size is related to pharmaceutical usefulness or synthetic accessibility.</p>
+</blockquote>
+<p>What are the qualities of a good machine learning line notation? Do any of the currently available line notations fit the bill? Two possibilities not specifically mentioned in the paper are:</p>
+<ol>
+<li>IUPAC nomenclature</li>
+<li><a href="/articles/2007/07/20/everything-old-is-new-again-wiswesser-line-notation-wln/">Wisswesser Line Notation (WLN)</a></li>
+</ol>
+<p>Whereas SMILES builds molecules atom-by-atom, IUPAC nomenclature and WLN build molecules from fragments. These fragments have been specifically selected for their widespread distribution in compound collections. It's not hard to imagine that a neural network could be efficiently trained to recognize and compose these kinds of line notations. Depending on how they're chosen, multi-atom fragments bear <a href="/articles/2019/02/20/the-language-of-organic-chemistry/">a much closer relationship</a> to the "words" of a chemical language than bare atoms. WLN has the added advantage of generally requiring none of the balancing constructs or locants used in IUPAC nomenclature.</p>
+<p>There is, however, one critical problem with both options: software support. In contrast to SMILES, which enjoys nearly universal support among cheminformatics toolkits, IUPAC nomenclature is much less widely-supported. Readers and writers tend to be restricted to commercial packages. One notable exception is <a href="https://opsin.ch.cam.ac.uk">OPSIN</a>, which can read IUPAC nomenclature. WLN, on the other hand, is not supported by any currently-used cheminformatics toolkit that I know of. And as these things tend to happen, WLN might be the more interesting possibility given its extremely simple syntax.</p>
+<p>Still another option might be dispose of line notations altogether. Within the last year a handful of machine learning approaches have been described in which molecular graphs are used directly. Such approaches do away with string molecular representations altogether, although at the cost of requiring custom tooling. For an example, see <a href="https://arxiv.org/abs/1805.11973">MolGAN</a>.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The method used to represent molecular structure can have far-reaching effects on the utility and flexibility of machine learning models developed from them. DeepSMILES offers a fascinating first step in the direction of molecular encoding schemes optimized for consumption and generation by neural networks. The field is wide open.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hacking JSpecView - Getting Organized with Ant | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Hacking JSpecView - Getting Organized with Ant</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-01-23T00:00:00.000Z">2008-01-23T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://jspecview.sourceforge.net/">JSpecView</a> is a general-purpose X-Y data viewer suitable for Web applications. The <a href="/articles/2008/01/22/an-introduction-to-jspecview">previous article in this series</a> introduced JSpecView and discussed the importance of this kind of software in building rich, chemically-aware Web applications. This article will illustrate one way to set up the JSpecView build environment to easily enable extensions and modifications to be outlined in articles that will follow.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This tutorial will use <a href="http://ant.apache.org/">Apache Ant</a>. For those unfamiliar with it, Ant is a platform-independent build tool like <a href="http://www.gnu.org/software/make/">make</a>. It automates the drudgery of compiling software and building its accessories such as documentation, jar files, and so on. Although far from perfect, Ant is the most widely-used Java build tool.</p>
+<h2 id="configureyourbuilddirectory">Configure Your Build Directory</h2>
+<p>Download and unpack <a href="http://downloads.sourceforge.net/jspecview/JSVSsrc_2008Jan13.zip?modtime=1200256938&amp;big_mirror=0">the most recent version of the JSpecView source distribution</a> ("2008Jan13" as of this writing) into a directory of your choice. When finished, you should end up with a directory structure like this:</p>
+<p><img src="/images/posts/20080123/dirs_initial.png" alt="Dirs Initial" title="Dirs Initial"></p>
+<p>Now, re-arrange the files and directories:</p>
+<ul>
+<li>Create a new directory called <code>src</code> to hold source files and <code>lib</code> to hold external libraries.</li>
+<li>Move <code>jspecview</code>, <code>mdidesktop</code>, and <code>test</code> into the new <code>src</code> directory.</li>
+<li>Delete <code>META-INF</code></li>
+<li>Add an empty file called <code>build.xml</code></li>
+</ul>
+<p>When finished, your new directory structure should look like this:</p>
+<p><img src="/images/posts/20080123/dirs_final.png" alt="Dirs Final" title="Dirs Final"></p>
+<h2 id="addingexternallibraries">Adding External Libraries</h2>
+<p>Compiling JSpecView in its current form requires two external libraries - let's add them now.</p>
+<p>The first library is the LiveConnect JavaScript library named <strong>plugin.jar</strong>. It can be found in your Java Developer Kit. It's typically located under the <strong>jre/lib</strong> directory. Copy this file into your JSpecView <strong>lib</strong> directory.</p>
+<p>The second library we'll need is <a href="http://velocity.apache.org/">Velocity</a>. Copy the <a href="http://apache.mirrors.redwire.net/velocity/engine/1.5/velocity-1.5.tar.gz">Velocity-1.5 jarfile</a> into your JSpecView <strong>lib</strong> directory.</p>
+<h2 id="createbuildxml">Create build.xml</h2>
+<p>All that remains is to create an Ant <strong>build.xml</strong> file. There are many ways to do this; the file presented below is but one of them:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">project</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"JSpecView"</span> <span class="hljs-attr">default</span>=<span class="hljs-string">"compile"</span> <span class="hljs-attr">basedir</span>=<span class="hljs-string">"."</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span>
+    A JCamp-DX Viewer
+  <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"full-name"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"JSpecView"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"short-name"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"JSpecView"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"unix-name"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"jspecview"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"version"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"20080113"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"img"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"icons"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"src"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"src"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"lib"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"lib"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"build"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"build"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"build-classes"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"build/classes"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"build-lib"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"build/lib"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"doc"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"doc"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"dist"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"dist"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"bin-dist"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"${dist}/bin"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"src-dist"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"${dist}/src"</span> /&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"compile"</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">"init"</span> <span class="hljs-attr">description</span>=<span class="hljs-string">"compile the source"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">javac</span> <span class="hljs-attr">srcdir</span>=<span class="hljs-string">"${src}"</span> <span class="hljs-attr">destdir</span>=<span class="hljs-string">"${build-classes}"</span> <span class="hljs-attr">debug</span>=<span class="hljs-string">"on"</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"1.5"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"1.5"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">classpath</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">fileset</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${lib}"</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">include</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"**/*.jar"</span> /&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">fileset</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">classpath</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">javac</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"jar"</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">"compile"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">jar</span> <span class="hljs-attr">jarfile</span>=<span class="hljs-string">"${build-lib}/${unix-name}-${version}.jar"</span> <span class="hljs-attr">basedir</span>=<span class="hljs-string">"${build-classes}"</span> &gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">jar</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"init"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${build}"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${build-classes}"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${build-lib}"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"doc"</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">"compile"</span> <span class="hljs-attr">description</span>=<span class="hljs-string">"create the full api documentation"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">javadoc</span> <span class="hljs-attr">sourcepath</span>=<span class="hljs-string">"${src}"</span> <span class="hljs-attr">packagenames</span>=<span class="hljs-string">"*"</span> <span class="hljs-attr">destdir</span>=<span class="hljs-string">"${doc}"</span> <span class="hljs-attr">windowtitle</span>=<span class="hljs-string">"${short-name} API"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">doctitle</span>&gt;</span>${full-name} v${version}<span class="hljs-tag">&lt;/<span class="hljs-name">doctitle</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">header</span>&gt;</span>${full-name} v${version}<span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">classpath</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">fileset</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${lib}"</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">include</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"**/*.jar"</span> /&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">fileset</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">classpath</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">javadoc</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"clean"</span> <span class="hljs-attr">description</span>=<span class="hljs-string">"remove dist, doc, and build directories"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">delete</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${build}"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">delete</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${dist}"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">delete</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${doc}"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">project</span>&gt;</span>
+</code></pre>
+<p>The purpose of this file is to create five general-purpose scripts: <code>compile</code>, <code>jar</code>, <code>init</code>, <code>doc</code>, and <code>clean</code>.</p>
+<h4>Compiling the Jarfile and Documentation</h4>
+<p>The <strong>build.xml</strong> file can be tested by using it to compile the JSpecView source:</p>
+<pre><code class="hljs bash language-bash">ant
+Buildfile: build.xml
+
+init:
+    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build
+    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build/classes
+    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build/lib
+
+compile:
+    [javac] Compiling 48 <span class="hljs-built_in">source</span> files to /home/rich/devel/proj/jspecview/build/classes
+
+BUILD SUCCESSFUL
+Total time: 3 seconds
+</code></pre>
+<p>If you don't get this result, make sure your libraries are installed in the <code>lib</code> directory and that you've moved all Java sourcecode directories into the <code>src</code> directory.</p>
+<p>We can build a JSpecView jarfile just as easily:</p>
+<pre><code class="hljs bash language-bash">ant jar
+Buildfile: build.xml
+
+init:
+
+compile:
+
+jar:
+      [jar] Building jar: /home/rich/devel/proj/jspecview/build/lib/jspecview-20080113.jar
+
+BUILD SUCCESSFUL
+Total time: 1 second
+</code></pre>
+<p>As you can see from the output, the jarfile has been placed into the <strong>build/lib</strong> directory.</p>
+<p>We can also create JavaDoc documentation:</p>
+<pre><code class="hljs bash language-bash">ant doc
+Buildfile: build.xml
+
+init:
+
+compile:
+
+doc:
+  [javadoc] Generating Javadoc
+  [javadoc] Javadoc execution
+  [javadoc] Creating destination directory: <span class="hljs-string">"/home/rich/devel/proj/jspecview/doc/"</span>
+  [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package jspecview.applet...
+  [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package jspecview.application...
+  [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package jspecview.common...
+  [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package jspecview.exception...
+  [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package jspecview.util...
+  [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package jspecview.xml...
+  [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package mdidesktop...
+  [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package <span class="hljs-built_in">test</span>...
+  [javadoc] Constructing Javadoc information...
+  [javadoc] /home/rich/devel/proj/jspecview/src/jspecview/util/DisplaySchemesProcessor.java:31: package org.apache.xerces.parsers does not exist
+  [javadoc] import org.apache.xerces.parsers.DOMParser;
+  [javadoc]                                 ^
+  [javadoc] Standard Doclet version 1.6.0_01
+  [javadoc] Building tree <span class="hljs-keyword">for</span> all the packages and classes...
+  [javadoc] Building index <span class="hljs-keyword">for</span> all the packages and classes...
+  [javadoc] Building index <span class="hljs-keyword">for</span> all classes...
+  [javadoc] Generating /home/rich/devel/proj/jspecview/doc/stylesheet.css...
+  [javadoc] 1 warning
+
+BUILD SUCCESSFUL
+Total time: 10 seconds
+</code></pre>
+<p>The result is placed into a new <strong>doc</strong> directory. As you can see from the output above, there was a problem finding the Xerces <strong>DOMParser</strong>, a library we may need to include in the <strong>lib</strong> directory for future iterations.</p>
+<p>To clean up the directories our script created, we simply use:</p>
+<pre><code class="hljs bash language-bash">ant clean
+Buildfile: build.xml
+
+clean:
+   [delete] Deleting directory /home/rich/devel/proj/jspecview/build
+   [delete] Deleting directory /home/rich/devel/proj/jspecview/doc
+
+BUILD SUCCESSFUL
+Total time: 0 seconds
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>With a build environment configured and working, we can move on to building a test harness and making modifications. But that's a story for another time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

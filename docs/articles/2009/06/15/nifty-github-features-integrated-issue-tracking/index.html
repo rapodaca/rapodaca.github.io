@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Nifty GitHub Features: Integrated Issue Tracking | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Nifty GitHub Features: Integrated Issue Tracking</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-06-15T00:00:00.000Z">2009-06-15T00:00:00.000Z</time>
+      </header>
+      <p><em>Update June 18, 2009: The MX public repository has been moved to <a href="http://github.com/metamolecular/mx">http://github.com/metamolecular/mx</a>.</em></p>
+<p><a href="http://en.wikipedia.org/wiki/Issue_tracking_system">Issue tracking</a> is a critical feature for many software projects. Over the weekend I had a chance to play with a new GitHub feature - <a href="http://github.com/blog/411-github-issue-tracker">integrated issue tracking</a>.</p>
+<p>A specific example from <a href="http://rapodaca.github.com/mx">MX</a>, the lightweight cheminformatics toolkit, illustrates the process. It was found that MX was throwing an exception where none should be thrown. A <a href="http://github.com/rapodaca/mx/issues/closed#issue/2">new issue</a> was created describing the observed behavior in terms of a <a href="http://gist.github.com/129352">failing test</a>. After diagnosing and eliminating the problem, the issue was closed by adding 'Closes #2' to the git commit message. And voila - the issue was closed with a <a href="http://github.com/rapodaca/mx/commit/cf3e28b1208744e00bea91dc67ea92b6a68615d0">link to the commit that closed it</a> and a link to the original issue in the commit page.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

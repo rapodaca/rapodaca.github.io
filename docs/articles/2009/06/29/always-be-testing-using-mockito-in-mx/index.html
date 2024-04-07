@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Always Be Testing: Using Mockito in MX | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Always Be Testing: Using Mockito in MX</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-06-29T00:00:00.000Z">2009-06-29T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://en.wikipedia.org/wiki/Test-driven_development">Test-driven development</a> (TDD) is an iterative technique for software development in which a failing test is written <em>before</em> a single line of production code is written. Like any technique, it has its limitations and isn't applicable in every situation. Nevertheless, TDD is a powerful method to create more robust low-level code and more effective high-level designs.</p>
+<p>The early days of TDD were not much fun. The reason: the whole idea behind object-oriented software is to divide responsibilities among cooperating objects, which greatly complicates independent testing of isolated object behavior. A test that started out verifying the behavior of a single object could quickly become a test verifying the behaviors of large numbers of dependent objects (and their dependencies) as well.</p>
+<p>An approach to this problem that has gained traction over the last few years is <a href="http://martinfowler.com/articles/mocksArentStubs.html">mocking and stubbing</a>. Although the terminology has become a bit tortured, the basic idea is to use stand-in objects whose behaviors can be pre-defined and later verified when testing an object with dependencies.</p>
+<p>If all of this sounds a bit abstract, consider this example from <a href="http://metamolecular.com/mx">MX</a>, the lightweight cheminformatics toolkit.</p>
+<p>Current activity in MX is focused on a Walker class that 'walks' the graph structure of a Molecule representation in depth-first order, reporting what it finds to a Reporter. To direct its progress, a Walker uses a Step. So, to write tests for Walker, we're dealing with at least two dependencies: Step and Reporter.</p>
+<p>Given that we'd like to use test-driven development, how do we write the first Walker test?</p>
+<p>The approach taken in MX is to use mock objects created with the <a href="http://mockito.org/">Mockito</a> library. Although there are many mocking solutions for Java, I've found Mockito to be the most  intuitive and easy to use.</p>
+<p>For example, consider this test, which verifies that a Walker doesn't continue walking past a maximum depth (click <a href="http://github.com/rapodaca/mx/blob/36d044b6ca2f5ec8cc71db25545fa2a3ca368458/src/com/metamolecular/mx/test/DefaultWalkerTest.java">here</a> to see the whole test):</p>
+<script src="http://gist.github.com/137972.js"></script>
+<p>where doStep simply calls walker.step:</p>
+<script src="http://gist.github.com/137681.js"></script>
+<p>In other words, rather than concocting a real Molecule that would set up the path behavior we need to test, we set up the states of all our dependencies directly such that they exhibit the testable behavior.</p>
+<p>This buys us a couple of things. First, when our test fails, we can be sure it's failing because of either the way we set it up or the Walker implementation we're testing - not the dependencies. Second, we can specify the test environment and the actions taken on it with far greater precision.</p>
+<p>There are many approaches to solving the testing dependency problem, and this is but one. Finding an approach that works for you can be a powerful way to increase your individual productivity and that of your team.</p>
+<p><em>Update June 29, 2009: The original test didn't work as intended and has since been replaced with a simpler approach that does.</em></p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

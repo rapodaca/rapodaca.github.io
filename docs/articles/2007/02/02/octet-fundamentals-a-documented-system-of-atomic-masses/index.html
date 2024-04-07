@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Octet Fundamentals: A Documented System of Atomic Masses | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Octet Fundamentals: A Documented System of Atomic Masses</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-02-02T00:00:00.000Z">2007-02-02T00:00:00.000Z</time>
+      </header>
+      <p>The way that atoms, and particularly their masses, are modeled sets the stage for the kinds of problems a cheminformatics environment can solve. Many systems are currently in use, a reflection of the many different ways there are to think about this problem. This article will introduce the atomic mass system used by Octet, which provides atomic mass values and uncertainties cross-referenced to the primary literature.</p>
+<h2 id="adocumentedsystemofatomicmasses">A Documented System of Atomic Masses</h2>
+<p>Mass and isotopic composition are fundamental atomic properties. In addition to the mass values themselves, the errors of these determinations are also important. Because these quantities are sometimes in dispute, it is essential that they be cross-referenced to the primary literature. Fortunately, a landmark work titled <a href="http://www.iupac.org/publications/pac/2003/7506/7506x0683.html">"Atomic weights of the elements"</a> (AWOTE) accomplishing exactly this objective was published in 2000 by a team led by J. K. Böhlke from the U.S. Geological survey.</p>
+<p>Octet uses an XML representation of the data contained in AWOTE. To view the entire document, <a href="/images/posts/20070202/mass.xml">click here</a>. To illustrate the kind of data included in this document, consider this entry for the element carbon:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">entry</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">atomic-number</span>=<span class="hljs-string">"6"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">natural-abundance</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">mass</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"12.0107"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0.0008"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">isotope</span> <span class="hljs-attr">mass-number</span>=<span class="hljs-string">"12"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">mass</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"12"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">abundance</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"0.9893"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0.0008"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">isotope</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">isotope</span> <span class="hljs-attr">mass-number</span>=<span class="hljs-string">"13"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">mass</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"13.003354838"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0.000000005"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">abundance</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"0.0107"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0.0008"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">isotope</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">natural-abundance</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">entry</span>&gt;</span>
+</code></pre>
+<p>Carbon has two naturally-occurring stable isotopes, <sup>12</sup>C and <sup>13</sup>C. They have relative abundances of 98.93% and 1.07%, and masses of 12 (exactly) and 13.003354838±0.000000005 unified mass units (u), respectively. Every element from hydrogen to uranium is included, excluding technitium. By reference to AWOTE, the determination of every value in the XML file can be found in the primary literature.</p>
+<h2 id="usingtheatomicmasssystem">Using the Atomic Mass System</h2>
+<p>As a demonstration of Octet's system of atomic masses, consider the following Ruby code:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+require_gem <span class="hljs-string">'rjb'</span>
+
+atomic_system=Rjb::import(<span class="hljs-string">'net.sf.octet.model.BasicAtomicSystem'</span>).getInstance
+carbon_distribution=atomic_system.getNaturalAbundance(atomic_system.getAtomicSymbol(<span class="hljs-string">"C"</span>))
+
+puts carbon_distribution.countNuclei <span class="hljs-comment"># =&gt;2</span>
+puts carbon_distribution.getNucleus(<span class="hljs-number">0</span>).getMassNumber <span class="hljs-comment"># =&gt;12</span>
+puts carbon_distribution.getNucleus(<span class="hljs-number">1</span>).getMassNumber <span class="hljs-comment"># =&gt;13</span>
+puts atomic_system.getAtomicMass(carbon_distribution.getNucleus(<span class="hljs-number">0</span>)).getValue.toString <span class="hljs-comment"># =&gt; 12.0</span>
+puts atomic_system.getAtomicMass(carbon_distribution.getNucleus(<span class="hljs-number">1</span>)).getValue.toString <span class="hljs-comment"># =&gt; 13.003354838</span>
+puts atomic_system.getAtomicMass(carbon_distribution.getNucleus(<span class="hljs-number">1</span>)).getUncertainty.toString <span class="hljs-comment"># =&gt; 5.0E-9</span>
+</code></pre>
+<p>The <a href="/articles/2007/01/31/a-molecular-language-for-modern-chemistry-reading-flexmol-documents-with-octet">previous article in this series</a> described the small number of steps needed to execute Ruby code such as that shown above on Windows and Linux systems. For more information on the <code>AtomicSystem</code> API, consult the <a href="http://depth-first.com/doc/octet/">Octet Javadoc</a>.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Octet provides a comprehensive system of atomic masses containing both measurements and uncertainties. This system is furthermore cross-referenced to the primary literature. As a result, the mass of every Octet Molecule can be determined to high precision and with error analysis. Not every application will require this level of detail and documentation, but for those that do the capability exists.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

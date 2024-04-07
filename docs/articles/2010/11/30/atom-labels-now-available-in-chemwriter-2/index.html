@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Atom Labels Now Available in ChemWriter 2 | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Atom Labels Now Available in ChemWriter 2</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-11-30T00:00:00.000Z">2010-11-30T00:00:00.000Z</time>
+      </header>
+      <p><img src="/images/posts/chemwriter-atom-labels.png" alt="ChemWriter Atom Labels" title="ChemWriter Atom Labels"></p>
+<p>Correctly scaling and placing atom labels is one of the most difficult parts of writing a chemical structure editor. With its <a href="http://chemwriter.com/signups/new">latest preview release</a>, ChemWriter 2 has crossed this barrier.</p>
+<p>For the unfamiliar, ChemWriter 2 is a pure JavaScript chemical structure editor that can be embedded in web pages without any browser plugins. ChemWriter 2 runs on all major modern browsers and a number of legacy browsers as well, including Internet Explorer 7/8.</p>
+<p>Unlike Java, which has a vast array of utilities for manipulating fonts and glyphs, JavaScript's support for this kind of thing is extremely limited. <a href="/articles/2010/11/22/google-closure-building-complex-applications-with-javascript/">The Closure Library</a> offers low-level support in the form of abstract shape operations, but little in the way of manipulating characters in a graphical context. The way we addressed this limitation may be the subject of future posts.</p>
+<p>As  you can see from the screenshot, we've got a lot of the functionality in place now, but there's still some work to do. For example, implicit hydrogens and charges are not displayed. And if you look carefully, you'll notice that atom labels are slightly off-center, to the right, along the x-axis. Fortunately, we have a lightweight, fully-functional chemical structure editor written in Java (<a href="http://chemwriter.com">ChemWriter 1.x</a>) from which to port additional features and refinements.</p>
+<p>If you've <a href="http://chemwriter.com/signups/new">signed up for the demo</a>, atom labels can be added by hovering over an atom of interest and <a href="http://chemwriter.com/articles/keyboard-shortcuts">using the same element keyboard shortcuts introduced in ChemWriter 1.x</a>. We'll be introducing the ability to add elements from the rest of the periodic table shortly.</p>
+<p>If you're looking for a Web-based structure editor designed for the future but runnable today, I'd like to <a href="http://metamolecular.com/contact">hear from you</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

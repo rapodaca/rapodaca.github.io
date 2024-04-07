@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Stereoisomer Generation | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Stereoisomer Generation</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-09-15T00:00:00.000Z">2009-09-15T00:00:00.000Z</time>
+      </header>
+      <p>The ability to identify and generate of all possible stereoisomers from a graph molecular representation is useful in many areas of cheminformatics. My own interest in this subject comes from ongoing work to create a robust chemical substance registration system as part of the <a href="http://chemcaster.com">Chemcaster</a> platform. The idea is that users may submit a molecule bearing unspecified stereocenters and the system needs to decide what action to take in response. In some cases, for example, that action will be to auto-generate and register one or more stereoisomers (or a subset of them).</p>
+<p>Recently, <a href="http://timvdm.blogspot.com/">Tim Vandermeersch</a> kicked off a series of articles on stereoisomer perception in Open Babel:</p>
+<ol>
+<li><a href="http://timvdm.blogspot.com/2009/09/symmetry-classes-how-to-get-them-and.html">Symmetry classes: How to get them and what to do with them</a></li>
+<li><a href="http://timvdm.blogspot.com/2009/09/as-promised-here-are-some-molecules.html">Untitled</a></li>
+</ol>
+<p>Tim cites a <a href="http://dx.doi.org/10.1021/ci00016a003">key paper by Razinger et al.</a> (<a href="http://www.mcs.csueastbay.edu/~kbalasub/reprints/282.pdf">free reprint</a>) that details how a working stereoisomer generation system can be designed.</p>
+<p>Two aspects of this problem make it hard: (1) the differentiation of atoms that might be stereocenters from those that will never be; and (2) the exclusion of stereoisomers that are equivalent because of higher molecular symmetry properties (think cis/trans 4-methylcyclohexanol, which has only two steroisomers, not four, neither of which are chiral).</p>
+<p>A key feature of the Razinger approach is the use of molecular <em>automorphism groups</em>. An automorphism group is composed of all mappings of atoms in the same molecule that don't make or break any of the original bonds.</p>
+<p>How to determine autmorphism groups? One approach would be through a <a href="/articles/2008/11/17/substructure-search-from-scratch-in-java-part-1-the-atom-mapping-problem">VF implementation</a>, such as the one found in <a href="http://metamolecular.com/mx">Mx</a>.</p>
+<p>If you needed to generate all stereoisomers of a molecule, which tools and/or approaches would you use?</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>V3000 Molfile Enhanced Stereochemistry Representation | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2022/02/09/v3000-molfile-enhanced-stereochemistry-representation/">
+      <meta property="og:title" content="V3000 Molfile Enhanced Stereochemistry Representation">
+      <meta property="og:description" content="A practical approach to encoding stereochemical mixtures and unknowns.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20220209/summary.png">
+      <meta content="A practical approach to encoding stereochemical mixtures and unknowns." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>V3000 Molfile Enhanced Stereochemistry Representation</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2022-02-09T20:00:00Z">2022-02-09T20:00:00Z</time>
+      </header>
+      <p>Stereoisomerism plays a crucial role in the science and technology of chemistry, but this is a relatively new development. Analytical and synthetic techniques have not yet advanced to the stage that allows configuration to be assigned with the same ease as other aspects of molecular structure. Depending on the context, it's still not unusual for configuration to remain partially or completely unknown indefinitely. This poses challenges for serialization formats, which must be capable of capturing both the known and known unknowns. A <a href="/articles/2021/12/29/stereochemistry-and-the-v2000-molfile-format/">previous article</a> described the solution offered by the molfile V2000 format. This article continues the discussion with the successor, V3000, and its "enhanced representation."</p>
+<h2 id="revisitingv2000stereochemistry">Revisiting V2000 Stereochemistry</h2>
+<p>V3000 inherits the stereochemical notation of its predecessor, V2000. The earlier format used two features in combination to achieve limited support for partial stereochemical characterization: (1) <em>defined stereocenters</em>; and (2) <em>the chiral flag</em>. A defined stereocenter sits at the the thin end of a wedge or hash bond. The chiral flag is a global property affecting how defined stereocenters are interpreted.</p>
+<p>Unfortunately, the V2000 system is described imprecisely at best. The intent appears to be to interpret defined stereocenters absolutely when the chiral flag is On, and relatively when the chiral flag is Off. Additional subtleties come into play depending on whether one or more stereocenters are defined. Imprecise, even contradictory language doesn't help matters. See <a href="/articles/2021/12/29/stereochemistry-and-the-v2000-molfile-format/">my earlier article</a> for details.</p>
+<p>Limited though it may have been, V2000 set the stage for the enhanced representation in two important ways. First, it codified how stereocenters are defined. Second, it introduced the idea of context-sensitive interpretation of stereochemical markers.</p>
+<h2 id="documentation">Documentation</h2>
+<p>This article is based on source documents produced by BIOVIA, the molfile format's current corporate sponsor. In this article I refer to them collectively as "the documentation":</p>
+<ul>
+<li><a href="https://discover.3ds.com/sites/default/files/2020-08/biovia_ctfileformats_2020.pdf">CTFILE FORMATS 2020</a></li>
+<li><a href="http://help.accelrysonline.com/insight/2020/content/pdf_files/bioviachemicalrepresentation.pdf">CHEMICAL REPRESENTATION 2020</a></li>
+<li><a href="https://paperzz.com/doc/8466241/biovia-enhanced-stereochemical-representation">BIOVIA Enhanced Stereochemical Representation</a></li>
+</ul>
+<p>The first two are authoritative copies of syntax and semantic documentation, respectively, provided by BIOVIA. The third is a white paper apparently written by BIOVIA but hosted on a third-party service.</p>
+<h2 id="stereogroups">Stereogroups</h2>
+<p>One V2000 problem solved by V3000 enhanced representation is the global nature of the chiral flag. There is no way to tailor its effect to specific atoms or groups of atoms. Either all atoms are affected or none are. This lack of precision maps poorly to practice in that a given molecule can contain stereocenters with differing levels of characterization.</p>
+<p>Enhanced representation solves this problem with the <em>stereochemical group</em> (aka "stereogroup"). A stereogroup can contain one, some or all defined stereocenters in a molfile. Multiple stereogroups may be present in the same molfile, but a defined stereocenter must only belong to one of them.</p>
+<p>A second problem with V2000 format is a lack of nuance. Stereochemical characterization can have multiple levels of uncertainty, but the chiral flag can capture only two of them.</p>
+<p>To address this problem V3000 introduces what I'll call here <em>operators</em>. An operator changes the interpretation of the centers in a stereogroup. V3000 enhanced representation supports three operators:</p>
+<ul>
+<li>ABSOLUTE. The absolute configuration is the one drawn.</li>
+<li>OR. The absolute configuration is either the one drawn <em>or</em> the inverse.</li>
+<li>AND. The absolute configuration is the one drawn <em>and</em> the inverse.</li>
+</ul>
+<p>Stereogroup operators are often referred to by their codes: <code>or</code> (OR); <code>&amp;</code> (AND); and <code>abs</code> (ABSOLUTE).</p>
+<p>The <code>abs</code> operator is the easiest to understand. All stereocenters in the associated group are interpreted as drawn. The semantics mirror the effect of setting the chiral flag to <code>On</code> in an V2000 molfile. Unlike the chiral flag, however, the ABSOLUTE operator can apply to one, some, or all defined stereocenters.</p>
+<figure>
+  <img alt="ABSOLUTE Operator" src="/images/posts/20220209/abs-equals.png">
+  <figcaption>
+    <strong>ABSOLUTE Operator.</strong> Only the configuration drawn is present.
+  </figcaption>
+</figure>
+<p>The <code>or</code> (OR) operator models the uncertainty that results from knowing that a single configuration is present, but with unknown sense. When applied to a stereogroup containing a single stereocenter, OR indicates that the configuration is as drawn or the inverse. When applied to a multi-center stereogroup, <code>or</code> means the same thing, just over two or more centers. This behavior roughly corresponds to the case of a V2000 molfile whose chiral flag is set to <code>Off</code>.</p>
+<figure>
+  <img alt="OR Operator" src="/images/posts/20220209/or-equals.png">
+  <figcaption>
+    <strong>OR Operator.</strong> Either the configuration drawn or its inverse is present.
+  </figcaption>
+</figure>
+<p>Use of the <code>&amp;</code> (AND) operator indicates a mixture. Both the drawn configuration and its inverse are present. When the stereogroup contains just one center, <code>&amp;</code> indicates that both the drawn configuration and its inverse are present. The same interpretation applies when multiple centers are present. The <code>&amp;</code> operator has no counterpart in V2000 molfiles.</p>
+<figure>
+  <img alt="AND Operator" src="/images/posts/20220209/and-equals.png">
+  <figcaption>
+    <strong>AND Operator.</strong> Both the configuration drawn and its inverse is present.
+  </figcaption>
+</figure>
+<p>Stereogroups are identified by a <em>stereogroup label</em>. The label is constructed as follows. The singleton stereogroup using the <code>abs</code> operator is simply called <code>abs</code>. Stereogroups using the <code>&amp;</code> and <code>or</code> operators use a label obtained by appending a unique integer index greater than one to the code. For example, a stereogroup using the <code>OR</code> operator and the index <code>2</code> would be referred to as <code>or2</code>. A stereogroup using the AND operator and the index <code>5</code> would be referred to as <code>&amp;5</code>. And so on.</p>
+<p>Regardless of label, all stereogroups operate independently of each other. For example, the presence of groups labelled as <code>or1</code> and <code>&amp;1</code> implies no relationship whatsoever. Indexes must be unique across each type of group, but may assume any unique value within that type.</p>
+<p>A defined stereocenter in a V3000 molfile must belong to at least one stereogroup. If a stereocenter does not belong to any explicitly-defined groups, it is assumed to belong to <code>abs</code>.</p>
+<h2 id="assigningstereogroups">Assigning Stereogroups</h2>
+<p>To ensure data integrity, it's important for users and developers alike to understand how to assign stereogroups when working with V3000 molfiles. The documentation offers some examples, but without ever concisely stating a sequence of steps. Below is my attempt to boil the rules down to a repeatable procedure.</p>
+<ol>
+<li>Divide the defined stereocenters into two groups: "invertible" and "non-invertible." An invertible stereocenter either has unknown absolute configuration, or is present in both configurations. A non-invertible stereocenter is only present in the form drawn.</li>
+<li>Mark all non-invertible stereocenters with the "abs" label.</li>
+<li>Label each invertible stereocenter with "or" if only one of its configurations is present, or "&amp;" if both configurations are present.</li>
+<li>Group invertible stereocenters based on whether inversion of one member implies inversion of all the others.</li>
+<li>Assign a unique integer index (&gt;1) to each invertible group.</li>
+<li>Append the group index to each invertible group.</li>
+</ol>
+<p>The simplest case is a molecule with one stereocenter of known configuration. Placing the stereocenter at the thin end of a wedge defines the stereocenter. There is only one stereocenter, and it is non-invertible. Therefore, it gets added to the <code>abs</code> stereogroup and the procedure exits at step (2).</p>
+<figure>
+  <img alt="ABSOLUTE Only" src="/images/posts/20220209/absolute-only.png">
+  <figcaption>
+    <strong>ABSOLUTE Only.</strong> One stereocenter of known configuration.
+  </figcaption>
+</figure>
+<p>Stereochemical mixtures involving molecules with one stereocenter are common and can easily be handled by the procedure. It begins by instructing us to consider the stereocenter to be invertible (Step 1). Because both forms are present, we label the stereocenter "&amp;" (Step 3). Because there is only one center, there can be only one group (Step 4). We arbitrarily select the index <code>1</code> (Step 5). Finally, we append the index to the group to yield <code>&amp;1</code> (Step 6).</p>
+<figure>
+  <img alt="AND Only" src="/images/posts/20220209/and-only.png">
+  <figcaption>
+    <strong>AND Only.</strong> A mixture of stereoisomers with a molecule having just one defined stereocenter.
+  </figcaption>
+</figure>
+<p>Resolution is an experimental technique that separates enantiomeric mixtures. Even though a pure enantiomer with one stereocenter may be present after resolution, the configuration may not be known for some time. Starting with Step 1, we identify the stereocenter as invertible. Then we apply the "or" label because only one configuration is present (Step 3). There is only one group (Step 4), so we assign the index <code>1</code> to it. The group label is therefore <code>or1</code>.</p>
+<figure>
+  <img alt="OR Only" src="/images/posts/20220209/or-only.png">
+  <figcaption>
+    <strong>OR Only.</strong> A single stereoisomer of unknown absolute configuration.
+  </figcaption>
+</figure>
+<p>The presence of multiple stereocenters increases the complexity of assignment, but not its essence. Consider a sample obtained through the non-specific reduction of enantiomerically pure 3-methylcyclohexanone of known absolute configuration. A mixture of two diastereomers is present. In both components the absolute configuration of the methyl-bearing center is the same. The two components differ in the configuration at the oxygen-bearing center. There is therefore one invertible and one non-invertible center (Step 1). Using Step 2, we apply the "abs" label to the methyl-bearing center. Both configurations of the oxygen-bearing center are present, so its label becomes "&amp;" (Step 3). There is only one group, so there can be only one index (Step 5). Concatenating the index to the label yields the final label (<code>&amp;1</code>).</p>
+<figure>
+  <img alt="Mixed ABSOLUTE/AND" src="/images/posts/20220209/abs-and.png">
+  <figcaption>
+    <strong>Mixed ABSOLUTE/AND.</strong> Reaction of an enantiomerically pure, prochiral substrate of known absolute configuration with a nonspecific reagent yields a mixture.
+  </figcaption>
+</figure>
+<p>The above reaction might instead have been performed with enantiomerically pure starting material of unknown absolute configuration. The final product is still a mixture, but with an additional level of uncertainty. Nevertheless, this information can be expressed in a straightforward way.</p>
+<figure>
+  <img alt="Mixed OR/AND" src="/images/posts/20220209/or-and.png">
+  <figcaption>
+    <strong>Mixed OR/AND.</strong> Reaction of an enantiomerically pure, prochiral substrate of unknown absolute configuration with a nonspecific reagent yields a mixture.
+  </figcaption>
+</figure>
+<p>Despite the flexibility of enhanced representation, some mixtures are not representable and the six-step procedure will fail. Consider the following mixture in which three stereoisomers are present. Such a situation could arise through either a synthesis or purification.</p>
+<figure>
+  <img alt="Three Component Mixture" src="/images/posts/20220209/three-component-mixture.png">
+  <figcaption>
+    <strong>Three Component Mixture.</strong> A mixture in which one of four possible stereoisomers is not present. The V3000 format is incapable of representing this case.
+  </figcaption>
+</figure>
+<p>Although the left-hand stereocenter clearly belongs to the <code>abs</code> group, it's not clear where the other two belong. Using <code>&amp;1</code> and <code>&amp;2</code> misleadingly implies the presence of four isomers, but only three are present. The failure here is due in part to the restriction that a stereocenter can only belong to one stereogroup.</p>
+<p>Be wary of applying enhanced representation to mixtures containing an odd-number of components. </p>
+<h2 id="enumeration">Enumeration</h2>
+<p>Given a structure containing enhanced representation, which components are or may be present? This question can be answered through enumeration, which transforms a single structure into a set of structures, where each stereocenter is contained within the <code>abs</code> group. Enumeration can be accomplished through the following procedure:</p>
+<ol>
+<li>Choose an arbitrary invertible stereogroup. If there are none, exit.</li>
+<li>Draw two structures, one with the stereogroup as drawn, the other inverted.</li>
+<li>If the operator is "&amp;" separate the two structures with "AND". Otherwise, separate them with "OR".</li>
+<li>Replace the invertible stereo label with "abs".</li>
+<li>For each of the two new structures, GOTO (1), wrapping the result in parentheses and bringing down the separator.</li>
+</ol>
+<p>The result of enumeration resembles a tree whose bottom layer enumerates the specific stereoisomers that are or may be present and their relationships.</p>
+<p>Consider the example of an enantiomeric mixture of a compound with one stereocenter. A single group, <code>&amp;1</code> is present. This center is invertible (Step 1). Next, we draw two structures, each of opposite configuration (Step 2). The operator is <code>AND</code>, so these structures are separated by "AND" (Step 3). The original label is replaced with "abs" in each structure (Step 4). Neither structure contains additional stereocenters, so we exit (Step 5).</p>
+<figure>
+  <img alt="Enumerate AND" src="/images/posts/20220209/enumerate-and.png">
+  <figcaption>
+    <strong>Enumerate AND.</strong> Enumeration of the isomers present given a structure with a single AND stereogroup.
+  </figcaption>
+</figure>
+<p>Things get more complex with multiple stereogroups. Consider a molecule with three stereocenters divided into two groups, which comes courtesy of the documentation. All centers are invertible. Starting from the top (<code>&amp;1</code>, Step 1), we draw both structures (Step2). The operator is <code>AND</code>, so we separate the structures with "AND" (Step 3). Next, both labels are replaced with "abs" (Step 4). We select the structure on the left (Step 5) and begin with Step 1. Selecting the group second from the top (<code>or1</code>), we create two new structures. Notice, however, that the <code>or1</code> group covers <em>two</em> stereocenters. Inverting both as a unit (Step 2) yields two structures, which are separated by "OR" (Step 3). We then replace all labels for <code>or1</code> with "abs" (Step 4). Continuing as before leads to full enumeration of the stereoisomers that are or may be present, together with their relationships to each other. Enumeration ultimately reveals that the structure represents a mixture of two components.</p>
+<figure>
+  <img alt="Tree Enumeration" src="/images/posts/20220209/tree-2.png">
+  <figcaption>
+    <strong>Tree Enumeration.</strong> Each new set of wrapping parentheses represents an iteration on the procedure. Every iteration applies the same rules, but the number of components increases exponentially with each stereogroup. Iteration ends when every stereogroup uses the ABSOLUTE operator. The final stage of enumeration reveals a two-component mixture.
+  </figcaption>
+</figure>
+<h2 id="othersources">Other Sources</h2>
+<p>This article was inspired and aided by a few resources beyond the documentation, including:</p>
+<ul>
+<li><a href="https://www.inchi-trust.org/wp/wp-content/uploads/2017/11/11.-InChI-Stereo-Yerin-201708.pdf">Improvements in InChI treatment of stereoconfiguration</a>. Discusses V3000 enhanced representation and how it does or doesn't yet intersect with InChI.</li>
+<li><a href="https://twitter.com/med_chemist/status/1417952392180552612">A Twitter thread</a>. Covers some of the ground in this article with examples.</li>
+<li><a href="https://support.collaborativedrug.com/hc/en-us/articles/360020872171-Advanced-Stereochemistry-Registration-Atropisomers-Mixtures-Unknowns-and-Non-Tetrahedral-Chirality">Advanced Stereochemistry Registration: Atropisomers, Mixtures, Unknowns and Non-Tetrahedral Chirality</a>. A blog post with additional enumeration examples.</li>
+<li><a href="https://www.rdkit.org/docs/RDKit_Book.html#support-for-enhanced-stereochemistry">The RDKit Book: Support for Enhanced Stereochemistry</a>. Examples of enumeration.</li>
+</ul>
+<h2 id="software">Software</h2>
+<p>ChemDraw, BIOVIA Draw, and Marvin JS all support the drawing of enhanced representation. Consult each software package's documentation for details.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>V3000 enhanced stereochemical representation offers a powerful albeit limited solution to an important problem, namely the accurate representation of stereochemical uncertainty. This article describes the features comprising enhanced representation and offers specific guidelines for encoding and decoding it.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

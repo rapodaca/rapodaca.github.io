@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Brief Introduction to the ChemDraw CDX File Format | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Brief Introduction to the ChemDraw CDX File Format</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-09-13T00:00:00.000Z">2010-09-13T00:00:00.000Z</time>
+      </header>
+      <p>Ask just about any chemist which tool they use to create structure drawings that appear in their reports, manuscripts, and patents. The answer is very likely to be <a href="http://www.cambridgesoft.com/software/ChemDraw/">ChemDraw</a>.</p>
+<p>ChemDraw is the industry standard tool for generating publication-quality chemical structure graphics. It uses a native file format called "CDX", making CDX files a high-profile player in the world of cheminformatics. The <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/">ChemDraw CDX format</a> is so important that it's one of two file formats accepted and used by the <a href="http://www.uspto.gov/products/catalog/patent_products/page4.jsp">United States Patent and Trademark Office</a> for chemical structure representation.</p>
+<p>This article will give a short introduction to the ChemDraw CDX file format, and serve as a jumping off point for what will (hopefully) become a wider series on this topic.</p>
+<h2 id="adrawingformat">A Drawing Format</h2>
+<p>CDX is far more than a chemical structure representation format. It's is capable of faithfully capturing <em>everything</em> that can drawn in ChemDraw, from abstract geometric shapes to free-form text to lines and curves to chemical structures. This stands in contrast to formats such as <a href="http://depth-first.com/articles/2010/06/28/latest-ctfile-formats-specification-available-now-from-symyx">molfile</a>, which only represent chemical structures.</p>
+<p>Understanding CDX's wide scope is important because many chemists use free-form drawing techniques to make up for the lack of structured representation in their drawing packages. For example, it is not uncommon for a chemist to indicate unknown (or variable) placement of a ring substituent by drawing a bond <em>bisecting</em> the ring bond and perpendicular to it. Another technique is to use a shaded circle attached to a chemical structure to represent a solid support. I've seen many chemists create complex structure-activity and methodology tables, completely in ChemDraw. Other representation techniques are in common use - a topic that could be a discussion unto itself.</p>
+<p>The bottom line: chemical structures are but one player in CDX files.</p>
+<h2 id="anobjectformat">An Object Format</h2>
+<p>CDX files store nested object representations, not unlike XML or JSON. CambridgeSoft currently documents <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/AllCDXObjects.htm">38 object types</a>, including: <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/Document.htm">Document</a>; <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/Node.htm">Node</a>; <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/Bond.htm">Bond</a>; and <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/Curve.htm">Curve</a>. Each of these object can contain other objects, and so on.</p>
+<h2 id="twoflavorsofcdxbinaryandxml">Two Flavors of CDX: Binary and XML</h2>
+<p>CDX files come in two varieties: <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/IntroCDXML.htm">XML</a> and <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/IntroCDX.htm">binary</a>. Both formats use the same concepts and define the same relationships. Interconversion between the two formats is lossless; everything that can be represented as a binary CDX file can also be represented as an XML CDX file.</p>
+<p>The binary CDX format uses byte tokens to represent objects and their attributes, and to define nesting relationships.</p>
+<h2 id="cdxonthesystemclipboard">CDX on the System Clipboard</h2>
+<p>ChemDraw and workalike products allow users to transfer drawings to other applications <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/Clipboard.htm">through the system clipboard</a>. Executing a copy operation places a naked binary CDX representation of the current contents of the ChemDraw document onto either the Mac or Windows system clipboard.</p>
+<h2 id="cdxinofficedocuments">CDX in Office Documents</h2>
+<p>Chemists rarely save CDX files to disk themselves. Instead, ChemDraw content is copied from a drawing tool and pasted into Microsoft Office documents (particularly Word). This embedded CDX then gets saved along with the rest of the document into a single file. Extracting this embedded CDX content requires an Office file API, two free examples of which would be <a href="http://poi.apache.org/">Apache POI</a> and the <a href="http://api.openoffice.org/">OpenOffice API</a>. Although it's conceptually not difficult to see how to use an Office API together with a CDX reader to extract structured chemical information from Office documents, to my knowledge no examples have been published illustrating exactly how to do so.</p>
+<h2 id="cdxreadersandwriters">CDX Readers and Writers</h2>
+<p>A few CDX readers are commercially available. Prices and terms of use can vary considerably among commercial packages. The only alternative I'm aware of for low-cost parsing of CDX files is Open Babel, which offers a <a href="http://openbabel.org/wiki/ChemDraw_CDX">basic CDX file reader</a>.</p>
+<p>To my knowledge, no free package exists which can read and make available for further manipulation the complete range of object types supported by CDX. This is somewhat surprising given the importance of CDX as a chemical file format.</p>
+<h2 id="resourcesforworkingwiththebinaryformat">Resources for Working with the Binary Format</h2>
+<p>CambridgeSoft offers two developer tools that may be helpful in writing third-party CDX readers. The first is a <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/CDXConstants.h">C++ header file</a> with human-readable enumerations of all of the CDX object and property values with human-readable enumerations of all of the CDX object and property values.</p>
+<p>The second tool is a Windows program called <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/CDXHexDumper.exe">CDXHexDumper</a>, which reveals the structure of a binary CDX file, without semantic interpretation.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>ChemDraw CDX is a <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/">relatively well-documented</a>, and extremely important file format in chemistry and commerce. In contrast to most cheminformatics file formats, CDX is a drawing format in which chemical structures may or may not appear. CDX can be found in three main contexts: the system clipboard; Microsoft Office documents; and patent datasets. A few options for reading CDX are available, including one open source package.</p>
+<p>With an understanding of these basics, what else is there to know and more importantly what can be done with this knowledge? Future articles will offer some ideas.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

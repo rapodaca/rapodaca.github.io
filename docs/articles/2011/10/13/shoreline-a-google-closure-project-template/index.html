@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Shoreline: A Google Closure Project Template | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Shoreline: A Google Closure Project Template</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2011-10-13T00:00:00.000Z">2011-10-13T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://code.google.com/closure/">Google Closure</a> is a suite of tools for building scalable JavaScript software. I've used it in numerous projects with success.</p>
+<p>Closure's biggest limitation is complexity. It can take thirty minutes or more just to get a new project set up and debugged. And if you're new to Closure, that time can stretch into hours or days.</p>
+<p>My solution is <a href="https://github.com/metamolecular/shoreline">Shoreline</a>, a complete template for Closure projects. With it, you can:</p>
+<ul>
+<li>Create BDD-style tests using <a href="http://pivotal.github.com/jasmine/">Jasmine</a>.</li>
+<li>Autotest your project (save any file and your Jasmine test-suite re-runs).</li>
+<li>Build and compile your project using <a href="http://cappuccino.org/discuss/2010/04/28/introducing-jake-a-build-tool-for-javascript/">Jake</a>.</li>
+</ul>
+<p>The directory structure is set up according to a system I've been using and improving over the course of a year:</p>
+<ul>
+<li><strong>build</strong> is created by Jake and contains dependencies and compiled JavaScript.</li>
+<li><strong>html</strong> contains html files used to display your application or parts of it. index.html displays your application using uncompiled JavaScript. index-compiled.html runs your project as compiled JavaScript.</li>
+<li><strong>lib</strong> contains library dependencies, which can be added as <a href="http://chrisjean.com/2009/04/20/git-submodules-adding-using-removing-and-updating/">Git submodules</a>.</li>
+<li><strong>spec</strong> test files written with Jasmine.</li>
+<li><strong>src</strong> your project's source files, optionally grouped into packages.</li>
+<li><strong>stylesheets</strong> CSS files used with the HTML files.</li>
+</ul>
+<p>To set up a Shoreline project:</p>
+<pre><code class="hljs bash language-bash">git <span class="hljs-built_in">clone</span> git@github.com:metamolecular/shoreline.git
+<span class="hljs-built_in">cd</span> shoreline
+git submodule init
+git submodule update
+npm install jake
+</code></pre>
+<p>To create dependencies and view the sample code in all of its glory, use:</p>
+<pre><code class="hljs bash language-bash">jake
+</code></pre>
+<p>Then open the <code>html/index.html</code> file. To view the spec suite, open <code>spec/suite.html</code>.</p>
+<p>If you've already installed <a href="http://nodejs.org/">Node.js</a>, there's nothing else to download or install.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

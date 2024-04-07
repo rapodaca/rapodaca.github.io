@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JRuby for Cheminformatics - Parsing SMILES Simply | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>JRuby for Cheminformatics - Parsing SMILES Simply</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-10-09T00:00:00.000Z">2007-10-09T00:00:00.000Z</time>
+      </header>
+      <p>The previous article in this series outlined some <a href="/articles/2007/10/08/five-reasons-to-start-using-jruby-now">reasons to consider JRuby for cheminformatics</a>. Now I'll show how easy it is to get started by describing how to parse SMILES strings with the help of the <a href="http://cdk.sf.net">Chemistry Development Kit</a> (CDK).</p>
+<h2 id="whataboutrubycdk">What About Ruby CDK?</h2>
+<p>A number of Depth-First articles have discussed <a href="/articles/2007/10/04/ruby-cdk-for-newbies">Ruby CDK</a>. This library runs on top of C-Ruby, otherwise known as Matz' Ruby Implementation (MRI). <a href="http://rjb.rubyforge.org/">Ruby Java Bridge</a> connects MRI to a Java Virtual Machine under Ruby CDK.</p>
+<p>This article, and the others to follow, will instead discuss the use of the CDK and other Java libraries from JRuby. In contrast to MRI, JRuby is a pure Java implementation of the Ruby language. This approach offers some important advantages which will be highlighted along the way.</p>
+<h2 id="installingjruby">Installing JRuby</h2>
+<p>JRuby is not difficult to install. On Linux, the steps are:</p>
+<ol>
+<li>Install <a href="http://java.sun.com">JDK Version 1.4 or higher</a>.</li>
+<li>Download and unpack the most recent JRuby release - at the time of this writing, <a href="http://dist.codehaus.org/jruby">version 1.0.1</a>.</li>
+<li>Add the JRuby <code>bin</code> directory to your path.</li>
+<li>There is no Step 4. ;-)</li>
+</ol>
+<h2 id="installingcdkforjruby">Installing CDK for JRuby</h2>
+<p>Installing CDK so that it works on JRuby is similarly quite simple:</p>
+<ol>
+<li>Download the most recent CDK jarfile - at the time of this writing, <a href="http://downloads.sourceforge.net/cdk/cdk-1.0.1.jar?modtime=1182877138&amp;big_mirror=0">version 1.0.1</a>.</li>
+<li>Move the CDK jarfile to your JRuby <code>lib</code> directory.</li>
+</ol>
+<h2 id="testingcdkforjruby">Testing CDK for JRuby</h2>
+<p>You can verify that your new CDK for JRuby installation works with <code>jirb</code>:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'java'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include_class <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
+=&gt; [<span class="hljs-string">"org.openscience.cdk.smiles.SmilesParser"</span>]
+</code></pre>
+<p>You should notice that <code>jirb</code> takes a few seconds to initialize the JVM, whereas <code>irb</code> starts almost instantly.</p>
+<h2 id="alibrarytoreadsmiles">A Library to Read SMILES</h2>
+<p>We can write a short library to read SMILES strings using the CDK:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'java'</span>
+include_class <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">Daylight</span></span>
+  @@smiles_parser = SmilesParser.new
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">read_smiles</span> <span class="hljs-title">smiles</span></span>
+    @@smiles_parser.parse_smiles smiles
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Notice the use of the Rubyesque method name <code>parse_smiles</code> rather than <code>parseSmiles</code>. This is just one of the built-in conveniences offered by JRuby.</p>
+<h2 id="testingthelibrary">Testing the Library</h2>
+<p>Saving the library as a file called <strong>daylight.rb</strong> lets us test it using interactive JRuby:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'daylight'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include Daylight
+=&gt; Object
+irb(main):003:0&gt; mol = read_smiles <span class="hljs-string">'c1ccccc1'</span>
+=&gt; <span class="hljs-comment">#&lt;Java::OrgOpenscienceCdk:: [truncated] ...&gt;</span>
+irb(main):004:0&gt; mol.atom_count
+=&gt; 6
+</code></pre>
+<p>As you can see, the benzene SMILES has been parsed correctly. Again, notice the use of the Rubyesque method name <code>atom_count</code>, rather than the CDK Java bean convention method name <code>getAtomCount</code>. This feature makes it easy to ignore the fact you're using a Java library and get on with writing your Ruby code. Brilliant!</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>This article has shown how to install JRuby and begin to write some simple cheminformatics programs with a distinctive Ruby flavor. Although the focus was on SMILES parsing, there's much more functionality to be found within the CDK and other cheminformatics libraries written in Java. Future articles will outline some of the possibilities.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

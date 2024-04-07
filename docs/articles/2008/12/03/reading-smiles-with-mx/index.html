@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Reading SMILES with MX | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Reading SMILES with MX</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-12-03T00:00:00.000Z">2008-12-03T00:00:00.000Z</time>
+      </header>
+      <p>The <a href="http://code.google.com/p/mx-java/downloads/list">latest release</a> of <a href="http://code.google.com/p/mx-java/">MX</a>, the Java toolkit for cheminformatics, now supports reading a subset of <a href="http://www.daylight.com/smiles/">SMILES strings</a>. Although incomplete, full support for this feature is planned within a few releases.</p>
+<p>To get an idea of how to use the new SMILES reader, we can use <a href="/articles/2008/11/24/getting-started-with-mx">interactive JRuby</a>. Assuming we've downloaded the <a href="http://mx-java.googlecode.com/files/mx-0.105.0.jar">mx-0.105.0 jarfile</a> to our working directory, we can use:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'mx-0.105.0.jar'</span>                            
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; import com.metamolecular.mx.io.daylight.SMILESReader
+=&gt; Java::ComMetamolecularMxIoDaylight::SMILESReader
+irb(main):003:0&gt; bromobenzene = SMILESReader.read <span class="hljs-string">'C1=CC=CC=C1Br'</span>    
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0x8a2023 @java_object=com.metamolecular.mx.model.DefaultMolecule@182a70&gt;</span>
+irb(main):004:0&gt; bromobenzene.count_atoms                            
+=&gt; 7
+irb(main):005:0&gt; bromobenzene.get_atom(6).get_symbol                 
+=&gt; <span class="hljs-string">"Br"</span>
+</code></pre>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The Art and Science of Chemical Structure Diagrams - ChemWriter as Chemically-Aware Vector Graphics System | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The Art and Science of Chemical Structure Diagrams - ChemWriter as Chemically-Aware Vector Graphics System</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-02-14T00:00:00.000Z">2008-02-14T00:00:00.000Z</time>
+      </header>
+      <p>Of the many problems to be solved when <a href="/articles/2008/02/12/the-art-and-science-of-chemical-structure-diagrams-double-trouble">building software to view and manipulate 2D chemical structures</a>, one of the trickiest is getting all features to scale proportionally. This problem is widespread because it can seldom be predicted at which resolution a chemical structure will be viewed.</p>
+<p>This article describes some ways in which this problem was addressed in the Web-based chemical structure editor <a href="http://metamolecular.com/products/chemwriter">ChemWriter</a>.</p>
+<h2 id="chemicallyawarevectorgraphics">Chemically-Aware Vector Graphics</h2>
+<p>ChemWriter is at its a core chemically-aware vector graphics system. It was designed with the belief that chemical structures should remain readable regardless of size.</p>
+<p>The ability to scale 2D chemical structures to any resolution and retain readability is essential when creating cheminformatics systems because magnification factors are so varied. For example, in many cases, structures are user-resizable. In others, the size of the structure is statically set by the developer. In others, the bond length needs to remain fixed and the overall image size needs to adapt accordingly. Even when a chemical structure display context may seem static, future design constraints may force a change.</p>
+<p>A robust chemical structure graphics system needs to gracefully enable the resizing of its output.</p>
+<h2 id="ademonstration">A Demonstration</h2>
+<p>The live applet [not] shown above lets you scale a chemical structure using the "&gt;" and "&lt;" keys, or the View-&gt;Zoom In and View-&gt;Zoom Out menu items.</p>
+<p>Note: if you haven't installed and activated <a href="http://www.java.com/en/download/index.jsp">Java</a> in your browser, you'll need to do so before viewing the above demonstration.</p>
+<h2 id="scalingchemicalstructurefeatures">Scaling Chemical Structure Features</h2>
+<p>Properly scaling 2D chemical structure diagrams may not seem that difficult, but consider some of the properties involved:</p>
+<ul>
+<li><strong>Atom Label Size.</strong> Hardcoding font sizes is simply not an option.</li>
+<li><strong>Atom Label Padding.</strong> The empty space around a heteroatom bond label prevents bonds from making direct contact with the atoms they connect.</li>
+<li><strong>Line Thickness.</strong> Lines have variable absolute thickness that ensure they're visible at lower magnification and not too thin at higher magnification.</li>
+<li><strong>Multiple Bond Offset Distance.</strong> Double and triple bonds contain lines that are offset from the center bond line.</li>
+<li><strong>Stereo Bond Maximum Width</strong> Wedge and hash bonds have a maximum thickness.</li>
+</ul>
+<p>To retain readability, each of these properties must proportionally scale when a chemical structure is reduced or enlarged.</p>
+<h2 id="thechemwritersystem">The ChemWriter System</h2>
+<p>What does it mean to resize a chemical structure?</p>
+<p>The dimensions of a structure are determined by its underlying atom coordinates. Resizing a chemical structure scales these coordinates. It's convenient to think of this process as a proportional change in the absolute length of the bonds between atoms; relative bond lengths, and relative atom positions remain fixed.</p>
+<p>Given that only bond lengths change during scaling, it's useful to adopt bond length as a yardstick. Although not all bonds in a molecule will have the same length, for the most part these values will be tightly clustered around a median.</p>
+<p>For this reason, a molecule's median bond length is the standard unit of measurement in ChemWriter.</p>
+<p>As an example, setting atom label height can be done by calling ChemWriter's <code>setAtomLabelHeight</code> method (or using the <code>atomLabelHeight</code> <a href="http://metamolecular.com/products/chemwriter/documentation/developer-guide/#parameters">parameter</a>). The double-precision value represents a fraction of the median bond length. To make atom labels appear half as high as the median bond length, use a value of 0.5. To make them appear smaller by half, use a value of 0.25.</p>
+<p>The demonstration [not] above shows the effect of each of these settings.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>ChemWriter uses a vector graphics system that can create consistent, readable output for a wide range of image sizes. This flexibility is essential in creating cheminformatics systems that work well across a <a href="/articles/2007/11/27/chemwriter-chemical-structures-and-the-web">broad range of platforms and output formats</a>.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Anatomy of a Cheminformatics Web Application: Ajaxifying Depict | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Anatomy of a Cheminformatics Web Application: Ajaxifying Depict</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-12-04T00:00:00.000Z">2006-12-04T00:00:00.000Z</time>
+      </header>
+      <p>The <a href="http://depth-first.com/articles/2006/11/27/anatomy-of-a-cheminformatics-web-application-beautifying-depict">previous tutorial in this series</a> showed some techniques for improving the appearance and usability of a simple cheminformatics Web application. That application, Depict, rendered color images of 2-D molecular structures when given a SMILES string. Still, something is missing. Wouldn't it be better if the application responded to individual keystrokes in the input field, rather than waiting for the user to hit the return key? In this tutorial, we'll see how to quickly accomplish this effect with a technology called "Ajax."</p>
+<h2 id="downloadsandprerequisites">Downloads and Prerequisites</h2>
+<p>For this tutorial, you'll need <a href="http://depth-first.com/articles/2006/10/30/agile-chemical-informatics-development-with-cdk-and-ruby-rcdk-0-3-0">Ruby CDK</a> (RCDK). A recent article described the small amount of system configuration required for <a href="http://depth-first.com/articles/2006/09/25/cdk-the-ruby-way-rcdk-0-2-0">RCDK on Linux</a>. Another article showed how to install <a href="http://depth-first.com/articles/2006/10/12/running-ruby-java-bridge-on-windows">RCDK on Windows</a>.</p>
+<p>In addition, you'll need to install <a href="http://www.rubyonrails.org/down">Ruby on Rails</a> - something that can be done through <a href="http://docs.rubygems.org/">RubyGems</a>.</p>
+<p>The Rails application that this tutorial starts with can be downloaded from <a href="/images/posts/20061127/depict-20061127.tar.gz">this link</a>. If you'd rather start working directly with the version of Depict produced by applying the changes outlined in this tutorial, the full source code can be downloaded from <a href="/images/posts/20061204/depict-20061204.tar.gz">this link</a>.</p>
+<p>If you'll be running Depict on an AMD64 Linux system, you'll need to prepend your invocation of <code>script/server</code> with <code>LD_PRELOAD</code>. For example, on my system running Sun's JVM, the full command looks like:</p>
+<pre><code class="hljs bash language-bash">LD_PRELOAD=/usr/java/jdk1.5.0_09/jre/lib/amd64/libzip.so ruby script/server
+</code></pre>
+<h2 id="abriefintroductiontoajax">A Brief Introduction to Ajax</h2>
+<p>When stripped down to its essentials, <a href="http://ajaxian.com/">Ajax</a> is nothing more than an asynchronous communication channel between Web browsers and Web servers. In the pre-Ajax model of client-server Web interactions, a browser would make a request to a server and then wait until getting a server response, which would take the form of a complete Web page. In the Ajax model, a browser makes a request to a server, continuing to function while the server generates a response, which takes the form of a small section of the page that gets replaced. For this reason, Ajax-enabled Web sites are far more application-like than the document-centric sites that preceded them.</p>
+<h2 id="ajaxsupportinrails">Ajax Support in Rails</h2>
+<p>Ajax is implemented in JavaScript using the <code>HTMLHttpRequest</code> object, although working at this level can require a lot of code to do anything meaningful. Fortunately, Rails and other Web application frameworks provide high-level interfaces to Ajax. In Rails, Ajax support takes the form of a variety of helper methods, one of which we'll use in this tutorial: <code>observe_field</code>. This method, an instance of the <a href="http://en.wikipedia.org/wiki/Observer_pattern">Observer Pattern</a>, assigns an Observer to monitor input activity in a text field.</p>
+<h2 id="theproblemathand">The Problem at Hand</h2>
+<p>We'd like Depict to provide immediate feedback by rendering a SMILES string as it is keyed into the input field. If the partial SMILES string is valid, it will be rendered, otherwise, an error image will be rendered. At no point will the user need to press the return key to see an image of the SMILES string they are typing.</p>
+<h2 id="step1ajaxifytheview">Step 1: Ajaxify the View</h2>
+<p>Let's start by adding an observer to Depict's input field. These changes will occur to the SMILES View, contained in <strong>depict/app/views/smiles/depict.rhtml</strong>:</p>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Depict<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">%=</span> <span class="hljs-attr">stylesheet_link_tag</span> "<span class="hljs-attr">default</span>", <span class="hljs-attr">:media</span> =&gt;</span> "all" %&gt;
+
+    <span class="hljs-comment">&lt;!-- Nothing works without this line. --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">%=</span> <span class="hljs-attr">javascript_include_tag</span> <span class="hljs-attr">:defaults</span> %&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Depict a SMILES String<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+
+    <span class="hljs-comment">&lt;!-- New id attribute needed by Ajax --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"image"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"results"</span> &gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"&lt;%= image_for_smiles :smiles =&gt; @smiles %&gt;"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">img</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"smiles"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">%=</span> <span class="hljs-attr">form_tag</span> <span class="hljs-attr">:action</span>=&gt;</span>'depict' %&gt;
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span>&gt;</span>SMILES: <span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+
+        <span class="hljs-comment">&lt;!-- Ajaxified text field. --&gt;</span>
+        <span class="hljs-comment">&lt;!-- We turn off autocomplete to simplfify the interface. --&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">%=</span> <span class="hljs-attr">text_field_tag</span> <span class="hljs-attr">:smiles</span>, @<span class="hljs-attr">smiles</span>, {<span class="hljs-attr">:autocomplete</span> =&gt;</span> "off"} %&gt;
+        <span class="hljs-tag">&lt;<span class="hljs-name">%=</span> <span class="hljs-attr">observe_field</span>( <span class="hljs-attr">:smiles</span>,
+                           <span class="hljs-attr">:frequency</span> =&gt;</span> 0.5,
+                           :update    =&gt; :results,
+                           :url       =&gt; { :action =&gt; :ajax_depict } ) %&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">%=</span> <span class="hljs-attr">end_form_tag</span> %&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"about"</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- Update the URL to point to the new Depth-First article --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://depth-first.com/articles/2006/12/04/anatomy-of-a-cheminformatics-web-application-ajaxifying-depict"</span>&gt;</span>About this Application<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>The above code introduces three key elements:</p>
+<ul>
+<li>The <code>javascript_include_tag</code> method is called, which is surprisingly easy to forget to do.</li>
+<li>The original <code>text_field</code> method call is replaced by <code>text_field_tag</code> to simplify coding. We disable browser-based autocompletion by setting the <code>autocomplete</code> attribute to <code>off</code>. This removes a feature unlikely to ever be used, and leads to a more streamlined interface.</li>
+<li>The <code>observe_field</code> method is called, linking activity in the text field to an Ajax action, <code>ajax_depict</code>, that will update the image area. To accomplish this, we assign the <code>div</code> containing our image the id "results."</li>
+</ul>
+<p>Making these changes and refreshing the browser window gives a screen like the one below:</p>
+<p><img src="/images/posts/20061204/step_1_1.png" alt="Step 1.1" title="Step 1.1"></p>
+<p>Although the client side of the Ajax communication channel is working, the server side is not. Let's fix that.</p>
+<h2 id="step2ajaxifytheserver">Step 2: Ajaxify the Server</h2>
+<p>Depict needs an Action and View that will be invoked in response to keyboard events in the SMILES input box. To do this, first add a new <code>ajax_depict</code> method to <code>SmilesController</code>, the source for which is found in <strong>depict/app/controllers/smiles_controller.rb</strong>:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmilesController</span> &lt; ApplicationController</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict</span></span>
+    <span class="hljs-keyword">if</span> params[<span class="hljs-symbol">:smiles</span>]
+      @smiles = params[<span class="hljs-symbol">:smiles</span>][<span class="hljs-symbol">:value</span>]
+    <span class="hljs-keyword">else</span>
+      @smiles = <span class="hljs-string">''</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">image_for</span></span>
+    <span class="hljs-keyword">if</span> flash[<span class="hljs-symbol">:bytes</span>]
+      send_data(flash[<span class="hljs-symbol">:bytes</span>], <span class="hljs-symbol">:type</span> =&gt; <span class="hljs-string">"image/png"</span>, <span class="hljs-symbol">:disposition</span> =&gt; <span class="hljs-string">"inline"</span>, <span class="hljs-symbol">:filename</span> =&gt; <span class="hljs-string">"<span class="hljs-subst">#{flash[<span class="hljs-symbol">:smiles</span>]}</span>.png"</span>)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># The new ajax_depict method.</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">ajax_depict</span></span>
+    @smiles=request.raw_post
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Making the above changes and refreshing your browser should give an error message:</p>
+<p><img src="/images/posts/20061204/step_2_1.png" alt="Step 2.1" title="Step 2.1"></p>
+<p>The new <code>ajax_depict</code> method is being called, but no associated template exits. This template contains the HTML that will be inserted into the <code>div</code> with the <code>results</code> id attribute that we set up in Step 1. We can resolve the error we're getting by simply creating a new file (<strong>depict/app/views/smiles/ajax_depict.rhtml</strong>) containing the following partial template:</p>
+<pre><code class="hljs html language-html">&lt;img src="&lt;%= image_for_smiles :smiles =&gt; @smiles %&amp;gt;"&amp;gt;&lt;/img&gt;
+</code></pre>
+<p>Now, refreshing your browser should produce a screen like that shown below. We have now Ajaxified Depict, but we're not quite done yet.</p>
+<p><img src="/images/posts/20061204/step_2_2.png" alt="Step 2.2" title="Step 2.2"></p>
+<h2 id="step3updatethecascadingstylesheet">Step 3: Update the Cascading Style Sheet</h2>
+<p>As you type a SMILES string into the input window, you may have noticed the input box being repositioned toward the top of the application window just prior to the display of a new image. This is due to the image area being resized to zero height as the new image is generated.</p>
+<p>Fortunately, the fix is simple; we'll just specify that the image area must be 400 pixels high, whether an image is being displayed or not. This is done by editing the <code>image</code> selector in the CSS file at <strong>depict/public/stylesheets/default.css</strong>:</p>
+<pre><code class="hljs css language-css"><span class="hljs-selector-class">.image</span> {
+    <span class="hljs-attribute">margin-left</span>: auto;
+    <span class="hljs-attribute">margin-right</span>: auto;
+    <span class="hljs-attribute">width</span>: <span class="hljs-number">400px</span>;
+    <span class="hljs-comment">/* Keeps the input box from moving during image refresh.*/</span>
+    <span class="hljs-attribute">height</span>: <span class="hljs-number">400px</span>;
+}
+</code></pre>
+<p>Refreshing the Depict window should now give a statically-positioned SMILES input field.</p>
+<h2 id="step4backwardcompatibility">Step 4: Backward Compatibility</h2>
+<p>As it stands, if the user presses the return key, they will see the "Enter SMILES Below" message. This is due to the change in the way SMILES strings are transmitted into the application. To fix this problem, we simply change the way that <code>SmilesController</code> assigns the <code>smiles</code> instance variable (<strong>depict/app/controllers/smiles_controller.rb</strong>):</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict</span></span>
+  <span class="hljs-comment"># Uses new input method.</span>
+  <span class="hljs-keyword">if</span> params[<span class="hljs-symbol">:smiles</span>]
+    @smiles = params[<span class="hljs-symbol">:smiles</span>]
+  <span class="hljs-keyword">else</span>
+    @smiles = <span class="hljs-string">''</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Making this change produces an interface that will render the correct image whether the return key is typed or not. If JavaScript is disabled, Depict will work exactly the same way as it did in the non-Ajax version.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Ajax makes the Web more attractive than ever as an application development platform. In this tutorial, we've seen how using Rails made it very easy to give Depict the feel of an interactive SMILES depiction tool using Ajax. But a few details remain before we're ready to deploy this application on a Web server for the public to use. For example, we need to take server load and network latency into account, and we need to make sure Depict works well on all major browsers. The next articles in this series will address these issues.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

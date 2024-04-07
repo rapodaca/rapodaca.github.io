@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fighting Spam on the Cheap with CAPTCHA - A Simple Ruby Library for captchas.net | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Fighting Spam on the Cheap with CAPTCHA - A Simple Ruby Library for captchas.net</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-09-03T00:00:00.000Z">2007-09-03T00:00:00.000Z</time>
+      </header>
+      <p>A <a href="/articles/2007/09/01/fighting-comment-spam-on-the-cheap-with-captcha">recent article</a> discussed two free services for cheaply integrating <a href="http://en.wikipedia.org/wiki/Captcha">CAPTCHAs</a> into Web applications. One of these services, <a href="http://captchas.net">captchas.net</a>, apparently has no publicly-available Ruby library. Given the popularity of <a href="http://rubyonrails.com">Ruby on Rails</a> for building Web applications, and the increasing need for spam protection offered by services such as <a href="http://captchas.net">captchas.net</a>, it seems only logical that such a library should exist. This article, the first in a series, documents the first step in the development of a simple Rails library for working with captchas.net.</p>
+<h2 id="gotkey">Got Key?</h2>
+<p>To use captchas.net, you'll need to <a href="http://captchas.net/registration/">register for an account</a>. You'll receive a secret key used in decoding the text represented in the CAPTCHA, and a username that will be encoded with your capthcas.net URLs.</p>
+<h2 id="buildingaurl">Building a URL</h2>
+<p>To get your CAPTCHA image from captchas.net, construct a URL containing the appropriate parameters. The simplest form of a captchas.net URL accepts your user name ('demo') and a random phrase ('my_random_text'), and returns a complete CAPTCHA image. Customization is possible, but we'll just stick with the simple case for now. As an example, this URL:</p>
+<pre><code class="hljs bash language-bash">http://image.captchas.net/?client=demo&amp;random=my_random_text
+</code></pre>
+<p>generates this image:</p>
+<p><img src="http://image.captchas.net/?client=demo&amp;random=my_random_text" alt="Captcha" title="Captcha"></p>
+<p>The URL above is all you need to embed a CAPTCHA into your webpage. The random text we've encoded in the URL ('my_random_text') is processed by the captchas.net server to create the six-character sequence shown in the image. Read on to find out how.</p>
+<h2 id="decodingthecaptcha">Decoding the CAPTCHA</h2>
+<p>We've got a CAPTCHA, but how do we know what's written in it? This is where our secret key comes in. Here's the method used by the captchas.net server to generate the image text:</p>
+<ul>
+<li>concatenate the secret key and the random string (example: 'secret' and 'my_random_text' become 'secretmy_random_text')</li>
+<li>if <code>alphabet</code> or <code>character\_count</code> differs from 'abcdefghijklmnopqrstuvwxyz' and 6, respectively, append both separated by ':' (&lt;secret&gt;&lt;random&gt;:&lt;<code>alphabet</code>&gt;:&lt;<code>character_count</code>&gt;).</li>
+<li>take the MD5-sum of the resulting string</li>
+<li>take the first <code>character\_count</code> bytes of the resulting 16-byte-long MD5 value</li>
+<li>determine the remainders of this <code>character\_count</code> bytes, when dividing by the length of <code>alphabet</code></li>
+<li>every number encodes a character from the chosen <code>alphabet</code> (example: "hnrppb")</li>
+</ul>
+<p>The <a href="http://catpchas.net">captchas.net site</a> has a more complete description of the algorithm and an interactive CAPTCHA generator that is very helpful in understanding how CAPTCHAs are generated.</p>
+<h2 id="asimplelibrary">A Simple Library</h2>
+<p>Given the algorithm, a short Ruby library can be written to find the text encoded in a captchas.net CAPTCHA:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'digest/md5'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">Captcha</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_text</span> <span class="hljs-title">secret</span>, <span class="hljs-title">random</span>, <span class="hljs-title">alphabet=</span>'<span class="hljs-title">abcdefghijklmnopqrstuvwxyz</span>', <span class="hljs-title">character_count</span> = 6</span>
+    <span class="hljs-keyword">if</span> character_count &amp;lt; <span class="hljs-number">1</span> <span class="hljs-params">||</span> character_count &amp;gt; <span class="hljs-number">16</span>
+      raise <span class="hljs-string">"Character count of <span class="hljs-subst">#{character_count}</span> is outside the range of 1-16"</span>
+    <span class="hljs-keyword">end</span>
+
+    input = <span class="hljs-string">"<span class="hljs-subst">#{secret}</span><span class="hljs-subst">#{random}</span>"</span>
+
+    <span class="hljs-keyword">if</span> alphabet != <span class="hljs-string">'abcdefghijklmnopqrstuvwxyz'</span> <span class="hljs-params">||</span> character_count != <span class="hljs-number">6</span>
+      input &amp;lt;&amp;lt;  <span class="hljs-string">":<span class="hljs-subst">#{alphabet}</span>:<span class="hljs-subst">#{character_count}</span>"</span>
+    <span class="hljs-keyword">end</span>
+
+    bytes = Digest::MD5.hexdigest(input).slice(<span class="hljs-number">0</span>..(<span class="hljs-number">2</span>*character_count - <span class="hljs-number">1</span>)).scan(<span class="hljs-regexp">/../</span>)
+    text = <span class="hljs-string">''</span>
+
+    bytes.each <span class="hljs-keyword">do</span> <span class="hljs-params">|byte|</span>
+      text &amp;lt;&amp;lt; alphabet[byte.hex % alphabet.size].chr
+    <span class="hljs-keyword">end</span>
+
+    text
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span> 
+</code></pre>
+<p>We can test the library using irb:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'captcha'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include Captcha
+=&gt; Object
+irb(main):003:0&gt; get_text <span class="hljs-string">'secret'</span>, <span class="hljs-string">'my_random_text'</span>
+=&gt; <span class="hljs-string">"hnrppb"</span>
+</code></pre>
+<p>If we wanted to include numerical digits and require additional characters, the library enables this as well:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'captcha'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include Captcha
+=&gt; Object
+irb(main):003:0&gt; get_text <span class="hljs-string">'secret'</span>, <span class="hljs-string">'my_random_text'</span>, <span class="hljs-string">'abcdefghijklmnopqrstuvwxyz0123456789'</span>, 7
+=&gt; <span class="hljs-string">"62m3acs"</span>
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>That's really all there is to the Ruby library. Once we can create a CAPTCHA image and decode its contents, we can begin to think about building an integrated Rails solution. But that's a story for another time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

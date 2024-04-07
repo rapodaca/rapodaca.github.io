@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Rust Ownership by Example | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/01/27/rust-ownership-by-example/">
+      <meta property="og:title" content="Rust Ownership by Example">
+      <meta property="og:description" content="A deep dive for beginners into Rust&#x27;s most important big idea.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200127/summary.png">
+      <meta content="A deep dive for beginners into Rust&#x27;s most important big idea." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Rust Ownership by Example</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-05-01T15:50:00Z">Updated 2021-05-01T15:50:00Z</time>
+      </header>
+      <p><a href="https://www.rust-lang.org">Rust</a> is a safe systems programming language. Although C and C++ are systems languages, they're not safe. Specifically, Rust is a "<a href="http://www.pl-enthusiast.net/2014/08/05/type-safety/">type safe language</a>", meaning that the compiler ensures that every program has well-defined behavior. Although other languages make the same guarantee, Rust does so without a garbage collector, runtime, or manual memory management.</p>
+<p>Key to Rust's safety guarantee, and its most unusual feature, is the concept of <em>ownership</em>. When new Rust programmers run into trouble, the problem often boils down to ownership. Master ownership, and Rust will make a lot of sense. Ignore ownership, and you'll fight the compiler to accomplish even the simplest tasks.</p>
+<p>This beginner Rust tutorial, unlike most others, features ownership front-and-center. Short examples highlight the practical consequences of ownership. I'm no Rust expert. However, I have tried to choose examples that speak for themselves, and descriptions that jibe with reputable sources when possible.</p>
+<h2 id="gettingstarted">Getting Started</h2>
+<p>Running sample code and experimentation are very helpful for learning Rust. The easiest way to do that is to copy and paste the examples here into the <a href="https://play.rust-lang.org">Rust Playground</a> web application. If you'd rather compile and run code on your own machine, the easiest way to do that is <a href="https://rustup.rs">rustup</a>.</p>
+<h2 id="ownershipbeginswithassignment">Ownership Begins with Assignment</h2>
+<p>Like other languages, Rust uses the equals symbol (<code>=</code>) to assign a value to a variable. The variable then serves as a handle for later use.</p>
+<p>The following program assigns the literal value <code>42</code> to the variable <code>x</code>, then prints the value of <code>x</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> x = <span class="hljs-number">42</span>;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"x: {}"</span>, x);
+}
+</code></pre>
+<p>But Rust takes assignment one step further. The assignee (<code>x</code>) becomes the value's sole owner. There are no exceptions. The tight coupling between assignment and ownership sets the stage for many of Rust's unique capabilities.</p>
+<h2 id="ownershipendswithscope">Ownership Ends with Scope</h2>
+<p>When a variable goes out of scope, its associated value, if any, is <em>dropped</em>. A dropped value can never be used again because the resources it uses are immediately freed.</p>
+<p>This rule makes it easy to reason about the liveness of values. For as long as a variable remains in scope, the value it owns will never be dropped. By the time the owner goes out of scope, its value will have been dropped. A value can be dropped before the end of a scope if the compiler determines that the owner is no longer used within the scope.</p>
+<p>We can see this rule in action by assigning a variable within an anonymous scope created by the left and right curly brace characters (<code>{</code> and <code>}</code>):</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    {
+        <span class="hljs-keyword">let</span> x = <span class="hljs-number">42</span>;
+
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"x: {}"</span>, x);
+    }
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"x: {}"</span>, x); <span class="hljs-comment">// ERROR: x not in scope</span>
+}
+</code></pre>
+<p>The compiler rejects this code, informing us that the variable used in the second <code>println!</code> (<code>x</code>) is not in scope.</p>
+<pre><code class="hljs console language-console">8 |     println!("x: {}", x);
+  |                       ^ not found in this scope
+</code></pre>
+<p>Most languages would not allow you to use <code>x</code> outside of its local scope, either. But in Rust, this limitation goes further. When the anonymous scope ends, the value owned by <code>x</code> (<code>42</code>) is dropped.</p>
+<p>A slightly more advanced example proves the order of events. Some explanation might be useful. We define a custom type <code>DropMe</code> that implements the <a href="https://doc.rust-lang.org/std/ops/trait.Drop.html"><code>Drop</code> trait</a> and its associated <code>drop</code> method. <code>drop</code> is called before an instance is dropped, printing a farewell message before digital oblivion. The remaining syntax will be explained later.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-meta">#[derive(Debug)]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">DropMe</span></span>;
+
+<span class="hljs-keyword">impl</span> <span class="hljs-built_in">Drop</span> <span class="hljs-keyword">for</span> DropMe {
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">drop</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) {
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"Dropping!"</span>);
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"Begin outer scope."</span>);
+
+    {
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"Begin inner scope."</span>);
+
+        <span class="hljs-keyword">let</span> x = DropMe;
+
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"x: {:?}"</span>, x);
+    }
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"End outer scope."</span>);
+}
+</code></pre>
+<p>The program output demonstrates that the value owned by <code>x</code> is dropped when the variable goes out of scope:</p>
+<pre><code class="hljs console language-console">Begin outer scope.
+Begin inner scope.
+x: DropMe
+Dropping!
+End outer scope.
+</code></pre>
+<h2 id="reassignmentmovesownership">Reassignment Moves Ownership</h2>
+<p>If assignment creates an ownership relationship, what about <em>reassignment</em>? Imagine we want to reassign the value owned by <code>a</code> to a new variable, <code>b</code>:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> a = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]; <span class="hljs-comment">// a growable array literal</span>
+    <span class="hljs-keyword">let</span> b = a;             <span class="hljs-comment">// move: `a` can no longer be used</span>
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"b: {:?}"</span>, b);
+}
+</code></pre>
+<p><a href="https://doc.rust-lang.org/std/vec/struct.Vec.html">Vectors</a> (aka <code>Vec</code>) are Rust's growable array type. Vector literals are created with the <code>vec!</code> macro.</p>
+<p>The above code compiles and runs, printing the result <code>b: [1, 2, 3]</code>. Following the rule that assignment creates an ownership relationship, we expect <code>b</code> to be the new owner. Given that a value can have only one owner, we further expect <code>a</code> to be uninitialized and therefore unusable. Both expectations are correct.</p>
+<p>Reassignment of ownership (as in <code>let b = a</code>) is known as a <em>move</em>. A move causes the former assignee to become uninitialized and therefore not usable in the future.</p>
+<p>We can confirm this by compiling:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> a = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> b = a;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"a: {:?}\nb: {:?}"</span>, a, b); <span class="hljs-comment">// error: borrow of moved value: `a`</span>
+}
+</code></pre>
+<p>The compiler detects our attempt to reuse the now uninitialized <code>a</code> and complains:</p>
+<pre><code class="hljs console language-console">2 |     let a = vec![1,2,3];
+  |         - move occurs because `a` has type `std::vec::Vec&lt;i32&gt;`, which does not implement the `Copy` trait
+3 |     let b = a;
+  |             - value moved here
+4 | 
+5 |     println!("a: {:?}\nb: {:?}", a, b);
+  |                                  ^ value borrowed here after move
+</code></pre>
+<p>This error message jumps the gun a bit, anticipating what we want to do and suggesting a way to proceed. We'll get to "borrowing" and the <code>Copy</code> trait later. For now, note the error on line 5, which was triggered because we tried to access <code>a</code> after a move.</p>
+<p>It can sometimes be hard to spot a move. Consider what happens when we pass an argument to a function:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">sum</span></span>(vector: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">i32</span>&gt;) -&gt; <span class="hljs-built_in">i32</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> sum = <span class="hljs-number">0</span>; <span class="hljs-comment">// mutability, more on this later</span>
+
+    <span class="hljs-keyword">for</span> item <span class="hljs-keyword">in</span> vector {
+        sum = sum + item
+    }
+
+    sum
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> v = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> s = sum(v); <span class="hljs-comment">// watch out, v was MOVED!</span>
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"sum: {}"</span>, s);
+}
+</code></pre>
+<p>This code compiles and prints the result <code>sum: 6</code> as expected, However, it's easy to ignore the implicit move that takes place when calling <code>sum</code>. Specifically, the value owned by <code>v</code> is <em>moved</em> to the <code>vector</code> parameter of the <code>sum</code> function.</p>
+<p>If we were to use <code>v</code> after this move, the compiler would complain:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">sum</span></span>(vector: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">i32</span>&gt;) -&gt; <span class="hljs-built_in">i32</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> sum = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">for</span> item <span class="hljs-keyword">in</span> vector {
+        sum = sum + item
+    }
+
+    sum
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> v = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> s = sum(v);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"sum of {:?}: {}"</span>, v, s); <span class="hljs-comment">// ERROR: v was MOVED!</span>
+}
+</code></pre>
+<p>In fact, we get essentially the same error (and cheerfully helpful suggestion) as with the more obvious reassignment.</p>
+<p>Yet another form of reassignment occurs when returning a value from a function:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">create_series</span></span>(x: <span class="hljs-built_in">i32</span>) -&gt; <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">i32</span>&gt; {
+    <span class="hljs-keyword">let</span> result = <span class="hljs-built_in">vec!</span>[x, x+<span class="hljs-number">1</span>, x+<span class="hljs-number">2</span>];
+
+    result
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> series = create_series(<span class="hljs-number">42</span>);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"series: {:?}"</span>, series);
+}
+</code></pre>
+<p>Fortunately, this form of reassignment doesn't cause the same problems as the other two because when a function exits, its corresponding scope ends. There's no way to later access the old scope or its local variables. We do, however, retain access to return values.</p>
+<h2 id="copy">Copy</h2>
+<p>What if we wanted to re-use a variable after a reassignment? The previous section showed what happens when we try the following.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">sum</span></span>(vector: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">i32</span>&gt;) -&gt; <span class="hljs-built_in">i32</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> sum = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">for</span> item <span class="hljs-keyword">in</span> vector {
+        sum = sum + item
+    }
+
+    sum
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> v = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> s = sum(v);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"sum of {:?}: {}"</span>, v, s); <span class="hljs-comment">// ERROR: v was MOVED!</span>
+}
+</code></pre>
+<p>However, the following example compiles and runs just fine. Why can we use both <code>a</code> and <code>b</code> even though they've been passed as arguments to <code>sum</code>?</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">sum</span></span>(left: <span class="hljs-built_in">i32</span>, right: <span class="hljs-built_in">i32</span>) -&gt; <span class="hljs-built_in">i32</span> {
+    left + right
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> a = <span class="hljs-number">42</span>;
+    <span class="hljs-keyword">let</span> b = <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">let</span> s = sum(a, b);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"this sum of {} and {} is {}"</span>, a, b, s); <span class="hljs-comment">// no error!</span>
+}
+</code></pre>
+<p>Instead of moving the values owned by <code>a</code> and <code>b</code> to the parameters of <code>sum</code>, the values are <em>copied</em>. A copy creates an exact duplicate of a value that implements the <a href="https://doc.rust-lang.org/std/marker/trait.Copy.html"><code>Copy</code> trait</a>. Numerical values and several other inexpensive built-in Rust types support copy. Vectors do not.</p>
+<p>The example with <code>Vec</code> fails to compile because <code>Vec</code> does not implement the <code>Copy</code> trait. The example with <code>i32</code> succeeds because this type supports copy.</p>
+<p>This difference becomes obvious with user-defined types. Such types are created from a struct. For example, we can define a <code>Person</code> type:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-meta">#[derive(Debug)]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Person</span></span> {
+    age: <span class="hljs-built_in">i8</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> alice = Person { age: <span class="hljs-number">42</span> };
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"alice: {:?}"</span>, alice);
+}
+</code></pre>
+<p>At the top of the <code>Person</code> definition sits a <a href="https://doc.rust-lang.org/reference/procedural-macros.html">procedural macro</a>. Its purpose is to automatically generate code. In the case of <code>#[derive(Debug)]</code> the generated code makes it possible to use <code>Person</code> in <code>println!</code> output.</p>
+<p>Structs do not implement <code>Copy</code> by default. Reassignment of a <code>Person</code> value leads to a move, not a copy, as can be seen below:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-meta">#[derive(Debug)]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Person</span></span> {
+    age: <span class="hljs-built_in">i8</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> alice = Person { age: <span class="hljs-number">42</span> };
+    <span class="hljs-keyword">let</span> bob = alice;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"alice: {:?}\nbob: {:?}"</span>, alice, bob); <span class="hljs-comment">// ERROR: alice moved</span>
+}
+</code></pre>
+<p>Once again the compiler throws the familiar error: "value borrowed here after move."</p>
+<p>We can, however, transform <code>Person</code> into a type that implements <code>Copy</code>. To do so, we can automatically derive the <code>Copy</code> trait just like the <code>Debug</code> trait was derived. For <a href="https://doc.rust-lang.org/std/marker/trait.Copy.html#whats-the-difference-between-copy-and-clone">reasons</a> beyond the scope of this tutorial, <code>Clone</code> must also be derived.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-meta">#[derive(Debug,Clone,Copy)]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Person</span></span> {
+    age: <span class="hljs-built_in">i8</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> alice = Person { age: <span class="hljs-number">42</span> };
+    <span class="hljs-keyword">let</span> bob = alice;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"alice: {:?}\nbob: {:?}"</span>, alice, bob);
+}
+</code></pre>
+<p>Compiling and running this code yields the expected output:</p>
+<pre><code class="hljs console language-console">alice: Person { age: 42 }
+bob: Person { age: 42 }
+</code></pre>
+<p>This <code>Copy</code> fix works for values like <code>Person</code> that can be efficiently copied, but what about expensive values?</p>
+<h2 id="borrow">Borrow</h2>
+<p>Many resources are too expensive in terms of time or memory be copied for every reassignment. In these cases, Rust offers the option to <em>borrow</em>.</p>
+<p>Previously, we saw that a non-copyable value couldn't be reassigned. We can solve this problem by borrowing the value instead. To do so, we precede the assignee variable with the ampersand (<code>&amp;</code>) character.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-meta">#[derive(Debug)]</span> <span class="hljs-comment">// no more copy</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Person</span></span> {
+    age: <span class="hljs-built_in">u8</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> alice = Person { age: <span class="hljs-number">8</span> };
+    <span class="hljs-keyword">let</span> bob = &amp;alice; <span class="hljs-comment">// bob borrows alice</span>
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"alice: {:?}\nbob: {:?}"</span>, alice, bob);
+}
+</code></pre>
+<p>Despite the lack of a <code>Copy</code> trait on <code>Person</code>, the code above compiles and gives the same output as before:</p>
+<pre><code class="hljs console language-console">alice: Person { age: 42 }
+bob: Person { age: 42 }
+</code></pre>
+<p>Similarly, non-copyable value can be passed as an argument to a function if it is borrowed. Notice the use of borrow notation (<code>&amp;</code>) in the signature for <code>sum</code>:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">sum</span></span>(vector: &amp;<span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">i32</span>&gt;) -&gt; <span class="hljs-built_in">i32</span> { <span class="hljs-comment">// borrow signature</span>
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> sum = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">for</span> item <span class="hljs-keyword">in</span> vector {
+        sum = sum + item
+    }
+
+    sum
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> v = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> v_ref = &amp;v;  <span class="hljs-comment">// v_ref borrows v</span>
+    <span class="hljs-keyword">let</span> s = sum(v_ref);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"sum of {:?}: {}"</span>, v_ref, s); <span class="hljs-comment">// no error</span>
+}
+</code></pre>
+<p>The code above produces the expected result: <code>sum of [1, 2, 3]: 6</code>.</p>
+<p>If assignment <em>always</em> creates an ownership relationship, it may be surprising that the above code works. After all, <code>v_ref</code>, a reference value, is not passed by reference, yet it can still be accessed within <code>println!</code>. The answer is that with one notable exception <a href="https://stackoverflow.com/questions/41413336">references themselves implement <code>Copy</code></a>. Although it may seem odd, the references in the examples so far are passed by value.</p>
+<h2 id="passingbyreferenceorvalue">Passing by Reference or Value</h2>
+<p>The preceding sections show how Rust lets us pass a value to a function either by reference or value. Here's a recap:</p>
+<ol>
+<li>If a value implements <code>Copy</code> and is not borrowed, it will be passed by value.</li>
+<li>If a value implements <code>Copy</code> and is borrowed, it will be passed by reference.</li>
+<li>If a value does not implement <code>Copy</code>, it must be borrowed and so will be passed by reference.</li>
+<li>References implement <code>Copy</code> and so are passed by value. There is one exception, which is described later.</li>
+</ol>
+<p>Summarizing these rules in example form:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pass_number_by_reference</span></span>(number: &amp;<span class="hljs-built_in">i8</span>) -&gt; <span class="hljs-built_in">bool</span> {
+    number.is_negative()
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pass_number_by_value</span></span>(number: <span class="hljs-built_in">i8</span>) -&gt; <span class="hljs-built_in">bool</span> {
+    number.is_negative()
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pass_vec_by_reference</span></span>(vec: &amp;<span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">i8</span>&gt;) -&gt; <span class="hljs-built_in">bool</span> {
+    vec.is_empty()
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-comment">// numbers implement Copy, and so can be passed by value or reference</span>
+    <span class="hljs-keyword">let</span> number = <span class="hljs-number">42</span>;
+
+    <span class="hljs-comment">// does not move number because of borrow</span>
+    <span class="hljs-keyword">let</span> is_negative_by_ref = pass_number_by_reference(&amp;number);
+
+    <span class="hljs-comment">// moves number, which can never be used again</span>
+    <span class="hljs-keyword">let</span> is_negative_by_value = pass_number_by_value(number);
+
+    <span class="hljs-comment">// copy not implemented - must be passed by reference</span>
+    <span class="hljs-keyword">let</span> vec = <span class="hljs-built_in">vec!</span>[];
+
+    <span class="hljs-comment">// does not move vec</span>
+    <span class="hljs-keyword">let</span> is_empty = pass_vec_by_reference(&amp;vec);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"is_negative_by_value: {}"</span>, is_negative_by_value);
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"is_negative_by_ref: {}"</span>, is_negative_by_ref);
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"vec {:?} is_empty: {}"</span>, vec, is_empty);
+}
+</code></pre>
+<h2 id="borrowingandstringliterals">Borrowing and String Literals</h2>
+<p>String manipulation is an important capability in any language. In Rust, string literals are borrowed references. For example, consider:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">byte_length</span></span>(string: &amp;<span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">usize</span> {
+    string.bytes().len()
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> string = <span class="hljs-string">"🦀"</span>;
+    <span class="hljs-keyword">let</span> length = byte_length(string);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"Bytes in \"{}\": {}"</span>, string, length);
+}
+</code></pre>
+<p>The compiler recognizes the value owned by <code>string</code> as the borrowed reference type <code>&amp;str</code> (reference to <code>str</code>).  Using <code>string</code> after calling <code>byte_length</code> in <code>println!</code> is allowed because the reference itself is copied into the <code>string</code> parameter of <code>byte_length</code>.</p>
+<h2 id="returningaborrowedvalue">Returning a Borrowed Value</h2>
+<p>Sometimes we'll want a function to return a borrowed value. For example, we might want to return the longer of two strings in terms of byte length. We might try the following.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// Errors!</span>
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">longest</span></span>(x: &amp;<span class="hljs-built_in">str</span>, y: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-built_in">str</span> {
+    <span class="hljs-keyword">if</span> x.bytes().len() &gt; y.bytes().len() {
+        x
+    } <span class="hljs-keyword">else</span> {
+        y
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> alice = <span class="hljs-string">"Alice"</span>;
+    <span class="hljs-keyword">let</span> bob = <span class="hljs-string">"Bob"</span>;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"{}"</span>, longest(alice, bob));
+}
+</code></pre>
+<p>However, we'd be greeted with a cryptic looking error referring to something called a "lifetime".</p>
+<pre><code class="hljs console language-console">1 | fn longest(x: &amp;str, y: &amp;str) -&gt; &amp;str {
+  |                                 ^ expected lifetime parameter
+  |
+  = help: this function's return type contains a borrowed value, but the signature does not say whether it is borrowed from `x` or `y`
+</code></pre>
+<h2 id="lifetimes">Lifetimes</h2>
+<p>A <em>lifetime</em> is the scope within which a borrowed reference is valid. The Rust compiler is smart enough to infer lifetimes in many cases, meaning that we don't need to explicitly write them. This cuts both ways, though. When the compiler requires a lifetime, the concept seems alien.</p>
+<p>Let's rewrite a previous example with an explicit, but unnecessary lifetime. This is accomplished by adding a <em>lifetime parameter</em>. A lifetime parameter can be added anywhere a borrowed reference appears. Like type parameters (aka "generics"), a lifetime parameter must be brought into scope before it can be used. We do this by placing the parameter into the angle brackets (<code>&lt;</code> and <code>&gt;</code>) following the name of the function. This is also where type parameter declarations go.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">byte_length</span></span>&lt;<span class="hljs-symbol">'a</span>&gt;(string: &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">usize</span> { <span class="hljs-comment">// unnecessary lifetime</span>
+    string.bytes().len()
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> string = <span class="hljs-string">"🦀"</span>;
+    <span class="hljs-keyword">let</span> length = byte_length(string);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"Bytes in \"{}\": {}"</span>, string, length);
+}
+</code></pre>
+<p>This example compiles and runs just like before. There are only two differences: (1) the lifetime parameter declaration <code>&lt;'a&gt;</code> after <code>byte_length</code>; and (2) the lifetime parameter <code>'a</code> immediately following the ampersand in the parameter <code>string</code>'s type definition. The name of a lifetime parameter (e.g., <code>'a</code>) begins with an apostrophe symbol (<code>'</code>) and ends with one or more characters - typically just one. The content within angle brackets brings the lifetime parameter <code>'a</code> into scope.</p>
+<p>The previous section presented this failing example:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">longest</span></span>(x: &amp;<span class="hljs-built_in">str</span>, y: &amp;<span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-built_in">str</span> {     <span class="hljs-comment">// error: expected lifetime parameter</span>
+    <span class="hljs-keyword">if</span> x.bytes().len() &gt; y.bytes().len() {
+        x
+    } <span class="hljs-keyword">else</span> {
+        y
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> alice = <span class="hljs-string">"Alice"</span>;
+    <span class="hljs-keyword">let</span> bob = <span class="hljs-string">"Bob"</span>;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"{}"</span>, longest(alice, bob));
+}
+</code></pre>
+<p>This won't compile because we have not yet constrained the lifetime of the return value. Without bounds on this value, there is no way to exclude cases in which the <code>longest</code> function returns a reference to a dropped value. Adding  a constraint in the form of a lifetime parameter excludes those cases. The idea is analogous to a type parameter that excludes cases in which a variable holds a value of incompatible type.</p>
+<p>With this idea in mind, we update the example:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">longest</span></span>&lt;<span class="hljs-symbol">'a</span>&gt;(x: &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">str</span>, y: &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">str</span>) -&gt; &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">str</span> {
+    <span class="hljs-keyword">if</span> x.bytes().len() &gt; y.bytes().len() {
+        x
+    } <span class="hljs-keyword">else</span> {
+        y
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> alice = <span class="hljs-string">"Alice"</span>;
+    <span class="hljs-keyword">let</span> bob = <span class="hljs-string">"Bob"</span>;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"{}"</span>, longest(alice, bob));
+}
+</code></pre>
+<p>The change allows the compiler to determine that the lifetime (valid scope) of the value whose borrowed reference it returns matches the lifetime of the parameters <code>x</code> and <code>y</code>. In other words, there is no way for the <code>longest</code> function to return a reference to a dropped value.</p>
+<p>It's tempting to think of lifetime parameters as a way to make a reference "live longer." A better approach is to consider the similarity between type parameters and lifetime parameters. A type parameter constrains the range of possible types for a value owned by a variable. Likewise, a lifetime parameter constrains the range of possible lifetimes (valid scopes) for a value owned by a variable.</p>
+<h2 id="lifetimesandstructs">Lifetimes and Structs</h2>
+<p>Function parameters aren't the only context in which lifetimes appear. When a struct declares a member with a reference type, the lifetime of that member must also be declared. The example below won't compile.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-meta">#[derive(Debug)]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Person</span></span> {
+    name: &amp;<span class="hljs-built_in">str</span> <span class="hljs-comment">// error: expected lifetime parameter</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> alice = Person { name: <span class="hljs-string">"Alice"</span> };
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"alice: {:?}"</span>, alice);
+}
+</code></pre>
+<p>Here, the compiler can't rule out cases in which the <code>name</code> member is dropped before its enclosing <code>Person</code> instance. We can correct this problem by adding a lifetime parameter <code>'a</code>. In doing so, we notify the compiler that <code>name</code> will live at least as long as its parent.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-meta">#[derive(Debug)]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Person</span></span>&lt;<span class="hljs-symbol">'a</span>&gt; {
+    name: &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">str</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> alice = Person { name: <span class="hljs-string">"Alice"</span> };
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"alice: {:?}"</span>, alice);
+}
+</code></pre>
+<h2 id="mutability">Mutability</h2>
+<p>So far we've only considered values that never change. But writing real software requires state changes — mainly through changes to the state of values. This capability of changing the state of a value is known as <em>mutability</em>.</p>
+<p>Mutability may seem unrelated to ownership, but the two concepts are tightly coupled. In particular, mutability constrains your ability to borrow references.</p>
+<p>In Rust, variables own immutable values by default. We can override this behavior by preceding a variable with the <code>mut</code> keyword.</p>
+<p>For example, we're unable to add members to a <code>Vec</code> by default:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> numbers = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>];
+
+    numbers.push(<span class="hljs-number">4</span>); <span class="hljs-comment">// ERROR: cannot borrow as mutable</span>
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"numbers: {:?}"</span>, numbers);
+}
+</code></pre>
+<p>Making the owner mutable solves this problem.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> numbers = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>];
+
+    numbers.push(<span class="hljs-number">4</span>);  <span class="hljs-comment">// mutable Vec supports push</span>
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"numbers: {:?}"</span>, numbers);  <span class="hljs-comment">// numbers: [1, 2, 3, 4]</span>
+}
+</code></pre>
+<h2 id="marsawmultipleactivereadersorsingleactivewriter">MARSAW: Multiple Active Readers or Single Active Writer</h2>
+<p>Mutability constrains our ability to borrow references. The book <em><a href="https://www.oreilly.com/library/view/programming-rust/9781491927274/">Programming Rust</a></em> refers to the high-level concept as <em>multiple readers or single writer</em>.</p>
+<p><em><a href="https://doc.rust-lang.org/1.8.0/book/references-and-borrowing.html#the-rules">The Rust Programming Language</a></em> describes the same principle like so:</p>
+<blockquote>
+  <p>… you may have one or the other of these two kinds of borrows, but not both at the same time:</p>
+  <ul>
+  <li>one or more references (<code>&amp;T</code>) to a resource,</li>
+  <li>exactly one mutable reference (<code>&amp;mut T</code>).</li>
+  </ul>
+</blockquote>
+<p>Neither description, however, quite hits the mark. First, the rule applies to both borrowed references and <em>owners</em>. Second, the rule only applies when <em>active</em> readers and writers are involved. As such, it might be more instructive to recast the rule as: "multiple active readers or single active writer" (MARSAW).</p>
+<p>The term "active" deserves some explanation. Until a writer's mutable API is used, it's inactive. After mutation, the writer stays active for the duration of its lifetime. A reader borrowed before the activation of a writer will become active on the first use of the owner's immutable API.</p>
+<p>Let's look at some examples to make these ideas more concrete.</p>
+<p>One <em>inactive</em> writer and one <em>inactive</em> reader can co-exist within the same scope, as demonstrated below. You'll notice warnings about unused variables, but no errors.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];   <span class="hljs-comment">// inactive</span>
+    <span class="hljs-keyword">let</span> reader = &amp;writer;           <span class="hljs-comment">// inactive</span>
+}
+</code></pre>
+<p>We can read without triggering an error, although we'll receive an additional warning about unneeded mutability on <code>writer</code>:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> reader = &amp;writer;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"len: {}"</span>, reader.len()); <span class="hljs-comment">// no error, inactive writer</span>
+}
+</code></pre>
+<p>Likewise, we write without triggering a compiler error:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> reader = &amp;writer;
+
+    writer.push(<span class="hljs-number">4</span>);  <span class="hljs-comment">// no error, inactive reader</span>
+}
+</code></pre>
+<p>We can take this further with sequential read-write:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> reader = &amp;writer;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"len: {}"</span>, reader.len()); <span class="hljs-comment">// no error, inactive writer</span>
+
+    writer.push(<span class="hljs-number">4</span>);                    <span class="hljs-comment">// no error, inactive reader</span>
+}
+</code></pre>
+<p>We can exercise <code>writer</code>'s immutable API, then read without producing an error:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> reader = &amp;writer;
+
+    writer.len();
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"len: {}"</span>, reader.len()); <span class="hljs-comment">// no error: inactive reader and writer</span>
+}
+</code></pre>
+<p>What we can't do is activate <code>writer</code> then use <code>reader</code>. The following code produces an error because the <code>println!</code> statement generates an active reader, which when paired with the active writer is not allowed:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+    <span class="hljs-keyword">let</span> reader = &amp;writer;
+
+    writer.push(<span class="hljs-number">4</span>);                    <span class="hljs-comment">// error: cannot borrow `writer` as mutable because it is also borrowed as immutable</span>
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"len: {}"</span>, reader.len());
+}
+</code></pre>
+<p>The error message explains the situation:</p>
+<pre><code class="hljs console language-console">3 |     let reader = &amp;writer;
+  |                  ------- immutable borrow occurs here
+4 | 
+5 |     writer.push(4);                    // active writer, inactive reader
+  |     ^^^^^^^^^^^^^^ mutable borrow occurs here
+6 |     
+7 |     println!("len: {}", reader.len()); // error: cannot borrow `writer` as mutable because it is also borrowed as immutable
+  |                         ------ immutable borrow later used here
+</code></pre>
+<p>We can eliminate the error by pulling the borrow down after the call to <code>push</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+
+    writer.push(<span class="hljs-number">4</span>); 
+
+    <span class="hljs-keyword">let</span> reader = &amp;writer;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"len: {}"</span>, reader.len()); <span class="hljs-comment">// no error, reader is not active because it was borrowed _after_ last writer mutation</span>
+}
+</code></pre>
+<p>Even though a variable might be declared as <code>mut</code>, it can nevertheless be used to read. Note that <code>writer.iter</code> triggers an implicit immutable borrow. This does not violate MARSAW, however, because the borrow occurs after the last mutation.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+
+    writer.push(<span class="hljs-number">4</span>);
+
+    <span class="hljs-keyword">for</span> number <span class="hljs-keyword">in</span> writer.iter() {
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"number: {}"</span>, number); <span class="hljs-comment">// no error, implicit borrow occurs after writer mutation</span>
+    }
+}
+</code></pre>
+<p>Implicit borrowing can nevertheless lead to a MARSAW violation if coupled to a write. The following code won't compile because the <code>iter</code> method implicitly borrows an immutable reference, creating a simultaneously active reader and writer:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+
+    <span class="hljs-keyword">for</span> number <span class="hljs-keyword">in</span> writer.iter() {
+        writer.push(number + <span class="hljs-number">2</span>); <span class="hljs-comment">// ERROR: cannot borrow `writer` as mutable because it is also borrowed as immutable</span>
+    }
+}
+</code></pre>
+<p>The error (below) lets us know where borrowing occurs. Used together with the MARSAW principle, we can identify the problem's source as an <em>active</em> reader and writer operating simultaneously.</p>
+<pre><code class="hljs console language-console">4 |     for number in writer.iter() {
+  |                   -------------
+  |                   |
+  |                   immutable borrow occurs here
+  |                   immutable borrow later used here
+5 |         writer.push(number + 2); // ERROR: cannot borrow `writer` as mutable because it is also borrowed as immutable
+  |         ^^^^^^^^^^^^^^^^^^^^^^^ mutable borrow occurs here
+</code></pre>
+<h2 id="conclusion">Conclusion</h2>
+<p>Ownership permeates Rust, so it's critical to understand it early in your study of the language. This guide offers some simple examples illustrating how ownership works. Key points can be summarized as:</p>
+<ol>
+<li>Assignment always binds a value to a variable, which becomes the value's sole owner.</li>
+<li>Passing and returning by value both count as assignment.</li>
+<li>A value will always be dropped by the time its owner goes out of scope.</li>
+<li>Reassignment of a value results in a move, or change of ownership.</li>
+<li>After a move, the former assignee can never be used again.</li>
+<li>A reference can be borrowed through reassignment by preceding its owner with the ampersand symbol (<code>&amp;</code>).</li>
+<li>A borrowed reference may not live longer than the underlying value.</li>
+<li>A lifetime parameter, written with an apostrophe character (<code>'</code>) followed by at least one letter, represents the scope of a borrowed reference.</li>
+<li>A lifetime parameter identifies two references as having the same minimum scope.</li>
+<li>The MARSAW principle allows for either multiple readers or a single writer to be active at the same time, but not both. Owners and references both count.</li>
+</ol>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

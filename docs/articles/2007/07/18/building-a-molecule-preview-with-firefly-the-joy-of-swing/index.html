@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building a Molecule Preview with Firefly - The Joy of Swing | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building a Molecule Preview with Firefly - The Joy of Swing</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-07-18T00:00:00.000Z">2007-07-18T00:00:00.000Z</time>
+      </header>
+      <p>Previous articles have discussed <a href="http://depth-first.com/articles/tag/firefly">Firefly</a>, the codename for a new 2D structure editor for the Web. Although it can be deployed as a self-contained applet on Web pages, Firefly is composed of modules that are readily re-used. By taking advantage of this design and Java's native UI toolkit Swing, new UI elements can be built with relatively little effort. This article outlines one such use - the creation of a file dialog that contains a molecule preview.</p>
+<p>Many image processing applications such as Photoshop or GIMP provide an image preview that appears in file browser dialogs. Wouldn't it be nice if applications that process molecular structure files came with a similar feature? The screenshot below shows a file chooser with an embedded molecule preview based of Firefly's Painter component:</p>
+<p><img src="/images/posts/20070718/dialog1.png" alt="Dialog" title="Dialog"></p>
+<p>When a new molfile is highlighted, a new preview is automatically generated:</p>
+<p><img src="/images/posts/20070718/dialog2.png" alt="Dialog" title="Dialog"></p>
+<p>The molecule preview is capable of all of the customizations available in Firefly including background, bond, and atom colors, borders, and atom label fonts. No matter how large or small the molecule, and regardless of its starting coordinates, it will always be exactly scaled to fit the available space and precisely centered.</p>
+<p>This dialog was rapidly implemented using the accessory capability provided by Swing's <code>JFileChooser</code>:</p>
+<pre><code class="hljs java language-java">JFileChooser chooser = <span class="hljs-keyword">new</span> JFileChooser();
+PreviewAccessory accessory = <span class="hljs-keyword">new</span> PreviewAccessory(chooser);
+
+accessory.setPreferredSize(<span class="hljs-keyword">new</span> Dimension(<span class="hljs-number">150</span>, <span class="hljs-number">150</span>));
+
+chooser.setAccessory(accessory);
+chooser.addPropertyChangeListener(accessory);
+
+<span class="hljs-comment">// ...</span>
+</code></pre>
+<p>Defining a JComponent implmenting the <code>PropertyChangeListener</code> interface is all that's needed to get a working molecule preview:</p>
+<pre><code class="hljs java language-java"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PreviewAccessory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">DefaultPainter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">PropertyChangeListener</span>
+</span>{
+  <span class="hljs-comment">// implementation</span>
+}
+</code></pre>
+<p>Swing has come a long way since the dark days of JDK 1.2. What started out as the dog-slow ugly duckling of user interface toolkits has developed into one of the best platforms for building desktop applications out there. Advanced tools such as the WYSIWYG interface builder <a href="http://www.netbeans.org/kb/articles/matisse.html">Matisse</a> and the polished components offered by <a href="http://www.jidesoft.com/">JIDE</a> make Swing an even more attractive option. The example described here is just one instance of how Swing's well-conceived design simplifies the job of building rich user interfaces.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

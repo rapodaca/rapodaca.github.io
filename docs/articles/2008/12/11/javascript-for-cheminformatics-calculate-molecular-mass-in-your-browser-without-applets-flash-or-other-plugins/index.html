@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JavaScript for Cheminformatics - Calculate Molecular Mass in Your Browser Without Applets, Flash, or Other Plugins | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>JavaScript for Cheminformatics - Calculate Molecular Mass in Your Browser Without Applets, Flash, or Other Plugins</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-12-11T00:00:00.000Z">2008-12-11T00:00:00.000Z</time>
+      </header>
+      <p>Recently, <a href="http://chemhack.com/">Duan Lian</a> raised the very interesting possibility of using the <a href="http://code.google.com/webtoolkit/">Google Web Toolkit</a> to <a href="/articles/2008/12/09/javascript-for-cheminformatics-cross-compiling-java-to-javascript-with-gwt">cross-compile Java to JavaScript rather than bytecode</a>. I suggested that <a href="http://code.google.com/p/mx-java/">MX</a>, the lightweight cheminformatics toolkit, might be a good target due its small size, modular design, and lack of external dependencies.</p>
+<p>Today Duan blew me away by posting <a href="http://chemhack.com/mx-gwt/">this link to a working demonstration</a> of what he calls "MX-GWT".</p>
+<p>Duan's demonstration accepts a molfile and calculates the corresponding molecular mass after you click a button.</p>
+<p>"Big deal," you might say, but consider:</p>
+<ul>
+<li>The page uses no applets or Flash.</li>
+<li>No Java bytecode is involved.</li>
+<li>No remote call is made to a server.</li>
+<li>MX-GWT builds a highly-functional, in-memory representation of a chemical structure that can be used for a variety of other purposes.</li>
+<li>Duan's code is currently the <strong>only</strong> way to do this that I'm aware of.</li>
+<li>MX-GWT developers can take full advantage of the awesome array of Java development tools.</li>
+</ul>
+<p>You might ask "why do this?" The answer is simple: JavaScript may well be the most widely-distributed runtime on the planet. For this reason, the user experience with a pure HTML/JavaScript site can be far smoother than a site using Java applets, Silverlight, or even Flash.</p>
+<p>Building interactive chemically-driven websites with HTML/JavaScript has the potential to make life a lot easier for both chemists and developers.</p>
+<p>There are some technical points to work out. For example, regular expression support is somewhat limited with GWT. As MX-GWT progresses, other areas needing attention will no doubt come to light. After all, GWT only partially implements the Java core API.</p>
+<p>Nevertheless, this proof of concept clearly demonstrates that you don't need applets or other browser plugins to do cheminformatics on the Web client. MX-Java's <a href="http://github.com/rapodaca/mx/">brisk addition of new features</a> and forking (<a href="http://github.com/chemhack/mx">here</a> and <a href="http://github.com/giorgil/mx-dsl">here</a>) even at this early stage suggests that there will be no shortage of easy-to-use Web-based cheminformatics applications made possible through MX-GWT and the <a href="/articles/2008/09/05/chrome-and-a-v8-javascript-takes-a-giant-leap-forward">ever-improving performance of JavaScript</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

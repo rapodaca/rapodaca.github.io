@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Goodbye Subversion, Hello Git and GitHub | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Goodbye Subversion, Hello Git and GitHub</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-11-25T00:00:00.000Z">2008-11-25T00:00:00.000Z</time>
+      </header>
+      <div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/4XpnKHJAok8" allowfullscreen=""></iframe>
+</div>
+<p>A source code version control system is an essential ingredient of software development. But it's just low-level technology that doesn't change the way you think about creating software and so can safely be ignored. At least that's what I thought a couple of months ago before I started looking into <a href="http://git.or.cz/">Git</a>, the version control system co-developed by Linus Torvalds.</p>
+<h2 id="aboutgit">About Git</h2>
+<p>If you've only used CVS or Subversion, Git may seem like a radical departure from sanity. For starters, Git does away with the idea of a central code repository. Instead, each contributor maintains their own repository. Authority is determined the way humans have always done it - through a chain of trust.</p>
+<p>Forking, long thought of as a symptom of bad project management, becomes part of the normal workflow in Git. The key to making this system work was to make merging actually work.</p>
+<h2 id="aboutgithub">About GitHub</h2>
+<p><a href="https://github.com/">GitHub</a> uses Git as a core technology while extending its basic ideas into the direction of social networking and publication. Everything you do with your source code on GitHub becomes a Web resource, complete with its own URL. For public projects, these URLs are world-readable. Imagine the possibilities…</p>
+<h2 id="specificexamplegithubandmx">Specific Example: GitHub and MX</h2>
+<p>Let's say you're curious to see how difficult it would be to use <a href="http://code.google.com/p/mx-java/">MX</a> to implement a cheminformatics feature you must have - a SMILES parser. If MX were using Subversion, you'd probably consider contacting me to negotiate write access to the 'central repository.' The other committers and I may be busy or on vacation, or otherwise not able to get back to you for some time. When we do, you may have moved onto other things. Considering this possible sequence of events, you may decide not to take the first step.</p>
+<p>Something that should be spontaneous, simple and fast isn't that way at all.</p>
+<p>With GitHub, you'd, you simply go to <a href="https://github.com/rapodaca/mx/tree">my MX repository homepage</a> and <a href="http://github.com/rapodaca/mx/fork">fork it</a>, creating your own independent repository. I'd get a notification that you had forked and your fork would show up in your public profile. We could then both automatically keep up-to-date on what the other was doing through a variety of tools such as <a href="http://github.com/feeds/rapodaca/commits/mx/master">RSS feeds</a>.</p>
+<p>If at some point you felt your SMILES parser had become something that should be included in MX, you'd send me a pull request. If the code passed standards I may have set such as copyright notice, compilability, and test coverage, I'd then be in a position to merge it back into the MX code base.</p>
+<p>If there were significant changes that might be needed to get our respective repositories in synch, I'd have the choice of either making them myself or asking if you'd make them on your own repository. The latter would be the smart choice for both of us since you know your SMILES parser a lot better than I do.</p>
+<p>The same kind of process can also be applied by me with my own repository. For example, I currently have <a href="http://github.com/rapodaca/mx/tree/depth-first">an open branch aimed at building a depth-first traverser for MX</a> to be used in SMILES writers, substructure search tools and the like.</p>
+<h2 id="notjustanewtool">Not Just a New Tool?</h2>
+<p>Any technology that can change the way people interact is more than just a tool. Although it's still early days, Git and GitHub might fall into that category. Only time will tell.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

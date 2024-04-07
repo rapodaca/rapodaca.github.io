@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>OxMol: Rust/Python Bindings for ChemCore | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/06/15/oxmol-rust-python-bindings-for-chemcore/">
+      <meta property="og:title" content="OxMol: Rust/Python Bindings for ChemCore">
+      <meta property="og:description" content="First steps toward bringing ChemCore to a Python interpreter near you.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200615/summary.png">
+      <meta content="First steps toward bringing ChemCore to a Python interpreter near you." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>OxMol: Rust/Python Bindings for ChemCore</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-06-15T16:00:00Z">2020-06-15T16:00:00Z</time>
+      </header>
+      <p>Python is the most popular orchestration language in scientific computing. Across a variety of fields, Python provides high-level interfaces to fast code written in other languages. A <a href="/articles/2020/06/01/chemcore-a-cheminformatics-toolkit-for-rust/">previous article</a> introduced <a href="https://crates.io/crates/chemcore">ChemCore</a>, a new cheminformatics library written in Rust. This article moves the idea another step forward by introducing <a href="https://github.com/thesketh/oxmol">OxMol</a>, Python bindings for ChemCore.</p>
+<h2 id="installation">Installation</h2>
+<p>The <a href="https://oxmol.readthedocs.io/en/latest/installation.html">OxMol documentation</a> describes two installation methods. The simplest is just a one-liner:</p>
+<pre><code class="hljs bash language-bash">pip install --index-url https://test.pypi.org/simple/ oxmol
+</code></pre>
+<p>On my macOS Mojave system, a slightly modified version of this command worked:</p>
+<pre><code class="hljs bash language-bash">pip3 install --index-url https://test.pypi.org/simple/ oxmol
+</code></pre>
+<h2 id="helloethane">Hello, Ethane</h2>
+<p>OxMol closely follows the ChemCore API. Molecule construction follows the same pattern you'd find in Rust.</p>
+<pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> oxmol <span class="hljs-keyword">import</span> AtomSpec, BondSpec, Molecule
+
+atoms = [ AtomSpec(<span class="hljs-string">'C'</span>, <span class="hljs-number">3</span>), AtomSpec(<span class="hljs-string">'C'</span>, <span class="hljs-number">3</span>) ]
+bonds = [ BondSpec(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>) ]
+mol = Molecule(atoms, bonds)
+
+<span class="hljs-comment"># exercise the full Molecule interface</span>
+
+mol.is_empty() <span class="hljs-comment"># False</span>
+mol.order() <span class="hljs-comment"># 2</span>
+mol.size() <span class="hljs-comment"># 1</span>
+mol.nodes <span class="hljs-comment"># [0, 1]</span>
+mol.has_node(<span class="hljs-number">0</span>) <span class="hljs-comment"># True</span>
+mol.neighbors(<span class="hljs-number">0</span>) <span class="hljs-comment"># [1]</span>
+mol.degree(<span class="hljs-number">0</span>) <span class="hljs-comment"># 1</span>
+mol.edges <span class="hljs-comment"># [(0, 1)]</span>
+mol.has_edge(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>) <span class="hljs-comment"># True</span>
+mol.element(<span class="hljs-number">0</span>) <span class="hljs-comment"># PyElement::C</span>
+mol.isotope(<span class="hljs-number">0</span>) <span class="hljs-comment"># nil</span>
+mol.electrons(<span class="hljs-number">0</span>) <span class="hljs-comment"># 0</span>
+mol.hydrogens(<span class="hljs-number">0</span>) <span class="hljs-comment"># 3</span>
+mol.atom_parity(<span class="hljs-number">0</span>) <span class="hljs-comment"># nil</span>
+mol.bond_order(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>) <span class="hljs-comment"># PyBondOrder::Single</span>
+mol.bond_parity(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>) <span class="hljs-comment"># nil</span>
+</code></pre>
+<h2 id="aboutoxmol">About OxMol</h2>
+<p>OxMol was created by <a href="https://twitter.com/t_sketh">Travis Hesketh</a>, a postgraduate researcher at the University of Strathclyde. The package currently supports the construction of <code>Molecule</code> instances conforming to the <a href="/articles/2020/04/06/a-minimal-molecule-api/">Minimal Molecule API</a>. The <a href="https://github.com/thesketh/oxmol">README</a> notes these future directions:</p>
+<ul>
+<li>SMILES read/write</li>
+<li>substructure search</li>
+<li>coordinate representation and embedding</li>
+<li>descriptor calculation</li>
+</ul>
+<p>ChemCore's top priority is a complete SMILES reader. So that functionality is likely to appear in OxMol first.</p>
+<h2 id="pyo3">PyO3</h2>
+<p>OxMol uses <a href="https://github.com/PyO3/pyo3">PyO3</a>, which provides two-way bindings between Python and Rust. The approach is similar to <a href="https://github.com/pybind/pybind11">pybind</a> for C++/Python interop. The main reason to use PyO3 is all of the work it does for you. A suite of <a href="https://doc.rust-lang.org/reference/procedural-macros.html">procedural macros</a> dynamically generates low-level glue code.</p>
+<p>Even so, OxMol requires considerable glue code of its own. For example, see <a href="https://github.com/thesketh/oxmol/blob/master/src/default_molecule.rs"><code>DefaultMolecule</code></a>. This wrapper exposes a Rust interface, but accepting and returning PyO3-specific types. In a nutshell, the <code>Molecule</code> interface is re-implemented using a delegate implementation provided by ChemCore. Fortunately, the interface was designed with ease of implementation in mind. Even so, it might be possible to take the automation one step further here.</p>
+<h2 id="morepythonrustinterop">More Python-Rust Interop</h2>
+<p>PyO3 is but one option for Rust/Python interop. Others include:</p>
+<ul>
+<li><a href="https://github.com/iduartgomez/rustypy">RustPy</a>. Bidirectional mappings using FFI.</li>
+<li><a href="https://github.com/dgrunwald/rust-cpython">rust-cpython</a>. The project from which PyO3 was forked.</li>
+<li><a href="https://bheisler.github.io/post/calling-rust-in-python/">Calling Rust in Python</a>. A soup-to-nuts exploration of wrapping Rust with Python from scratch.</li>
+<li><a href="https://github.com/getsentry/milksnake">Milksnake</a>. Builds "regular native libraries that are then loaded with CFFI at runtime." Currently inactive.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>OxMol provides Python wrappers to the new Rust cheminformatics library ChemCore. The project's feature set is restricted by the currently limited feature set of the underlying Rust library. If you're interested in the combination of cheminformatics, Rust, and Python, it's a project worth checking out.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

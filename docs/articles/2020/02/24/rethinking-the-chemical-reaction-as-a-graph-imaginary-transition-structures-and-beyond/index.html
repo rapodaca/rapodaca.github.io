@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Rethinking the Chemical Reaction as a Graph: Imaginary Transition Structures and Beyond | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/02/24/rethinking-the-chemical-reaction-as-a-graph-imaginary-transition-structures-and-beyond/">
+      <meta property="og:title" content="Rethinking the Chemical Reaction as a Graph: Imaginary Transition Structures and Beyond">
+      <meta property="og:description" content="Bridging the divide between reactions and molecules in cheminformatics.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200224/summary.png">
+      <meta content="Bridging the divide between reactions and molecules in cheminformatics." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Rethinking the Chemical Reaction as a Graph: Imaginary Transition Structures and Beyond</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-02-24T14:00:00Z">2020-02-24T14:00:00Z</time>
+      </header>
+      <p>Cheminformatics concerns itself with two entities: molecules and reactions. A molecule embodies chemistry's static nature, whereas a reaction embodies the dynamic. Although there are important problems to solve on both sides, cheminformatics tends to focus on molecular tools over reaction tools. One reason is complexity. Reaction tools require solutions to all of the problem required by molecule tools, and then some.</p>
+<p>Then there's graph theory. For 150 years, theoretical chemistry and later cheminformatics have reaped the benefits of close ties with this branch of mathematics. An obvious relationship between the two fields presents itself: in a molecule, atoms map to nodes and bonds map to edges. Algorithms and proofs from graph theory are applied to molecular problems. Likewise, molecular problems inspire graph theory. The crossover continues to this day. Reactions, on the other hand, don't align in such an obvious way. Although reaction networks, where nodes map to molecules and edges map to transformations can be built, this approach presents several challenges.</p>
+<p>What if reactions could be formulated more like molecules? That was the premise of a series of papers from the 1980s.</p>
+<h2 id="arrownotation">Arrow Notation</h2>
+<p>Arrow notation depicts a chemical reaction with the head pointing away from starting materials and toward products. This convention, which <a href="https://doi.org/10.1080/00033795900200088">dates back to at least 1757</a>, is still used today. In modern notation, catalysts and excess reagents often appear above the arrow, with time, temperature, and solvent below.</p>
+<figure>
+  <img alt="Arrow Notation" src="/images/posts/20200224/arrow-notation.png">
+  <figcaption>
+    <strong>Arrow Notation.</strong> The main reactant appears on the left, with the product on the right. Reagents used in excess, catalysts, solvents, additives, and conditions appear above/below the arrow [<a href="https://en.wikipedia.org/wiki/Friedel–Crafts_reaction">source</a>].
+  </figcaption>
+</figure>
+<p>Cheminformatics tools have for the most part adopted arrow notation. For example, <a href="https://www.daylight.com/meetings/summerschool01/course/basics/smirks.html">Daylight documentation</a> explains how to use the greater than (<code>&gt;</code>) symbol as a reaction arrow. Other examples can also be found, including the <a href="https://www.3dsbiovia.com/products/collaborative-science/biovia-draw/ctfile-no-fee.html">MDL RXNFile format</a>.</p>
+<h2 id="theproblemwitharrownotation">The Problem with Arrow Notation</h2>
+<p>Easily understandable and ubiquitous though it may be, arrow notation drags some baggage into the cheminformatics arena. Problems include:</p>
+<ul>
+<li>Repetition. Non-participating atoms and bonds are duplicated on both sides of the arrow.</li>
+<li>Hypergraph. A single reaction maps potentially many reactants to many products. If molecules are nodes in a reaction graph, then a reaction arrow maps to a <a href="https://en.wikipedia.org/wiki/Hypergraph">hypergraph edge</a>. Graph manipulation procedures often explicitly disallow such graphs.</li>
+<li>Atom mapping. We usually want to correlate an atom or bond in the starting material with one appearing in a product. Arrow notation requires a secondary mapping system.</li>
+<li>The above complexities make it difficult to re-use standard graph-based computational methods such as cycle perception, traversal, and isomorphism detection.</li>
+</ul>
+<p>The result is two disconnected cheminformatics software stacks: one dealing with molecules and the other dealing with reactions. The division can be seen from the bottom software layer (the cheminformatics toolkit) all the way to the user interface (structure vs. reaction editors). Attractive though it may be in the beginning, arrow notation unnecessarily fragments the code base.</p>
+<h2 id="imaginarytransitionstructuresits">Imaginary Transition Structures (ITS)</h2>
+<p>In 1986, <a href="https://doi.org/10.22052/ijmc.2016.13882">Shinsaku Fujita</a> proposed an alternative to arrow notation. His approach, <a href="https://doi.org/10.1021/ci00052a009">Imaginary Transition Structures</a> (ITS), viewed reactions as "an extended kind of chemical structure." This system encodes reactants, products, and atom mappings within a single, undirected, connected graph.</p>
+<figure>
+  <img alt="Building an Imaginary Transition Structure" src="/images/posts/20200224/building-an-imaginary-transition-structure.png">
+  <figcaption>
+    <strong>Building an Imaginary Transition Structure.</strong> Reactants, products, and the mapping of atoms/bonds are combined within a single graph [<a href="https://doi.org/10.22052/ijmc.2016.13882">source</a>]. 
+  </figcaption>
+</figure>
+<p>Consider the acid-catalyzed hydrolysis of ethyl acetate. Here, two reacting species (ethyl acetate and water) produce two products (ethanol and acetic acid). Hydrogen chloride, serving as a catalyst, appears on both sides. The arrow notation for this reaction is:</p>
+<pre><code class="hljs console language-console">CH3CO2CH2CH3 + H2O + HCl → CH3CO2H + CH3CH2OH + HCl
+</code></pre>
+<p>An ITS for this reaction could be encoded as follows. First, create a starting graph <em>S</em> as the sum of all reactant molecular graphs. Next, create a products graph <em>P</em> as the sum of all product molecular graphs. Finally, sum these two graphs to create a third graph, which will contain all nodes and edges in the reaction. Label each edge according to whether the reaction creates, breaks, or leaves unchanged the corresponding bond. The resulting graph is an ITS. </p>
+<figure>
+  <img alt="ITS for Ester Hydrolysis" src="/images/posts/20200224/its-hydrolysis.png">
+  <figcaption>
+    <strong>ITS for Ester Hydrolysis.</strong> In-bonds are marked with a circle; out-bonds are marked with a hash [<a href="https://doi.org/10.1021/ci00052a009">source</a>]. 
+  </figcaption>
+</figure>
+<p>Catalysts can optionally be omitted. If they are, the result is an <em>abbreviated ITS</em>. The abbreviated ITS for ethyl acetate hydrolysis can be represented as:</p>
+<figure>
+  <img alt="Abbreviated ITS for Hydrolysis" src="/images/posts/20200224/its-hydrolysis-no-catalyst.png">
+  <figcaption>
+    <strong>Abbreviated ITS for Hydrolysis.</strong> Catalysts such as hydrogen chloride may be omitted, but at the cost of reduced reaction information [<a href="https://doi.org/10.1021/ci00052a009">source</a>].
+  </figcaption>
+</figure>
+<p>The edges in an ITS graph ("ITS bonds") are classified according to their role in the corresponding reaction:</p>
+<ul>
+<li>an <em>in-bond</em> is formed by the reaction;</li>
+<li>an <em>out-bond</em> is broken by the reaction; and</li>
+<li>a <em>par-bond</em> is preserved by the reaction.</li>
+</ul>
+<p>Within a data model, ITS bonds are labeled with an ordered pair of integers (<em>a</em>, <em>b</em>). The first member <em>a</em> denotes the bond order at the start of the reaction. The second member <em>b</em> denotes the change in bond order caused by the reaction. For example:</p>
+<ul>
+<li>a single par bond (unchanged by the reaction) would be labeled as (1, 0);</li>
+<li>a single in-bond (formed by the reaction) would be labeled as (0, +1);</li>
+<li>a single out-bond (broken by the reaction) would be labeled as (1, -1).</li>
+<li>a double bond reduced during a reaction would be labeled as (2, -1).</li>
+</ul>
+<p>And so on. Summing <em>a</em> and <em>b</em> yields the bond order in the product. Given a molecular graph with three possible bond orders (1, 2, and 3), the possible ITS graph edge labels, and the proposed visual representation, are:</p>
+<figure>
+  <img alt="ITS Bond Labels" src="/images/posts/20200224/bond-labels.png">
+  <figcaption>
+    <strong>ITS Bond Labels.</strong> The first number represents the starting bond order. The second number represents the change in bond order, which may be positive or negative. The table can be divided into three sections: the middle column (par bonds); entries to the left (out-bonds); and entries to the right (in-bonds) [<a href="https://doi.org/10.1021/ci00052a009">source</a>].
+  </figcaption>
+</figure>
+<p>As originally formulated, ITS does not capture formal charges consumed or produced during a reaction. For example, the reaction of trimethylamine and methyl iodide has the following arrow notation:</p>
+<pre><code class="hljs console language-console">(CH3)3N + CH3I -&gt; (CH4)N+I-
+</code></pre>
+<p>The formal charges produced by the reaction will not be captured by an ITS. The same applies to stereochemistry. A <a href="https://doi.org/10.1021/ci00055a004">follow-up paper</a> offers comprehensive solutions to both problems. A simpler approach, in which ionic bonds are modeled as edges in the ITS graph is <a href="https://doi.org/10.1021/ci00052a011">also described</a>.</p>
+<p>ITS transforms the problem of reaction manipulation into one of graph manipulation. As such, we get a number of useful features essentially for free.</p>
+<h2 id="regeneratingreactantsandproducts">Regenerating Reactants and Products</h2>
+<p>An edged-labeled ITS can be used to regenerate either the set of reactants or the set of products through graph manipulation. Fujita describes two processes:</p>
+<ol>
+<li><strong>Projection to starting stage (PS).</strong> Extract all nodes in the ITS graph as atoms. For each edge label (<em>a</em>, <em>b</em>) in the ITS graph, add a bond of order <em>a</em>. The result is a molecular graph in which each connected component is an input to the reaction.</li>
+<li><strong>Projection to product stage (PP).</strong> Extract all nodes in the ITS graph as atoms. For each edge label (<em>a</em>, <em>b</em>) in the ITS graph, add a bond of order <em>a</em> + <em>b</em>. The result is a molecular graph in which each connected component is an output from the reaction.</li>
+</ol>
+<figure>
+  <img alt="ITS Projections" src="/images/posts/20200224/its-projections.png">
+  <figcaption>
+    <strong>ITS Projections.</strong> Reactants and products can be regenerated through simple graph operations [<a href="https://doi.org/10.22052/ijmc.2016.13882">source</a>].
+  </figcaption>
+</figure>
+<h2 id="graphofreactioncenters">Graph of Reaction Centers</h2>
+<p>As sophomore organic chemistry students are taught, molecules can be classified by the functional groups they contain. Viewed from the perspective of graph theory, a functional group represents a subgraph over one or more molecular graphs. Functional groups in turn provide a wealth of insight into reactivity and other physical properties of the molecules containing them. Learning how one functional group behaves lets you say a lot about an unknown molecule in which it appears.</p>
+<p>We can likewise glean valuable information by looking at ITS subgraphs. An important example is the <em>reaction center graph</em> (RC graph). An RC graph is a subgraph of an ITS containing only dynamic nodes and edges. An edge is dynamic if it: (1) represents an in-bond; (2) represents an out-bond; or (3) lies between two dynamic nodes. A dynamic node is incident to at least one dynamic edge.</p>
+<p>As an example, the RC graph of ethyl acetate hydrolysis catalyzed by hydrogen chloride can be drawn as follows:</p>
+<figure>
+  <img alt="RC Graph" src="/images/posts/20200224/rc-graph.png">
+  <figcaption>
+    <strong>RC Graph.</strong> Static edges not incident with two dynamic nodes are discarded from the ITS. The result is analogous to the well-known concept of functional group [<a href="https://doi.org/10.22052/ijmc.2016.13882">source</a>]. 
+  </figcaption>
+</figure>
+<p>We can think of an RC graph as the reaction analog of the functional group. Like molecules sharing a common functional group, ITS graphs sharing a common RC graph are likely to behave similarly and share similar characteristics.</p>
+<p>Graph theory provides powerful tools for further analysis of RC graphs. Consider how the edges of an RC graph alternate between in- and out-bonds. The RC graph of ethyl acetate hydrolysis drawn above consist of a single cycle in which edges alternative between being formed (in-bonds) and broken (out-bonds).</p>
+<p>Fujita refers to an alternating sequence of in- and out-bonds in an RC graph as a <em>string</em>. He goes on to classify reactions according to the number of strings they contain ("stringity"). A string will always occur over a cycle, however an abbreviated ITS can produce acyclic strings. A reaction containing multiple strings can sometimes be thought of as occurring over multiple steps. For example, condensation reactions such as ketalization, esterification, or imine formation produce bicyclic RC graphs in which two strings can be traced.</p>
+<p>Although not mentioned in his original work, what Fujita is describing can also be cast in terms of the graph theoretical problem of <a href="/articles/2019/04/02/the-maximum-matching-problem/"><em>perfect matching</em></a>. A matching is a subgraph in which every node has degree one. Matchings can be classified as maximal, maximum, or perfect depending on coverage. A perfect matching contains all the nodes of its supergraph.</p>
+<figure>
+  <img alt="Graph Matching" src="/images/posts/20190403/matchings.png">
+  <figcaption>
+    <strong>Graph Matching.</strong> Related to resonance and tautomerism, perfect matching also factors into reaction mechanism and ITS.
+  </figcaption>
+</figure>
+<p>It turns out that every valid RC graph, whether cyclic or acyclic, has a perfect matching over in- and out-bonds. Organic chemists would recognize the striking similarity to "pushing electrons" in an aromatic system or within a reaction mechanism.</p>
+<p>The requirement for a perfect matching over the dynamic bonds of an RC graph can be applied in several ways. For example, we can use it to validate arbitrary reactions. Alternatively, we can use it to invent new reactions.</p>
+<h2 id="rethinkingthechemicalreactionasgraph">Rethinking the Chemical Reaction as Graph</h2>
+<p>The graph-based model of reactions afforded by ITS offers several opportunities not available through arrow notation. Some of them include:</p>
+<ul>
+<li><strong>Classification.</strong> An ITS can be classified by graph invariants including cycle count, <a href="https://en.wikipedia.org/wiki/Cyclomatic_complexity">cyclomatic
+complexity</a>, edge count, and node count.</li>
+<li><strong>Validation.</strong> A valid ITS must contain a perfect matching over dynamic edges.</li>
+<li><strong>Invention.</strong> Which valid RC graphs have never been reported as reactions in the literature? What do they have in common?</li>
+<li><strong>Storage/Retrieval/Indexing</strong>. Molecular fingerprints have been used for decades to index molecules and define similarity relationships. All of the same analysis work with ITS graphs.</li>
+<li><strong>Editing.</strong> Molecules <em>and</em> reactions can be edited using the same compact tool.</li>
+<li><strong>Depiction</strong>. The redundancy of arrow notation results large depictions in which atom/bond mapping isn't always obvious. ITS depictions approach the compactness of chemical structures while explicitly and accurately representing reactant/product mapping.</li>
+</ul>
+<h2 id="machinelearning">Machine Learning</h2>
+<p>An intriguing recent development in the use of ITS-style reaction graphs comes by way of machine learning. A group led by Varnek <a href="https://chemrxiv.org/articles/Discovery_of_Novel_Chemical_Reactions_by_Deep_Generative_Recurrent_Neural_Network/11635929/1">recently described</a> the discovery of novel reactions using a representation similar to Fujita's ITS. Varnek's publications refer to the ITS concept as a <em>Condensed Graph of Reaction</em> (CGR).</p>
+<p>The technique, called "SMILES/CGR" extends SMILES so as to capture dynamic bonds. In-bonds and out-bonds are represented using a new bond notation wrapped in brackets. For example, a single bond broken in a reaction would be represented as <code>[-&gt;.]</code>. A single bond formed by a reaction would be represented as <code>[.&gt;-]</code>. A double bond reduced to a single bond in a reaction would be represented as <code>[=&gt;-]</code>, and so on.</p>
+<figure>
+  <img alt="Example SMILES/CGR" src="/images/posts/20200224/smiles-cgr.png">
+  <figcaption>
+    <strong>Example SMILES/CGR for Suzuki Reaction.</strong> In-bonds are depicted in green and out-bonds are depicted in read. (<a href="https://chemrxiv.org/articles/Discovery_of_Novel_Chemical_Reactions_by_Deep_Generative_Recurrent_Neural_Network/11635929/1">source</a>)
+  </figcaption>
+</figure>
+<p>Combining this notation with the now common approach of <a href="/articles/2019/03/19/chemical-line-notations-for-deep-learning-deepsmiles-and-beyond/">SMILES-based autoencoders</a> lead to several reactions not present in the training set.</p>
+<p>The Varnek group has produced a substantial body of work applying reaction graphs to a diverse array of problems:</p>
+<ul>
+<li><a href="https://doi.org/10.1142/S0218213011000140">A Representation to Apply Usual Data Mining Techniques to Chemical Reactions — Illustration on the Rate Constant of SN2 Reactions in Water</a> Modeling rates of reaction.</li>
+<li><a href="https://doi.org/10.1007/s10822-018-0101-6">Assessment of tautomer distribution using the condensed reaction graph approach</a> Modeling tautomer distributions as reaction graphs.</li>
+<li><a href="https://doi.org/10.1021/acs.jcim.6b00319">Automatized Assessment of Protective Group Reactivity: A Step Toward Big Reaction Data Analysis</a> Protecting group removal recommendations via reaction graphs.</li>
+<li><a href="https://doi.org/10.1021/ci500698a">Expert System for Predicting Reaction Conditions: The Michael Reaction Case</a> Predicting reaction feasibility. No difference between reagent-based descriptors and reaction-based descriptors.</li>
+<li><a href="https://doi.org/10.1021/ci300149n">Mining Chemical Reactions Using Neighborhood Behavior and Condensed Graphs of Reactions Approaches</a> Similarity-based virtual screening.</li>
+<li><a href="https://doi.org/10.1021/ci300418q">Models for Identification of Erroneous Atom-to-Atom Mapping of Reactions Performed by Automated Algorithms</a>. Validation of mappings made by other tools.</li>
+<li><a href="https://doi.org/10.1021/acs.jcim.6b00359">Prediction of Activity Cliffs Using Condensed Graphs of Reaction Representations, Descriptor Recombination, Support Vector Machine Classification, and Support Vector Regression</a> A pair of molecules can be modeled as a transformation and so condensed graph can be used.</li>
+</ul>
+<p>At least two software packages created by Varnek group associates have been released as open source. <a href="https://github.com/cimm-kzn/CGRtools">CGRTools</a> is a toolkit for working with reaction graphs. <a href="https://github.com/stsouko/CGRdb/blob/master/doc/tutorial/main.ipynb">CGRdb</a> is a reaction database organized around reaction graphs.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Imaginary Transition Structures, and more broadly reaction graphs, offer a powerful abstraction for working with reactions. By encoding starting materials, products, and atom/bond mappings in a single graph, reaction analyses can take advantage of the same techniques developed for molecular graphs over the last 50 years. The appearance of the first study combining machine learning autoencoders with reaction graphs may foreshadow a renaissance in reaction cheminformatics, with reaction graphs leading the way.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

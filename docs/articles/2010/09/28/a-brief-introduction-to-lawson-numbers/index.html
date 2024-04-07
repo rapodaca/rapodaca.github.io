@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Brief Introduction to Lawson Numbers | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Brief Introduction to Lawson Numbers</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-09-28T00:00:00.000Z">2010-09-28T00:00:00.000Z</time>
+      </header>
+      <p>As recently <a href="https://listserv.indiana.edu/cgi-bin/wa-iub.exe?A2=ind1009&amp;L=CHMINF-L&amp;P=100972">announced</a>, Alexander (Sandy) Lawson is the winner of the 2011 <a href="http://www.acscinf.org/html/skolnik.html">Herman Skolnik Award</a>. According to the announcement, among Lawson's recognized achievements is the development of Lawson Numbers as part of the Beilstein System:</p>
+<blockquote>
+  <p>As early aids to searching in Beilstein, he developed the Lawson Number and the SANDRA program. He was instrumental in the creation and development of the electronic Beilstein Database, including both the organization, data structure, and indexing, and also the development of the powerful CrossFire search engine and interface, capable of handling millions of molecules, reactions, and properties.</p>
+</blockquote>
+<p>I have to admit to drawing a blank on reading the term "Lawson Number". I've heard the term before, but what are Lawson Numbers and why should anybody care? This article assembles a few of my notes in researching this intriguing molecular classification system. It is likely full of errors as there appears to be no authoritative, publicly-viewable documentation on Lawson Numbers. If you post a comment correcting me with a reference, I'll update this article accordingly.</p>
+<h2 id="theproblem">The Problem</h2>
+<p>Lawson Numbers were developed to enable the Beilstein System to break up organic chemical space into a limited number of roughly equally-populated sections containing related structures. Why? Printed Beilstein developed a registry system that made it possible to find the volume and page a structure should appear in without the need for a computer. Lawson Numbers (originally implemented in the program SANDRA) enabled the automated placement of structures into the Beilstein Registry.</p>
+<p>Lawson Numbers are structural hashcodes with a twist.</p>
+<h2 id="afuzzyidentifier">A Fuzzy Identifier</h2>
+<p>A Lawson Number is a non-unique structural identifier in that the same structure can be assigned multiple Lawson Numbers. Here's a <a href="http://202.127.145.151/siocl/cdbank/WebHelp/Beilstein/brefhtml/ln.htm">breakdown in 1991</a>, a time at which Beilstein contained 1.8 million structures:</p>
+<p><img src="/images/posts/20100928/histogram.png" alt="Histogram" title="Historgram"></p>
+<p>As you can see, most structure have two or more Lawson Numbers, although the number rarely exceeds four.</p>
+<h2 id="range">Range</h2>
+<p>A Lawson Number is an unsigned integer up to 32767. A planned extension to enable larger Lawson Numbers never materialized.</p>
+<h2 id="use">Use</h2>
+<p>The main use for Lawson Numbers appears to have been as a compliment to substructure searching. You might be looking for a synthesis of a particular pyridinecarboxylate ester and find none. As a fictitious example, using the Lawson Numbers for your specific structure might enable you to find preparations of related heteroaryl carboxylate esters.</p>
+<p>In the Beilstein System, Lawson Numbers are searchable fields like molecular weight. So you might use Lawson Numbers in combination with molecular weight or name fragment filters to refine your search. You might then use some of the Lawson Numbers in that search to broaden your search a bit, and so on, until you finally find a synthesis that is close enough to the one you want to accomplish.</p>
+<h2 id="references">References</h2>
+<p>The documentation on Lawson Numbers is quite sparse, but there are some good resources. Some are:</p>
+<ul>
+<li><a href="http://www.indiana.edu/~cheminfo/gw/Lawson_Number.ppt">2004 Slides by Gary Wiggins and Usha Coca</a></li>
+<li><a href="http://www.indiana.edu/~cheminfo/33-16.html">The Beilstein Handbook of Organic Chemistry for the Occasional User</a></li>
+<li><a href="http://202.127.145.151/siocl/cdbank/WebHelp/Beilstein/brefhtml/ln.htm">Lawson Number (LN)</a></li>
+</ul>
+<p>One potentially useful paper is unfortunately hidden behind a publisher paywall:</p>
+<ul>
+<li><a href="http://dx.doi.org/10.1021/bk-1990-0436.ch010">The Lawson Similarity Number</a></li>
+</ul>
+<h2 id="conclusions">Conclusions</h2>
+<p>Fuzzy searches of chemical structure databases can be powerful compliments to old mainstay of substructure searching. Although the underlying technology behind Lawson Numbers appears to be a trade secret, the concept is simple: provide a way to assign multiple hashcodes to the same structure, and ensure that those hashcodes represent well-defined structural boundaries. Like <a href="http://depth-first.com/articles/2007/07/20/everything-old-is-new-again-wiswesser-line-notation-wln">other technologies developed during the golden age of cheminformatics</a> which have subsequently fallen out of favor, Lawson Numbers may be worth taking a second look at.</p>
+<p>Lawson Numbers were developed when information capacity was measured in inches and pounds, publication resulted in trees dying, and interactivity meant talking to a librarian. What would be the tradeoffs of a Lawson-like system supporting millions or billions of hashcodes and dozens or hundreds of hashcodes for each structure? What if you could choose hashcode properties on the fly? What if you could graphically 'surf' these hashcodes from island to island of organic structural similarity?</p>
+<p>Food for thought.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

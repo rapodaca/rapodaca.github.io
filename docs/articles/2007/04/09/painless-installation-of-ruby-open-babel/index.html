@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Painless Installation of Ruby Open Babel | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Painless Installation of Ruby Open Babel</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-04-09T00:00:00.000Z">2007-04-09T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://openbabel.sf.net">Open Babel</a> 2.1.0 has just been <a href="http://downloads.sourceforge.net/openbabel/openbabel-2.1.0.tar.gz?modtime=1175958364&amp;big_mirror=0">released</a>. Among its new features is a Ruby interface containing most of the functionality of the C++ library. Installation is quick and easy, as shown in this article.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>In addition to a working build system, you'll need <a href="http://www.ruby-lang.org/en/">Ruby</a> and the Ruby development libraries. Although any recent version should do, this tutorial was written with version 1.8.5.</p>
+<h2 id="step0compileandinstallopenbabel">Step 0: Compile and Install Open Babel</h2>
+<p>Given the right tools on your system, compiling and and installing Open Babel from source is trivial. <a href="http://openbabel.sourceforge.net/wiki/Get_Open_Babel">This page</a> gives instructions for doing so on Linux, Windows, and Mac OS X.</p>
+<h2 id="step1createthewrappersmakefile">Step 1: Create the Wrapper's Makefile</h2>
+<p>After unpacking, compiling, and installing Open Babel, change into the <strong>scripts/ruby</strong> directory of your source distribution. Next, run the <strong>extconf.rb</strong> script:</p>
+<pre><code class="hljs bash language-bash">ruby extconf.rb
+checking <span class="hljs-keyword">for</span> main() <span class="hljs-keyword">in</span> -lopenbabel... yes
+creating Makefile
+</code></pre>
+<p>As you've probably guessed, the purpose of this script is to generate a Makefile specific to your platform. This script uses the standard Ruby library <a href="http://www.ruby-doc.org/stdlib/libdoc/mkmf/rdoc/index.html">mkmf</a>.</p>
+<h2 id="step2compilethewrapper">Step 2: Compile the Wrapper</h2>
+<p>After creating a Makefile, we're ready to compile the C++ Ruby wrapper, contained in <strong>openbabel_ruby.cpp</strong>:</p>
+<pre><code class="hljs bash language-bash">make
+g++ -I. -I. -I/usr/lib/ruby/1.8/x86_64-linux-gnu -I. -I../../include  -fPIC -O2 -g -pipe -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -Wall  -fPIC   -c openbabel_ruby.cpp
+</code></pre>
+<p>This output will be followed by other lines as the compiler builds the wrapper library.</p>
+<h2 id="step3installthewrapper">Step 3: Install the Wrapper</h2>
+<p>After compiling the wrapper, we're ready to install it. You can probably guess that the next command will be (as root):</p>
+<pre><code class="hljs bash language-bash">make install
+/usr/bin/install -c -m 0755 openbabel.so /usr/lib/ruby/site_ruby/1.8/x86_64-linux-gnu
+</code></pre>
+<p>Your install directory is chosen by Ruby to be appropriate for your platform and Ruby version.</p>
+<h2 id="hellobenzene">Hello, Benzene!</h2>
+<p>Congratulations, you've installed Ruby Open Babel! You can verify that your new library works with interactive Ruby (irb):</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'openbabel'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; c=OpenBabel::OBConversion.new
+=&gt; <span class="hljs-comment">#&amp;lt;OpenBabel::OBConversion:0x2acedbadd020&amp;gt;</span>
+irb(main):003:0&gt; c.set_in_format <span class="hljs-string">'smi'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):004:0&gt; benzene=OpenBabel::OBMol.new
+=&gt; <span class="hljs-comment">#&amp;lt;OpenBabel::OBMol:0x2acedbacfa10&amp;gt;</span>
+irb(main):005:0&gt; c.read_string benzene, <span class="hljs-string">'c1ccccc1'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):006:0&gt; benzene.num_atoms
+=&gt; 6
+</code></pre>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

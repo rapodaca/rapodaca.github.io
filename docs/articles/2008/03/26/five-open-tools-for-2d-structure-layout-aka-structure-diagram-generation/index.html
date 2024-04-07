@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Five Open Tools for 2D Structure Layout (aka Structure Diagram Generation) | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Five Open Tools for 2D Structure Layout (aka Structure Diagram Generation)</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-03-26T00:00:00.000Z">2008-03-26T00:00:00.000Z</time>
+      </header>
+      <p>Given a molecular representation without 2D coordinates, how would you display a human-readable view?</p>
+<p>This problem can arise in many situations, one of the most common of which is the parsing of <a href="/articles/tag/linenotation">line notations</a> such as <a href="/articles/2007/10/19/easily-convert-iupac-nomenclature-to-smiles-inchi-or-molfile-with-rubidium">IUPAC nomenclature</a>, SMILES, or <a href="/articles/2007/10/15/an-introduction-to-the-rubidium-cheminforamtics-toolkit-interconvert-smiles-inchi-and-molfile-with-an-open-babel-like-interface">InChI</a>.</p>
+<p>And then there are the cases when you have 2D coordinates, but they're <a href="/articles/2008/02/12/the-art-and-science-of-chemical-structure-diagrams-double-trouble">not very aesthetically pleasing</a>. Maybe the coordinates were created by people either in a hurry or working with low quality editors, or maybe they were generated as distorted 2D projections of 3D coordinates. Whatever the reason, simply having 2D coordinates may not be the same as having <em>good</em> 2D coordinates.</p>
+<p>Last year, a Depth-First article <a href="/articles/2007/04/11/structure-diagram-generation">discussed the Structure Diagram Generation (SDG) problem</a> and how it can be solved with Open Source software. Given that nearly a year has passed, it seemed appropriate to revisit the topic.</p>
+<p>The good news is that there are at least four independent Open Source implementations of SDG algorithms, and one potential open database approach. They are, in no particular order:</p>
+<ul>
+<li><a href="http://sourceforge.net/projects/mcdl">MCDL</a> Written in Java, the emphasis of this software appears to be facilitating the use of <a href="/articles/2006/08/19/a-first-look-at-modular-chemical-descriptor-language-mcdl">Modular Chemical Descriptor Language</a>. Unfortunately, no new releases of this intriguing software package have been made in the last year.</li>
+<li><a href="http://sf.net/projects/cdk">Chemistry Development Kit (CDK)</a> This useful package handles about 70-80% of a typical assortment of chemical structures well. The large amount of activity on the CDK project in general makes this a particularly good SDG system to contribute to, especially in the areas of refactoring and handling special cases. See also <a href="http://www.steinbeck-molecular.de/steinblog/index.php/2007/08/14/structure-diagram-generation-sdg-2d-layout-in-the-chemistry-development-kit-part-1/">Christoph Steinbeck's overview of CDK's layout system</a>.</li>
+<li><a href="http://bkchem.zirael.org/">BKChem</a> A 2D structure editor written in Python. Give it an InChI and it will display the structure, courtesy of SDG. The system worked remarkably well with the molecules I tested. BKChem has also been reported to work in <a href="http://bkchem.zirael.org/batch_mode_en.html">batch mode</a>.</li>
+<li><a href="http://www.rdkit.org/">RDKit</a> Written in Python and C++, this package is the newest of the bunch. Although <a href="http://sourceforge.net/mailarchive/message.php?msg_id=360844.35824.qm%40web34206.mail.mud.yahoo.com">I haven't had much luck compiling RDKit</a>, it still looks quite promising. Any chance of switching to <a href="http://www.gnu.org/software/make/">make</a> as a build system?</li>
+<li><a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem</a> PubChem? Maybe. With a database of small molecules now numbering well over ten million, there's a good chance that the molecule for which you need to assign coordinates is already in PubChem. And if it's in PubChem, 2D coordinates have already been assigned. Use an InChI as a hash key, and voila - instant SDG without much software. Given the novelty of large, publicly-available databases of small molecules such as PubChem, this approach may have a great deal of untapped potential.</li>
+</ul>
+<p>SDG is one of those issues that can stay off the radar for some only to become an instant, nagging problem with no clear way out. The tools cited here offer an excellent place to begin working toward a comprehensive solution.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

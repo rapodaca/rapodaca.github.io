@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cheminformatics in Any Language with MX Part 1 - Scala | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Cheminformatics in Any Language with MX Part 1 - Scala</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-04-02T00:00:00.000Z">2009-04-02T00:00:00.000Z</time>
+      </header>
+      <p>One of the best ways to keep current with new developments in programming is to try new languages. Fortunately, there are so many to choose from that finding an unfamiliar language is less of a problem than finding one that's interesting enough to make the effort worthwhile.</p>
+<p>In this new series of articles, we'll explore many of the most interesting programming languages through the lense of cheminformatics. Our test subject will be <a href="http://code.google.com/p/mx-java/">MX</a>, the lightweight, cross-platform, cross-language cheminformatics toolkit written in Java. These tutorials are not designed to teach you a new language. Instead, they will focus on quickly getting you to the point of being able to perform basic cheminformatics operations within the target language.</p>
+<h2 id="whyscala">Why Scala?</h2>
+<p>Scala is a general purpose programming language <a href="http://www.artima.com/weblogs/viewpost.jsp?thread=163733">developed</a> by Martin Odersky and first released in 2003. It was designed to ebrace two important programming paradigms: object-oriented programming and functional programming. Scala, like many other languages, has been implemented on the Java Virtual Machine (JVM), positioning it to take full advantage of a rich selection of useful libraries.</p>
+<p>For Web developers, Scala comes complete with a few interesting frameworks, the most popular of which appears to be <a href="http://liftweb.net/">Lift</a>. Because the entire framework runs on a standard JVM, there's no need to change the way you've come to rely on deploying Java-based web applications. Apparently, Twitter is finding Scala to be <a href="http://www.slideshare.net/al3x/why-scala-presentation">very useful</a> as a platform for creating Web applications that scale.</p>
+<p>As will be true of most of the languages in this series, my knowledge of Scala is extremely limited and pieced together from Web resources assembled on the spur of the moment and in great haste. Your comments, corrections, and suggestions are welcome.</p>
+<h2 id="gettingstarted">Getting Started</h2>
+<p>Scala can be installed by <a href="http://www.scala-lang.org/downloads">downloading the current version</a> and following <a href="http://www.scala-lang.org/node/166">these instructions</a>. Make sure to update your environment variables. On my Ubuntu Linux system, the installation worked without a hitch. <a href="http://www.scala-lang.org/node/166">This tutorial</a> will guide you through the basics of the language and its toolset.</p>
+<h2 id="workingwithmx">Working With MX</h2>
+<p>Let's begin by creating a molecule with Scala using MX. To do this, we'll need to let Scala know where to find the MX library. Download the current <a href="http://mx-java.googlecode.com/files/mx-0.108.1.jar">MX jarfile</a> and place it in your working directory. We can then invoke an interactive Scala shell with MX support through:</p>
+<pre><code class="hljs bash language-bash">scala -classpath mx-0.108.1.jar
+</code></pre>
+<p>We can now load benzene and verify that it has the correct number of atoms.</p>
+<pre><code class="hljs bash language-bash">scala&gt; import com.metamolecular.mx.io.Molecules         
+import com.metamolecular.mx.io.Molecules
+
+scala&gt; val benzene = Molecules.createBenzene            
+benzene: com.metamolecular.mx.model.Molecule = com.metamolecular.mx.model.DefaultMolecule@2d5534
+
+scala&gt; benzene.countBonds                               
+res0: Int = 6
+</code></pre>
+<p>We can also determine that benzene has one ring, as expected:</p>
+<pre><code class="hljs bash language-bash">scala&gt; import com.metamolecular.mx.io.Molecules         
+import com.metamolecular.mx.io.Molecules
+
+scala&gt; val benzene = Molecules.createBenzene            
+benzene: com.metamolecular.mx.model.Molecule = com.metamolecular.mx.model.DefaultMolecule@117b450
+
+scala&gt; import com.metamolecular.mx.ring.HanserRingFinder
+import com.metamolecular.mx.ring.HanserRingFinder
+
+scala&gt; val finder = new HanserRingFinder                
+finder: com.metamolecular.mx.ring.HanserRingFinder = com.metamolecular.mx.ring.HanserRingFinder@1c0cb76
+
+scala&gt; val rings = finder.findRings(benzene)            
+rings: java.util.Collection[java.util.List[com.metamolecular.mx.model.Atom]] = [[com.metamolecular.mx.model.DefaultMolecule<span class="hljs-variable">$AtomImpl</span>@fe087b, com.metamolecular.mx.model.DefaultMolecule<span class="hljs-variable">$AtomImpl</span>@1def3f5, com.metamolecular.mx.model.DefaultMolecule<span class="hljs-variable">$AtomImpl</span>@62974e, com.metamolecular.mx.model.DefaultMolecule<span class="hljs-variable">$AtomImpl</span>@bbaa16, com.metamolecular.mx.model.DefaultMolecule<span class="hljs-variable">$AtomImpl</span>@9ba045, com.m...
+scala&gt; rings.size
+res0: Int = 1
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>Scala is a neat little language with a lot to offer. With MX and interactive Scala, it's possible to quickly explore ways this new language can be used in cheminformatics.</p>
+<p><em>Credit: thanks to <a href="http://blog.rguha.net/">Rajarshi Guha</a> for <a href="http://blog.rguha.net/?p=133">inspiration</a> for this series.</em></p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

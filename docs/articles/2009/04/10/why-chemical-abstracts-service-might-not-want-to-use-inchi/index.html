@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Why Chemical Abstracts Service Might Not Want To Use InChI | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Why Chemical Abstracts Service Might Not Want To Use InChI</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-04-10T00:00:00.000Z">2009-04-10T00:00:00.000Z</time>
+      </header>
+      <p>In late March a company called <a href="http://www.outsellinc.com/">Outsell</a> published an article on <a href="http://www.iupac.org/inchi/">InChI</a> by Daniel Pollock that has created a bit of a stir. The article, titled <a href="http://www.outsellinc.com/store/insights/4038">Chemical Bonding InChI by InChI</a> was retracted by Outsell, who write:</p>
+<blockquote>
+  <p>On March 30th we published an Insights piece titled "Chemical Bonding InChI by InChI." We have removed it from our archives. We pride ourselves on publishing independent, fact-based research that provides strong, substantiated analysis and recommendations about key market dynamics. In the Important Details section of the piece, we did a good job of explaining details about The International Chemical Identifier as an emerging industry standard used to describe chemical substances. However, in the Implications section we published information about Chemical Abstract Service's highly-regarded SciFinder product that was incorrect, and we did not cite a sufficiently balanced set of references in developing our argument.</p>
+  <p>Further, it is our practice to avoid speculating about an organization's stance on a topic without reaching out to the organization for on-the-record research briefings. Overall, the tone of the piece could be taken to single out CAS as being late in responding to the trends, and in our view the research and analysis did not support it.</p>
+  <p>We regret that this piece didn't hold up to our internal standards and that it was not caught in our internal peer-review process before it was published. Even more, we regret that it didn't live up to the high standards you are accustomed to expecting from us. We apologize for the circumstances leading up to this.</p>
+</blockquote>
+<p>The reasons for retraction seem to revolve around statements made about SciFinder and speculations made in the article about the Chemical Abstracts Service (CAS) response to InChI.</p>
+<p><a href="http://209.85.229.132/search?q=cache:KyH1sY187YYJ:www.outsellinc.com/store/insights/4038+http://www.outsellinc.com/store/insights/4038&amp;cd=1&amp;hl=en&amp;ct=clnk&amp;gl=uk&amp;client=firefox-a">The original article</a> is available through Google's cache.</p>
+<p>The statements about SciFinder and the CAS response to InChI appear to have been made in two paragraphs:</p>
+<blockquote>
+  <p>The current gold standard for identifying chemical substances are proprietary Chemical Abstracts Service (CAS) Registry Numbers, owned and operated by the American Society of Chemistry [sic] (ACS). We do not yet know if CAS plans to map its database to InChI. However, given that CAS has been criticised for its proprietary approach in the past, and took until April 2008 to release a web based version of its flagship SciFinder database, in Outsell’s opinion we may have to wait a while yet.</p>
+  <p>However, we do hope that this is not the case since it is important that information providers do not Balkanize their information if they are not to get lost in the web (see Insights 18 July 2008, Nature Publishing Group Sets the Cat Amongst the Pigeons of Open Access, But Maybe We’re All Missing the Point). The point here is that open standards can benefit all by making information (products) easier to discover, and this speaks to one of the core demands of the networked environment. So, for example, CAS’s index of 40 million substances is not threatened by open standards and, in fact, our view is that mapping CAS numbers to an [sic] standard such as InChI can only help to make it more accessible. And with over 20 million substances now indexed by ChemSpider, the InChI could emerge as a - if not the - industry standard index of chemical substances on the web.</p>
+</blockquote>
+<p>The retraction has prompted at least <strike>three</strike> four reactions so far:</p>
+<ul>
+<li><a href="http://blogs.nature.com/thescepticalchymist/2009/04/outsell_and_inchis.html">The Sceptical Chymist</a> asks "Outsell now say that the original article wasn’t balanced and that the ‘tone of the piece could be taken to single out CAS as being late in responding to the trends’. Surely readers could make that judgement for themselves?"</li>
+<li><a href="http://www.chemspider.com/blog/conspiracy-theories-and-inchis-why-was-the-article-removed.html">Antony Williams</a> notes that "Conspiracy theories are already moving around the community."</li>
+<li><a href="http://wwmm.ch.cam.ac.uk/blogs/murrayrust/?p=1655">Peter Murray Rust</a> suspects "In short the best guess is that CAS see InChIs as a threat (I’ll discuss the foolishness of this below) and that they put pressure on Outsell to retract."</li>
+<li>Activity on the CHMINF-L list.</li>
+</ul>
+<p>For what it's worth, there are legitimate technical and legal arguments for why CAS many not want to "embrace" InChI just yet. Among them:</p>
+<ul>
+<li><a href="/articles/2008/12/10/mr-inchi-tear-down-this-wall">no specification</a> that would enable the creation of an independent implementation;</li>
+<li>single implementation with an <a href="http://opensource.org/licenses/lgpl-2.1.php">open source license</a> that has come under <a href="http://rosenlaw.com/oslbook.htm">legitimate criticism</a>;</li>
+<li>fails to generate unique identifier for many <a href="/articles/2009/03/27/a-comprehensive-guide-flexmol-a-modern-language-for-chemical-representation-part-2-real-world-problems">molecules likely present in CAS Registry</a> (e.g., ferrocene, (R)- and (S)- BINAP);</li>
+<li>InChI itself is <a href="/articles/2007/05/17/my-inchi-runneth-over">problematically long</a> (breaks HTML layouts, for example) for even medium-sized molecules;</li>
+<li>InChIKey has no mechanism for backward-compatibility with newer versions that may fix bugs or add features to the existing implementation;</li>
+<li>the "final" version has only <a href="http://www.iupac.org/inchi/release102final.html">very recently been available</a>.</li>
+</ul>
+<p>I have no idea whether any of these factors are important to CAS now or in the future. I also don't know why the Outsell article was retracted beyond what's available on their site.</p>
+<p>What I can say is that it's inaccurate to portray InChI as anything but a technology with some potential at this point. The Outsell article painted a picture of something a bit more, and this may explain, in part, the retraction.</p>
+<p><em>Update: it now appears that the retraction on the Outsell site has been shortened to: "On March 30th we published an Insights piece titled "Chemical Bonding InChI by InChI." We have removed it from our archives."</em></p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

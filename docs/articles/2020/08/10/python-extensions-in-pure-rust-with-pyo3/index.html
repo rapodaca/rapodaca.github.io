@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Python Extensions in Pure Rust with PyO3 | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/08/10/python-extensions-in-pure-rust-with-pyo3/">
+      <meta property="og:title" content="Python Extensions in Pure Rust with PyO3">
+      <meta property="og:description" content="Avoid a lot of manual labor when creating Python wrappers.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200810/summary.png">
+      <meta content="Avoid a lot of manual labor when creating Python wrappers." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Python Extensions in Pure Rust with PyO3</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-08-10T17:00:00Z">2020-08-10T17:00:00Z</time>
+      </header>
+      <p>The <a href="/articles/2020/08/03/wrapping-rust-types-as-python-classes/">previous article</a> in this series described a low-level, manual approach to building Python packages from Rust code. Although effective, the procedure involves writing highly repetitive code blocks in both languages. Fortunately, such repetition isn't necessary. This article picks up where the last one left off by showing one way to automate the generation of Python packages from Rust libraries. It also highlights an important but rarely-discussed limitation likely to affect nontrivial projects.</p>
+<h2 id="aboutpyo3">About PyO3</h2>
+<p><a href="https://github.com/PyO3/pyo3">PyO3</a> is a suite of tools for Rust and Python that, among other things, makes it possible to write Python extensions in pure Rust. The project was forked from <a href="https://github.com/dgrunwald/rust-cpython">rust-cpython</a>. The latter remains somewhat active, but the two projects have <a href="https://pyo3.rs/master/rust_cpython.html">diverged</a> in both features and focus since the fork.</p>
+<h2 id="motivation">Motivation</h2>
+<p><a href="/articles/2020/06/01/chemcore-a-cheminformatics-toolkit-for-rust/">ChemCore</a> is a cheminformatics library written in Rust. It would be helpful if its functionality were usable through a Python interface, given the popularity of that language in scientific computing. A previous article discussed <a href="/articles/2020/06/15/oxmol-rust-python-bindings-for-chemcore/">OxMol</a>, a Python wrapper for ChemCore built with PyO3. The purpose of the current article is different: to illustrate the process of building Python wrappers to simpler Rust libraries. Recently, a <a href="https://blog.yossarian.net/2020/08/02/Writing-and-publishing-a-python-module-in-rust">helpful tutorial on using PyO3</a> was published. The current article expands on some points not covered in detail there.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This tutorial assumes your system has a <a href="https://rustup.rs">Rust compiler</a> and a Python 3 installation with developer tools.</p>
+<h2 id="helloworld">Hello, World</h2>
+<p>In this simple demonstration, we define a Rust struct and then expose it through a Python wrapper written entirely in Rust.</p>
+<p>First, create a new Cargo project.</p>
+<pre><code class="hljs console language-console">cargo new point --lib &amp;&amp; cd point
+</code></pre>
+<p>Next, update <code>Cargo.toml</code>.</p>
+<pre><code class="hljs toml language-toml"><span class="hljs-comment"># Cargo.toml</span>
+<span class="hljs-comment"># ...</span>
+
+<span class="hljs-section">[lib]</span>
+<span class="hljs-attr">name</span> = <span class="hljs-string">"point"</span>
+<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">"cdylib"</span>]
+
+<span class="hljs-section">[dependencies.pyo3]</span>
+<span class="hljs-attr">version</span> = <span class="hljs-string">"0.11.1"</span>
+<span class="hljs-attr">features</span> = [<span class="hljs-string">"extension-module"</span>]
+</code></pre>
+<p>Add a Rust type consisting of two fields and a constructor. Applying the macros <code>pyclass</code>, <code>pymethods</code>, and <code>new</code> direct PyO3 to the functionality to be wrapped.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
+<span class="hljs-keyword">use</span> pyo3::prelude::*;
+
+<span class="hljs-meta">#[pyclass]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Point</span></span> {
+    <span class="hljs-meta">#[pyo3(get)]</span>
+    x: <span class="hljs-built_in">f64</span>,
+    <span class="hljs-meta">#[pyo3(get)]</span>
+    y: <span class="hljs-built_in">f64</span>
+}
+
+<span class="hljs-meta">#[pymethods]</span>
+<span class="hljs-keyword">impl</span> Point {
+    <span class="hljs-meta">#[new]</span>
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(x: <span class="hljs-built_in">f64</span>, y: <span class="hljs-built_in">f64</span>) -&gt; <span class="hljs-keyword">Self</span> {
+        Point { x, y }
+    }
+}
+
+<span class="hljs-meta">#[pymodule]</span>
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">point</span></span>(_: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+    m.add_class::&lt;Point&gt;()?;
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>This code will build a Python module called "point" that contains class called <code>Point</code>. Two attributes will be accessible on <code>Point</code> instances: <code>x</code> and <code>y</code>. A constructor allows the class to be constructed from Python.</p>
+<p>We're going to compile this Rust code using the PyO3 subproject <a href="https://github.com/PyO3/maturin">Maturin</a>. The recommended procedure is to set up a Python 3 <a href="https://docs.python.org/3/tutorial/venv.html">virtual environment</a>. In a nutshell, packages such as Maturin can be installed and used within a virtual environment without affecting the global Python 3 installation.</p>
+<p>Create a virtual environment, activate it, and install Maturin with the following.</p>
+<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> python3 -m venv env</span>
+<span class="hljs-meta">$</span><span class="bash"> <span class="hljs-built_in">source</span> env/bin/activate</span>
+(env) $ pip3 install maturin
+</code></pre>
+<p>The first command creates a virtual environment within the working directory. The second command activates that virtual environment. The prefix <code>(env)</code> on the command prompt notifies us that Python is using the virtual environment called <code>env</code>. It can be deactivated with:</p>
+<pre><code class="hljs console language-console">(env) $ deactivate # use this to deactivate a virtual environment
+<span class="hljs-meta">$</span><span class="bash"> </span>
+</code></pre>
+<p>For now, don't deactivate the <code>env</code> virtual environment.</p>
+<p>Instead, compile the <code>point</code> project with the following:</p>
+<pre><code class="hljs console language-console">(env) $ maturin develop
+</code></pre>
+<p>This command produces the binding needed to import and use the <code>point</code> module from Python.</p>
+<pre><code class="hljs test language-test">(env) $ python3
+<span class="hljs-meta">&gt;&gt;</span>&gt; import point
+<span class="hljs-meta">&gt;&gt;</span>&gt; from point import Point
+<span class="hljs-meta">&gt;&gt;</span>&gt; p = Point(<span class="hljs-number">13</span>, <span class="hljs-number">42</span>)
+<span class="hljs-meta">&gt;&gt;</span>&gt; print(p.x, p.y)
+<span class="hljs-number">13</span> <span class="hljs-number">42</span>
+</code></pre>
+<p>This short workflow has demonstrated how to build a Python module entirely in Rust with Maturin. At some point, however, we'll want to distribute it. And this is where things get even better.</p>
+<h2 id="distribution">Distribution</h2>
+<p>The command <code>maturin develop</code> creates a Python package that can be used from local virtual environment. This package is not, however, suitable for distribution. To accomplish that, use the <code>maturin build</code> command.</p>
+<pre><code class="hljs console language-console">(env) $ maturin build
+</code></pre>
+<p>Doing so creates a standards-compliant wheel file in the <code>targets</code> directory:</p>
+<pre><code class="hljs console language-console">ls -l targets/wheels
+total 784
+drwxr-xr-x  3 rich  staff      96 Aug  8 07:34 .
+drwxr-xr-x  6 rich  staff     192 Aug  8 07:33 ..
+-rw-r--r--  1 rich  staff  397340 Aug  8 07:34 point-0.1.0-cp37-cp37m-macosx_10_7_x86_64.whl
+</code></pre>
+<p>The contents and name of the wheel file will reflect your operating system and Python installation. This raises the question of how to build a cross-platform distribution.</p>
+<h2 id="crossplatformdistribution">Cross-Platform Distribution</h2>
+<p>The Maturin project maintains a <a href="https://github.com/pypa/manylinux">manylinux1-compatible Docker container</a> that enables the compilation of Linux wheels. After installing and activating Docker, the following one-liner is all it takes:</p>
+<pre><code class="hljs console language-console">docker run --rm -v $(pwd):/io konstin2/maturin build
+</code></pre>
+<p>As in the previous build, wheels are added to the <code>target/wheels</code> directory:</p>
+<pre><code class="hljs console language-console">(env) $ ls -l target/wheels
+total 17200
+drwxr-xr-x  7 rich  staff      224 Aug  8 07:42 .
+drwxr-xr-x  6 rich  staff      192 Aug  8 07:33 ..
+-rw-r--r--  1 rich  staff  1843179 Aug  8 07:41 point-0.1.0-cp35-cp35m-manylinux1_x86_64.whl
+-rw-r--r--  1 rich  staff  1845201 Aug  8 07:41 point-0.1.0-cp36-cp36m-manylinux1_x86_64.whl
+-rw-r--r--  1 rich  staff   397340 Aug  8 07:34 point-0.1.0-cp37-cp37m-macosx_10_7_x86_64.whl
+-rw-r--r--  1 rich  staff  1846610 Aug  8 07:42 point-0.1.0-cp37-cp37m-manylinux1_x86_64.whl
+-rw-r--r--  1 rich  staff  1846067 Aug  8 07:42 point-0.1.0-cp38-cp38-manylinux1_x86_64.whl
+</code></pre>
+<p>For details see the <a href="https://github.com/PyO3/maturin">Maturin README</a>.</p>
+<p>Compiled wheels can be published to PyPi using the command:</p>
+<pre><code class="hljs console language-console">(env) $ maturin publish
+</code></pre>
+<h2 id="laborsavingautomation">Labor-Saving Automation</h2>
+<p><a href="/articles/2020/08/03/wrapping-rust-types-as-python-classes/">The previous article</a> described a manual process for building a Python module from Rust using FFI. With Maturin, it's possible to update that procedure to something much simpler.</p>
+<p>Below is the complete listing for a PyO3-based partial wrapper for Rust's <code>HashSet</code> type. Clearly, Python already has its own set functionality. The goal here is to demonstrate how to build more complex wrappers.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// lib.rs</span>
+<span class="hljs-keyword">use</span> pyo3::prelude::*;
+<span class="hljs-keyword">use</span> pyo3::PyIterProtocol;
+
+<span class="hljs-meta">#[pyclass]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">SetIterator</span></span> {
+    iter: std::collections::hash_set::IntoIter&lt;<span class="hljs-built_in">usize</span>&gt;
+}
+
+<span class="hljs-meta">#[pyproto]</span>
+<span class="hljs-keyword">impl</span> PyIterProtocol <span class="hljs-keyword">for</span> SetIterator {
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">__iter__</span></span>(slf: PyRef&lt;<span class="hljs-keyword">Self</span>&gt;) -&gt; Py&lt;SetIterator&gt; {
+        slf.into()
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">__next__</span></span>(<span class="hljs-keyword">mut</span> slf: PyRefMut&lt;<span class="hljs-keyword">Self</span>&gt;) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt; {
+        slf.iter.next()
+    }
+}
+
+<span class="hljs-meta">#[pyclass]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HashSet</span></span> {
+    inner: std::collections::HashSet&lt;<span class="hljs-built_in">usize</span>&gt;
+}
+
+<span class="hljs-meta">#[pymethods]</span>
+<span class="hljs-keyword">impl</span> HashSet {
+    <span class="hljs-meta">#[new]</span>
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>() -&gt; <span class="hljs-keyword">Self</span> {
+        HashSet {
+            inner: std::collections::HashSet::new()
+        }
+    }
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">insert</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, value: <span class="hljs-built_in">usize</span>) {
+        <span class="hljs-keyword">self</span>.inner.insert(value);
+    }
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">contains</span></span>(&amp;<span class="hljs-keyword">self</span>, value: <span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">bool</span> {
+        <span class="hljs-keyword">self</span>.inner.contains(&amp;value)
+    }
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">len</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">usize</span> {
+        <span class="hljs-keyword">self</span>.inner.len()
+    }
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">iter</span></span>(slf: PyRef&lt;<span class="hljs-keyword">Self</span>&gt;) -&gt; PyResult&lt;Py&lt;SetIterator&gt;&gt; {
+        <span class="hljs-keyword">let</span> iter = SetIterator {
+            iter: slf.inner.clone().into_iter()
+        };
+
+        Py::new(slf.py(), iter)
+    }
+}
+
+<span class="hljs-meta">#[pymodule]</span>
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set</span></span>(_: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+    m.add_class::&lt;HashSet&gt;()?;
+
+    <span class="hljs-literal">Ok</span>(())
+}
+</code></pre>
+<p>This sample can be compiled and run using <code>maturin develop</code> as before.</p>
+<p>This listing differs in one important respect from the FFI example: the <code>collect</code> method has been replaced with <code>iter</code>. However, this method is implemented in a decidedly non-idiomatic way. Rather than simply wrapping a Rust Iterator, we clone the entire collection and return a wrapper to its iterator. </p>
+<h2 id="limitationiterators">Limitation: Iterators</h2>
+<p>Iterators are a powerful and ubiquitous zero-cost Rust abstraction. For this reason, any attempt to wrap a trivial Rust library using PyO3 is likely to eventually need a way to deal with Iterators.</p>
+<p>Currently, <a href="https://github.com/PyO3/pyo3/issues/502">PyO3 does not support wrapping Rust structs using a lifetime parameter</a>. This is quite limiting, because the defining characteristic of many Rust iterators is a lifetime parameter. And that lifetime parameter gets inherited by any type owning or borrowing the Iterator.</p>
+<p>For example, the preferred method for exposing an iterator in the <code>HashSet</code> example above would be to simply wrap the Iterator returned from the standard library's <code>HashSet#iter</code> method. We could do that with a struct owning an internal iterator like so:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// Compile ERROR: #[pyclass] cannot have generic parameters</span>
+<span class="hljs-meta">#[pyclass]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Foo</span></span>&lt;<span class="hljs-symbol">'a</span>&gt; {
+    iter: std::collections::hash_set::Iter&lt;<span class="hljs-symbol">'a</span>, <span class="hljs-built_in">usize</span>&gt;
+}
+</code></pre>
+<p>However, compliation fails with the error <code>#[pyclass] cannot have generic parameters</code>. Although there may be workarounds, they are unsafe and nontrivial. For details, see this <a href="https://github.com/PyO3/pyo3/issues/1085">GitHub issue</a>.</p>
+<p>Nor is the problem restricted to Iterators. It crops up with any struct holding a borrowed reference. Consider, for example, the following:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// Compile ERROR: #[pyclass] cannot have generic parameters</span>
+<span class="hljs-meta">#[pyclass]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Bar</span></span>&lt;<span class="hljs-symbol">'a</span>&gt; {
+    name: &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">str</span>
+}
+</code></pre>
+<p>It should be noted that the workaround used in the <code>HashSet</code> demo, copying the underlying object containing the Iterator, won't be feasible in many situations.</p>
+<p>To be fair, this problem isn't unique to PyO3. It can happen when exposing any Rust type to Python. Consider, for example, how an FFI project would expose a Rust Iterator. Some method for dealing with the dangling lifetime would be required there as well.</p>
+<p>Therefore, before using PyO3 for any project I can recommend a thorough analysis of how Iterators and lifetime parameters are used within the Rust library to be wrapped. Workarounds may be feasible in certain cases. In others, the restrictions imposed by PyO3 may prove practically insurmountable.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>PyO3 makes it possible to write, build, and publish Python extensions without writing a line of Python. As such, PyO3 will be an attractive option for many kinds of Rust projects. However, projects relying on nontrivial Rust Iterators or types taking lifetime parameters may run into difficult challenges. This is not so much a problem with PyO3 as with the mismatched memory management models used by Python and Rust.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

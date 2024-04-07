@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fast Substructure Search Using Open Source Tools Part 1 - Fingerprints and Databases | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Fast Substructure Search Using Open Source Tools Part 1 - Fingerprints and Databases</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-10-02T00:00:00.000Z">2008-10-02T00:00:00.000Z</time>
+      </header>
+      <p>For anyone working in a chemistry-related job, chemical databases are ubiquitous. A printed list of IUPAC names, a spreadsheet containing <a href="/articles/2008/05/26/simple-cas-number-lookup-and-more-with-chempedia">CAS numbers</a>, and a set of hand-drawn structures on index cards are all primitive chemical databases. They aren't nearly as useful as they could be to either the creator or his/her collaborators, but they are databases nevertheless. Anyone who has spent time in industry or academics knows that these low-tech chemical databases are everywhere. And they become more of a problem as more information is moved into electronic format.</p>
+<p>All articles in this series:</p>
+<ul>
+<li>Part 1: Fingerprints and Databases</li>
+<li><a href="/articles/2008/10/03/fast-substructure-search-using-open-source-tools-part-2-fingerprint-screen-with-sql">Part 2: Fingerprint Screen With SQL</a></li>
+<li><a href="/articles/2008/10/06/fast-substructure-search-using-open-source-tools-part-3-a-crud-api-for-fingerprints-in-ruby">Part 3: A CRUD API for Fingerprints in Ruby</a></li>
+<li><a href="/articles/2008/10/15/fast-substructure-search-using-open-source-tools-part-4-creating-fingerprints-from-chemical-structures">Part 4: Creating Fingerprints from Chemical Structures</a></li>
+<li><a href="/articles/2008/10/21/fast-substructure-search-using-open-source-tools-part-5-relating-molecules-to-fingerprints-with-sql">Part 5: Relating Molecules to Fingerprints with SQL</a></li>
+<li><a href="/articles/2008/10/29/fast-substructure-search-using-open-source-tools-part-6-modelling-a-one-to-many-relationship-between-fingerprints-and-compounds-in-ruby">Part 6: Modelling a One-To-Many Relationship Between Fingerprints and Compounds in Ruby</a></li>
+</ul>
+<h2 id="theproblemstructuresearchishard">The Problem: Structure Search is Hard</h2>
+<p>Many of the low-tech chemical databases that professional chemists routinely share and work with would become orders of magnitude more useful if they were converted into substructure-searchable databases and published to the Web. Although there has been a <a href="/articles/2007/01/24/thirty-two-free-chemistry-databases">great deal of effort toward this end</a> in the last few years, there's still much, much more that could be done.</p>
+<p>One of the main problems in creating a substructure-searchable chemical database is implementing the substructure search capability itself. This one requirement has done more to stifle the free flow of chemical information than perhaps any other. Solving the problem appears very difficult on first or second glance, and it is very difficult if you don't have the right tools. Many companies offer solutions - but at a price, both in terms of money and time, that is simply out of reach.</p>
+<p>What can you do if you're just getting started with modest requirements and budget?</p>
+<h2 id="aboutthisseries">About This Series</h2>
+<p>This article, the first in a series, will describe the creation of a chemical substructure search engine using exclusively well-maintained and robust open source tools: <a href="http://openbabel.org">Open Babel</a> for generating fingerprints and peforming atom-by-atom searches; <a href="http://mysql.com">MySQL</a> as a relational database; and <a href="http://ruby-lang.org">Ruby</a> as a scripting language.</p>
+<p>Each of these three components is a commodity that can be replaced with any one of a number of open-source or proprietary substitutes, maximizing flexibility and minimizing vendor lock-in.</p>
+<h2 id="otherresources">Other Resources</h2>
+<p><a href="http://merian.pch.univie.ac.at/pch/nh_info.html">Norbert Haider</a> of the University of Vienna has written a very useful tutorial on <a href="http://merian.pch.univie.ac.at/~nhaider/cheminf/moldb.html">creating a structure-searchable database using free tools</a>, which is part of a <a href="/articles/2007/04/13/roll-your-own-chemical-database-with-free-components">larger series</a>. That series differs from this one in the technology stack used and the level of detail to be provided. The series of articles to appear here will spell out the low-level series of steps needed to create a working substructure search system. It's hoped that taking this perspective makes clear the steps needed to apply the approach to alternative technology platforms.</p>
+<h2 id="binaryfingerprintsandrelationaldatabases">Binary Fingerprints and Relational Databases</h2>
+<p>At the heart of the system we'll build is the chemical fingerprint which is a (usually) lossy binary representation of a chemical structure. Creating a binary fingerprint is like putting every chemical structure, known or unknown into just one bin out of a very large, but finite set of bins. Although the same molecule is guaranteed to always go into the same bin, more than one molecule can be placed into each bin. This is a general feature of all <a href="http://en.wikipedia.org/wiki/Hash_function">hashing</a> schemes.</p>
+<p><a href="http://www.dalkescientific.com/index.html">Andrew Dalke</a> has written <a href="http://www.dalkescientific.com/writings/diary/archive/2008/06/26/fingerprint_background.html">an excellent series of articles</a> on fingerprints and what can be done with them. Another good overview is <a href="http://www.daylight.com/dayhtml/doc/theory/theory.finger.html">available from Daylight</a>. This article will assume you know what fingerprints are and how they can be used to compare chemical structures.</p>
+<p>The problem with binary fingerprints is that they are generally several hundred bits long - too long to be represented in a form that allows direct and rapid query by a relational database system. They need to be broken up - but how?</p>
+<p>A widely-used approach (and the one that will be taken here) involves breaking up the fingerprint into a series of integers that are stored in the database.</p>
+<p>For example, let's say we have a 1024-bit fingerprint. We could represent this as a number from 0 to 2^1024, which of course is way to big for most computers to handle today. We could, however, represent this fingerprint as a series of sixteen 64-bit integers (which are available on most systems).</p>
+<p>So, the binary fingerprint:</p>
+<pre><code class="hljs bash language-bash">1111111101111111110110111011011000101000011000011010011100010000
+1001100010101101000110100010110011101100100000100100000111010100
+0101010000101011001010011001000100011001100000101100111010001110
+1001000101001010000001011001100101101011111111011000111100000111
+1010101100100101000100001100011001010111001001110101101100010010
+0011101011101110110011111010000010111001100101001001101010110001
+1100111000010100000100110111101001011100010111010001010101101101
+0010001111111010111011110110000000001010111011111001111001111101
+0101011100011111110111011110011110100110010110010101011001011111
+0110100001111001101111011101001101101001000100010001100101111000
+0011111001000100001111111110001100111001101000000100010010010110
+0000011101001001011000111110101110010101110001111010100001100100
+0100100111101010110101101010110110101010110110111011011001111111
+0011100100101101101001000001000111110101011101110101101001101001
+0110100100111001111001001111110111111001110100100110010100011110
+0010101100101000011110101110111011001110101111100001011010101100
+</code></pre>
+<p>could also be represented as this decimal fingerprint (assuming your machine is <a href="http://en.wikipedia.org/wiki/Endianness">big-endian</a>):</p>
+<pre><code class="hljs bash language-bash">18410675377121896208
+11001478244984832468
+6064987026359504526
+10469186440276053767
+12332281598675737362
+4246559787872197297
+14849515287603909997
+2592647731284516477
+6277980392575817311
+7528256967824972152
+4486781373924787350
+525060695046727780
+5326305550703244927
+4120129631153511017
+7582343227124114718
+3109870708788696748
+</code></pre>
+<p>We can easily store this set of 16 numbers in a relational database table. For example, if we had a MySQL database called "compounds", we could create a "fingerprints" table:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; create database compounds;
+Query OK, 1 row affected (0.02 sec)
+
+mysql&gt; use compounds;
+
+Database changed
+mysql&gt; create table fingerprints(id int not null auto_increment, primary key(id), fp0 bigint(64), fp1 bigint(64), fp2 bigint(64), fp3 bigint(64), fp4 bigint(64), fp5 bigint(64), fp6 bigint(64), fp7 bigint(64), fp8 bigint(64), fp9 bigint(64), fp10 bigint(64), fp11 bigint(64), fp12 bigint(64), fp13 bigint(64), fp14 bigint(64), fp15 bigint(64));
+Query OK, 0 rows affected (0.01 sec)
+
+mysql&gt; describe fingerprints;
++-------+------------+------+-----+---------+----------------+
+| Field | Type       | Null | Key | Default | Extra          |
++-------+------------+------+-----+---------+----------------+
+| id    | int(11)    | NO   | PRI | NULL    | auto_increment | 
+| fp0   | bigint(64) | YES  |     | NULL    |                | 
+| fp1   | bigint(64) | YES  |     | NULL    |                | 
+| fp2   | bigint(64) | YES  |     | NULL    |                | 
+| fp3   | bigint(64) | YES  |     | NULL    |                | 
+| fp4   | bigint(64) | YES  |     | NULL    |                | 
+| fp5   | bigint(64) | YES  |     | NULL    |                | 
+| fp6   | bigint(64) | YES  |     | NULL    |                | 
+| fp7   | bigint(64) | YES  |     | NULL    |                | 
+| fp8   | bigint(64) | YES  |     | NULL    |                | 
+| fp9   | bigint(64) | YES  |     | NULL    |                | 
+| fp10  | bigint(64) | YES  |     | NULL    |                | 
+| fp11  | bigint(64) | YES  |     | NULL    |                | 
+| fp12  | bigint(64) | YES  |     | NULL    |                | 
+| fp13  | bigint(64) | YES  |     | NULL    |                | 
+| fp14  | bigint(64) | YES  |     | NULL    |                | 
+| fp15  | bigint(64) | YES  |     | NULL    |                | 
++-------+------------+------+-----+---------+----------------+
+17 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.01 sec)
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>Although we have neither a substructure search engine nor a database, we've laid a solid foundation for those things. The next article in this series will show how to use this humble beginning to model some simple substructure queries in a way that lets MySQL do most of the heavy-lifting.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

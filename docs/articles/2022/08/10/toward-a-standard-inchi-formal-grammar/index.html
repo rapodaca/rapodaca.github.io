@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Toward a Standard InChI Formal Grammar | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2022/08/10/toward-a-standard-inchi-formal-grammar/">
+      <meta property="og:title" content="Toward a Standard InChI Formal Grammar">
+      <meta property="og:description" content="Building a base layer for third-party InchI readers and writers.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20220810/summary.png">
+      <meta content="Building a base layer for third-party InchI readers and writers." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Toward a Standard InChI Formal Grammar</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2022-08-10T15:00:00Z">2022-08-10T15:00:00Z</time>
+      </header>
+      <p>InChI is widely viewed as merely an identifier, not a serialization format, but a <a href="/articles/2022/07/27/element-to-atom-mapping-in-inchi/">recent article</a> challenged that notion. Although the idea may be discouraged in some quarters, it is possible to use InChI to read and write molecular structure. Tools for reliably doing so could lead to new applications. One missing component is a formal description of the InChI's syntax. This article takes the first few steps toward its creation.</p>
+<h2 id="grammarreview">Grammar Review</h2>
+<p>A useful tool for expressing language syntax is <em>formal grammar</em> (aka "grammar"). According to <a href="https://en.wikipedia.org/wiki/Formal_grammar">Wikipedia</a>, a grammar "describes how to form strings from a language's alphabet that are valid according to the language's syntax." A language's formal grammar description can take many forms, with one of the most popular being <em>extended Backus–Naur form</em> (EBNF). One of EBNF's advantages is human and machine readability, making it a suitable starting point for hand-crafted and automatically-generated parsers. For more on EBNF, and its use in parser construction, see <a href="/articles/2021/12/16/a-beginners-guide-to-parsing-in-rust/"><em>A Beginner's Guide to Parsing in Rust</em></a> (Rust experience not needed).</p>
+<p>As an aside, you may wonder why regular expressions aren't used. The simple answer is that they lack the capability to precisely and efficiently capture the grammar of a language like the one used by InChI. For a discussion, see <a href="https://chemistry.stackexchange.com/questions/82144/what-is-the-correct-regular-expression-for-inchi"><em>What is the correct regular expression for InChI?</em></a>.</p>
+<p>As with many things related to language, the view becomes murky past a point. In the case of EBNF, one force of chaos is the proliferation of <a href="https://dwheeler.com/essays/dont-use-iso-14977-ebnf.html">"EBNF-like" grammar languages</a>. It seems like every parser generator defines its own language for expressing grammars, forcing the user to abandon the idea of portability and commit to that particular generator. Fortunately, one variant stands out for its expressiveness and wide adoption: <a href="https://www.w3.org/TR/REC-xml/#sec-notation">W3C EBNF Notation</a>. This form will be used here as well.</p>
+<h2 id="constructingaformalgrammar">Constructing a Formal Grammar</h2>
+<p>To my knowledge, no InChI formal grammar has ever been published in any form, although I was <a href="https://sourceforge.net/p/inchi/mailman/message/1619717/">encouraged to create one many years ago</a>. The task is aided by the availability of detailed documentation and the <a href="https://www.inchi-trust.org/download-latest-inchi-standard-software/">free distribution of the InChI source code</a>. These sources were distilled into a working grammar using the following approach:</p>
+<ol>
+<li>Read the InChI documentation.</li>
+<li>Formulate a hypothesis about grammar.</li>
+<li>Reduce the hypothesis to one or more production rules.</li>
+<li>Test the production rules against valid strings, which can conveniently be generated by <a href="https://metamolecular.com/inchi-wasm/">InChI Wasm</a>.</li>
+</ol>
+<p>Authoritative sources of InChI documentation include:</p>
+<ul>
+<li>The InChI 1.06 Technical manual, available as a <a href="https://www.inchi-trust.org/wp/download/106/INCHI-1-DOC.zip">documentation download</a>. It provides many details around InChI syntax and semantics.</li>
+<li><a href="https://doi.org/10.1186/s13321-015-0068-4">InChI, the IUPAC International Chemical Identifier</a>. A paper that discusses the design of InChI.</li>
+</ul>
+<p>A test harness is crucial for work like this because it's easy to introduce regressions when updating a grammar. This problem can be addressed through the use of a test harness, run every time the grammar is edited. Although several candidates might be deployed for this purpose, the one I found best-suited was <a href="https://github.com/dryruby/ebnf">Ruby EBNF</a>. Unlike other options, it accepts W3C EBNF directly, with no reformatting required. It also accepts long strings, which failed to parse with <a href="https://mdkrajnak.github.io/ebnftest/">another tool</a> I've previously used.</p>
+<p>InChI syntax is not trivial. To limit the scope of this effort in its first iteration, I set the goal of parsing just the first four <a href="/articles/2021/05/19/standard-inchi/">standard InChI</a> layers: prefix; formula; connections; and h_atoms. The resulting grammar should be suitable for parsers that recognize strings representing many neutral, natural isotopic abundance, non-metallic, stereocenter- and conformer-free molecules.</p>
+<h2 id="thegrammar">The Grammar</h2>
+<p>Using the approach outlined above, a partial InChI grammar was constructed. If you're interested in following this work in progress, consider setting up a notification on the <a href="https://github.com/metamolecular/inchi-grammar">GitHub repository</a>. Portions of the grammar will be discussed below to give a feel for how it works.</p>
+<pre><code class="hljs">String ::=<span class="hljs-built_in"> prefix </span>formula? connections? h_atoms?
+</code></pre>
+<p>The topmost production rule, <code>String</code> sets the stage by defining four layers — the first mandatory and the remaining three optional. The name of the production rule appears to the left of the assignment operator (<code>::=</code>), with the rule itself appearing to the right. The right hand side is expressed in terms of terminals (character literals) and non-terminals (the name of a production rule). This first rule for <code>String</code> uses only non-terminals. Their definitions follow.</p>
+<pre><code class="hljs">formula     ::= <span class="hljs-string">"/"</span> elemental ( <span class="hljs-string">"."</span> elemental )*
+connections ::= <span class="hljs-string">"/c"</span> graph? ( <span class="hljs-string">";"</span> graph? )*
+h_atoms     ::= <span class="hljs-string">"/h"</span> hydrogens? ( <span class="hljs-string">";"</span> hydrogens? )*
+</code></pre>
+<p>These rules are defined in terms of terminals and non-terminals. All three support disconnection via dot or semicolon characters (<code>.</code> or <code>;</code>, respectively). The <code>h_atoms</code> production rule supports both <a href="/articles/2019/11/06/virtual-hydrogens/">virtual hydrogens</a> and InChI's concept of "mobile hydrogens." All of these nonterminals are defined later.</p>
+<p>Perhaps surprisingly, most of this grammar's rules are dedicated to the definition of the <code>elemental</code> production rule. </p>
+<pre><code class="hljs">elemental           ::= count? ( c h? b? br? cl? f? rest_elements )
+                      | ( b? br? cl? f? h? rest_elements )
+rest_elements       ::= i? mg? n? o? p? s?
+b                   ::= <span class="hljs-string">"B"</span> count?
+c                   ::= <span class="hljs-string">"C"</span> count?
+h                   ::= <span class="hljs-string">"H"</span> count?
+br                  ::= <span class="hljs-string">"Br"</span> count?
+cl                  ::= <span class="hljs-string">"Cl"</span> count?
+f                   ::= <span class="hljs-string">"F"</span> count?
+i                   ::= <span class="hljs-string">"I"</span> count?
+mg                  ::= <span class="hljs-string">"Mg"</span> count?
+n                   ::= <span class="hljs-string">"N"</span> count?
+o                   ::= <span class="hljs-string">"O"</span> count?
+p                   ::= <span class="hljs-string">"P"</span> count?
+s                   ::= <span class="hljs-string">"S"</span> count?
+/* and so on... */
+</code></pre>
+<p>This elaborate setup is unfortunately the only way to both ensure that the <code>elemental</code> non-terminal contains only chemical element symbols and that these elements and their counts appear in <a href="https://en.wikipedia.org/wiki/Chemical_formula#Hill_system">Hill order</a>.</p>
+<p>The remainder of the grammar follows a similar pattern. Any non-terminals introduced by one rule are defined in subsequent rules. By the last line of the grammar, all production rules have been defined in terms of terminals. The result is suitable for use when reading and writing InChI strings.</p>
+<h2 id="testingthegrammar">Testing the Grammar</h2>
+<p>The full grammar can be tested by cloning the project's <a href="https://github.com/metamolecular/inchi-grammar">source repository</a> and following the instructions on the README page. Given a Ruby installation and the cloned repository, the tests can be run like so:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> <span class="hljs-built_in">test</span>
+bundle install --path vendor/bundle
+ruby test.rb
+</code></pre>
+<p>The harness emits the text "PASS" if all strings are parsed without error, or "FAIL" if one or more strings fail to parse. The test suite contains every InChI included in the Technical Manual (truncated where appropriate), as well as some more complex examples found through <a href="https://twitter.com/jwmay/status/1323552666593755137">this Twitter thread</a> and other sources. A case could be made for adding invalid InChI strings to the test suite to confirm they are not parsed. After all, a grammar that accepted all strings would make the test suite pass just as well.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>A formal grammar provides a solid foundation on which to build readers and writers for the strings of a language such as InChI. Although no InChI formal grammar has ever been published, <a href="https://github.com/metamolecular/inchi-grammar">a proof-of-concept</a> was developed from existing documentation and reverse engineering the output of the InChI software. A full grammar will require more work, but the process described here should be suitable.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

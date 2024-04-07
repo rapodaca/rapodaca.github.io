@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Graphs in Rust: An Introduction to Petgraph | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/02/03/graphs-in-rust-an-introduction-to-petgraph/">
+      <meta property="og:title" content="Graphs in Rust: An Introduction to Petgraph">
+      <meta property="og:description" content="Discussion and code examples for Rust&#x27;s most popular graph library.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200203/summary.png">
+      <meta content="Discussion and code examples for Rust&#x27;s most popular graph library." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Graphs in Rust: An Introduction to Petgraph</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-02-03T14:00:00Z">2020-02-03T14:00:00Z</time>
+      </header>
+      <p>Graphs are ubiquitous in science and technology. As such, many software projects use graphs in one form or another. Here I discuss <a href="https://docs.rs/petgraph/0.5.0/petgraph/">Petgraph</a>, a general-purpose graph library written in Rust. The main features of Petgraph are illustrated with short code samples.</p>
+<h2 id="aboutpetgraph">About Petgraph</h2>
+<p>Started in 2014, Petgraph is Rust's most popular graph library. According to <a href="https://crates.io/crates/petgraph">crates.io</a>, Petgraph has been downloaded over 2.1 million times. <a href="https://crates.io/crates/petgraph/reverse_dependencies">Dozens of projects</a> use it as a dependency.</p>
+<p>Other than <a href="https://docs.rs/petgraph/0.5.0/petgraph/">rustdoc</a>, documentation on Petgraph is thin. There's an especially acute lack of code examples. A notable exception is the two-part series by Timothy Hobbs:</p>
+<ul>
+<li><a href="https://timothy.hobbs.cz/rust-play/petgraph_review.html">petgraph review/tutorial</a></li>
+<li><a href="https://timothy.hobbs.cz/rust-play/petgraph-internals.html">petgraph review: internals</a></li>
+</ul>
+<h2 id="overview">Overview</h2>
+<p>Petgraph consists of three main components:</p>
+<ol>
+<li><strong>Data structures.</strong> Includes four graph implementations representing performance and functionality trade-offs.</li>
+<li><strong>Traversals.</strong> Breadth- and depth-first traversals are implemented as Rust iterators.</li>
+<li><strong>Graph algorithms.</strong> Includes isomorphism and several variants on connected components.</li>
+</ol>
+<h2 id="hellograph">Hello, Graph</h2>
+<p>The most broadly-useful graph implementation is <code>Graph</code>, which is backed by an adjacency list. Create a <code>Graph</code> like so:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(), ()&gt;::new(); <span class="hljs-comment">// directed and unlabeled</span>
+
+    graph.extend_with_edges(&amp;[ (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>) ]);
+
+    <span class="hljs-built_in">assert_eq!</span>(graph.node_count(), <span class="hljs-number">2</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.edge_count(), <span class="hljs-number">1</span>);
+}
+</code></pre>
+<p>This minimal <code>Graph</code> is unlabeled, meaning that both nodes and edges are of <code>Unit</code> type (<code>()</code>). Labels can be typed as follows.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::new();
+    <span class="hljs-keyword">let</span> origin = graph.add_node(<span class="hljs-string">"Denver"</span>);
+    <span class="hljs-keyword">let</span> destination_1 = graph.add_node(<span class="hljs-string">"San Diego"</span>);
+    <span class="hljs-keyword">let</span> destination_2 = graph.add_node(<span class="hljs-string">"New York"</span>);
+    <span class="hljs-keyword">let</span> cost_1 = graph.add_edge(origin, destination_1, <span class="hljs-number">250</span>);
+    <span class="hljs-keyword">let</span> cost_2 = graph.add_edge(origin, destination_2, <span class="hljs-number">1099</span>);
+
+    <span class="hljs-built_in">assert_eq!</span>(graph.node_weight(origin).unwrap(), &amp;<span class="hljs-string">"Denver"</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph[destination_1], <span class="hljs-string">"San Diego"</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.edge_weight(cost_1).unwrap(), &amp;<span class="hljs-number">250</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.edge_weight(cost_2).unwrap(), &amp;<span class="hljs-number">1099</span>);
+}
+</code></pre>
+<p>The bracket notation <code>graph[handle]</code> returns an unwrapped, cloned node weight. It panics given an unknown node reference, which may not be desirable for production work.</p>
+<p>The value returned from <code>add_node</code> is of type <code>NodeIndex</code>. It can produce a numerical node index on request:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),()&gt;::new();
+    <span class="hljs-keyword">let</span> n0 = graph.add_node(());
+    <span class="hljs-keyword">let</span> n1 = graph.add_node(());
+
+    <span class="hljs-built_in">assert_eq!</span>(n0.index(), <span class="hljs-number">0</span>);
+    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>);
+}
+</code></pre>
+<p>However, this numerical index is not stable with respect to node deletion. If we rely on node indexing to store state external to the <code>Graph</code>, that system will fail the moment a preceding node is removed:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),()&gt;::new();
+    <span class="hljs-keyword">let</span> n0 = graph.add_node(());
+    <span class="hljs-keyword">let</span> n1 = graph.add_node(());
+
+    <span class="hljs-built_in">assert_eq!</span>(n0.index(), <span class="hljs-number">0</span>);
+    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>);
+
+    graph.remove_node(n0);
+
+    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>); <span class="hljs-comment">// watch out, not updated!</span>
+
+    <span class="hljs-keyword">let</span> indexes = graph.node_indices().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+
+    <span class="hljs-built_in">assert_eq!</span>(indexes[<span class="hljs-number">0</span>].index(), <span class="hljs-number">1</span>); <span class="hljs-comment">// FAIL!</span>
+}
+</code></pre>
+<p><code>Graph</code> is directed by default. An undirected <code>Graph</code> can be created with the <code>new_undirected</code> method, among others:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::new_undirected();
+    <span class="hljs-keyword">let</span> origin = graph.add_node(<span class="hljs-string">"Denver"</span>);
+    <span class="hljs-keyword">let</span> destination_1 = graph.add_node(<span class="hljs-string">"San Diego"</span>);
+    <span class="hljs-keyword">let</span> destination_2 = graph.add_node(<span class="hljs-string">"New York"</span>);
+    <span class="hljs-keyword">let</span> cost_1 = graph.add_edge(origin, destination_1, <span class="hljs-number">250</span>);
+    <span class="hljs-keyword">let</span> cost_2 = graph.add_edge(origin, destination_2, <span class="hljs-number">1099</span>);
+
+    <span class="hljs-built_in">assert_eq!</span>(graph.edge_weight(cost_1).unwrap(), &amp;<span class="hljs-number">250</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.edge_weight(cost_2).unwrap(), &amp;<span class="hljs-number">1099</span>);
+}
+</code></pre>
+<p>It's often useful to depict a graph. Petgraph supports <a href="https://graphviz.gitlab.io/_pages/doc/info/lang.html">DOT</a>, a graph language specification used by many visualization tools including <a href="https://graphviz.orv">Graphviz</a>. An <a href="http://viz-js.com">online viewer (Vis.js)</a> is available. DOT is also a useful debugging format on its own.</p>
+<p>The example above can be updated to print a DOT representation of the graph.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::prelude::Graph;
+<span class="hljs-keyword">use</span> petgraph::dot::Dot;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;&amp;<span class="hljs-built_in">str</span>, <span class="hljs-built_in">u32</span>&gt;::new();
+    <span class="hljs-keyword">let</span> origin = graph.add_node(<span class="hljs-string">"Denver"</span>);
+    <span class="hljs-keyword">let</span> destination_1 = graph.add_node(<span class="hljs-string">"San Diego"</span>);
+    <span class="hljs-keyword">let</span> destination_2 = graph.add_node(<span class="hljs-string">"New York"</span>);
+
+    graph.extend_with_edges(&amp;[
+        (origin, destination_1, <span class="hljs-number">250</span>),
+        (origin, destination_2, <span class="hljs-number">1099</span>)
+    ]);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"{}"</span>, Dot::new(&amp;graph));
+}
+</code></pre>
+<p>The output from this program can be copied into Vis.js:</p>
+<pre><code class="hljs console language-console">digraph {
+    0 [label="Denver"]
+    1 [label="San Diego"]
+    2 [label="New York"]
+    0 -&gt; 1 [label="250"]
+    0 -&gt; 2 [label="1099"]
+}
+</code></pre>
+<p>This yields the image:</p>
+<figure>
+  <img alt="Graph Depiction" src="/images/posts/20200203/graph.png">
+  <figcaption>
+    <strong>Graph Depiction from Petgraph Dot output.</strong> Similar images can be generated from <a href="http://viz-js.com">Viz.js</a>.
+  </figcaption>
+</figure>
+<p>An alternative, JSON-based debug format is available through the optional <a href="https://serde.rs">Serde</a> integration. Activate it by adding the following to your <code>Cargo.toml</code> file:</p>
+<pre><code class="hljs toml language-toml"><span class="hljs-section">[dependencies]</span>
+<span class="hljs-attr">serde_json</span> = <span class="hljs-string">"1.0.45"</span>
+
+<span class="hljs-section">[dependencies.petgraph]</span>
+<span class="hljs-attr">version</span> = <span class="hljs-string">"0.5.0"</span>
+<span class="hljs-attr">features</span> = [<span class="hljs-string">"serde-1"</span>]
+</code></pre>
+<p>Then use the <code>serde_json::to_string_pretty</code> function.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;&amp;<span class="hljs-built_in">str</span>, <span class="hljs-built_in">u32</span>&gt;::new();
+    <span class="hljs-keyword">let</span> origin = graph.add_node(<span class="hljs-string">"Denver"</span>);
+    <span class="hljs-keyword">let</span> destination_1 = graph.add_node(<span class="hljs-string">"San Diego"</span>);
+    <span class="hljs-keyword">let</span> destination_2 = graph.add_node(<span class="hljs-string">"New York"</span>);
+
+    graph.extend_with_edges(&amp;[
+        (origin, destination_1, <span class="hljs-number">250</span>),
+        (origin, destination_2, <span class="hljs-number">1099</span>)
+    ]);
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"{}"</span>, serde_json::to_string_pretty(&amp;graph).unwrap());
+}
+</code></pre>
+<p>This program prints:</p>
+<pre><code class="hljs json language-json">{
+  <span class="hljs-attr">"nodes"</span>: [
+    <span class="hljs-string">"Denver"</span>,
+    <span class="hljs-string">"San Diego"</span>,
+    <span class="hljs-string">"New York"</span>
+  ],
+  <span class="hljs-attr">"node_holes"</span>: [],
+  <span class="hljs-attr">"edge_property"</span>: <span class="hljs-string">"directed"</span>,
+  <span class="hljs-attr">"edges"</span>: [
+    [
+      <span class="hljs-number">0</span>,
+      <span class="hljs-number">1</span>,
+      <span class="hljs-number">250</span>
+    ],
+    [
+      <span class="hljs-number">0</span>,
+      <span class="hljs-number">2</span>,
+      <span class="hljs-number">1099</span>
+    ]
+  ]
+}
+</code></pre>
+<h2 id="graphimplementations">Graph Implementations</h2>
+<p>Petgraph supports four graph implementations. Their main difference lies in the data structure backing the graph. This can lead to different memory and time performance depending on the situation. As discussed shortly, however, the APIs of these graphs are not necessarily compatible with all uses.</p>
+<p><a href="https://docs.rs/petgraph/0.5.0/petgraph/graph/struct.Graph.html"><code>Graph</code></a> is backed with an <a href="https://en.wikipedia.org/wiki/Adjacency_list">adjacency list</a>. There is no restriction on node or edge type. Nodes and edges are accessed through <code>NodeIndex</code> and <code>EdgeIndex</code> values, respectively. These values in turn allow access to an underlying numerical index. As noted previously, these indexes are not stable under removal operations. <code>Graph</code> enjoys the most support among Petgraph algorithms.</p>
+<p>Like <code>Graph</code>, <a href="https://docs.rs/petgraph/0.5.0/petgraph/stable_graph/struct.StableGraph.html">StableGraph</a> is backed with an adjacency list. Unlike <code>Graph</code>, removing nodes or edges from a <code>StableGraph</code> will not invalidate existing indexes.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::stable_graph::StableGraph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = StableGraph::&lt;(),()&gt;::new();
+    <span class="hljs-keyword">let</span> n0 = graph.add_node(());
+    <span class="hljs-keyword">let</span> n1 = graph.add_node(());
+
+    <span class="hljs-built_in">assert_eq!</span>(n0.index(), <span class="hljs-number">0</span>);
+    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>);
+
+    graph.remove_node(n0);
+
+    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>); <span class="hljs-comment">// not updated</span>
+
+    <span class="hljs-keyword">let</span> indexes = graph.node_indices().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+
+    <span class="hljs-built_in">assert_eq!</span>(indexes[<span class="hljs-number">0</span>].index(), <span class="hljs-number">1</span>); <span class="hljs-comment">// PASS!</span>
+}
+</code></pre>
+<p>The counterintuitively-named <a href="https://docs.rs/petgraph/0.5.0/petgraph/graphmap/struct.GraphMap.html"><code>GraphMap</code></a> is backed with a Map, using nodes as keys. Nodes must implement <code>Copy</code>, <code>Eq</code>, <code>Ord</code>, and <code>Hash</code>. Node membership tests, a feature missing from <code>Graph</code> but present in <code>StableGraph</code>, execute in constant time.</p>
+<p>Unlike the other three graph implementations, <code>GraphMap</code> can work directly with with node and edge labels rather than intermediate handles.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> std::hash::Hash;
+<span class="hljs-keyword">use</span> petgraph::graphmap::UnGraphMap;
+
+<span class="hljs-meta">#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">City</span></span> {
+    population: <span class="hljs-built_in">u32</span>,
+    cars: <span class="hljs-built_in">u32</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = UnGraphMap::&lt;_, ()&gt;::new();
+    <span class="hljs-keyword">let</span> bedford_falls = City { population: <span class="hljs-number">1023</span>, cars: <span class="hljs-number">24</span> };
+    <span class="hljs-keyword">let</span> tinsel_town = City { population: <span class="hljs-number">102479</span>, cars: <span class="hljs-number">1231441</span> };
+
+    graph.add_node(&amp;bedford_falls);
+    graph.add_node(&amp;tinsel_town);
+    graph.add_edge(&amp;bedford_falls, &amp;tinsel_town, ());
+
+    <span class="hljs-built_in">assert!</span>(graph.contains_node(&amp;bedford_falls));
+    <span class="hljs-built_in">assert!</span>(graph.contains_node(&amp;tinsel_town));
+    <span class="hljs-built_in">assert!</span>(graph.contains_edge(&amp;bedford_falls, &amp;tinsel_town));
+    <span class="hljs-built_in">assert!</span>(graph.contains_edge(&amp;tinsel_town, &amp;bedford_falls));
+}
+</code></pre>
+<p><a href="https://docs.rs/petgraph/0.5.0/petgraph/csr/struct.Csr.html">Csr</a>, is the fourth graph implementation supported by Petgraph. Short for <em>Compressed Sparse Row</em> (aka <a href="https://en.wikipedia.org/wiki/Sparse_matrix">sparse matrix</a>), CSR is an efficient method for representing sparse matrix data such as that used in most graphs. This results in reduced memory requirement with fast edge lookup. There are no restrictions on node or edge type. However, the API for <code>Csr</code> is the most restricted of all the graph types.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::csr::Csr;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Csr::&lt;_,_&gt;::new(); <span class="hljs-comment">// directed</span>
+    <span class="hljs-keyword">let</span> a = graph.add_node(<span class="hljs-string">"a"</span>);
+    <span class="hljs-keyword">let</span> b = graph.add_node(<span class="hljs-string">"b"</span>);
+    <span class="hljs-keyword">let</span> _ = graph.add_edge(a, b, ());
+
+    <span class="hljs-built_in">assert!</span>(graph.contains_edge(a, b));
+    <span class="hljs-built_in">assert!</span>(!graph.contains_edge(b, a));
+}
+</code></pre>
+<h2 id="traversal">Traversal</h2>
+<p>Three forms of traversal are supported: breadth-first; depth-first; and depth-first post-order. All are implemented as iterators, and all account for edge directionality.</p>
+<p>A depth-first traversal can be executed like so:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
+<span class="hljs-keyword">use</span> petgraph::visit::Dfs;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
+
+    <span class="hljs-comment">// 0(1)(2)3</span>
+    graph.extend_with_edges(&amp;[
+        (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>)
+    ]);
+
+    <span class="hljs-keyword">for</span> start <span class="hljs-keyword">in</span> graph.node_indices() {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> dfs = Dfs::new(&amp;graph, start);
+
+        <span class="hljs-built_in">print!</span>(<span class="hljs-string">"[{}] "</span>, start.index());
+
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(visited) = dfs.next(&amp;graph) {
+            <span class="hljs-built_in">print!</span>(<span class="hljs-string">" {}"</span>, visited.index());
+        }
+
+        <span class="hljs-built_in">println!</span>();
+    }
+}
+</code></pre>
+<p>producing the output:</p>
+<pre><code class="hljs console language-console">[0]  0 1 2 3
+[1]  1 0 2 3
+[2]  2 0 1 3
+[3]  3 0 1 2
+</code></pre>
+<p>We may want a slightly different order of iteration in which the neighbors of a node are first iterated, then the node itself. Petgraph supports such traversals with <code>DfsPostOrder</code>. This traversal is invoked identically to <code>Dfs</code>:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
+<span class="hljs-keyword">use</span> petgraph::visit::DfsPostOrder;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
+
+    <span class="hljs-comment">// 0(1)(2)3</span>
+    graph.extend_with_edges(&amp;[
+        (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>)
+    ]);
+
+    <span class="hljs-keyword">for</span> start <span class="hljs-keyword">in</span> graph.node_indices() {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> dfs = DfsPostOrder::new(&amp;graph, start);
+
+        <span class="hljs-built_in">print!</span>(<span class="hljs-string">"[{}] "</span>, start.index());
+
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(visited) = dfs.next(&amp;graph) {
+            <span class="hljs-built_in">print!</span>(<span class="hljs-string">" {}"</span>, visited.index());
+        }
+
+        <span class="hljs-built_in">println!</span>();
+    }
+}
+</code></pre>
+<p>The effect is to first traverse neighbors, then the node itself:</p>
+<pre><code class="hljs console language-console">[0]  1 2 3 0
+[1]  2 3 0 1
+[2]  1 3 0 2
+[3]  1 2 0 3
+</code></pre>
+<p>Breadth-first traversal is supported with <code>Bfs</code>, which works analogously to <code>Dfs</code> and <code>DfsPostOrder</code>:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
+<span class="hljs-keyword">use</span> petgraph::visit::Bfs;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
+
+    <span class="hljs-comment">// 0(1)(2)34</span>
+    graph.extend_with_edges(&amp;[
+        (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)
+    ]);
+
+    <span class="hljs-keyword">for</span> start <span class="hljs-keyword">in</span> graph.node_indices() {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> bfs = Bfs::new(&amp;graph, start);
+
+        <span class="hljs-built_in">print!</span>(<span class="hljs-string">"[{}] "</span>, start.index());
+
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(visited) = bfs.next(&amp;graph) {
+            <span class="hljs-built_in">print!</span>(<span class="hljs-string">" {}"</span>, visited.index());
+        }
+
+        <span class="hljs-built_in">println!</span>();
+    }
+}
+</code></pre>
+<p>The result is a characteristic breath-first traversal order:</p>
+<pre><code class="hljs console language-console">[0]  0 3 2 1 4
+[1]  1 0 3 2 4
+[2]  2 0 3 1 4
+[3]  3 4 0 2 1
+[4]  4 3 0 2 1
+</code></pre>
+<h2 id="algorithms">Algorithms</h2>
+<p>Petgraph supports a number of graph algorithms, as documented in the <a href="https://docs.rs/petgraph/0.5.0/petgraph/algo/index.html"><code>algo</code></a> package. A few algorithms will be highlighted here. However, a warning from the documentation should be kept in mind:</p>
+<blockquote>
+  <p>It is a goal to gradually migrate the algorithms to be based on graph traits so that they are generally applicable. For now, some of these still require the Graph type.</p>
+</blockquote>
+<p><a href="https://en.wikipedia.org/wiki/Graph_isomorphism">Isomorphism</a> checks can be used to answer questions about graph equivalence and embedding. For this purpose, Petgraph offers the <code>is_isomorphic</code> function:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
+<span class="hljs-keyword">use</span> petgraph::algo;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> g1 = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> g2 = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
+
+    g1.extend_with_edges(&amp;[
+        (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>)
+    ]);
+
+    g2.extend_with_edges(&amp;[
+        (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>)
+    ]);
+
+    <span class="hljs-built_in">assert_eq!</span>(algo::is_isomorphic(&amp;g1, &amp;g2), <span class="hljs-literal">true</span>);
+
+    g1.extend_with_edges(&amp;[
+        (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)
+    ]);
+
+    <span class="hljs-built_in">assert_eq!</span>(algo::is_isomorphic(&amp;g1, &amp;g2), <span class="hljs-literal">false</span>);
+}
+</code></pre>
+<p>It can be useful to perform isomorphism checks using customized node and edge equivalence conditions. This is available by passing closures to <code>is_isomorphic_matching</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
+<span class="hljs-keyword">use</span> petgraph::algo;
+
+<span class="hljs-meta">#[derive(Default)]</span> <span class="hljs-comment">// required by Graph</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node</span></span> {
+    value: <span class="hljs-built_in">u8</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> g1 = Graph::&lt;_,(), petgraph::Undirected&gt;::new_undirected();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> g2 = Graph::&lt;_,(), petgraph::Undirected&gt;::new_undirected();
+
+    <span class="hljs-keyword">let</span> n0 = g1.add_node(Node { value: <span class="hljs-number">43</span> });
+    <span class="hljs-keyword">let</span> n1 = g1.add_node(Node { value: <span class="hljs-number">44</span> });
+
+    g1.extend_with_edges(&amp;[ (n0, n1, ()) ]);
+
+    <span class="hljs-keyword">let</span> n2 = g2.add_node(Node { value: <span class="hljs-number">2</span> });
+    <span class="hljs-keyword">let</span> n3 = g2.add_node(Node { value: <span class="hljs-number">10</span> });
+
+    g2.extend_with_edges(&amp;[ (n2, n3, ()) ]);
+
+    <span class="hljs-keyword">let</span> test_nodes = |a: &amp;Node, b: &amp;Node| a.value &gt; <span class="hljs-number">42</span> &amp;&amp; b.value &gt; <span class="hljs-number">42</span>;
+    <span class="hljs-keyword">let</span> test_edges = |_: &amp;(), _: &amp;()| <span class="hljs-literal">true</span>;
+
+    <span class="hljs-built_in">assert!</span>(algo::is_isomorphic_matching(&amp;g1, &amp;g1, test_nodes, test_edges));
+    <span class="hljs-built_in">assert!</span>(!algo::is_isomorphic_matching(&amp;g1, &amp;g2, test_nodes, test_edges));
+}
+</code></pre>
+<p>Here, the closure <code>test_nodes</code> passed to <code>is_isomorphic_matching</code> fails unless both nodes being compared have <code>value</code> properties greater than 42. The test succeeds for the <code>g1</code> to <code>g1</code> comparison, but fails when comparing <code>g1</code> to <code>g2</code> because only one node complies the the <code>value</code> requirement.</p>
+<p>Both <code>is_isomorphic</code> and <code>is_isomorphic_matching</code> functions require a <code>Graph</code> implementation.</p>
+<p><a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra's algorithm</a> is a well-known procedure for finding the shortest paths between nodes. The function <a href="https://docs.rs/petgraph/0.5.0/petgraph/algo/fn.dijkstra.html"><code>dijkstra</code></a> can be used as follows:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
+<span class="hljs-keyword">use</span> petgraph::algo;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),()&gt;::new();
+
+    graph.extend_with_edges(&amp;[
+        (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)
+    ]);
+
+    <span class="hljs-keyword">for</span> start <span class="hljs-keyword">in</span> graph.node_indices() {
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"--- {:?} ---"</span>, start.index());
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"{:?}"</span>, algo::dijkstra(&amp;graph, start, <span class="hljs-literal">None</span>, |_| <span class="hljs-number">1</span>));
+    }
+}
+</code></pre>
+<p>The program prints the following output representing the cost of visiting each node along the shortest path from a fixed starting node:</p>
+<pre><code class="hljs console language-console">--- 0 ---
+{NodeIndex(3): 1, NodeIndex(0): 0, NodeIndex(1): 1, NodeIndex(2): 1, NodeIndex(4): 2}
+--- 1 ---
+{NodeIndex(1): 0}
+--- 2 ---
+{NodeIndex(2): 0}
+--- 3 ---
+{NodeIndex(3): 0, NodeIndex(4): 1}
+--- 4 ---
+{NodeIndex(4): 0}
+</code></pre>
+<p>In addition to <code>is_isomorphic</code>, <code>is_isomorphic_matching</code>, and <code>dijkstra</code>, the following algorithms are also available:</p>
+<ul>
+<li><strong>all_simple_paths</strong> Returns an iterator over all paths from a given node.</li>
+<li><strong>astar</strong> Complements <code>dijkstra</code> with heuristics to guide traversal through the graph.</li>
+<li><strong>bellman_ford</strong> Complements <code>dijkstra</code> by supporting negative edge weights.</li>
+<li><strong>condensation</strong> Condenses every strongly connected component into a single node.</li>
+<li><strong>connected_components</strong> Returns the number of connected components.</li>
+<li><strong>has_path_connecting</strong> Returns true if two nodes are reachable through some path.</li>
+<li><strong>is_cyclic_directed</strong> Returns true if a graph contains at least one cycle in the directed sense.</li>
+<li><strong>is_cyclic_undirected</strong> Returns true if a graph contains at least one cycle.</li>
+<li><strong>kosaraju_scc</strong> Returns a vector of strongly connected components using <a href="https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm">Kosaraju's algorithm</a>.</li>
+<li><strong>min_spanning_tree</strong> Returns a tree for each connected component.</li>
+<li><strong>tarjan_scc</strong> Returns a vector of strongly connected components using <a href="https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm">Tarjan's algorithm</a>.</li>
+<li><strong>toposort</strong> Returns a Vector of nodes in topological order.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Petgraph supports many of the capabilities needed in projects using graphs. There are four graph implementations, breadth- and depth-first traversal, and 14 graph algorithms. The use of iterators for traversals offers great flexibility and power. Unfortunately, the graph implementations lack a common interface, and some algorithms are incompatible with certain graph implementations. Provided that the algorithms of interest are available for the required graph implementation, Petgraph may be a good choice.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

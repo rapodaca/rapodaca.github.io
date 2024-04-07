@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fast Substructure Search Using Open Source Tools Part 6 - Modelling a One-To-Many Relationship Between Fingerprints and Compounds in Ruby | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Fast Substructure Search Using Open Source Tools Part 6 - Modelling a One-To-Many Relationship Between Fingerprints and Compounds in Ruby</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-10-29T00:00:00.000Z">2008-10-29T00:00:00.000Z</time>
+      </header>
+      <p>We can think of a fingerprint as a bucket into which every molecule in the universe can be reproducibly placed. Each molecule will belong to a single bucket, but each bucket may contain any number of molecules. In other words, there exists a one-to-many relationship between a fingerprint and its associated molecules. The <a href="/articles/2008/10/21/fast-substructure-search-using-open-source-tools-part-5-relating-molecules-to-fingerprints-with-sql">previous article in this series</a> discussed how to model this relationship using SQL. This article will take the idea one step further by describing one way to model this relationship in Ruby.</p>
+<p>All Articles in this Series:</p>
+<ul>
+<li><a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">Part 1: Fingerprints and Databases</a></li>
+<li><a href="/articles/2008/10/03/fast-substructure-search-using-open-source-tools-part-2-fingerprint-screen-with-sql">Part 2: Fingerprint Screen With SQL</a></li>
+<li><a href="/articles/2008/10/06/fast-substructure-search-using-open-source-tools-part-3-a-crud-api-for-fingerprints-in-ruby">Part 3: A CRUD API for Fingerprints in Ruby</a></li>
+<li><a href="/articles/2008/10/15/fast-substructure-search-using-open-source-tools-part-4-creating-fingerprints-from-chemical-structures">Part 4: Creating Fingerprints from Chemical Structures</a></li>
+<li><a href="/articles/2008/10/21/fast-substructure-search-using-open-source-tools-part-5-relating-molecules-to-fingerprints-with-sql">Part 5: Relating Molecules to Fingerprints with SQL</a></li>
+<li>Part 6: Modelling a One-To-Many Relationship Between Fingerprints and Compounds in Ruby</li>
+</ul>
+<h2 id="sqlrecap">SQL Recap</h2>
+<p>So far, we've set up a fingerprints database:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; describe fingerprints;
++--------+---------------------+------+-----+---------+----------------+
+| Field  | Type                | Null | Key | Default | Extra          |
++--------+---------------------+------+-----+---------+----------------+
+| id     | int(11)             | NO   | PRI | NULL    | auto_increment | 
+| byte0  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte1  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte2  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte3  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte4  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte5  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte6  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte7  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte8  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte9  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte10 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte11 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte12 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte13 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte14 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte15 | bigint(64) unsigned | YES  |     | 0       |                | 
++--------+---------------------+------+-----+---------+----------------+
+17 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<p>This database contains a single (empty) fingerprint:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; select * from fingerprints;
++----+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
+| id | byte0 | byte1 | byte2 | byte3 | byte4 | byte5 | byte6 | byte7 | byte8 | byte9 | byte10 | byte11 | byte12 | byte13 | byte14 | byte15 |
++----+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
+|  1 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |      0 |      0 |      0 |      0 |      0 |      0 | 
++----+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
+1 row <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<p>We've also set up a compounds database containing a foreign key (<code>fingerprint_id</code>) into the fingerprints table:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; describe compounds;
++----------------+---------+------+-----+---------+----------------+
+| Field          | Type    | Null | Key | Default | Extra          |
++----------------+---------+------+-----+---------+----------------+
+| id             | int(11) | NO   | PRI | NULL    | auto_increment | 
+| fingerprint_id | int(11) | YES  |     | NULL    |                | 
+| smiles         | text    | YES  |     | NULL    |                | 
++----------------+---------+------+-----+---------+----------------+
+3 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<p>In this hypothetical example, the compounds database is populated by two molecules, benzene and bromobenzene, both of which share the same fingerprint:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; select * from compounds;
++----+----------------+------------+
+| id | fingerprint_id | smiles     |
++----+----------------+------------+
+|  1 |              1 | c1ccccc1   | 
+|  2 |              1 | c1ccccc1Br | 
++----+----------------+------------+
+2 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<h2 id="addingtherubylayer">Adding the Ruby Layer</h2>
+<p>In <a href="/articles/2008/10/06/fast-substructure-search-using-open-source-tools-part-3-a-crud-api-for-fingerprints-in-ruby">Part 3</a>, we created a CRUD API for fingerprints in Ruby. We now need to modify the class we created there, Fingerprint, to make it aware of the Compounds it will be associated with.</p>
+<p>For brevity, you can <a href="/images/posts/20081029/fingerprint.rb">view the updated Fingerprint class here</a>. The main change has been to add a single line of code that tells <code>Fingerprint</code> that it's now associated with a class called <code>Compound</code>:</p>
+<pre><code class="hljs bash language-bash">&lt;pre class=<span class="hljs-string">"prettyprint"</span>&gt;
+  has_many :compounds
+</code></pre>
+<p>All that remains is to bring the <code>Compound</code> class into being:</p>
+<pre><code class="hljs bash language-bash">require <span class="hljs-string">'rubygems'</span>
+require <span class="hljs-string">'active_record'</span>
+require <span class="hljs-string">'fingerprint'</span>
+
+ActiveRecord::Base.establish_connection(
+  :adapter    =&amp;gt; <span class="hljs-string">'mysql'</span>,
+  :host       =&amp;gt; <span class="hljs-string">'localhost'</span>,
+  :username   =&amp;gt;  <span class="hljs-string">'root'</span>,
+  :password   =&amp;gt;  <span class="hljs-string">''</span>,
+  :database   =&amp;gt;  <span class="hljs-string">'compounds'</span>
+)
+
+class Compound &amp;lt; ActiveRecord::Base
+  belongs_to :fingerprint
+end
+</code></pre>
+<p>The <code>belongs_to</code> line is the counterpart to <code>Fingerprint's</code> <code>has_many</code> line. Together, both <code>Fingerprint</code> and <code>Compound</code> create a system in which each <code>Fingerprint</code> can reference multiple <code>Compounds</code> and each <code>Compound</code> references one <code>Fingerprint</code>.</p>
+<p>Let's test this with interactive Ruby:</p>
+<pre><code class="hljs bash language-bash">$ irb
+irb(main):001:0&amp;gt; require <span class="hljs-string">'fingerprint'</span>
+=&amp;gt; <span class="hljs-literal">true</span>
+irb(main):002:0&amp;gt; f=Fingerprint.find 1
+=&amp;gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: 1, byte0: 0, byte1: 0, byte2: 0, byte3: 0, byte4: 0, byte5: 0, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 0, byte11: 0, byte12: 0, byte13: 0, byte14: 0, byte15: 0&amp;gt;</span>
+irb(main):003:0&amp;gt; f.compounds
+=&amp;gt; [<span class="hljs-comment">#&amp;lt;Compound id: 1, fingerprint_id: 1, smiles: "c1ccccc1"&amp;gt;, #&amp;lt;Compound id: 2, fingerprint_id: 1, smiles: "c1ccccc1Br"&amp;gt;]</span>
+</code></pre>
+<p>Looks good. Our code has made the correct association between a <code>Fingerprint</code> and its <code>Compounds</code>. What about the other way around?</p>
+<pre><code class="hljs bash language-bash">$ irb
+irb(main):001:0&amp;gt; require <span class="hljs-string">'compound'</span>
+=&amp;gt; <span class="hljs-literal">true</span>
+irb(main):002:0&amp;gt; c=Compound.find 1
+=&amp;gt; <span class="hljs-comment">#&amp;lt;Compound id: 1, fingerprint_id: 1, smiles: "c1ccccc1"&amp;gt;</span>
+irb(main):003:0&amp;gt; c.fingerprint
+=&amp;gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: 1, byte0: 0, byte1: 0, byte2: 0, byte3: 0, byte4: 0, byte5: 0, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 0, byte11: 0, byte12: 0, byte13: 0, byte14: 0, byte15: 0&amp;gt;</span>
+</code></pre>
+<p>As expected, the first <code>Compound</code> became associated with the correct <code>Fingerprint</code>.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Our system can now store and query molecular fingerprints in a relational database. It also associates multiple compounds with each fingerprint.</p>
+<p>We have a complete fingerprint screening system, but not a substructure search system.</p>
+<p>What's missing? For one thing, we'd need a way to perform atom-by-atom searches (ABAS) of all candidate structures after the fingerprint screening process is complete. Recall that just because a query fingerprint matches a candidate fingerprint doesn't necessarily mean that a substructure match has been found.</p>
+<p>We'd also need a way to conveniently get real compounds with real fingerprints into our database. Only then would we be able to test the chemical validity of substructure queries.</p>
+<p>The remaining articles in this series will discuss approaches to each of these requirements.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

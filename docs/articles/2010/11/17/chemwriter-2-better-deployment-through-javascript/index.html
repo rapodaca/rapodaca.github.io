@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ChemWriter 2 - Better Structure Editor Deployment Through JavaScript | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>ChemWriter 2 - Better Structure Editor Deployment Through JavaScript</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-11-17T00:00:00.000Z">2010-11-17T00:00:00.000Z</time>
+      </header>
+      <p>Chemistry poses many unique information technology challenges - one of the most important comes from the need to support its graphical language for chemical structures. A chemical structure editor plays the pivotal role of allowing a chemist to communicate with a cheminformatics back-end using this graphical language. In this article, I'll discuss how ChemWriter 2, a structure editor under development by <a href="http://metamolecular.com">my company</a>, can help simplify the creation of compelling chemistry Web applications.</p>
+<h2 id="optimizingthewebforchemistry">Optimizing the Web for Chemistry</h2>
+<p>The overwhelming majority of chemistry software is designed with a desktop environment in mind. But a number of factors are bringing the advantages of the Web and lightweight browser clients into focus, particularly in the areas of cost reduction and collaboration, both inside and across organizations. To date, very few tools have been created with the goal of solving the unique challenges that chemistry on the Web presents.</p>
+<h2 id="javaappletsamixedbag">Java Applets: A Mixed Bag</h2>
+<p><a href="http://chemwriter.com">ChemWriter 1</a> was an attempt to fill this need. Unlike other products, it was focussed on two things: (1) speeding up the drawing of structures through an ergonomic design; and (2) minimizing page load times through a small deployment footprint. We focused on delivering only the most critical structure editor features with the best possible user interface.</p>
+<p>But no matter what we did to improve ChemWriter, we could never escape the fact that our software ran inside the Java Plugin. This single requirement, although providing a great measure of consistency across browsers and operating systems, also leads to some tradeoffs:</p>
+<ul>
+<li>A misconfigured (or missing) Java Plugin on a user's system leads to a spectrum of serious problems that are beyond the developer's control. This might not be so bad if the situation generated an automatic error report, but it typically does not. When the Java plugin fails, most users simply leave and never report the problem.</li>
+<li>Even with <a href="https://github.com/metamolecular/applet-fu">applet-fu</a>, deployment of applets can be tricky, especially for the inexperienced.</li>
+<li>Java plugin startup times can vary greatly across Java version and operating system. One of the slowest Java plugin startup times happens on OS X, which has significant penetration in the education market. Again, this is a factor that's totally outside the control of the developer.</li>
+<li>Emerging touch computing platforms such as Android and iOS have abandoned Java entirely in favor of HTML5.</li>
+</ul>
+<h2 id="deployingchemwriter2">Deploying ChemWriter 2</h2>
+<p>ChemWriter 2 will require no browser plugins of any kind, eliminating all of the above problems. Although it's been a significant investment for us to re-write ChemWriter in JavaScript and do it right, we think this will enable a much easier and more reliable deployment method. ChemWriter 2 can be deployed with these elements:</p>
+<ol>
+<li>&lt;stylesheet&gt; containing the ChemWriter stylesheet.</li>
+<li>&lt;script&gt; loading a single JavaScript file from your server.</li>
+<li>&lt;meta&gt; to enable the correct Internet Explorer behavior (more about this later).</li>
+<li>&lt;script&gt; placing an instance of the editor into the HTML element of your choice.</li>
+</ol>
+<p>As we've continued to develop ChemWriter 2, one of the surprises has been just how fast it starts up. Startup is so fast that it can at first seem like the editor is not actually interactive, but just an image or static markup.</p>
+<p>We plan for ChemWriter 2 to take full advantage of the unique capabilities of touch computing platforms. I'll be giving a better idea of what this means in future articles.</p>
+<p>Best of all, the only thing your users will need to view your pages is a Web browser - any current version from a major vendor will do (Internet Explorer fans, yes, that means you, too).</p>
+<h2 id="learnmore">Learn More</h2>
+<p>If any of this sounds useful or interesting, I encourage you to <a href="http://chemwriter.com/signups/new">try a live version of ChemWriter 2 for yourself</a>. I'm especially interested in hearing from developers who are now building a chemistry Web application that needs a fast-loading and ergonomic structure editor.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

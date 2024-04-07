@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Never Draw the Same Molecule Twice - Writing PNG Image Metadata with Python | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Never Draw the Same Molecule Twice - Writing PNG Image Metadata with Python</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-08-29T00:00:00.000Z">2007-08-29T00:00:00.000Z</time>
+      </header>
+      <p>A <a href="/articles/2007/08/08/never-draw-the-same-molecule-twice-viewing-image-metadata">recent D-F article</a> discussed a method for encoding machine-readable molecular structure information as image metadata. This article generated some interest among developers. For example, <a href="http://baoilleach.blogspot.com">Noel O'Boyle</a> posted code for <a href="http://baoilleach.blogspot.com/2007/08/access-embedded-molecular-information.html">reading PNG image metadata with Python</a>. The popularity of Python in cheminformatics makes this approach especially attractive.</p>
+<p>But how would you write PNG image metadata with Python? The obvious answer of using <code>Image.info</code> followed by <code>Image.write</code> doesn't appear to work. Given my limited knowledge of Python, the answer must come from elsewhere.</p>
+<p>Fortunately, <a href="http://blog.modp.com/">Nick Galbreath</a> wrote in to offer a solution. Using Python, <a href="http://www.pythonware.com/products/pil/">PIL</a>, and an undocumented class, Nick has developed <a href="http://blog.modp.com/2007/08/python-pil-and-png-metadata-take-2.html">a small wrapper function</a> that writes metadata for PNG images. In fact, Nick is <a href="http://blog.modp.com/2007/08/png-metadata-from-command-line-again.html">fast on his way</a> to becoming a PNG metadata expert, if reluctantly so. His blog is worth checking out and contains several useful techniques for image manipulation.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

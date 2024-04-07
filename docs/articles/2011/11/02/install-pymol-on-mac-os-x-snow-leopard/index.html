@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Install PyMOL on Mac OS X Snow Leopard | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Install PyMOL on Mac OS X Snow Leopard</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2011-11-02T00:00:00.000Z">2011-11-02T00:00:00.000Z</time>
+      </header>
+      <div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/VabSHpBw5mc" allowfullscreen=""></iframe>
+</div>
+<p>Installing free PyMOL on Mac isn't as easy as installing on Windows or Linux. For one thing, there is no precompiled binary (although you can <a href="http://pymol.org/dsc/">buy one from Schrodinger</a>). <a href="/pymol-tutorials/pymol-essentials-tutorial/install-pymol-on-mac-os-x-snow-leopard/">The tutorial</a> shows how to install the free version of PyMOL using MacPorts (<a href="/articles/2011/10/21/easily-install-pymol-on-mac-osx/">background</a>).</p>
+<p>Another problem is that compiling from source leads to compile errors, and these errors depend on the version of Python you're running. With Python 2.7 and PyMOL 1.4.1, this is what I saw:</p>
+<pre><code class="hljs bash language-bash">pymol setup.py build
+[snip]
+layer0/ShaderMgr.c: In <span class="hljs-keyword">function</span> ‘ShaderMgrConfig’:
+layer0/ShaderMgr.c:173: error: ‘GLEW_OK’ undeclared (first use <span class="hljs-keyword">in</span> this <span class="hljs-keyword">function</span>)
+layer0/ShaderMgr.c:173: error: (Each undeclared identifier is reported only once
+layer0/ShaderMgr.c:173: error: <span class="hljs-keyword">for</span> each <span class="hljs-keyword">function</span> it appears <span class="hljs-keyword">in</span>.)
+layer0/ShaderMgr.c:174: error: ‘GLEW_VERSION_2_0’ undeclared (first use <span class="hljs-keyword">in</span> this <span class="hljs-keyword">function</span>)
+layer0/ShaderMgr.c:185: warning: format ‘%s’ expects <span class="hljs-built_in">type</span> ‘char *’, but argument 3 has <span class="hljs-built_in">type</span> ‘int’
+layer0/ShaderMgr.c: In <span class="hljs-keyword">function</span> ‘ShaderMgrConfig’:
+layer0/ShaderMgr.c:173: error: ‘GLEW_OK’ undeclared (first use <span class="hljs-keyword">in</span> this <span class="hljs-keyword">function</span>)
+layer0/ShaderMgr.c:173: error: (Each undeclared identifier is reported only once
+layer0/ShaderMgr.c:173: error: <span class="hljs-keyword">for</span> each <span class="hljs-keyword">function</span> it appears <span class="hljs-keyword">in</span>.)
+layer0/ShaderMgr.c:174: error: ‘GLEW_VERSION_2_0’ undeclared (first use <span class="hljs-keyword">in</span> this <span class="hljs-keyword">function</span>)
+layer0/ShaderMgr.c:185: warning: format ‘%s’ expects <span class="hljs-built_in">type</span> ‘char *’, but argument 3 has <span class="hljs-built_in">type</span> ‘int’
+lipo: can<span class="hljs-string">'t figure out the architecture type of: /var/folders/9+/9+lCZbKTGeSvLa-KoByjCE+++TI/-Tmp-//cc6lq8a7.out
+error: command '</span>gcc-4.2<span class="hljs-string">' failed with exit status 1
+</span></code></pre>
+<p><a href="/articles/2011/10/21/easily-install-pymol-on-mac-osx/">Here's what I saw using Python 2.6</a> (which comes with Snow Leopard).</p>
+<p>I did manage to find a solution, but it's a bit ugly and I'd like to see what I get from the <a href="https://lists.sourceforge.net/lists/listinfo/pymol-users">PyMOL Users List</a> before posting it.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

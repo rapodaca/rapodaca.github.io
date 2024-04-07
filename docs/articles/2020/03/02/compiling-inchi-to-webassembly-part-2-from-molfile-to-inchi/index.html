@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Compiling InChI to WebAssembly Part 2: From Molfile to InChI | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/03/02/compiling-inchi-to-webassembly-part-2-from-molfile-to-inchi/">
+      <meta property="og:title" content="Compiling InChI to WebAssembly Part 2: From Molfile to InChI">
+      <meta property="og:description" content="A comprehensive tutorial with working demos.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200302/summary.png">
+      <meta content="A comprehensive tutorial with working demos." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Compiling InChI to WebAssembly Part 2: From Molfile to InChI</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-03-02T14:00:00Z">2020-03-02T14:00:00Z</time>
+      </header>
+      <p><a href="https://iupac.org/who-we-are/divisions/division-details/inchi/">InChI</a> is a software package that generates unique chemical identifiers. Although InChI's C source yields executables for many platforms, there are exceptions. For a long time, the Web browser was one of them. A few years ago, I showed how to compile <a href="https://metamolecular.com/inchi-js/">InChI to JavaScript</a>. That solution works, but recent developments, both in browsers and InChI itself, suggest a better approach is possible.</p>
+<p>More recently, I described a procedure for <a href="/articles/2019/05/15/compiling-inchi-to-webassembly-part-1/">compiling the InChI main function to WebAssembly (aka Wasm)</a>. The result wasn't very useful because it just printed command line options and immediately exited. What's needed is a robust method for compiling useful InChI libraries to WebAssembly, which can then be exposed through thin JavaScript wrappers.</p>
+<p>This article takes the next step by describing how to compile the InChI C source to Wasm, and then link the result through a concise, manually generated JavaScript wrapper. Only an LLVM toolchain is required. Unlike the previous article in this series, Emscripten is neither needed nor used. Beyond solving the specific problem of using InChI, what follows could be considered a blueprint for deploying any C code base to a Web browser.</p>
+<h2 id="quickstart">Quickstart</h2>
+<p>Before describing the solution at a technical level, those who are only interested in testing the InChI-Wasm functionality can do so on the <a href="https://metamolecular.com/inchi-wasm">InChI-Wasm page</a>. GitHub hosts a <a href="https://github.com/rapodaca/inchi-wasm">source code repository</a>.</p>
+<h2 id="compilation">Compilation</h2>
+<p>Compilation to Wasm follows the <a href="/articles/2019/10/16/compiling-c-to-webassembly-and-running-it-without-emscripten/">previously-described system</a>. To recap:</p>
+<ol>
+<li>Install LLVM on your platform. On macOS, that probably means installing through Homebrew.</li>
+<li>Activate LLVM, if necessary. macOS users will need to append the LLVM <code>bin</code> path to the <code>PATH</code> environment variable. Something like <code>export PATH=/usr/local/opt/llvm/bin:$PATH</code> should work.</li>
+<li>Verify that LLVM is working with <code>llc --version</code>. The output should include <code>wasm32</code> and <code>wasm64</code>.</li>
+<li>Clone, compile, and install <a href="https://github.com/CraneStation/wasi-libc">wasi-libc</a>.</li>
+<li>Copy the file <a href="https://github.com/jedisct1/libclang_rt.builtins-wasm32.a">libclang_rt.builtins-wasm32.a</a> to your local LLVM <code>bin/wasi</code> directory.</li>
+</ol>
+<p>With these prerequisites out of the way, InChI-Wasm can be compiled. Clone <a href="https://github.com/rapodaca/inchi-wasm">the source</a>, change into the repo directory, then initialize the inchi submodule.</p>
+<pre><code class="hljs console language-console">git clone https://github.com/rapodaca/inchi-wasm
+cd inchi-wasm
+git submodule init
+git submodule update
+</code></pre>
+<p>Next, export the location of your <code>wasi-libc</code> installation:</p>
+<pre><code class="hljs console language-console">export WASI_LIBC_HOME=/path/to/wasi-libc
+</code></pre>
+<p>Finally, compile InChI-Wasm with:</p>
+<pre><code class="hljs console language-console">bin/build.sh
+</code></pre>
+<p>Running this script places the compiled <code>.wasm</code> file into the <code>build</code> directory.</p>
+<h2 id="technicaloverview">Technical Overview</h2>
+<p>The main advantage of the approach described here over others is simplicity. A stock LLVM 9.0 installation and some libraries are all that's needed. In this respect, the method closely resembles that for compilation of a native binary. Recent updates to LLVM made this new approach feasible.</p>
+<p>The structure of the <a href="https://github.com/rapodaca/inchi-wasm"><code>inchi-wasm</code></a> repository will likely reflect the structure of any project whose aim is to compile C source to Wasm:</p>
+<ol>
+<li><code>lib/wasi.js</code> A static JavaScript support file borrowed from <a href="https://github.com/wasmerio/wasmer-js">wasmer-js project</a>.</li>
+<li><code>lib/molfile-to-inchi.js</code> A custom JavaScript bootstrap file that loads the <code>.wasm</code> file and defines a wrapper function.</li>
+<li><code>src/molfile_to_inchi.c</code> A hand-coded wrapper function that converts a molfile string into an InChI string.</li>
+<li><code>web/index.html</code> Invokes <code>molfile-to-inchi.js</code> and builds a test harness.</li>
+<li><code>bin/build.sh</code> A build script that compiles and links <code>molfile_to_inchi.c</code> using LLVM.</li>
+<li><code>inchi</code> git submodule. The unaltered InChI C source files <a href="https://github.com/metamolecular/inchi">hosted on GitHub</a>.</li>
+</ol>
+<h2 id="srcmolfile_to_inchic"><code>src/molfile_to_inchi.c</code></h2>
+<p>At the core of InChI-Wasm sits sits the function <code>molfile_to_inchi</code>, which is contained in the file <code>molfile_to_inchi.c</code>. Thanks to the addition of the <code>MakeINCHIFromMolfileText</code> function to the latest InChI revision, the requirements for the wrapper function were minimal:</p>
+<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;time.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"inchi_api.h"</span></span>
+
+<span class="hljs-function"><span class="hljs-keyword">size_t</span> <span class="hljs-title">molfile_to_inchi</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *molfile, <span class="hljs-keyword">char</span> *options, <span class="hljs-keyword">char</span> *result)</span>
+</span>{
+    inchi_Output output;
+    <span class="hljs-keyword">int</span> status = MakeINCHIFromMolfileText(molfile, options, &amp;output);
+
+    <span class="hljs-keyword">if</span> (status == <span class="hljs-number">0</span> || status == <span class="hljs-number">1</span>) {
+      <span class="hljs-built_in">strcpy</span>(result, output.szInChI);
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-built_in">strcpy</span>(result, output.szMessage); <span class="hljs-comment">// this should work but doesn't</span>
+    }
+
+    FreeINCHI(&amp;output);
+
+    <span class="hljs-keyword">return</span> status;
+}
+
+<span class="hljs-comment">// see:</span>
+<span class="hljs-comment">// https://stackoverflow.com/questions/31476632/</span>
+<span class="hljs-comment">// https://stackoverflow.com/a/617606/54426</span>
+<span class="hljs-keyword">clock_t</span> __wrap_clock()
+{
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<p>The <code>molfile_to_inchi</code> function accepts three parameters representing buffers for the input molfile, InChI options, and the InChI result. Invocation of the <code>MakeINCHIFromMolfileText</code> is followed by <code>strcpy</code> to set the output buffer with the result. After freeing a temporary data structure, an integer status code is returned.</p>
+<p>The InChI documentation implies that <code>MakeINCHIFromMolfileText</code> places error messages into the <code>szMessage</code> field of the <code>inchi_Output</code> struct. This technique was previously used to compile InChI to Javascript. However, I have not been able to get such error reporting to work in the current iteration.</p>
+<p>I'll have more to say about the second function, <code>__wrap_clock</code>, later.</p>
+<h2 id="libmolfiletoinchijs"><code>lib/molfile-to-inchi.js</code></h2>
+<p>The C function has a counterpart written in JavaScript and hosted at <code>lib/molfile-to-inchi.js</code>. </p>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">import</span> WASI <span class="hljs-keyword">from</span> <span class="hljs-string">'./wasi.esm.js'</span>;
+
+<span class="hljs-keyword">const</span> wasmPath = <span class="hljs-string">'../build/molfile_to_inchi.wasm'</span>;
+<span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> WebAssembly.Memory({ <span class="hljs-attr">initial</span>: <span class="hljs-number">10</span> });
+
+<span class="hljs-function">(<span class="hljs-params"><span class="hljs-keyword">async</span> (</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(wasmPath);
+  <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
+  <span class="hljs-keyword">const</span> wasi = <span class="hljs-keyword">new</span> WASI();
+  <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, {
+    <span class="hljs-attr">env</span>: { memory }, <span class="hljs-attr">wasi_snapshot_preview1</span>: wasi.wasiImport
+  });
+  <span class="hljs-keyword">const</span> pMolfile = instance.exports.malloc(<span class="hljs-number">1024</span>);
+  <span class="hljs-keyword">const</span> pOptions = instance.exports.malloc(<span class="hljs-number">1024</span>);
+  <span class="hljs-keyword">const</span> pOutput = instance.exports.malloc(<span class="hljs-number">20480</span>);
+
+  <span class="hljs-built_in">window</span>.molfileToInChI = <span class="hljs-function">(<span class="hljs-params">molfile</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> inputView = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
+    <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> TextEncoder();
+
+    inputView.set(encoder.encode(molfile), pMolfile);
+
+    <span class="hljs-keyword">const</span> result = instance.exports.molfile_to_inchi(
+      pMolfile, pOptions, pOutput
+    );
+
+    <span class="hljs-keyword">const</span> outputView = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
+    <span class="hljs-keyword">const</span> decoder = <span class="hljs-keyword">new</span> TextDecoder();
+    <span class="hljs-keyword">const</span> output = decoder.decode(
+      outputView.subarray(pOutput, outputView.indexOf(<span class="hljs-number">0</span>, pOutput))
+    );
+
+    <span class="hljs-keyword">if</span> (result &lt; <span class="hljs-number">0</span> || result &gt; <span class="hljs-number">1</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"inchi error: "</span> + output);
+    }
+
+    <span class="hljs-keyword">return</span> output;
+  };
+
+  <span class="hljs-built_in">window</span>.dispatchEvent(<span class="hljs-keyword">new</span> Event(<span class="hljs-string">'InChIReady'</span>));
+})();
+</code></pre>
+<p>The file begins by importing <code>WASI</code> from the <code>wasi.esm.js</code> file. Doing so enables the instantiation of an object with the <code>wasiImport</code> property. This property is used to create the WebAssembly <code>instance</code>.</p>
+<p>The main block uses the asynchronous IIFE pattern <a href="/articles/2019/10/16/compiling-c-to-webassembly-and-running-it-without-emscripten/">discussed previously</a>. Briefly, async/await functionality must be wrapped in a function using the <code>async</code> keyword. The asynchronous IIFE pattern is a convenient way to take advantage of async/await operations.</p>
+<p>Three memory allocations are made using the Wasm instance's <code>malloc</code> function. Each call returns a pointer into <a href="https://webassembly.org/docs/semantics/#linear-memory">linear memory</a>. The pointers are passed into the instance's <code>molfile_to_inchi</code> function. The result is an integer response code that can be used for reporting.</p>
+<p>If no error codes are returned, the string representation of the buffer holding the InChI is returned.</p>
+<p>The penultimate line dispatches a custom <code>InChIReady</code> event signaling that the global <code>molfileToInChI</code> function can be used. Attempts to access the function before the event is fired will result in an error.</p>
+<h2 id="binbuildsh">bin/build.sh</h2>
+<p>The script located at <code>bin/build.sh</code> orchestrates the compilation of <code>molfile_from_inchi.c</code> and the InChI source files. Two checks take place before compilation. First, the build script requires that the environment variable <code>WASI_LIBC_HOME</code> be set, or an error will result. Second, the operating system is checked. If macOS is detected, the InChI-specific flag <code>__APPLE__</code>, is set as <a href="/2019/05/15/compiling-inchi-to-webassembly-part-1/">previously described</a>. After making these checks, a build directory is created if necessary.</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-meta">#!/bin/bash
+</span>
+<span class="hljs-keyword">if</span> [ -n <span class="hljs-string">"<span class="hljs-variable">$WASI_LIBC_HOME</span>"</span> ]; <span class="hljs-keyword">then</span>
+  <span class="hljs-built_in">echo</span> <span class="hljs-string">"Reading libc from <span class="hljs-variable">$WASI_LIBC_HOME</span>"</span>
+<span class="hljs-keyword">else</span>
+  <span class="hljs-built_in">echo</span> <span class="hljs-string">"Set the libc location with 'export WASI_LIBC_HOME=path/to/wasi-libc'."</span>
+  <span class="hljs-built_in">exit</span> 1
+<span class="hljs-keyword">fi</span>
+
+<span class="hljs-keyword">if</span> [[ <span class="hljs-string">"<span class="hljs-variable">$OSTYPE</span>"</span> =~ ^darwin ]]; <span class="hljs-keyword">then</span>
+  PLATFORM=<span class="hljs-string">"-D__APPLE__"</span>
+  PATH=/usr/<span class="hljs-built_in">local</span>/opt/llvm/bin:<span class="hljs-variable">$PATH</span>
+<span class="hljs-keyword">else</span>
+  PLATFORM=<span class="hljs-string">""</span>
+<span class="hljs-keyword">fi</span>
+
+mkdir -p build
+
+clang \
+  --target=wasm32-unknown-wasi \
+  --sysroot <span class="hljs-variable">${WASI_LIBC_HOME}</span> \
+  -Oz \
+  -v \
+  -Wl,-import-memory \
+  -Wl,-wrap,clock \
+  -Wl,-<span class="hljs-built_in">export</span>,malloc \
+  -Wl,-<span class="hljs-built_in">export</span>,molfile_to_inchi \
+  -Wl,-no-entry \
+  -DTARGET_API_LIB \
+  <span class="hljs-variable">${PLATFORM}</span> \
+  -Iinchi/INCHI_BASE/src \
+  inchi/INCHI_BASE/src/*.c \
+  inchi/INCHI_API/libinchi/src/*.c \
+  src/molfile_to_inchi.c \
+  -o build/molfile_to_inchi.wasm
+</code></pre>
+<p>With all checks performed and a <code>build</code> directory in place, the build script invokes <code>clang</code>. Options are explained as follows:</p>
+<ul>
+<li><code>--target=wasm32-unknown-wasi</code>. Directs compilation using the <a href="https://hacks.mozilla.org/2019/03/standardizing-wasi-a-webassembly-system-interface/">WebAssembly System Interface</a>.</li>
+<li><code>--sysroot ${WASI_LIBC_HOME}</code>. Replaces the standard library with wasi-libc.</li>
+<li><code>-Oz</code>. Aggressive optimization.</li>
+<li><code>-v</code> Verbose output.</li>
+<li><code>-Wl,-import-memory</code>. Require that the Wasm instance be supplied with <code>WebAssembly.Memory</code> instance.</li>
+<li><code>-Wl,-wrap,clock</code>. Wraps the <code>clock</code> standard library function, for reasons described below. Note the single dash (<code>-</code>).</li>
+<li><code>-Wl,-export,malloc</code>. Make <code>malloc</code> available to the Wasm instance.</li>
+<li><code>-Wl,-export,molfile_to_inchi</code>. Make <code>molfile_to_inchi</code> available to the Wasm instance.</li>
+<li><code>-Wl,-no-entry</code>. Don't check for a <code>main</code> function.</li>
+<li><code>-DTARGET_API_LIB</code>. One of four settings required by InChI.</li>
+<li><code>${PLATFORM}</code>. Optionally includes the <code>-D__APPLE__</code> InChI flag.</li>
+<li><code>-Iinchi/INCHI_BASE/src</code>. Path to search for InChI headers.</li>
+<li><code>inchi/INCHI_BASE/src/*.c</code>. One path to InChI source files.</li>
+<li><code>inchi/INCHI_API/libinchi/src/*.c</code>. Another path to InChI source files.</li>
+<li><code>src/molfile_to_inchi.c</code>. Path to the file containing the wrapper function.</li>
+<li><code>-o build/molfile_to_inchi.wasm</code>. The path to the compiled wasm file.</li>
+</ul>
+<p>Deleting the <code>-Wl,-wrap,clock</code> option will result in a JavaScript runtime error. Depending on your browser, you may see:</p>
+<ul>
+<li>Safari. <code>TypeError: i64 not allowed as return type or argument to an imported function</code></li>
+<li>Firefox. <code>TypeError: cannot pass i64 to or from JS</code></li>
+<li>Chrome. <code>Uncaught TypeError: wasm function signature contains illegal type</code></li>
+</ul>
+<p>These errors <a href="https://github.com/unoplatform/Uno.Wasm.Bootstrap/issues/128">appear</a> to trace back to the current <a href="https://webassembly.org/docs/c-and-c++/">lack of support for 64-bit types</a> in browser-based Wasm implementations. The situation will eventually be corrected, but for now calls dealing with 64-bit types such as <code>clock</code> and <code>times</code> will require workarounds.</p>
+<p>The <code>wrap</code> option lets us override the <code>clock</code> function - without touching the InChI code base. The tradeoff is that all of the code relying on time will be rendered inoperable. This doesn't affect InChI, at least not the way it's accessed in this article. However, other applications of InChI or other code bases may require more or less work to get past the 64-bit issue on browsers.</p>
+<h2 id="indexhtml">index.html</h2>
+<p>The HTML file located at <code>web/index.html</code> invokes the <code>molfile-to-inchi.js</code> script and sets up the test harness. Note the presence of the <code>type="module"</code> attribute on the <code>&lt;script&gt;</code> tag, which is required.</p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>InChI WASM Test<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"../lib/molfile-to-inchi.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+      <span class="hljs-selector-tag">label</span> {
+        <span class="hljs-attribute">font-size</span>: <span class="hljs-number">120%</span>;
+        <span class="hljs-attribute">font-weight</span>: bold;
+        <span class="hljs-attribute">padding-bottom</span>: <span class="hljs-number">1em</span>;
+      }
+
+      <span class="hljs-selector-id">#molfile</span> {
+        <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;
+        <span class="hljs-attribute">height</span>: <span class="hljs-number">400px</span>;
+        <span class="hljs-attribute">font-size</span>: <span class="hljs-number">120%</span>;
+        <span class="hljs-attribute">font-family</span>: monospace;
+        <span class="hljs-attribute">margin-bottom</span>: <span class="hljs-number">1em</span>;
+      }
+
+      <span class="hljs-selector-id">#inchi</span> {
+        <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;
+        <span class="hljs-attribute">height</span>: <span class="hljs-number">1.5em</span>;
+        <span class="hljs-attribute">font-size</span>: <span class="hljs-number">120%</span>;
+        <span class="hljs-attribute">font-family</span>: monospace;
+      }
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"molfile"</span>&gt;</span>Molfile:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"molfile"</span>&gt;</span>
+
+   CWRITER02282009502D
+Created with ChemWriter - https://chemwriter.com
+  6  6  0  0  0  0  0  0  0  0999 V2000
+   75.8435  -39.8212    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   84.5038  -44.8212    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   93.1640  -39.8212    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   93.1640  -29.8212    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   84.5038  -24.8212    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   75.8435  -29.8212    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  2  0  0  0  0
+  2  3  1  0  0  0  0
+  3  4  2  0  0  0  0
+  4  5  1  0  0  0  0
+  5  6  2  0  0  0  0
+  6  1  1  0  0  0  0
+M  END<span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"inchi"</span>&gt;</span>InChI:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"inchi"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+      <span class="hljs-keyword">const</span> update = <span class="hljs-function">(<span class="hljs-params">molfile</span>) =&gt;</span> {
+        <span class="hljs-keyword">let</span> result;
+
+        <span class="hljs-keyword">try</span> {
+          result = molfileToInChI(molfile);
+        } <span class="hljs-keyword">catch</span> (e) {
+          <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#inchi'</span>).value = <span class="hljs-string">'ERROR'</span>;
+
+          <span class="hljs-keyword">return</span>;
+        }
+
+        <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#inchi'</span>).value = result;
+      };
+
+      <span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">'InChIReady'</span>, () =&gt; {
+        <span class="hljs-keyword">const</span> molfile = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#molfile'</span>);
+
+        update(molfile.value);
+
+        molfile.addEventListener(<span class="hljs-string">'input'</span>, (e) =&gt; {
+          update(molfile.value);
+        });
+      });
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>After setting up some styles and script invocations in the <code>&lt;head&gt;</code> element, the HTML file defines two text areas - one for molfile input and the other for InChI output. a <code>&lt;script&gt;</code> coordinates the interaction between the two, invoking the <code>molfileToInChI</code> function as needed.</p>
+<h2 id="wasijs">wasi.js</h2>
+<p>The file at <code>lib/wasi.esm.js</code> was copied verbatim from the  <a href="https://github.com/wasmerio/wasmer-js">wasmer-js project</a>. This file never needs to be changed and so can be used in any Wasm build. Projects not using the Standard C library do not need this file, but should make adjustments to the instantiation of the Wasm instance.</p>
+<h2 id="inchisubmodule">inchi submodule</h2>
+<p>The InChI source code is installed as a <a href="https://git-scm.com/book/en/v2/Git-Tools-Submodules">Git submodule</a> from <a href="https://github.com/metamolecular/inchi">an unofficial InChI GitHub repository</a>.</p>
+<p>This method ensures that InChI-Wasm can continue to be compiled as updates to the InChI C source package are made.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This article describes the first successful compilation of a molfile to InChI function from C to WebAssembly. The underlying library is a non-trivial code base written in C, none of whose files files were modified. This was accomplished using a stock LLVM installation and some support libraries. Emscripten was not used. Supporting files used in this project are compact and follow up-to-date practices.</p>
+<p>The same approach outlined here could be applied to any cheminformatics or computational chemistry package written in C or C++. The recent arrival of the LLVM-based <a href="https://github.com/flang-compiler/f18">F18 compiler</a> may even enable the compilation of older computational chemistry packages written in Fortran to WebAssembly.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

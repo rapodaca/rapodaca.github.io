@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Exhaustive Ring Perception | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Exhaustive Ring Perception</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-12-16T00:00:00.000Z">2008-12-16T00:00:00.000Z</time>
+      </header>
+      <p><img src="/images/posts/20081216/pgraph.png" alt="pgraph" title="pgraph"></p>
+<p>Ring perception in chemical structures is essential for a number higher-level cheminformatics operations such as <a href="/articles/2007/04/11/structure-diagram-generation">Structure Diagram Generation</a> and <a href="/articles/2007/11/28/smiles-and-aromaticity-broken">aromaticity perception</a>. Several ring perception algorithms have been developed over the last few decades, but many return only a subset of rings. Others are difficult to implement or perform badly.</p>
+<p>One algorithm stands out for its ability to perceive all rings in a chemical structure, its efficiency, and its ease of implementation. In 1996, Hanser, Jauffret and Kaufmann published an <a href="http://dx.doi.org/10.1021/ci960322f">algorithm for exhaustive ring perception</a> which was unfortunately not given a catchy name.</p>
+<p>At the center of the Hanser algorithm is a construct called a 'P-Graph' (short for Path Graph). A P-Graph has the useful property of retaining complete ring path information when any arbitrary node is removed. The special properties of the edges in a P-Graph ensure that ring paths are formed automatically by plucking off nodes one by one.</p>
+<p>With the Hanser algorithm, the problem of perceiving all rings reduces to the problem of removing nodes from a P-Graph until none are left.</p>
+<p>I'm aware of two open source implementations of the Hanser ring perception algorithm: one in the <a href="http://cdk.sf.net">Chemistry Development Kit</a>; and the other in <a href="http://sf.net/projects/octet">Octet</a>.</p>
+<p>A third open source implementation of the Hanser algorithm is under construction in <a href="http://code.google.com/p/mx-java/">MX</a>, the lightweight cross-platform cheminformatics toolkit. You can watch the activity in real-time (and participate) by monitoring the <a href="http://github.com/rapodaca/mx/tree/cycle">MX 'cycle' branch on GitHub</a>.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

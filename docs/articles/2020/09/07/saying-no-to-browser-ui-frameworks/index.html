@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Saying No to Browser UI Frameworks | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/09/07/saying-no-to-browser-ui-frameworks/">
+      <meta property="og:title" content="Saying No to Browser UI Frameworks">
+      <meta property="og:description" content="Why the winning move in the JavaScript UI framework game may be not to play.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200907/summary.png">
+      <meta content="Why the winning move in the JavaScript UI framework game may be not to play." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Saying No to Browser UI Frameworks</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-09-07T19:00:00Z">2020-09-07T19:00:00Z</time>
+      </header>
+      <p>The last seven years has treated front-end developers to a banquet of browser UI frameworks. Names including React, Angular, Vue, Ember, and Backbone frequently top <a href="https://www.freecodecamp.org/news/complete-guide-for-front-end-developers-javascript-frameworks-2019/">annual roundups</a> and job postings. A host of lesser players also makes an appearance. What gets lost in the hype and buzzwords too often is a clear description of the main problem these tools solve. This post highlights the problem, and offers perspective on why less can be more when building complex browser UIs.</p>
+<h2 id="theviewsynchronizationproblem">The View Synchronization Problem</h2>
+<p>Web applications differ in their specifics, but they all pose the same challenge. It inevitably flow from this sequence of events:</p>
+<ol>
+<li>The user takes an action, generating an event.</li>
+<li>The event causes an application state change.</li>
+<li>The view must be changed to reflect the new application state.</li>
+</ol>
+<p>Here, "state" refers to the totality of all pieces of information displayable directly or indirectly by the application. For example, state includes:</p>
+<ul>
+<li>whether a button is currently pressed</li>
+<li>whether a menu is currently active</li>
+<li>the current zoom factor</li>
+<li>the location and size of windows</li>
+<li>the configuration of objects specific to the application domain (e.g. "model")</li>
+</ul>
+<p>And so on.</p>
+<p>For lack of a better term, I call the challenge of synchronizing the view with application state the "View Synchronization Problem." Of course, this problem is hardly unique to browser-based applications. All applications need a way to update state while synchronizing one or more views.</p>
+<p>What makes browser UIs unique is the <em>Document Object Model</em> (DOM). A DOM is an in-memory tree of objects that map more or less 1:1 to HTML elements. A single root node usually serves as the ultimate ancestor for every node comprising the user interface. For all its complexity, rendering can be boiled down to producing a DOM tree consistent with the current application state.</p>
+<h2 id="solutions">Solutions</h2>
+<p>The cleanest approach to the View Synchronization Problem, conceptually at least, would be to re-render the DOM tree after each user action. Rendering could then be expressed as a function of application state. Mathematically, we might express the relationship as:</p>
+<span title="V = f(S)"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>=</mo><mrow><mi>f</mi><mrow><mo fence="true">(</mo><mi>S</mi><mo fence="true">)</mo></mrow></mrow></mrow><annotation encoding="application/x-tex">{V}={f{{\left({S}\right)}}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.22222em;">V</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord"><span class="mord"><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span><span class="mclose delimcenter" style="top:0em;">)</span></span></span></span></span></span></span></span></span></span>
+<p>where:</p>
+<ul>
+<li><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi></mrow><annotation encoding="application/x-tex">{V}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.68333em; vertical-align: 0em;"></span><span class="mord"><span style="margin-right: 0.22222em;" class="mord mathdefault">V</span></span></span></span></span></span> is the DOM tree representing the view</li>
+<li><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi></mrow><annotation encoding="application/x-tex">{S}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.68333em; vertical-align: 0em;"></span><span class="mord"><span style="margin-right: 0.05764em;" class="mord mathdefault">S</span></span></span></span></span></span> is the application state</li>
+</ul>
+<p>The big win here is the <a href="https://rauchg.com/2015/pure-ui">declarative expression</a> of the user interface. For example, in JavaScript we might write something like this:</p>
+<pre><code class="hljs js language-js"><span class="hljs-comment">// naive, impractical approach</span>
+<span class="hljs-keyword">const</span> render = <span class="hljs-function">(<span class="hljs-params">state</span>) =&gt;</span> {
+  <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> analyze state</span>
+
+  <span class="hljs-keyword">const</span> html = [
+  <span class="hljs-string">'&lt;div id="ui"&gt;'</span>,
+    <span class="hljs-comment">// HTML content consistent with state</span>
+  <span class="hljs-string">'&lt;div&gt;'</span>
+  ];
+
+  <span class="hljs-keyword">return</span> html.join(<span class="hljs-string">''</span>);
+};
+
+<span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#app'</span>).innerHTML = render(state);
+</code></pre>
+<p>This naive approach can work for small applications, but things quickly degrade with scale. Performance is sometimes cited as a problem ("the DOM is slow"), and it can be with large collections of nodes. But a bigger problem is what this approach can do to the application using it. For example, re-rendering the DOM tree would mean re-attaching event listeners, some of which may have state of their own. The need to manage these re-attachments could quickly negate the original promise: simplicity.</p>
+<p>Alternatively, an application can update only those DOM nodes affected by a user action. This approach requires a way to identify the relevant nodes and make the appropriate change. As before, the solution scales poorly with increasing DOM node count.</p>
+<p>Sometimes a divide-and-conquer approach can work. An application is divided into zones of responsibility, each of which is responsible for listening to and updating its own DOM tree. The main limitation of this approach arises with state changes that affect multiple zones. When that happens, complexity returns with a vengeance. Listeners start popping up everywhere and program flow becomes as tangled as a pile of coat hangers.</p>
+<h2 id="frameworks">Frameworks</h2>
+<p>One way to distinguish today's major browser UI frameworks is their approach to DOM updates. The most popular is <a href="https://stackoverflow.com/questions/21965738/what-is-virtual-dom"><em>Virtual DOM</em></a> (VDOM). Like a DOM, a VDOM is a tree representing an application's view. Unlike a DOM, a VDOM is not rendered. Instead, a VDOM is compared with a DOM to identify those nodes to create, delete, or update in a process called <em>reconciliation</em>. VDOM and reconciliation are most often associated with React and Vue. Other frameworks offer different approaches.</p>
+<h2 id="thecaseagainstframeworks">The Case against Frameworks</h2>
+<p>At this point, it's useful to distinguish between <em>frameworks</em> and <em>libraries</em>. Definitions vary, but for the most part the distinction relates to developer control.</p>
+<p>Whereas developer code calls a library, a framework calls developer code. For example, Ruby on Rails, Django, and Android are frameworks in that their main purpose is to call developer code filling in certain blanks. In this way, a framework drives the organization and structure of developer code. JQuery and (to a lesser extent) Boost act as libraries because developer code calls it. A library has little effect on the structure or organization of developer code. More technically, a framework's organizational principle is <a href="https://en.wikipedia.org/wiki/Inversion_of_control">Inversion of Control</a>, sometimes known as the "Hollywood Principle." Don't call us, we'll call you.</p>
+<p>Inversion of control can impose more than just coding restrictions. For example, frameworks can trigger compiler dependencies. React uses JSX, a domain-specific language that combines JavaScript and HTML. Using JSX creates a dependency for tooling that supports it such as editors and compilers. Although it's possible to forego JSX, this isn't as common. Straying from the "happy path" when using a framework is rarely without costs in that most documentation and support will assume you're on it.</p>
+<p>A personal experience taught me that even a framework that does something not possible any other way should be approached with great caution. In 2009 my company began porting a browser component (<a href="https://chemwriter.com">ChemWriter</a>) from Java to JavaScript. The tooling for JavaScript, HTML, and CSS at the time can charitably be described as barbaric. Not coincidentally, Google had just open sourced its <a href="https://developers.google.com/closure/library">Closure</a> UI library. Using the library required opting into Closure's module system. At the time this seemed like a win because JavaScript had no module or build system compatible with large projects.</p>
+<p>What wasn't entirely clear at the time was how the "Closure Library" more closely resembles a framework rather than a library due to the bespoke module system it imposes.</p>
+<p>Eventually, JavaScript got <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">built-in module support</a>. It's now possible to build highly interactive applications without much of a library at all (see below). However, Closure has seeped into every nook and cranny of ChemWriter. It's impossible to disentangle this "library," thanks to the Closure module system that was part of the deal. As Closure becomes ever more irrelevant, the decision to use it looks more ill-advised.</p>
+<p>Here's the lesson I draw. A framework should not be judged by the standard of solving today's problems, but by the standard of carrying its weight well into the future. Some software isn't destined for legacy status, but a lot of it is. And it's quite difficult to tell the difference.</p>
+<p>Like steady rainfall on a mountain, time will erode the advantages of today's browser UI frameworks. What remains will be tightly-coupled dead weight.</p>
+<h2 id="apracticalalternative">A Practical Alternative</h2>
+<p>Since the appearance of React, a number of libraries addressing the View Synchronization Problem have been released. I find one in particular compelling due to its small size and limited scope: <a href="https://lit-html.polymer-project.org">lit-html</a>.</p>
+<p>lit-html is a 3KB library that leverages existing Web standards to enable fast DOM updates — without a VDOM or manual DOM management.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/Io6JjgckHbg" allowfullscreen=""></iframe>
+</div>
+<p>Consider a simple application using the naive re-render approach described earlier. Pressing a button increments a counter. A UI element should report the number of clicks. We might write such a UI like this:</p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Naive Render<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span>&gt;</span>Increment<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"counter"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
+      <span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">const</span> template = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-string">`
+        &lt;p&gt;Count:&lt;/p&gt;
+        &lt;p&gt;<span class="hljs-subst">${count}</span>&lt;/p&gt;
+      `</span>;
+
+      <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'.counter'</span>).innerHTML = template();
+
+      <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'button'</span>).addEventListener(<span class="hljs-string">'click'</span>, e =&gt; {
+        count++;
+
+        <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'.counter'</span>).innerHTML = template();
+      });
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>The UI consists of a listener added to the button. When called, it updates the <code>count</code> field and completely re-writes the the <code>innerHTML</code> of the <code>counter</code> element using <code>innerHTML</code>.</p>
+<p>Chrome developer tools allow us to monitor updates to the DOM by reporting a purple flash around those elements that were updated. As expected, the naive approach updates the entire DOM tree from the <code>counter</code> element down.</p>
+<figure>
+  <img alt="Naive Rendering" src="/images/posts/20200907/naive-render.mp4">
+  <figcaption>
+    <strong>Naive Render.</strong> An entire DOM subtree is re-rendered on every user action.
+  </figcaption>
+</figure>
+<p>Compare this behavior with the alternative using lit-html. The overall structure of the event handler is similar. After updating the <code>count</code> field, the UI is re-rendered. </p>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>lit-html Render<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span>&gt;</span>Increment<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"counter"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
+      <span class="hljs-keyword">import</span> {html, render} <span class="hljs-keyword">from</span> <span class="hljs-string">'https://unpkg.com/lit-html?module'</span>;
+
+      <span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">const</span> template = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> html`<span class="xml">
+        <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Count:<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${count}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+      `</span>;
+
+      render(template(), <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'.counter'</span>));
+
+      <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'button'</span>).addEventListener(<span class="hljs-string">'click'</span>, e =&gt; {
+        count++;
+
+        render(template(), <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'.counter'</span>));
+      });
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>The difference here is that <code>render</code> doesn't naively replace the entire DOM subtree at <code>counter</code>. Instead, lit-html only updates the part of the DOM that changes. And that's just the text node of a single paragraph element.</p>
+<figure>
+  <img alt="lit-html Rendering" src="/images/posts/20200907/lit-render.mp4">
+  <figcaption>
+    <strong>lit-html Render.</strong> Only that part of a DOM tree that needs to be updated gets changed.
+  </figcaption>
+</figure>
+<p>lit-html comes with some nice add-ons as well, including <a href="https://marketplace.visualstudio.com/items?itemName=bierner.lit-html">syntax highlighting</a> for VS Code.</p>
+<figure>
+  <img alt="lit-html Syntax Highlighting" src="/images/posts/20200907/lit-html-syntax-highlighting.png">
+  <figcaption>
+    <strong>lit-html Syntax Highlighting.</strong> Content within tagged template literals can optionally be highlighted for better readability.
+  </figcaption>
+</figure>
+<h2 id="conclusion">Conclusion</h2>
+<p>Browser user interfaces are unique in their use of a DOM. A crucial challenge faced by all browser application developers is how to update the DOM in response to application state changes. Many solutions to this problem have been developed over the years. Several frameworks, including React and Vue, are currently very popular. This article makes the case for considering far simpler and less invasive options.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

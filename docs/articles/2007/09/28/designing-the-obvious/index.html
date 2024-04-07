@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Designing the Obvious | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Designing the Obvious</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-09-28T00:00:00.000Z">2007-09-28T00:00:00.000Z</time>
+      </header>
+      <p>Designing good user interfaces is difficult work. One of the hardest things about it is what you're forced to give up: abandoning your hard-won mental map and adopting that of the user; stripping half the product's features - and then stripping half of what's left; and fending off <a href="http://headrush.typepad.com/creating_passionate_users/2005/06/featuritis_vs_t.html">featuritis</a> with a big club as the product matures. Everyone knows these things are important, but for some reason we repeat the same mistakes over and over.</p>
+<p>So it was with great enthusiasm that I found Robert Hoekman, Jr.'s new book <a href="http://www.rhjr.net/dto"><em>Designing the Obvious</em></a>. Good technical books collect illustrative examples and present them clearly. But great technical books provide a system for understanding the examples. <em>Designing the Obvious</em> is one of them.</p>
+<p>As an example, have you ever considered a confirmation dialog to be a symptom of a fundamentally flawed application design? The next time you find yourself needing one of these doodads, consider this passage:</p>
+<blockquote>
+  <p>The only implementation-model piece of design I've seen while using Backpack is the JavaScript alert message that pops open when I attempt to delete something from a Backpack page. It asks, simply, "Are You Sure?"</p>
+  <p>While the message is a pretty standard confirmation message - which we're all used to seeing - it's a sign of the underlying system. It's a big ol' banner that says "I don't have an undo feature and the only way I can deal with you deleting an object from your page is to interrupt your workflow with this message to make sure you know what you're doing."</p>
+</blockquote>
+<p>Hoekman's solution is simple - give your users an undo feature and ditch the confirmation dialog. This makes perfect sense, but how many times has the opposite been done instead?</p>
+<p>Sometimes the obvious is far from obvious.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

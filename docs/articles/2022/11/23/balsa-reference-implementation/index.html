@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Balsa Reference Implementation | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2022/11/23/balsa-reference-implementation/">
+      <meta property="og:title" content="Balsa Reference Implementation">
+      <meta property="og:description" content="Pairing theory with practice for better molecular serialization.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20221123/summary.png">
+      <meta content="Pairing theory with practice for better molecular serialization." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Balsa Reference Implementation</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2022-11-23T15:00:00Z">2022-11-23T15:00:00Z</time>
+      </header>
+      <p>SMILES is a compact molecular serialization format used widely in cheminformatics and computational chemistry. Even so, the published documentation incompletely describes SMILES, making the implementation of software impossible without some degree of improvisation. <a href="https://doi.org/10.26434/chemrxiv-2022-01ltp">Balsa</a> is a fully-specified language subset created to solve this problem. To bridge theory and practice, work on a Balsa reference implementation is well underway. This article offers a high-level overview of the software.</p>
+<h2 id="aboutbalsa">About Balsa</h2>
+<p>Balsa seeks to improve SMILES in the following ways:</p>
+<ul>
+<li>Constrain all numerical quantities with upper and lower bounds.</li>
+<li>Express syntax via formal grammar.</li>
+<li>Define all major computations and analyses, including implicit hydrogen count and stereo descriptors.</li>
+<li>Eliminate rarely-used or redundant features.</li>
+<li>Guide the implementation of readers and writers.</li>
+</ul>
+<p>A working paper, <em><a href="https://doi.org/10.26434/chemrxiv-2022-01ltp">Balsa: A Compact Line Notation Based on SMILES</a></em>, details these points. Included is a table summarizing the differences between Balsa and <a href="/articles/2022/06/01/protosmiles/">ProtoSMILES</a>, a SMILES protolanguage.</p>
+<figure>
+  <img alt="Balsa SMILES Differences" src="/images/posts/20221123/balsa-smiles-differences.png">
+  <figcaption>
+    <strong>Differences between Balsa and SMILES.</strong> Balsa removes features from SMILES but does not add them. [<a href="https://doi.org/10.26434/chemrxiv-2022-01ltp">source</a>]
+  </figcaption>
+</figure>
+<p>Balsa adds no features to SMILES, setting it apart from the two other SMILES documentation efforts (<a href="http://opensmiles.org">OpenSMILES</a> and <a href="https://iupac.org/project/2019-002-2-024/">SMILES+</a>). In other words, Balsa is designed to be <a href="https://www.w3.org/2001/tag/doc/versioning#iddiv371153984">forward compatible</a> with SMILES. This means that SMILES software can correctly process all Balsa output, but Balsa software can correctly process only some SMILES software output.</p>
+<h2 id="balsareferenceimplementation">Balsa Reference Implementation</h2>
+<p>The Balsa reference implementation's source code is available on <a href="https://github.com/metamolecular/balsa">GitHub</a> and the software can be installed through <a href="https://crates.io/crates/balsa">crates.io</a>.</p>
+<p>Wikipedia defines a <a href="https://en.wikipedia.org/wiki/Reference_implementation">reference implementation</a> as:</p>
+<blockquote>
+  <p>… a program that implements all requirements from a corresponding specification. The reference implementation often accompanies a technical standard, and demonstrates what should be considered the "correct" behavior of any other implementation of it.</p>
+</blockquote>
+<p>Consistent with this definition, the Balsa reference implementation seeks to demonstrate the correct implementation of all language features. The software is licensed under the liberal <a href="https://opensource.org/licenses/MIT">MIT License</a>. <a href="/articles/2020/01/20/cheminformatics-in-rust/">Rust</a> was selected as the programming language to maximize portability, programmer ergonomics, and type safety.</p>
+<p>It's sometimes helpful to distinguish Balsa the language from Balsa the reference implementation. The terms "Balsa language" and "Balsa software" will be used, respectively, to do so.</p>
+<h2 id="datastructures">Data Structures</h2>
+<p>One of Rust's many selling points is a powerful type system. When paired with <a href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/">type-driven design</a>, errors that would otherwise make their way to run time are instead caught at compile time. Data structures provide the crucial link.</p>
+<p>Balsa supports two data structure paradigms: <em>molecular graph</em> and <em>molecular tree</em>. A molecular graph typically maps atoms to nodes, and bonds to edges. Popular though this paradigm may be, it is not the most natural expression of the Balsa language. Molecular trees fill this role. A molecular tree is a tree-based data structure in which any two nodes are connected through a continuous path. To enable the interconversion of tree- and graph-based representations, Balsa supports both paradigms.</p>
+<p>For convenience, the software's data structures are named after the terms used in the working paper.</p>
+<h2 id="moleculartree">Molecular Tree</h2>
+<p>The types comprising Balsa's molecular tree data structure can be found in the <code>tree</code> submodule. Perhaps surprisingly, no data structure representing an actual tree is defined. Instead, the top-level data structure <code>tree::Atom</code> is defined. Its presence alone fully defines a molecular tree.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Atom</span></span> {
+    <span class="hljs-keyword">pub</span> kind: AtomKind,
+    <span class="hljs-keyword">pub</span> edges: <span class="hljs-built_in">Vec</span>&lt;Edge&gt;,
+}
+</code></pre>
+<p>Just two attributes, <code>kind</code> and <code>edges</code> suffice. <code>AtomKind</code> is an enumeration of the kinds of atoms supported by the Balsa language. Just four variants are possible: <code>Star</code>, <code>Shortcut</code>, <code>Selection</code>, and <code>Bracket</code>. The last three of these contain data themselves, an example of Rust's support for <a href="https://jrsinclair.com/articles/2019/algebraic-data-types-what-i-wish-someone-had-explained-about-functional-programming/">sum types</a>. The names of each variant track the names used in the Balsa working paper. <code>edges</code> is an ordered list of edges defining connectivity and bonding.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">AtomKind</span></span> {
+    Star,
+    Shortcut(Shortcut),
+    Selection(Selection),
+    Bracket(Bracket),
+}
+</code></pre>
+<p>The variants of <code>AtomKind</code> are mutually exclusive, meaning that the Rust compiler will prevent the construction of most invalid atomic states. Compare this to a "bag-of-attributes" approach in which <code>Atom</code> were a <code>struct</code> having the attributes <code>element</code>, <code>charge</code>, and so on. Such a representation would make it possible to encode, for example, a selected titanium atom. <code>AtomKind</code> makes this impossible, and the Rust compiler enforces this prohibition.</p>
+<p>One of the main advantages of the tree data structure is memory efficiency. Whereas a graph requires edges to reference source and target atoms by index, a tree allows edges to "own" child nodes directly. This relationship is captured by the <code>Atom.edges</code> attribute.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Edge</span></span> {
+    Bond(Bond),
+    Gap(Atom),
+}
+</code></pre>
+<p>A <code>tree::Edge</code> is an enumeration with two variants, <code>Bond</code> and <code>Gap</code>. The names of these variants match the terms used in the working paper. <code>Bond</code> designates connectivity with bonding, whereas <code>Gap</code> designates connectivity without bonding. The variants of <code>Edge</code> are mutually exclusive, meaning that invalid states can not be encoded. For example, a <code>Bond</code> can connect an <code>Atom</code> to another <code>Atom</code> or a bridge node. However, a <code>Gap</code> can only connect two <code>Atoms</code>.</p>
+<p><code>tree::Atom</code> and <code>tree::Edge</code> implement convenience methods to aid construction. For example, a "star" atom having a single child connected through an elided bond ("**") would be represented like so:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-built_in">assert_eq!</span>(
+    tree::Atom::star(<span class="hljs-built_in">vec!</span>[tree::Edge::elided_star(<span class="hljs-built_in">vec!</span>[])])
+    Atom {
+        kind: AtomKind::Star,
+        edges: <span class="hljs-built_in">vec!</span>[
+            Edge::Bond(Bond {
+                kind: BondKind::Elided,
+                target: Target::Atom(Atom {
+                  kind: AtomKind::Star,
+                  edges: <span class="hljs-built_in">vec!</span>[]
+                })
+            })
+        ]
+    }
+)
+</code></pre>
+<h2 id="moleculargraph">Molecular Graph</h2>
+<p>A graph representation is useful when converting to and from graph-based formats. For example, <a href="/articles/2022/11/16/direct-molecular-translation/">direct translation</a> of molfile into Balsa might work better with a graph representation rather than a tree. The <code>graph</code> submodule contains data structures helpful for such translation.</p>
+<p>Perhaps surprisingly, the <code>graph</code> submodule does not contain a top-level data structure representing a molecular graph. Instead, a molecular graph is encoded as an ordered list of <code>graph::Atom</code> values (<code>Vec&lt;graph::Atom&gt;</code>).</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Atom</span></span> {
+    <span class="hljs-keyword">pub</span> kind: AtomKind,
+    <span class="hljs-keyword">pub</span> bonds: <span class="hljs-built_in">Vec</span>&lt;Bond&gt;,
+}
+</code></pre>
+<p>The two attributes, <code>kind</code> and <code>bonds</code> serve similar roles as in <code>tree::Atom</code>. </p>
+<h2 id="follower">Follower</h2>
+<p>Tree- or graph-based representations are usually constructed to analyze some aspect of molecular structure. Many analyses will require some form of traversal. For example, writing a Balsa string requires traversal. So does reading a string, if looked at in a certain way. Conversion between graph-based and tree-based representations also requires traversal. Tree-based representations are in particular likely to require traversals for even simple tasks such as molecular weight calculation.</p>
+<p>A depth-first traversal will be suitable in many contexts. Although the underlying algorithm is not complex, it isn't easy to implement, either. Ideally, depth-first traversal would be implemented once, allowing the same traversal to be used in many contexts. In this way traversal can be decoupled from analysis.</p>
+<p>The key to this design is <code>Follower</code>. <code>Follower</code> is a trait that can be implemented by any Rust type. Doing so allows instances of the type to perform an analysis on the depth-first traversal of either a molecular tree or graph.</p>
+<p><code>Follower</code> defines just five methods:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Follower</span></span> {
+    <span class="hljs-comment">/// An Atom disconnected from the previous atom was encountered.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">root</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, root: &amp;AtomKind);
+
+    <span class="hljs-comment">/// An Atom bonded to the previous atom was encountered.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">extend</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: &amp;BondKind, atom_kind: &amp;AtomKind);
+
+    <span class="hljs-comment">/// An Atom closing a cycle was encountered. </span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">bridge</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: &amp;BondKind, cut: &amp;Bridge);
+
+    <span class="hljs-comment">/// A branch was encountered.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>);
+
+    <span class="hljs-comment">// The end of a branch was encountered.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pop</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>);
+}
+</code></pre>
+<p><code>Follower</code> is extremely flexible. Its methods can be called via an actual depth-first traversal, or through a procedure that simulates one. And of course, the work that gets done for each method invocation is entirely up to the implementing type.</p>
+<p>The idea behind follower is easy to confuse with the <a href="https://en.wikipedia.org/wiki/Visitor_pattern">Gang of Four "Visitor" Pattern</a>. The goal of that mis-named pattern is to implement double-dispatch for languages that don't do so natively. As the authors put it, "Visitor lets you define a new operation without changing the classes of the elements on which it operates." That's not quite the intent with <code>Follower</code>, which is to separate the traversal of a data structure from actions to be performed at each step.</p>
+<h2 id="readingstrings">Reading Strings</h2>
+<p>Reading a Balsa string requires just a string value and a mutable <code>Follower</code> instance. Passing references for both to the <code>read::read</code> function exercises the <code>Follower</code> API. What happens as those method are called depends, of course, on the implementation.</p>
+<p>For example, a tree can be built from a Balsa string by using the <code>Follower</code> implementation defined by <code>tree::Builder</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> string = <span class="hljs-string">"**"</span>;
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = tree::Builder::new();
+
+read(string, &amp;<span class="hljs-keyword">mut</span> builder);
+
+<span class="hljs-built_in">assert_eq!</span>(
+    builder.build(),
+    Atom::star(<span class="hljs-built_in">vec!</span>[Edge::elided_star(<span class="hljs-built_in">vec!</span>[])]),
+)
+</code></pre>
+<p>Replacing <code>tree::Builder</code> with <code>graph::Builder</code> allows construction of the graph representation instead.</p>
+<h2 id="writingstrings">Writing Strings</h2>
+<p>Writing a Balsa string requires a tree or graph representation and a <code>Writer</code> instance. <code>Writer</code> implements the <code>Follower</code> trait, allowing use wherever a <code>Follower</code> works. For example, the following uses the <code>tree::walk</code> function to write a tree representation as a string.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> root = tree::Atom::star(<span class="hljs-built_in">vec!</span>[tree::Edge::elided_star(<span class="hljs-built_in">vec!</span>[])]);
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = follow::Writer::new();
+
+tree::walk(&amp;root, *<span class="hljs-keyword">mut</span> writer);
+
+<span class="hljs-built_in">assert_eq!</span>(writer.write(), <span class="hljs-string">"**"</span>)
+</code></pre>
+<h2 id="walkingtreesandgraphs">Walking Trees and Graphs</h2>
+<p>Tree and graph representations can be traversed in depth-first order using the <code>tree::walk</code> and <code>graph::walk</code> functions, respectively. Each function takes a reference to a representation and a <code>Follower</code>. On completion, the <code>Follower</code> is interrogated to reveal the analysis. As noted in the previous section, writing strings can be accomplished by pairing a <code>Writer</code> with <code>walk</code>. As another example, consider the transformation of a tree into a graph ( recall that <code>Builder</code> implements <code>Follower</code>):</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> root = tree::Atom::star(<span class="hljs-built_in">vec!</span>[tree::Edge::elided_star(<span class="hljs-built_in">vec!</span>[])]);
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = graph::Builder::new();
+
+tree::walk(&amp;root, &amp;<span class="hljs-keyword">mut</span> builder);
+
+<span class="hljs-built_in">assert_eq!</span>(
+    builder.build(),
+    <span class="hljs-built_in">vec!</span>[
+        graph::Atom::star(<span class="hljs-built_in">vec!</span>[graph::Bond::elided(<span class="hljs-number">1</span>)]),
+        graph::Atom::star(<span class="hljs-built_in">vec!</span>[graph::Bond::elided(<span class="hljs-number">0</span>)])
+    ]
+)
+</code></pre>
+<h2 id="shorttermwork">Short-Term Work</h2>
+<p>Although Balsa implements all low-level language functionality, some high-level features are currently missing. The two most important pending feature sets to be added in the short term are:</p>
+<ul>
+<li><em>Computing implicit hydrogen count and subvalence</em>. Both <code>graph::Atom</code> and <code>tree::Atom</code> should fully implement the algorithms described in the Balsa working paper. Entries to both can be found in the obsolete <a href="https://github.com/rapodaca/purr">Purr</a> and <a href="https://github.com/rapodaca/dialect.rs">Dialect</a> repositories.</li>
+<li><em>Selection and deselection</em>. Implementing both processes would enable interconversion of selected and deselected forms for use in canonicalization and other <a href="/articles/2021/06/17/delocalization-induced-molecular-equality/">DIME-sensitive</a> applications.</li>
+</ul>
+<h2 id="longtermwork">Long-Term Work</h2>
+<p>The availability of a reference implementation puts some long-term goals within reach, in particular:</p>
+<ul>
+<li>Validation suite. This would consist of an automated test suite containing Balsa string inputs and expected outputs for computations including virtual hydrogen count, bond conformation, atom configuration, and atom connectivity. Using the validation suite, the correctness of other Balsa implementations can be checked.</li>
+<li>Performance benchmarks. Efficient implementations will require some iteration. The reference implementation can be useful here as a benchmark.</li>
+<li>Direct molecular translation. Balsa can be used as a component in a larger suite of tools for <a href="/articles/2022/11/16/direct-molecular-translation/">direct molecular translation</a>. The idea here is to maximize the number of features that can be translated by avoiding intermediate representations. Toward this end, Balsa can be paired with <a href="https://github.com/metamolecular/trey">Trey</a> and other format-specific toolkits yet to be published.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Balsa is a compact molecular serialization format based on SMILES. A reference implementation supporting all basic operations is now available. Over time, this software can be used to develop other Balsa implementations. Integration into translators and other cheminformatics applications is also possible.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

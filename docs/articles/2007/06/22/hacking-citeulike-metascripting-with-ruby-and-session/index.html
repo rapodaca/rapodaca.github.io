@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hacking CiteULike - Metascripting with Ruby and Session | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Hacking CiteULike - Metascripting with Ruby and Session</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-06-22T00:00:00.000Z">2007-06-22T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://www.citeulike.org/">CiteULike</a> lets users easily manage their bibliographies of scholarly works, and in the process discover other users' papers on related subjects. One of the most powerful features of CiteULike is its ability to convert arbitrary URLs into fully-formatted bibliographical citations. CiteULike manages to do this while largely avoiding the <a href="http://depth-first.com/articles/2007/06/15/buggotea-the-problem-with-abundance">Buggotea Problem</a> in which multiple URLs pointing to the same work are saved. Wouldn't it be useful if this aspect of CiteULike could be independently scripted, tested, and re-integrated? This article describes how to do this using the powerful scripting language Ruby.</p>
+<h2 id="asimpletest">A Simple Test</h2>
+<p>The core of CiteULike's bibliography lookup system is contained in its <em>Filters</em>. Filters accept a URL they're interested in and return a bibliographical citation. Each filter generally works with a specific publisher's URLs and may be written in just about any scripting language.</p>
+<p>CiteULike has released nearly all of its filters and the driver as an Open Source package distributed under a BSD-style license. 
+Complete documentation on using and writing filters is available <a href="http://svn.citeulike.org/svn/plugins/HOWTO.txt">here</a>, and the package can be obtained through subversion:</p>
+<pre><code class="hljs bash language-bash">svn co http://svn.citeulike.org/svn/ citeulike
+</code></pre>
+<p>After changing into the <strong>citeulike/drivers</strong> directory, you'll see a file called <strong>driver.tcl</strong>. This script coordinates the activities of the various filters contained under their respective language subdirectories. Let's say you want to parse the following URL:</p>
+<pre><code class="hljs bash language-bash">http://pubs.acs.org/cgi-bin/abstract.cgi/jmcmar/2007/50/i05/abs/jm0611509.html
+</code></pre>
+<p>The command to do so would be:</p>
+<pre><code class="hljs bash language-bash">./driver.tcl parse http://pubs.acs.org/cgi-bin/abstract.cgi/jcisd8/2006/46/i03/abs/ci050400b.html
+</code></pre>
+<p>If you get an error starting with:</p>
+<pre><code class="hljs bash language-bash">couldn<span class="hljs-string">'t execute "./acs.py": no such file or directory
+    while executing
+"open "|./[file tail $exe]" "r+""
+    (procedure "parse_url" line 31)
+    invoked from within
+</span></code></pre>
+<p>then the problem lies with the shebang line of the <strong>drivers/python/acs.py</strong> script. For example, on my system I need to change the shebang to:</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-comment">#!/usr/bin/python2.5</span>
+</code></pre>
+<p>Making this change and re-running the driver script gives the output I was expecting:</p>
+<pre><code class="hljs bash language-bash">parsing http://pubs.acs.org/cgi-bin/abstract.cgi/jcisd8/2006/46/i03/abs/ci050400b.html
+
+serial -&gt; 1549-9596
+volume -&gt; 46
+linkouts -&gt; {DOI {} 10.1021/ci050400b {} {}}
+year -&gt; 2006
+<span class="hljs-built_in">type</span> -&gt; JOUR
+start_page -&gt; 991
+url -&gt; http://pubs3.acs.org/acs/journals/doilookup?in_doi=10.1021/ci050400b
+end_page -&gt; 998
+plugin_version -&gt; 1
+doi -&gt; 10.1021/ci050400b
+day -&gt; 22
+issue -&gt; 3
+title -&gt; The Blue Obelisk-Interoperability <span class="hljs-keyword">in</span> Chemical Informatics
+journal -&gt; J. Chem. Inf. Model.
+abstract -&gt; Abstract: The Blue Obelisk Movement (http://www.blueobelisk.org/) is the name used by a diverse Internet group promoting reusable chemistry via open <span class="hljs-built_in">source</span> software development, consistent and complimentary chemoinformatics research, open data, and open standards. We outline recent examples of cooperation <span class="hljs-keyword">in</span> the Blue Obelisk group: a shared dictionary of algorithms and implementations <span class="hljs-keyword">in</span> chemoinformatics algorithms drawing from our various software projects; a shared repository of chemoinformatics data including elemental properties, atomic radii, isotopes, atom typing rules, and so forth; and Web services <span class="hljs-keyword">for</span> the platform-independent use of chemoinformatics programs.
+status -&gt; ok
+month -&gt; 5
+authors -&gt; {Guha {} R {Guha, R.}} {Howard {} MT {Howard, M.T.}} {Hutchison {} GR {Hutchison, G.R.}} {Murray-Rust {} P {Murray-Rust, P.}} {Rzepa {} H {Rzepa, H.}} {Steinbeck {} C {Steinbeck, C.}} {Wegner {} J {Wegner, J.}} {Willighagen {} EL {Willighagen, E.L.}}
+address -&gt; Pennsylvania State University, University Park, Pennsylvania 16804-3000, Jmol Project, U. S. A., Cornell University, Ithaca, New York 14853, Cambridge University, Cambridge CB2 1TN, Great Britain, Imperial College, London SW7 2AZ, Great Britain, Cologne University Bioinformatics Center (CUBIC), Zülpicher Str. 47, D-50674 Köln, Germany, University of Tübingen, Tübingen, Germany, and Jmol project, The Netherlands
+plugin -&gt; acs
+</code></pre>
+<h2 id="metascriptingwithrubyandsession">Metascripting with Ruby and Session</h2>
+<p>The CiteULike driver is written in <a href="http://tcl.sourceforge.net/">Tcl</a>, a language I've been interested in and heard about, but which I just don't have the time to try to learn. Wouldn't it be great if we could direct the activities of the CiteULike driver from the comfort and power of Ruby?</p>
+<p>It turns out that a handy little Ruby library exists which is perfect for the metascripting we'll need to do - <a href="http://raa.ruby-lang.org/project/session/">Session</a>. The Session library can be installed with:</p>
+<pre><code class="hljs bash language-bash">gem install session
+</code></pre>
+<p>Once installed, we can fire up interactive ruby (irb), and tell driver.tcl what to do:</p>
+<pre><code class="hljs bash language-bash">irb
+irb(main):001:0&gt; require <span class="hljs-string">'rubygems'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; require <span class="hljs-string">'session'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):003:0&gt; url = <span class="hljs-string">'http://pubs.acs.org/cgi-bin/abstract.cgi/jcisd8/2006/46/i03/abs/ci050400b.html'</span>
+=&gt; <span class="hljs-string">"http://pubs.acs.org/cgi-bin/abstract.cgi/jcisd8/2006/46/i03/abs/ci050400b.html"</span>
+irb(main):004:0&gt; session = Session.new
+=&gt; <span class="hljs-comment">#&lt;Session::Sh:0xb7c03174 @stdout=#&lt;IO:0xb7c02ee0&gt;, @threads=[], @history=nil, @stdin=#&lt;IO:0xb7c02f30&gt;, @use_open3=nil, @opts={}, @errproc=nil, @use_spawn=nil, @debug=nil, @stderr=#&lt;IO:0xb7c02e7c&gt;, @outproc=nil, @track_history=nil, @prog="sh"&gt;</span>
+irb(main):005:0&gt; result=session.execute <span class="hljs-string">"./driver.tcl parse #{url}"</span>
+</code></pre>
+<h2 id="reprocessingthebibliography">Reprocessing the Bibliography</h2>
+<p>The last command of our interactive ruby session returns an Array called "result", the first element of which is our article's bibliographical information. We can extract its title with the following commands:</p>
+<pre><code class="hljs bash language-bash">irb(main):011:0&gt; result[0].match /title -&gt; (.*)/
+=&gt; <span class="hljs-comment">#&lt;MatchData:0xb7b94828&gt;</span>
+irb(main):012:0&gt; <span class="hljs-variable">$1</span>
+=&gt; <span class="hljs-string">"The Blue Obelisk-Interoperability in Chemical Informatics"</span>
+</code></pre>
+<p>Using a series of similar regular expressions, we can re-construct the full bibliographical citation for the paper.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>The availability of the CiteULike filters and driver opens up many possibilities to build collaborative bibliographical management applications. By using some simple metascripting techniques, this can be done in any scripting language. Our little example here is but a glimpse of what might be possible.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

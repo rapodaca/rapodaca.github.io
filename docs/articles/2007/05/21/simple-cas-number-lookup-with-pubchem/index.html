@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Simple CAS Number Lookup with PubChem | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Simple CAS Number Lookup with PubChem</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-05-21T00:00:00.000Z">2007-05-21T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://metamolecular.com/cheminformatics/what-is-a-cas-number/">CAS Registry Numbers</a> simplify the thorny problem of referring to chemical substances. These short numerical sequences are arguably the most widely-used form of molecular identifier, appearing on reagent bottles, in publications, in patents and patent applications, and MSDS sheets.</p>
+<p>During my time as a synthetic organic chemist, I would sometimes run into the problem of finding the structure of a molecule represented by a CAS number. A common case was when an ambiguous, incomprehensible, or blurred IUPAC name was printed on a reagent bottle along with a CAS number. By looking up the CAS number, I could confirm the bottle's contents.</p>
+<p>Your first impulse when looking up a CAS number might be to fire up <a href="http://www.cas.org/SCIFINDER/">SciFinder</a>. For years this was the only option. Those days are quickly starting to seem as quaint as when people actually wrote on pieces of paper and dropped them in mailboxes (<a href="http://netflix.com">dropping DVDs in a mailbox</a> is a different matter).</p>
+<p>A little-publicized feature of PubChem makes it an ideal way to quickly find the structure associated with a CAS Number. To use it, you need nothing more than a computer, a browser, and an internet connection.</p>
+<p>Browse over to the <a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem</a> welcome page. At the top you'll find a search box. Enter your CAS number and press "Go." For this example, I'm using the CAS number for 2,5-Pyrazinedicarboxylic acid dihydrate:</p>
+<p><img src="/images/posts/20070521/screenshot.png" alt="Screenshot" title="Screenshot"></p>
+<p>If all goes well, you should see a results screen containing the structure of your compound and a link to its summary page:</p>
+<p><img src="/images/posts/20070521/screenshot2.png" alt="Screenshot" title="Screenshot"></p>
+<p>Does this seem a little too good to be true? Try it for yourself. Pick up a copy of the Aldrich catalog, Merck index, or anything else that lists lots of CAS numbers. Choose several structures at random and see how PubChem performs.</p>
+<p>There are limitations to this method. PubChem generally doesn't index large molecules such as polymers and peptides, so they won't be found by this method. Similarly, if a CAS number doesn't point to a distinct molecular entity (e.g. "mineral oil"), PubChem won't find it either. But these are hardly limitations in the vast majority of cases.</p>
+<p>With the <a href="http://www.corporate-ir.net/ireye/ir_site.zhtml?ticker=SIAL&amp;script=410&amp;layout=-6&amp;item_id=984368">recent addition of Sigma-Aldrich</a> as a PubChem compound supplier, it won't be long before smaller companies begin following suit. What we're seeing with PubChem is a classic example of a <a href="http://en.wikipedia.org/wiki/Network_effect">network effect</a>. The end result should come as a surprise to nobody.</p>
+<p><em>Update: <a href="http://chempedia.com">Chempedia</a> offers a more detailed <a href="http://depth-first.com/articles/2008/05/26/simple-cas-number-lookup-and-more-with-chempedia">CAS Number Lookup</a> service.</em></p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

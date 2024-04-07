@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The NextMove Patent Reaction Dataset | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2019/01/28/the-nextmove-patent-reaction-dataset/">
+      <meta property="og:title" content="The NextMove Patent Reaction Dataset">
+      <meta property="og:description" content="No longer restricted to well-funded research groups, large databases of real organic reactions are now available for free to all.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20190128/summary.png">
+      <meta content="No longer restricted to well-funded research groups, large databases of real organic reactions are now available for free to all." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The NextMove Patent Reaction Dataset</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2019-01-28T14:30:00.000Z">2019-01-28T14:30:00.000Z</time>
+      </header>
+      <p>Until recently, large databases of machine-readable chemical reactions were rare, constrained in their allowed uses, and extremely expensive. That changed in 2014 with the publication of a dataset of organic chemical reactions extracted from US patents and patent applications. What follows is an introduction to this dataset and a discussion of some of the ways it has been used.</p>
+<h2 id="origins">Origins</h2>
+<p>The NextMove reaction dataset (NRD) is a collection of 3,305,795 reactions extracted from 9 million patent applications and issued patents from 1976-2016. It evolved out of work performed by Daniel Lowe for his <a href="https://doi.org/10.17863/CAM.16293">PhD Dissertation</a> at Cambridge. As part of a multi-student team whose work spanned several years, three key pieces of software were developed: <a href="https://bitbucket.org/wwmm/oscar4/wiki/Home">OSCAR4</a>, a suite of tools for processing free-form organic synthesis experimentals; <a href="http://chemicaltagger.ch.cam.ac.uk">ChemicalTagger</a>, an automated annotation tool; and <a href="https://bitbucket.org/dan2097/opsin/">OPSIN</a>, an IUPAC nomenclature parser. The latter has been the topic of multiple Depth-First articles, including <a href="/articles/2010/12/13/open-source-name-to-structure-conversion-of-iupac-nomenclature-opsin-revisited/">this one</a>. The NRD is <a href="https://creativecommons.org/share-your-work/public-domain/cc0/">CC-0</a> licensed, meaning that the creator waived any applicable copyright; there are no legal restrictions on redistribution or other uses.</p>
+<div class="videowrapper">
+  <iframe src="//www.slideshare.net/slideshow/embed_code/key/2zav9udUGf78Jb" allowfullscreen=""></iframe>
+</div>
+<p>Lowe's dissertation work was improved by <a href="https://nextmovesoftware.com">NextMove Software</a> to create NRD. In 2014 the <a href="https://nextmovesoftware.com/blog/2014/02/27/unleashing-over-a-million-reactions-into-the-wild/">publication of the complete dataset was announced</a>. Around the same time, NextMove described a <a href="https://doi.org/10.1371/journal.pone.0107477">"gold standard" human-annotated patent corpus</a> that it had created. The availability of both datasets should provide a sound foundation for those wanting to improve on existing extraction tools and develop new approaches.</p>
+<p>The NRD now stands as the largest, machine-readable, fully-reusable collection of organic reactions in existence.</p>
+<h2 id="downloadingthedataset">Downloading the Dataset</h2>
+<p>The full dataset can be <a href="https://figshare.com/articles/Chemical_reactions_from_US_patents_1976-Sep2016_/5104873">downloaded from Figshare</a>.</p>
+<h2 id="datasetcontents">Dataset Contents</h2>
+<p>The download from Figshare consists of five files:</p>
+<ul>
+<li><code>2001_Sep2016_USPTOapplications_cml.7z</code> Annoted patent applications from 2001-2016 in XML format, grouped by issuing year into directories.</li>
+<li><code>1976_Sep2016_USPTOgrants_cml.7z</code> Annotated patent grants from 1976-2016 in XML format, grouped by issuing year into directories.</li>
+<li><code>1976_Sep2016_USPTOgrants_smiles.7z</code> Reaction SMILES for patent grants from 1976-2016 as a single Reaction SMILES file (.*rsmi).</li>
+<li><code>2001_Sep2016_USPTOapplications_smiles.7z</code> Reaction SMILES for patent applications from 2001-2016 as a single Reaction SMILES file (.*rsmi).</li>
+<li><code>xml_xsd.zip</code> <a href="https://en.wikipedia.org/wiki/XML_Schema_(W3C)">Schema Definition</a> for XML files.</li>
+</ul>
+<h2 id="reactionsmilesrsmifiles">Reaction SMILES (*.rsmi) Files</h2>
+<p>The Reaction SMILES (<code>*.rsmi</code>) files contain the following fields, in order of appearance:</p>
+<ol>
+<li>reaction SMILES;</li>
+<li>patent number;</li>
+<li>paragraph number;</li>
+<li>year;</li>
+<li>text-mined yield;</li>
+<li>calculated yield.</li>
+</ol>
+<p>A few words on the difference between "text-mined" yield and "calculated" yield are in order. "Text-mined" yield refers to the yield, expressed as a percentage, reported in the experimental section. "Calculated" yield refers to the yield calculated from the quantities of reagents used and product obtained.</p>
+<p>For example, <a href="https://patents.google.com/patent/US20010000038">US20010000038A1</a> paragraph 0256 reports a yield of 86%. However, based on the molecular weights of the limiting reagent (120.185&nbsp;g·mol<sup>-1</sup>) and product (224.717&nbsp;g·mol<sup>-1</sup>), a yield of 86.9% was actually obtained. In other words, the procedure in this patent application slightly under-reports its experimental yield. This discrepancy is captured in the files.</p>
+<h2 id="chemicalmarkuplanguagecmlfiles">Chemical Markup Language (*.cml) Files</h2>
+<p>The dataset's CML (<code>*.cml</code>) files contain the following major headings:</p>
+<ul>
+<li><strong>Source.</strong> Bibliographical information including paragraph and patent (application) ID.</li>
+<li><strong>Text.</strong> The complete experimental text.</li>
+<li><strong>Reaction SMILES.</strong> Line notation describing the molecular structure of reactants, products, and reagents (see below).</li>
+<li><strong>Reactant list.</strong> Enumeration of reactants, including information such as name, SMILES, and InChI.</li>
+<li><strong>Product list.</strong> Enumeration of products, including such information as name, reported and computed yields, SMILES, InChI, appearance, and state</li>
+<li><strong>Spectator list.</strong> Includes such components as solvents and quantities used.</li>
+<li><strong>Reaction action list.</strong> An ordered list of steps to perform the synthesis. Each step includes: the full text being represented; the action being performed (e.g., "add"); the components being acted on; the conditions (e.g., nitrogen atmosphere); the time; and temperature.</li>
+</ul>
+<h2 id="viewingreactionsmiles">Viewing Reaction SMILES</h2>
+<p>Reactions are encoded as <a href="http://www.daylight.com/meetings/summerschool01/course/basics/smirks.html">Reaction SMILES</a>. In this <a href="articles/2007/03/14/eleven-qualities-of-the-perfect-line-notation-for-the-web/">line notation</a>, reactants and products are expressed using SMILES notation, and are separated by the greater than symbol (<code>&gt;</code>). For example, the first record in the <code>2001_Sep2016_USPTOapplications_cml.7z</code> data set contains this Reaction SMILES:</p>
+<pre><code class="hljs bash language-bash">[Cl-].[Al+3].[Cl-].[Cl-].[Cl:5][CH2:6][CH2:7][CH2:8][C:9](Cl)=[O:10].[C:12]1([CH:18]([CH3:20])[CH3:19])[CH:17]=[CH:16][CH:15]=[CH:14][CH:13]=1&gt;C(Cl)Cl&gt;[Cl:5][CH2:6][CH2:7][CH2:8][C:9]([C:15]1[CH:16]=[CH:17][C:12]([CH:18]([CH3:20])[CH3:19])=[CH:13][CH:14]=1)=[O:10]
+</code></pre>
+<p>Reaction SMILES supports atom mapping through SMILES classes (the numbers appearing after the colon for bracketed atoms). See below for a discussion of reaction mapping.</p>
+<p>The following image represents this reaction:</p>
+<p><a href="https://www.simolecule.com/cdkdepict/depict/bow/svg?smi=%5BCl-%5D.%5BAl%2B3%5D.%5BCl-%5D.%5BCl-%5D.%5BCl%3A5%5D%5BCH2%3A6%5D%5BCH2%3A7%5D%5BCH2%3A8%5D%5BC%3A9%5D(Cl)%3D%5BO%3A10%5D.%5BC%3A12%5D1(%5BCH%3A18%5D(%5BCH3%3A20%5D)%5BCH3%3A19%5D)%5BCH%3A17%5D%3D%5BCH%3A16%5D%5BCH%3A15%5D%3D%5BCH%3A14%5D%5BCH%3A13%5D%3D1%3EC(Cl)Cl%3E%5BCl%3A5%5D%5BCH2%3A6%5D%5BCH2%3A7%5D%5BCH2%3A8%5D%5BC%3A9%5D(%5BC%3A15%5D1%5BCH%3A16%5D%3D%5BCH%3A17%5D%5BC%3A12%5D(%5BCH%3A18%5D(%5BCH3%3A20%5D)%5BCH3%3A19%5D)%3D%5BCH%3A13%5D%5BCH%3A14%5D%3D1)%3D%5BO%3A10%5D&amp;abbr=on&amp;hdisp=bridgehead&amp;showtitle=false&amp;zoom=1.6&amp;annotate=none"><img src="/images/posts/20190128/reaction.svg" alt="Reaction" title="Reaction"></a></p>
+<p>This image brings up two important points. First, molecular entities to the left, right, and above the reaction arrow are captured. Second, the metal appears in its disconnected, ionic form, despite the fact that most chemists would consider the Al-Cl bonds in aluminum chloride to be covalent. This latter point was a common feature of the records I spot-checked.</p>
+<p>The latter point results from behavior in pre-2017 releases of OPSIN. Specifically, aluminum-halogen bonds were considered to be ionic based on a simplistic electronegativity calculation. OPSIN now considers Al-X bonds, where X is a halogen other than fluorine, to be covalent. Should the distinction be important, the NRD appends <a href="https://chemaxon.com/marvin-archive/latest/help/formats/cxsmiles-doc.html">extended SMILES grouping notation</a> to relevant Reaction SMILES.</p>
+<p>A convenient tool for visualizing Reaction SMILES is <a href="https://www.simolecule.com/cdkdepict/depict.html">CDKDepict</a>. Clear the default text, then entire the Reaction SMILES as-is. Note that the XML files escape the greater than symbol ("&gt;"), and that it will need to be unescaped for use with CDKDepict. The service exposes URLs that can be used to later reference a Reaction SMIlES. See for example, <a ref="https://www.simolecule.com/cdkdepict/depict/bow/svg?smi=%5BCl-%5D.%5BAl%2B3%5D.%5BCl-%5D.%5BCl-%5D.%5BCl%3A5%5D%5BCH2%3A6%5D%5BCH2%3A7%5D%5BCH2%3A8%5D%5BC%3A9%5D(Cl)%3D%5BO%3A10%5D.%5BC%3A12%5D1(%5BCH%3A18%5D(%5BCH3%3A20%5D)%5BCH3%3A19%5D)%5BCH%3A17%5D%3D%5BCH%3A16%5D%5BCH%3A15%5D%3D%5BCH%3A14%5D%5BCH%3A13%5D%3D1%3EC(Cl)Cl%3E%5BCl%3A5%5D%5BCH2%3A6%5D%5BCH2%3A7%5D%5BCH2%3A8%5D%5BC%3A9%5D(%5BC%3A15%5D1%5BCH%3A16%5D%3D%5BCH%3A17%5D%5BC%3A12%5D(%5BCH%3A18%5D(%5BCH3%3A20%5D)%5BCH3%3A19%5D)%3D%5BCH%3A13%5D%5BCH%3A14%5D%3D1)%3D%5BO%3A10%5D&amp;abbr=on&amp;hdisp=bridgehead&amp;showtitle=false&amp;zoom=1.6&amp;annotate=none">this one</a>.</p>
+<p><img src="/images/posts/20190128/cdk-depict.png" alt="CDK Depict" title="CDK Depict"></p>
+<h2 id="reactionmapping">Reaction Mapping</h2>
+<p>All reactions in the dataset have been mapped. Reaction mapping is a process whereby product atoms are mapped to the their corresponding reactant and/or reagent atoms. The NRD includes mappings from the reaction mapper functionality built into the <a href="https://www.nextmovesoftware.com/products/AtomMapping.pdf">Indigo Toolkit</a>. A few other reaction mappers are currently available. Custom mappings from one of them may be more appropriate than the NRD defaults.</p>
+<div class="videowrapper">
+  <iframe src="https://www.youtube.com/embed/DOWvvrO63A4" allowfullscreen=""></iframe>
+</div>
+<h2 id="applications">Applications</h2>
+<p>A corpus as comprehensive and practical as the NextMove dataset can clearly be used in many ways. <a href="https://doi.org/10.1021/acs.jmedchem.6b00153">One of the first applications</a> examined the characteristics of reactions and synthetic targets for medicinal chemistry over time.</p>
+<p><a href="https://doi.org/10.1021/acs.jmedchem.6b00153"><img src="/images/posts/20190128/reaction-overview.png" alt="Reaction Overview" title="Reaction Overview"></a></p>
+<p>The NRD has been used in several projects aimed at developing machine learning models. For example, a group at MIT used a 480K-reaction subset of the the NextMove dataset to build a <a href="https://arxiv.org/abs/1709.04555">template-free reaction product prediction system</a>.</p>
+<p><a href="https://arxiv.org/abs/1709.04555"><img src="/images/posts/20190128/reaction-center-prediction.png" alt="Reaction Center Prediction" title="Reaction Center Prediction"></a></p>
+<p>A similar approach was <a href="https://arxiv.org/abs/1811.02633">used by a group at IBM</a> to develop a reaction outcome predictor. Among other useful features, it could estimate its own accuracy, which was determined to be 89%. An implementation is available <a href="https://rxn.res.ibm.com">online</a>.</p>
+<p><a href="https://arxiv.org/abs/1811.02633"><img src="/images/posts/20190128/top-1-prediction.png" alt="Top-1 Prediction" title="Top-1 Prediction"></a></p>
+<p>Recently, a group from Lilly described <a href="https://doi.org/10.1186/s13321-018-0323-6">a data-driven retrosynthetic analysis engine</a> trained with the NRD. The <a href="https://github.com/EliLillyCo/LillyMol">implementation is available on GitHub</a>.</p>
+<p><a href="https://doi.org/10.1186/s13321-018-0323-6"><img src="/images/posts/20190128/lilly-retrosynthesis.png" alt="Lilly Retrosynthesis" title="Lilly Retrosynthesis"></a></p>
+<p>An approach similar to the one used to generate NRD was used to <a href="https://doi.org/10.1186/s13321-016-0113-y">harvest a large collection of experimentally-determined melting points</a> for use in building a melting point model.</p>
+<p><a href="https://doi.org.10.1186/s13321-016-0113-y"><img src="/images/posts/20190128/melting-point-pipeline.png" alt="Melting Point Pipeline" title="Melting Point Pipeline"></a></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Organic synthesis underpins much of modern society. As such, it's hard to overstate the utility of an open, machine-readable, freely-reusable, annotated reaction corpus as large and complete as the NextMove reaction dataset. The theoretical and practical applications that have already appeared hint at some of the things that are now possible.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

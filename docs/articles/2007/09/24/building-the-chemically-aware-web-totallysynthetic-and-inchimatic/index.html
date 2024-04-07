@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Building the Chemically-Aware Web - TotallySynthetic and InChIMatic | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Building the Chemically-Aware Web - TotallySynthetic and InChIMatic</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-09-24T00:00:00.000Z">2007-09-24T00:00:00.000Z</time>
+      </header>
+      <p>Recent D-F articles have discussed InChIMatic, a Web application that lets you search the Web for chemical structures by simply drawing them. InChIMatic takes advantage of <a href="http://www.iupac.org/inchi/">InChI</a>, a system for representing molecular structures as a strings of text, and Google, which indexes these text strings. In this article, I'll show InChIMatic in action as it quickly finds a molecule discussed in a <a href="http://totallysynthetic.com/blog/?p=762">review</a> of <a href="http://dx.doi.org/10.1021/ja074300t">Overman's Sarain A synthesis</a> appearing in Paul Docherty's <a href="http://totallysynthetic.com/blog">TotallySynthetic blog</a>.</p>
+<h2 id="youcanskipthisstep">You Can Skip this Step</h2>
+<p>The TotallySynthetic review lists three InChIs at the bottom, but which structures, out of the many discussed, do these represent? We need to know so that we can enter these structures into InChIMatic. This is, of course a step only needed because we're testing the system, not because we're using the system the way it was designed to be used.</p>
+<p>A recent D-F article discussed a method for <a href="http://depth-first.com/articles/2007/09/06/from-inchi-to-image-with-ruby-open-babel-and-ruby-cdk">converting InChIs into 2D structures</a> using Ruby. It has the advantage of being easily adaptable to building chemically-aware Web spiders. And it's 100% Open Source.</p>
+<p><img src="/images/posts/20070924/first.png" alt="First" title="First">
+<img src="/images/posts/20070924/second.png" alt="Second" title="Second">
+<img src="/images/posts/20070924/third.png" alt="Third" title="Third"></p>
+<p>Running this library over TotallySynthetic's InChIs yields the three images above. Notice, we have some problems. The first and third images lack stereochemistry. The second has a trans- double bond instead of the cis- stereochemistry encoded by the InChI. There are good reasons for each of these problems, which I hope to address in later articles. For now, it's sufficient that we can clearly make the connection between the TotallySynthetic InChIs and structures in the Sarain A review.</p>
+<h2 id="runthesearch">Run the Search</h2>
+<p>We can test this system by pointing our browser to <a href="http://inchimatic.com">inchimatic.com</a>. Entering one of the structures and clicking "Search" takes us directly to a link for the TotallySynthetic site, courtesy of Google. Unfortunately, the link doesn't currently point to <a href="http://totallysynthetic.com/blog/?p=762">the article itself</a>. This issue may resolve itself as the Googlebot continues to index the TotallySynthetic site.</p>
+<p><img src="/images/posts/20070924/inchimatic.png" alt="InChIMatic" title="InChIMatic"></p>
+<h2 id="atechnicalnote">A Technical Note</h2>
+<p>If you spend any time working with InChIs, you'll notice that they're very long. So long, in fact, that they break many Web page layouts. There have been many attempts to <a href="http://depth-first.com/articles/2007/03/05/why-the-web-isnt-ready-for-chemistry">fix the long-InChI problem</a>, but Paul may have found the answer by trying the simplest thing that could possibly work.</p>
+<p>If you inspect the HTML source for the TotallySynthetic article, you'll find that Paul has inserted hard returns (<code>br</code> elements) to manually break his InChIs, including <del>the one we just located with InChIMatic (first in the list)</del> the first and last structures above, both of which can be found with InChIMatic:</p>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">small</span>&gt;</span>InChI=1/C29H33NO4Si/c1-5-32-28(31)26-25(34-27(30-26)22-15-9-6-10-16-22)21-33-35(29(2,3)4,23-17-11-7-12-18-23)24-19-13-8-14-20-24<span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
+/h6-20,25-26H,5,21H2,1-4H3/t25-,26-/m0/s1 InChI=1/C18H25NO6S/c1-14-9-11-15(12-10-14)26(22,23)19(17(21)25-18(2,3)4)13-7-6-8-16(20)24-5/h6,8-12H,7,13H2,1-5H3/b8-6- InChI=1/C47H58N2O10SSi/c1-10-56-43(51)47(36(32-41(50)55-9)30-31-49(44(52)59-45(3,4)5)60(53,54)37-28-26-34(2)27-29-37)40<span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
+
+(58-42(48-47)35-20-14-11-15-21-35)33-57-61(46(6,7)8,38-22-16-12-17-23-38)39-24-18-13-19-25-39/h11-29,36,40H,10,30-33H2,1-9H3<span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
+/t36-,40-,47-/m0/s1<span class="hljs-tag">&lt;/<span class="hljs-name">small</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+</code></pre>
+<p>In other words, fixing the long InChI/Google indexing problem may be as simple as just inserting <code>br</code> elements when needed. More on this later, though.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>This article has shown a working demonstration that uses free tools to build self-organizing, highly distributed, searchable chemical databases. Although the system is far from perfect, it does provide a glimpse at what can be done right now with relatively little effort. Starting with this basic idea, we can begin to think about a variety of fast, free, user-friendly services that make finding molecules on the Web, and publishing their wherabouts, as easy as using Google and WordPress. But that's a story for another time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

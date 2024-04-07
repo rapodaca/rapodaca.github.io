@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Substructure Search From Scratch in Java Part 1 - The Atom Mapping Problem | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Substructure Search From Scratch in Java Part 1 - The Atom Mapping Problem</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-11-17T00:00:00.000Z">2008-11-17T00:00:00.000Z</time>
+      </header>
+      <p>One of the most important capabilities in cheminformatics is mapping the atoms of a <em>query structure</em> onto the atoms of a <em>target structure</em>. Although useful in itself, the main value of atom mapping comes from the software that gets built on top of it: exact structure comparators, <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">substructure search systems</a>, and query atom/bond search systems such as <a href="http://www.daylight.com/dayhtml/doc/theory/theory.smarts.html">SMARTS</a>. The fundamental nature of atom mapping means that correctness, efficiency and adaptability are essential features of a good mapping implementation. Recently, a D-F article made the case that atom mapping software written in Java <a href="/articles/2008/11/13/one-of-these-things-is-not-like-the-other">needs to be Java-centric</a> to achieve these goals. This article, the first in a series that describes a complete substructure search system written in Java, takes the first step by offering some simple interface definitions and code for the atom mapping problem.</p>
+<h2 id="theproblem">The Problem</h2>
+<p>Given a query molecule (<code>query</code>) and a target molecule (<code>target</code>), our atom mapping software needs to find ways to match the atoms of <code>query</code> onto <code>target</code> such that the mapping describes a substructure embedded in <code>target</code>. The software might stop at one mapping, continue on to find all of them, or stop at some point in the middle. It all depends on the specific cheminformatics problem we're trying to solve.</p>
+<h2 id="therecursivefunction">The Recursive Function</h2>
+<p>Our implementation will gradually build up an atom mapping by traversing the atoms of <code>query</code> in depth-first order and trying to map each found atom onto an atom in <code>target</code>. At each step in the process, we will have a partial atom map that maps some of the atoms in <code>query</code> onto <code>target</code>. That map, and any other information needed to complete the analysis will be kept in an instance of a class implementing the <code>State</code> interface.</p>
+<p>A <code>State</code> will be manipulated by a recursive method, <code>mapFirst</code> that returns when the first atom map is found:</p>
+<pre><code class="hljs java language-java"><span class="hljs-comment">// create a list to hold atom maps</span>
+List&lt;Map&lt;Atom, Atom&gt;&gt; maps = <span class="hljs-keyword">new</span> ArrayList&lt;Map&lt;Atom, Atom&gt;&gt;();
+
+<span class="hljs-comment">// create initial state</span>
+State state = ...; 
+
+<span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">mapFirst</span><span class="hljs-params">(State state)</span>
+</span>{
+  <span class="hljs-keyword">if</span> (state.isDead())
+  {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+  }
+
+  <span class="hljs-keyword">if</span> (state.isGoal())
+  {
+    maps.add(state.getMap());
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+  }
+
+  <span class="hljs-keyword">boolean</span> found = <span class="hljs-keyword">false</span>;
+
+  <span class="hljs-keyword">while</span> (!found &amp;&amp; state.hasNextCandidate())
+  {
+    Match candidate = state.nextCandidate();
+
+    <span class="hljs-keyword">if</span> (state.isMatchFeasible(candidate))
+    {
+      State nextState = state.nextState(candidate);
+      found = mapFirst(nextState);
+
+      nextState.backTrack();
+    }
+  }
+
+  <span class="hljs-keyword">return</span> found;
+}
+</code></pre>
+<p>Comparison of the <code>mapFirst</code> method to the pseudocode <a href="/articles/2008/11/13/one-of-these-things-is-not-like-the-other">VF algorithm <code>Match</code> procedure given in the previous article</a> shows some similarities. In fact, something similar to the <code>mapFirst</code> method forms the basis of many atom mappers in use today.</p>
+<p>Although it may be clear from the code, it's worth re-iterating that each time <code>mapFirst</code> is recursively called, an attempt is made to branch off a new <code>State</code> that maps an additional pair of atoms from <code>query</code> to <code>target</code>. If that branch leads to a possible solution, it's followed. Otherwise the next possible mapping is explored.</p>
+<h2 id="thestateinterface">The <code>State</code> Interface</h2>
+<p>The recursive <code>mapFirst</code> method determines all of the methods the <code>State</code> interface needs to define:</p>
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">State</span>
+</span>{
+  <span class="hljs-comment">/**
+   * Returns the current mapping of query atoms onto target atoms.
+   * This map is shared among all states obtained through nextState.
+   */</span>
+  <span class="hljs-keyword">public</span> Map&amp;lt;Atom, Atom&amp;gt; getMap();
+
+  <span class="hljs-comment">/**
+   * Returns true if another candidate match can be found or
+   * false otherwise.
+   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">hasNextCandidate</span><span class="hljs-params">()</span></span>;
+
+  <span class="hljs-comment">/**
+   * Returns the next candidate match.
+   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> Match <span class="hljs-title">nextCandidate</span><span class="hljs-params">()</span></span>;
+
+  <span class="hljs-comment">/**
+   * Returns true if the given match will work with the current
+   * map, or false otherwise.
+   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isMatchFeasible</span><span class="hljs-params">(Match match)</span></span>;
+
+  <span class="hljs-comment">/**
+   * Returns true if all atoms in the query molecule have been
+   * mapped.
+   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isGoal</span><span class="hljs-params">()</span></span>;
+
+  <span class="hljs-comment">/**
+   * Returns true if no match will come from this State.
+   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isDead</span><span class="hljs-params">()</span></span>;
+
+  <span class="hljs-comment">/**
+   * Returns a state in which the atoms in match have been
+   * added to the current mapping.
+   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> State <span class="hljs-title">nextState</span><span class="hljs-params">(Match match)</span></span>;
+
+  <span class="hljs-comment">/**
+   * Returns this State's atom map to its original condition.
+   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">backTrack</span><span class="hljs-params">()</span></span>;
+}
+</code></pre>
+<p>Finally, <code>State</code> uses an instance of the <code>Match</code> class:</p>
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Match</span>
+</span>{
+  <span class="hljs-keyword">private</span> Atom query;
+  <span class="hljs-keyword">private</span> Atom target;
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Match</span><span class="hljs-params">(Atom query, Atom target)</span>
+  </span>{
+    <span class="hljs-keyword">this</span>.query = query;
+    <span class="hljs-keyword">this</span>.target = target;
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> Atom <span class="hljs-title">getQueryAtom</span><span class="hljs-params">()</span>
+  </span>{
+    <span class="hljs-keyword">return</span> query;
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> Atom <span class="hljs-title">getTargetAtom</span><span class="hljs-params">()</span>
+  </span>{
+    <span class="hljs-keyword">return</span> target;
+  }
+}
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>With just a few lines of Java, we've managed to reduce the fundamental cheminformatics problem of atom mapping to the far simpler problem of implementing the <code>State</code> interface.</p>
+<p>How many ways are there to implement the <code>State</code> interface? Probably as many as there are subgraph isomorphism algorithms. Notice that the way we've set up the problem lets us use the same recursive method to test all <code>State</code> implementations, an essential prerequisite for benchmarking and optimization.</p>
+<p>Future articles in this series will describe one way to implement the <code>State</code> interface.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

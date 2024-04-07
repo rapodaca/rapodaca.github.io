@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Substructure Search Idoms: Hydrogen Means Block Substitution | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Substructure Search Idoms: Hydrogen Means Block Substitution</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2009-03-05T00:00:00.000Z">2009-03-05T00:00:00.000Z</time>
+      </header>
+      <p>As you can see from the <a href="http://github.com/rapodaca.atom">GitHub log</a>, work on <a href="http://metamolecular.com/mx/">MX</a>, the cross-platform, cross-language cheminformatics toolkit, is currently centered around adding support for complex structure queries with query atoms and query bonds. Although this is not a <a href="http://www.daylight.com/dayhtml/doc/theory/theory.smarts.html">SMARTS</a> system, the net result would the same - more control over structure queries.</p>
+<p>The reason for this focus has to do with a commonly used, but not always implemented substructure searching idiom. Chemists using a substructure search system, like that to be included in <a href="http://chemvendor.com/">ChemVendor</a>, will want to "block" substitution on an atom by adding explicit hydrogens to arrive at the desired valence. So, for example, if Joe draws benzaldehyde with a hydrogen attached to the carbonyl carbon and submits a substructure search, he expects to see benzaldehydes, but not benzamides or benzoate esters.</p>
+<p><a href="/images/posts/20090305/sss.png" title="SSS">SSS</a></p>
+<p>Given the right pre-processing of the submitted query structure, this kind of simplifying yet powerful substructure searching idom would be supported through MX.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

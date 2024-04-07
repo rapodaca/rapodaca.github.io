@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>How to Validate CAS Registry Numbers in JavaScript | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>How to Validate CAS Registry Numbers in JavaScript</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2011-10-20T00:00:00.000Z">2011-10-20T00:00:00.000Z</time>
+      </header>
+      <p>Some time ago I needed to <a href="http://depth-first.com/articles/2008/07/23/validating-cas-numbers/">validate CAS Numbers in Ruby</a>. Recently, I needed to validate CAS Numbers in JavaScript. The problem boils down to comparing the <a href="http://www.cas.org/expertise/cascontent/registry/checkdig.html">terminal check digit</a> with the expected value. The function <strong>validateCAS</strong> does the trick:</p>
+<pre><code class="hljs js language-js"><span class="hljs-keyword">var</span> validateCAS = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cas</span>) </span>{
+  <span class="hljs-keyword">if</span> (!cas || !cas.match(<span class="hljs-regexp">/[0-9]{2,7}-[0-9]{2}-[0-9]/</span>)) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+
+  <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">var</span> digits = cas.replace(<span class="hljs-regexp">/-/g</span>, <span class="hljs-string">''</span>);
+
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = digits.length - <span class="hljs-number">2</span>; i &gt;= <span class="hljs-number">0</span>; i--) {
+    sum = sum + <span class="hljs-built_in">parseInt</span>(digits[i]) * (digits.length - i - <span class="hljs-number">1</span>);
+  }
+
+  <span class="hljs-keyword">return</span> sum % <span class="hljs-number">10</span> === <span class="hljs-built_in">parseInt</span>(cas.slice(<span class="hljs-number">-1</span>));
+};
+</code></pre>
+<p>To test, open up a browser or Node.js console, include the above function, and use:</p>
+<pre><code class="hljs js language-js"><span class="hljs-built_in">console</span>.log(validateCAS(<span class="hljs-string">'107-07-3'</span>)); <span class="hljs-comment">// prints true</span>
+</code></pre>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

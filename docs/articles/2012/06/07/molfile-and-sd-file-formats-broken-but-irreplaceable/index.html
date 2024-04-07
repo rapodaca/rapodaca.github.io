@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Molfile and SD File Formats: Broken But Irreplaceable? | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Molfile and SD File Formats: Broken But Irreplaceable?</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2012-06-07T00:00:00.000Z">2012-06-07T00:00:00.000Z</time>
+      </header>
+      <p>Compared to many areas of computer science, cheminforamtics is a backwater. Consider our "standard" file formats Molfile and SD File. These formats, collectively referred to as "<a href="http://accelrys.com/products/informatics/cheminformatics/ctfile-formats/no-fee.php">CTfile Formats</a>" were first described in the peer review literature in <a href="http://pubs.acs.org/doi/abs/10.1021/ci00007a012">1992</a>, and had been in use for years prior to that. CTfile is an 80-character, line-based text file format that bears little resemblance to the standard information interchange formats XML and JSON in wide use everywhere else.</p>
+<p>But make no mistake. This quaint but <a href="http://molmatinf.com/whynotmolsdf.html">broken</a> method of moving data around is just as relevant today as it was in 1992 - likely more so.</p>
+<p>Why do we in cheminformatics continue to use CTfile formats to the exclusion of all others? This was the question <a href="https://twitter.com/itdaniher/status/210397975741079552">posed to me</a> by Ian Daniher (<a href="https://twitter.com/#!/itdaniher">@itdaniher</a>) of <a href="http://www.nonolithlabs.com/">Nonolith Labs</a>. Ian has developed <a href="https://github.com/itdaniher/PyChEBI">PyChEBI</a> - "a Python script to convert the quasi-obsolete SDF file format into a sane (Pythonic) datastructure."</p>
+<p>I've come up with these reasons why CTfile remains the go-to data format in chemistry:</p>
+<ol>
+<li><strong>CTfile is good enough.</strong> The CTfile format offers enough functionality to solve most problems involving data exchange in chemistry.</li>
+<li><strong>CTfile is relatively well-documented.</strong> <a href="http://accelrys.com/products/informatics/cheminformatics/ctfile-formats/no-fee.php">A single PDF</a> contains everything you'll need to implement a CTfile reader and writer. The documentation has been updated regularly for many years now.</li>
+<li><strong>CTfile is easy to understand.</strong> Although the specification has grown a number of odd whiskers over time, the core concepts remain very easy to understand and implement.</li>
+<li><strong>Lack of compelling alternatives.</strong> <a href="http://www.xml-cml.org/">Chemical Markup Language</a> (CML), an XML-based format, has been in development for many years. Yet it still fails to attract attention outside of a limited audience in cheminformatics. Lack of good <a href="http://www.xml-cml.org/documentation/index.html">documentation</a> coupled with constantly-evolving schema and tooling are two reasons, but this list is evidence of many others.</li>
+<li><strong>Lack of a competing standard used by must-have software.</strong> CTfile formats were developed by <a href="http://en.wikipedia.org/wiki/MDL_Information_Systems">MDL Information Systems</a> for use with its suite of user-focused chemistry tools. MDL recognized that CTfile was key to making its business work - and so dedicated the resources necessary to develop and document it. Similar statements apply to the <a href="/articles/2010/09/13/a-brief-introduction-to-the-chemdraw-cdx-file-format/">ChemDraw CDX format</a>.</li>
+<li><strong>Open Standard.</strong> Software that reads and writes CTfiles can be created without paying license fees to MDL or its successor companies. Combined with freely-available documentation, this is about as close as we get in cheminformatics to an open standard.</li>
+<li><strong>Databases rule.</strong> Demand for chemical information interchange formats is driven in large part by <a href="/articles/2011/10/12/sixty-four-free-chemistry-databases/">chemical databases</a>, free and otherwise. When these databases offer the ability to perform mass downloads, they generally use a CTfile format. CTfile is the only format these services can rely on their users being able to open.</li>
+<li><strong>Software.</strong> Molfile and SD File are the only file formats for which stable, well-tested readers and writers have been universally implemented. No other file format enjoys such privilege and this is unlikely to change anytime soon.</li>
+<li><strong><a href="http://www.codinghorror.com/blog/2004/08/worse-is-better.html">Worse is better.</a></strong> Enough said.  </li>
+</ol>
+<p>Will CTfile ever be replaced by another standard? Of course. I suspect that the replacement will address one or more of the points above. The replacement for CTfile will also likely start out by gaining a foothold at the periphery of chemistry/cheminformatics and will be ignored by the mainstream for some time. Given the seeming insurmountability of the task, I further suspect that the standard that replaces CTfile will be developed by a group of relative outsiders - they would be the only ones who would think such a thing is even possible.</p>
+<p>So, Ian, I salute your initiative. You may be onto something.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

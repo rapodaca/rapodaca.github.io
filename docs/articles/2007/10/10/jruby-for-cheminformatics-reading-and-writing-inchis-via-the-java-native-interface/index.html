@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JRuby for Cheminformatics - Reading and Writing InChIs Via the Java Native Interface | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>JRuby for Cheminformatics - Reading and Writing InChIs Via the Java Native Interface</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-10-10T00:00:00.000Z">2007-10-10T00:00:00.000Z</time>
+      </header>
+      <p>The increased use of the <a href="/articles/2007/09/27/inchi-for-newbies">InChI identifier</a> is making the reading and writing of InChIs a standard cheminformatics capability. Recent articles have discussed the advantages of JRuby for cheminformatics. One disadvantage of JRuby is that code written in C can't be directly used. The presents a potential problem for libraries, such as the InChI toolkit, that are written in C. Fortunately, the solution is simple. Today's tutorial will demonstrate how InChIs can be both read and written using the C-InChI toolkit via JRuby and the excellent <a href="http://jni-inchi.sourceforge.net/">JNI-InChI library</a>.</p>
+<h2 id="aboutjniinchi">About JNI-InChI</h2>
+<p>The <a href="http://jni-inchi.sourceforge.net/">JNI-InChI</a> library, written by Jim Downing and Sam Adams, wraps the <a href="http://www.iupac.org/inchi/">C InChI toolkit</a> in a Java Native Interface. This low-level toolkit is suitable for building more complex software, but lacks many features present in the C InChI toolkit. For example, JNI-InChI doesn't directly interconvert SMILES or molfile with InChI. For that you'd need to build a support library. If you're building a toolkit from scratch, this lightweight approach can be a significant advantage.</p>
+<p>The JNI-InChI binary distribution jarfile includes the compiled native InChI library. In this sense it's virtually indistinguishable from any other Java library. This simplified packaging makes it exceptionally easy to use JNI-InChI from JRuby, as we'll see below.</p>
+<h2 id="installation">Installation</h2>
+<p>JRuby <a href="/articles/2007/10/09/jruby-for-cheminformatics-parsing-smiles-simply">can be installed</a> as described previously. To install the JNI-InChI library for JRuby, simply copy the <a href="http://sourceforge.net/project/showfiles.php?group_id=173262">current release jarfile</a> into the <code>lib</code> directory of your JRuby installation. That's all there is to it.</p>
+<h2 id="asimplelibrary">A Simple Library</h2>
+<p>We can now write a simple library to read InChIs via JRuby:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'java'</span>
+
+include_class <span class="hljs-string">'net.sf.jniinchi.JniInchiInput'</span>
+include_class <span class="hljs-string">'net.sf.jniinchi.JniInchiInputInchi'</span>
+include_class <span class="hljs-string">'net.sf.jniinchi.JniInchiWrapper'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">IUPAC</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">read_inchi</span> <span class="hljs-title">inchi</span></span>
+    input = JniInchiInputInchi.new inchi
+
+    JniInchiWrapper.getStructureFromInchi input
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<h2 id="testingthelibrary">Testing the Library</h2>
+<p>By saving the above library to a file called <strong>iupac.rb</strong>, we can parse InChIs via JRuby:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'iupac'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include IUPAC
+=&gt; Object
+irb(main):003:0&gt; output = read_inchi <span class="hljs-string">'InChI=1/C14H10/c1-3-7-13-11(5-1)9-10-12-6-2-4-8-14(12)13/h1-10H'</span>
+=&gt; <span class="hljs-comment">#&lt;Java::NetSfJniinchi::JniInchiOutputStructure:0x1ed5459 @java_object=net.sf.jniinchi.JniInchiOutputStructure@313170&gt;</span>
+irb(main):004:0&gt; output.num_atoms
+=&gt; 14
+irb(main):005:0&gt; output.num_bonds
+=&gt; 16
+</code></pre>
+<h2 id="writinginchis">Writing InChIs</h2>
+<p>Because JNI-InChI is a low-level toolkit, writing InChIs is feasible, but not trivial. We must first construct a representation, and then get the InChI for it. For example, we could get the InChI for methane as follows:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'java'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; include_class <span class="hljs-string">'net.sf.jniinchi.JniInchiInput'</span>
+=&gt; [<span class="hljs-string">"net.sf.jniinchi.JniInchiInput"</span>]
+irb(main):003:0&gt; include_class <span class="hljs-string">'net.sf.jniinchi.JniInchiAtom'</span>
+=&gt; [<span class="hljs-string">"net.sf.jniinchi.JniInchiAtom"</span>]
+irb(main):004:0&gt; include_class <span class="hljs-string">'net.sf.jniinchi.JniInchiWrapper'</span>
+=&gt; [<span class="hljs-string">"net.sf.jniinchi.JniInchiWrapper"</span>]
+irb(main):005:0&gt; input = JniInchiInput.new
+=&gt; <span class="hljs-comment">#&lt;Java::NetSfJniinchi::JniInchiInput:0x2f2295 @java_object=net.sf.jniinchi.JniInchiInput@15b0333&gt;</span>
+irb(main):006:0&gt; a1 = input.add_atom JniInchiAtom.new(0,0,0, <span class="hljs-string">"C"</span>)
+=&gt; <span class="hljs-comment">#&lt;Java::NetSfJniinchi::JniInchiAtom:0x1b22920 @java_object=net.sf.jniinchi.JniInchiAtom@2f356f&gt;</span>
+irb(main):007:0&gt; a1.set_implicit_h(4)
+=&gt; nil
+irb(main):008:0&gt; output = JniInchiWrapper.get_inchi input
+=&gt; <span class="hljs-comment">#&lt;Java::NetSfJniinchi::JniInchiOutput:0xf894ce @java_object=net.sf.jniinchi.JniInchiOutput@132ae7&gt;</span>
+irb(main):009:0&gt; output.get_inchi
+=&gt; <span class="hljs-string">"InChI=1/CH4/h1H4"</span>
+</code></pre>
+<p>Fortunately, we don't have to work that hard. The <a href="http://cdk.sf.net">Chemistry Development Kit</a>, through JNI-InChI, supports reading and writing of InChIs via a variety of molecular languages, including SMILES and molfile. More on that later, though.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Provided that a Java Native Interface exists for a C library, it can be used from JRuby. Future articles will discuss the use of other cheminformatics libraries written in either C or C++ from JRuby, and their integration with pure Java and Ruby libraries.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

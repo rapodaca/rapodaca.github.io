@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fast Substructure Search Using Open Source Tools Part 5 - Relating Molecules to Fingerprints with SQL | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Fast Substructure Search Using Open Source Tools Part 5 - Relating Molecules to Fingerprints with SQL</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-10-21T00:00:00.000Z">2008-10-21T00:00:00.000Z</time>
+      </header>
+      <p>A molecular fingerprint is a special kind of <a href="http://en.wikipedia.org/wiki/Hash_function">hash function</a> that can reproducibly place any molecule, known or unknown, into one of a large but finite set of groups. Each molecule will be associated with exactly one fingerprint, but each fingerprint can be associated with multiple molecules. In other words, there exists a one-to-many relationship between fingerprints and molecules. This article outlines one of the final steps in creating a substructure-searchable relational chemical database by describing a simple method for associating fingerprints and molecules.</p>
+<p>All Articles in this Series:</p>
+<ul>
+<li><a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">Part 1: Fingerprints and Databases</a></li>
+<li><a href="/articles/2008/10/03/fast-substructure-search-using-open-source-tools-part-2-fingerprint-screen-with-sql">Part 2: Fingerprint Screen With SQL</a></li>
+<li><a href="/articles/2008/10/06/fast-substructure-search-using-open-source-tools-part-3-a-crud-api-for-fingerprints-in-ruby">Part 3: A CRUD API for Fingerprints in Ruby</a></li>
+<li><a href="/articles/2008/10/15/fast-substructure-search-using-open-source-tools-part-4-creating-fingerprints-from-chemical-structures">Part 4: Creating Fingerprints from Chemical Structures</a></li>
+<li>Part 5: Relating Molecules to Fingerprints with SQL</li>
+<li><a href="/articles/2008/10/29/fast-substructure-search-using-open-source-tools-part-6-modelling-a-one-to-many-relationship-between-fingerprints-and-compounds-in-ruby">Part 6: Modelling a One-To-Many Relationship Between Fingerprints and Compounds in Ruby</a></li>
+</ul>
+<h2 id="modellingaonetomanyrelationship">Modelling a One-To-Many Relationship</h2>
+<p>The <a href="http://www.onlamp.com/pub/a/onlamp/2001/03/20/aboutSQL.html">one-to-many relationship</a> is one of the most fundamental concepts in relational databases. In our case, we'd like to create a new table called <code>compounds</code>. We'd furthermore like to link each row in the <code>compounds</code> table with a row in the <code>fingerprints</code> table. This can be accomplished by adding a column to the <code>compounds</code> table that's capable of holding an id from the "fingerprints" table (<a href="http://en.wikipedia.org/wiki/Foreign_key">foreign key</a>).</p>
+<p>This would then give us the ability to gather all of the rows in the <code>compounds</code> table that match a particular fingerprint (or group of fingerprints).</p>
+<h2 id="creatingthecompoundstable">Creating the <code>compounds</code> Table</h2>
+<p>The <code>compounds</code> table we'll create will store three pieces of information:</p>
+<ol>
+<li>A unique id (something that all of our tables will have).</li>
+<li>An integer column called "fingerprint_id" that will store the unique id of a fingerprint described by a row in the <code>fingerprints</code> table.</li>
+<li>A string column called "smiles" that will hold the SMILES string of each compound in compact form.</li>
+</ol>
+<p>We can create the table with the following:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; create table compounds (id int not null auto_increment, primary key(id), fingerprint_id int, smiles text);
+Query OK, 0 rows affected (0.01 sec)
+
+mysql&gt; describe compounds;
++----------------+---------+------+-----+---------+----------------+
+| Field          | Type    | Null | Key | Default | Extra          |
++----------------+---------+------+-----+---------+----------------+
+| id             | int(11) | NO   | PRI | NULL    | auto_increment | 
+| fingerprint_id | int(11) | YES  |     | NULL    |                | 
+| smiles         | text    | YES  |     | NULL    |                | 
++----------------+---------+------+-----+---------+----------------+
+3 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<h2 id="usingcompoundsandfingerprintstogether">Using <code>compounds</code> and <code>fingerprints</code> Together</h2>
+<p>Now let's populate our database with some simple, fake data. If you haven't done so already, delete all rows from your existing <code>fingerprints</code> table:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; delete from fingerprints;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql&gt; select * from fingerprints;
+Empty <span class="hljs-built_in">set</span> (0.00 sec)
+
+mysql&gt; describe fingerprints;
++--------+---------------------+------+-----+---------+----------------+
+| Field  | Type                | Null | Key | Default | Extra          |
++--------+---------------------+------+-----+---------+----------------+
+| id     | int(11)             | NO   | PRI | NULL    | auto_increment | 
+| byte0  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte1  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte2  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte3  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte4  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte5  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte6  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte7  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte8  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte9  | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte10 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte11 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte12 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte13 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte14 | bigint(64) unsigned | YES  |     | 0       |                | 
+| byte15 | bigint(64) unsigned | YES  |     | 0       |                | 
++--------+---------------------+------+-----+---------+----------------+
+17 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.01 sec)
+</code></pre>
+<p>Now let's create a dummy fingerprint for the sake of simplicity:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; insert into fingerprints () values();
+Query OK, 1 row affected (0.00 sec)
+
+mysql&gt; select * from fingerprints;
++-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
+| id    | byte0 | byte1 | byte2 | byte3 | byte4 | byte5 | byte6 | byte7 | byte8 | byte9 | byte10 | byte11 | byte12 | byte13 | byte14 | byte15 |
++-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
+| 16806 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |      0 |      0 |      0 |      0 |      0 |      0 | 
++-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
+1 row <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<p>Let's associate two compounds with this fingerprint:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; insert into compounds (fingerprint_id,smiles) values(16806,<span class="hljs-string">'c1ccccc1'</span>);
+Query OK, 1 row affected (0.01 sec)
+
+mysql&gt; insert into compounds (fingerprint_id,smiles) values(16806,<span class="hljs-string">'c1ccccc1Br'</span>);
+Query OK, 1 row affected (0.00 sec)
+
+mysql&gt; select * from compounds;
++----+----------------+------------+
+| id | fingerprint_id | smiles     |
++----+----------------+------------+
+| 20 |          16806 | c1ccccc1   | 
+| 21 |          16806 | c1ccccc1Br | 
++----+----------------+------------+
+2 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<p>We can now find all compounds with fingerprints containing no bits set:</p>
+<pre><code class="hljs bash language-bash">mysql&gt; select compounds.* from compounds inner join fingerprints on compounds.fingerprint_id=fingerprints.id <span class="hljs-built_in">where</span> fingerprints.byte0=0 and fingerprints.byte1=0 and fingerprints.byte2=0 and fingerprints.byte3=0 and fingerprints.byte4=0 and fingerprints.byte5=0 and fingerprints.byte6=0 and fingerprints.byte7=0 and fingerprints.byte8=0 and fingerprints.byte8=0 and fingerprints.byte9=0 and fingerprints.byte10=0 and fingerprints.byte11=0 and fingerprints.byte12=0 and fingerprints.byte13=0 and fingerprints.byte14=0 and fingerprints.byte15=0;
++----+----------------+------------+
+| id | fingerprint_id | smiles     |
++----+----------------+------------+
+| 20 |          16806 | c1ccccc1   | 
+| 21 |          16806 | c1ccccc1Br | 
++----+----------------+------------+
+2 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
+</code></pre>
+<p>We could just as easily replace the "=" operator with the "&amp;" operator to perform substructure fingerprint screens. Although the data we're using is hardly realistic, the same concepts apply regardless of how the fingerprints are constructed.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>We now have a way to associate fingerprints with compounds stored in our database. Although we could continue to populate and query our database using hand-coded SQL statements, what we'd really like to use is an API written in a high-level programming language. The next article in this series will demonstrate how this can be done in Ruby.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

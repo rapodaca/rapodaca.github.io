@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Humanizing Line Notations | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Humanizing Line Notations</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2006-09-02T00:00:00.000Z">2006-09-02T00:00:00.000Z</time>
+      </header>
+      <p><a href="http://depth-first.com/articles/tag/linenotation">Line notations</a> are useful for encoding molecular structure with computers, especially in a network environment. Because line notations are compact and ASCII-based, they can, among other purposes, be used to <a href="http://dx.doi.org/10.1039/b502828k">query popular Web search engines</a> for chemical content on the web. Useful as line notations are for computers, they are not as useful to humans, who would much rather have a 2-D structure diagram to look at.</p>
+<p><a href="http://www.daylight.com/daycgi/depict">Depict</a> is an example of software that generates 2-D structure renderings from a SMILES string. Behind the scenes, the software parses the SMILES string, creates a connection table, determines 2-D coordinates for its atoms, and produces a raster image of the result. Software accomplishing the same task is also available from <a href="http://demo.eyesopen.com/cgi-bin/depict">OpenEye</a>. In this tutorial, you'll see one way to create free Depict-like functionality from Open Source tools.</p>
+<h2 id="theingredients">The Ingredients</h2>
+<p>This tutorial uses Arton's <a href="http://rjb.rubyforge.org/">Ruby Java Bridge</a>, the installation and use of which has been outlined <a href="http://depth-first.com/articles/2006/08/26/scripting-java-libraries-with-ruby-java-bridge">previously</a>. In addition, you'll need to download <a href="http://prdownloads.sourceforge.net/structure/structure-cdk-0.1.2.zip?download">Structure-CDK v0.1.2</a>, also <a href="http://depth-first.com/articles/2006/08/28/drawing-2-d-structures-with-structure-cdk">previously discussed</a>. Be sure to download v0.1.2, as two upgrades have been released since the package was originally discussed.This tutorial has been tested on Mandriva Linux 2006.</p>
+<p>Create a working directory called <code>depict</code>. From the <code>lib</code> directory of the Structure-CDK distribution, copy <code>cdk-20060714.jar</code> and <code>structure-cdk-0.1.2.jar</code> into your <code>depict</code> working directory.</p>
+<h2 id="thecode">The Code</h2>
+<p>Now create a file called <code>depict.rb</code> and copy the following code into it:</p>
+<pre><code class="hljs ruby language-ruby">ENV[<span class="hljs-string">'CLASSPATH'</span>] = <span class="hljs-string">'./cdk-20060714.jar:./structure-cdk-0.1.2.jar'</span>
+
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
+require_gem <span class="hljs-string">'rjb'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">'rjb'</span>
+
+SmilesParser = Rjb::import <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
+StructureDiagramGenerator = Rjb::import <span class="hljs-string">'org.openscience.cdk.layout.StructureDiagramGenerator'</span>
+ImageKit = Rjb::import <span class="hljs-string">'net.sf.structure.cdk.util.ImageKit'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Depictor</span></span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
+    @smiles_parser = SmilesParser.new
+    @sdg = StructureDiagramGenerator.new
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict_png</span><span class="hljs-params">(smiles, width, height, path_to_png)</span></span>
+    ImageKit::writePNG(smi_to_mol(smiles), width, height, path_to_png)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict_svg</span><span class="hljs-params">(smiles, width, height, path_to_svg)</span></span>
+    ImageKit::writeSVG(smi_to_mol(smiles), width, height, path_to_svg)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">smi_to_mol</span><span class="hljs-params">(smiles)</span></span>
+    @sdg.setMolecule(@smiles_parser.parseSmiles(smiles))
+    @sdg.generateCoordinates
+
+    @sdg.getMolecule
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>After you save this file, you'll need to set your <code>LD_LIBRARY_PATH</code> on unix (or the equivalent on another OS):</p>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> LD_LIBRARY_PATH=<span class="hljs-variable">$JAVA_HOME</span>/jre/lib/i386:<span class="hljs-variable">$LD_LIBRARY_PATH</span>
+</code></pre>
+<p>This tells RJB where to find Java's native libraries. Because of RJB's current design, <tt>LD<em>LIBRARY</em>PATH</tt> needs to be set from the command line, rather than from within a Ruby process.</p>
+<p>Using the <tt>Depictor</tt> class is simple. For example, to generate SVG and PNG images of desloratadine (Clarinex):</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'depict'</span>
+
+depictor = Depictor.new
+
+depictor.depict_svg(<span class="hljs-string">'Clc4ccc3C(=C1CCNCC1)c2ncccc2CCc3c4'</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-string">'desloratadine.svg'</span>)
+depictor.depict_png(<span class="hljs-string">'Clc4ccc3C(=C1CCNCC1)c2ncccc2CCc3c4'</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-string">'desloratadine.png'</span>)
+</code></pre>
+<h2 id="theoutput">The Output</h2>
+<p>Running the above code, either with the Ruby interpreter (ruby) or with Interactive Ruby (irb) will produce an SVG and a PNG image in your <code>depict</code> directory containing the 2-D structure of the popular antihistamine (see image below). Scalable Vector Graphics (SVG) format is a popular, XML-based vector graphics encoding system that can be viewed with the <a href="http://www.mozilla.com/firefox/">Firefox browser</a> and several other software packages.</p>
+<p>The code we've used here takes advantage of convenience methods in the Structure-CDK library. However, it is possible to customize the output in several ways, including line thickness, line spacing, color scheme, and atom label height by using the library's lower-level API.</p>
+<p>Being able to render a human-readable structure diagram from a line notation is useful in many situations. As you can see, this complex process can be accomplished quickly using Ruby, Java and open source chemical informatics libraries. Future articles will make use of this capability in building more complex chemical informatics systems.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FlexMol and Axial Chirality: N-Arylacrylanilides | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>FlexMol and Axial Chirality: N-Arylacrylanilides</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-01-12T00:00:00.000Z">2007-01-12T00:00:00.000Z</time>
+      </header>
+      <p><img src="/images/posts/20070112/abstract.gif" alt="Heck cyclization" title="Heck cyclization"></p>
+<p>Recently, Heck cyclizations of <a href="http://dx.doi.org/10.1021/ja067790i">axially chiral <em>N</em>-arylacrylanilids</a> were reported by Lapierre, Geib, and Curran. Faithfully communicating this kind of chirality in machine-readable form is virtually impossible using today's most popular technologies. A <a href="http://depth-first.com/articles/2007/01/09/a-molecular-language-for-modern-chemistry-flexmol-and-axial-chirality">previous article</a> showed how a new XML-based molecular language, <a href="http://depth-first.com/doc/flexmol">FlexMol</a>, could fully represent the axial chirality of BINOL. This article will apply the same principles to an <em>N</em>-arylacrylanilide.</p>
+<h2 id="thecompleteflexmolrepresentation">The Complete FlexMol Representation</h2>
+<p><img src="/images/posts/20070112/acrylanilide.png" alt="Acrylanilide" title="Acrylanilide"></p>
+<p>Given the atom numbering of the above molecule, we can construct a <a href="/images/posts/20070112/acrylanilide.xml">complete FlexMol representation</a>. Rather than reproduce the entire XML document here, I'll just include stereochemically-relevant excerpts.</p>
+<h2 id="stereochemistrychiralaxis">Stereochemistry: Chiral Axis</h2>
+<p>The chiral axis is directed from Atom 11 to Atom 7. Half planes are arranged in clockwise fashion about this axis. To better visualize the placement of atoms into half planes, consider the following diagram:</p>
+<p><img src="/images/posts/20070112/chiral_axis_planes.png" alt="Chiral Axis Planes" title="Chiral Axis Planes"></p>
+<p>This leads to the following FlexMol representation:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!-- snip --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">conformationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">gammaSequence</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"11"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"7"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">connections</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"11"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"7"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">connections</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">gammaSequence</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"10"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"5"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"12"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"8"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">conformationWheel</span>&gt;</span>
+<span class="hljs-comment">&lt;!-- snip --&gt;</span>
+</code></pre>
+<h2 id="stereochemistryolefingeometry">Stereochemistry: Olefin Geometry</h2>
+<p>Assignment of olefin geometry in FlexMol was introduced in a <a href="http://depth-first.com/articles/2007/01/02/a-molecular-language-for-modern-chemistry-flexmol-and-alkene-geometrical-isomerism">previous article</a>. A simple disubstituted olefin was used as an example. Exactly the same principles apply in encoding the trisubstituted olefin geometry of our molecule of interest:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!-- snip --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">conformationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">gammaSequence</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"3"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"2"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">connections</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"3"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">connections</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">gammaSequence</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">upper</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">upper</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"5"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">conformationWheel</span>&gt;</span>
+<span class="hljs-comment">&lt;!-- snip --&gt;</span>
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>Axial chirality can be fully represented using FlexMol's simple system of axes and half planes. This system can be applied in novel situations, increasing FlexMol's potential as a self-describing molecular language.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

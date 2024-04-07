@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JInChI - Run InChI Anywhere Java Runs | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>JInChI - Run InChI Anywhere Java Runs</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-10-31T00:00:00.000Z">2007-10-31T00:00:00.000Z</time>
+      </header>
+      <p>Regardless of your views on Java the Programming Language, Java the Platform has a lot going for it. The ability to run the same executable on any system with a Java Virtual Machine (JVM), without recompilation, is a significant advantage in today's heterogeneous computing environment. Combine that with Java the Platform's battle-tested security model, stability and performance, and you have some compelling reasons to actually prefer that code execute on a JVM rather than bare metal.</p>
+<p>Cheminformatics has many useful libraries, legacy and otherwise, that don't yet run on a JVM. Many of these can trace their roots back to the 1960s and 1970s and FORTRAN; others were written in C or C++ more recently. What they all have in common is that they're compiled to native binaries rather than Java bytecode.</p>
+<p>Wouldn't it be great if this software could be easily compiled to Java bytecode instead?</p>
+<p>A recent Depth-First article described how the <a href="http://www.iupac.org/inchi/">InChI toolkit</a>, an open source C library distributed by IUPAC, <a href="/articles/2007/10/29/compiling-the-inchi-toolkit-to-pure-java-bytecode-with-nestedvm">was successfully compiled to a Java classfile</a> with the remarkable <a href="http://nestedvm.ibex.org/">NestedVM</a> library. This article describes the creation and use of a new platform-independent jarfile that runs the InChI program.</p>
+<p>The procedure was not difficult. The two files previously released ( <a href="http://downloads.sourceforge.net/ninja/JInChI.class?modtime=1193672654&amp;big_mirror=0">JInChI.class</a> and <a href="http://downloads.sourceforge.net/ninja/nestedvm.jar?modtime=1193673646&amp;big_mirror=0">nestedvm.jar</a>) were combined into a single executable jarfile with a Manifest pointing to the JInChI classfile as the Main class.</p>
+<p>The full cInChI jarfile can be <a href="http://sourceforge.net/project/showfiles.php?group_id=142870&amp;package_id=250448&amp;release_id=550857">downloaded here</a>.</p>
+<p>The <code>jinchi.jar</code> file can be tested from the command line:</p>
+<pre><code class="hljs bash language-bash">$ java -jar jinchi.jar
+InChI ver 1, Software version 1.01 release 07/21/2006.
+
+Usage:
+cInChI-1 inputFile [outputFile [logFile [problemFile]]] [-option[ -option...]]
+
+Options:
+  SNon        Exclude stereo (Default: Include Absolute stereo)
+  SRel        Relative stereo
+  SRac        Racemic stereo
+
+[truncated]
+</code></pre>
+<p>If we wanted to process a molfile representing toluene, we'd use something like the following:</p>
+<pre><code class="hljs bash language-bash">java -jar jinchi.jar <span class="hljs-built_in">test</span>/toluene.mol
+InChI version 1, Software version 1.01 release 07/21/2006
+Opened <span class="hljs-built_in">log</span> file <span class="hljs-string">'test/toluene.mol.log'</span>
+Opened input file <span class="hljs-string">'test/toluene.mol'</span>
+Opened output file <span class="hljs-string">'test/toluene.mol.txt'</span>
+Opened problem file <span class="hljs-string">'test/toluene.mol.prb'</span>
+Options: Mobile H Perception ON
+Isotopic ON, Absolute Stereo ON
+Omit undefined/unknown stereogenic centers and bonds
+Full Aux. info
+Input format: MOLfile
+Output format: Plain text
+Timeout per structure: 60.000 sec; Up to 1024 atoms per structure
+End of file detected after structure <span class="hljs-comment">#1.</span>
+Finished processing 1 structure: 0 errors, processing time 0:00:00.00
+</code></pre>
+<p>This command would produce the following output file, just like the cInChI program:</p>
+<pre><code class="hljs bash language-bash">cat <span class="hljs-built_in">test</span>/toluene.mol.txt
+* Input_File: <span class="hljs-string">"test/toluene.mol"</span>
+Structure: 1
+InChI=1/C7H8/c1-7-5-3-2-4-6-7/h2-6H,1H3
+AuxInfo=1/0/N:1,2,3,4,5,6,7/E:(3,4)(5,6)/rA:7nCCCCCCC/rB:;d2;s2;s3;d4;s1d5s6;/rC:3.6373,2.8,0;0,.7,0;0,2.1,0;1.2124,0,0;1.2124,2.8,0;2.4249,.7,0;2.4249,2.1,0;
+</code></pre>
+<p>We can also convert InChIs into molfiles (command line options work the same as in cInChI):</p>
+<pre><code class="hljs bash language-bash">java -jar jinchi.jar <span class="hljs-built_in">test</span>/toluene.mol.txt -OutputSDF
+InChI version 1, Software version 1.01 release 07/21/2006
+Opened <span class="hljs-built_in">log</span> file <span class="hljs-string">'test/toluene.mol.txt.log'</span>
+Opened input file <span class="hljs-string">'test/toluene.mol.txt'</span>
+Opened output file <span class="hljs-string">'test/toluene.mol.txt.txt'</span>
+Opened problem file <span class="hljs-string">'test/toluene.mol.txt.prb'</span>
+Options: Output SDfile only
+End of file detected after structure <span class="hljs-comment">#1.</span>
+Finished processing 1 structure: 0 errors, processing time 0:00:00.00
+</code></pre>
+<p>In this case the output is:</p>
+<pre><code class="hljs bash language-bash">cat <span class="hljs-built_in">test</span>/toluene.mol.txt.txt
+Structure <span class="hljs-comment">#1</span>
+  InChI v1 SDfile Output
+
+  7  7  0  0  0  0  0  0  0  0  1 V2000
+    3.6373    2.8000    0.0000 C   0  0  0     0  0  0  0  0  0
+    0.0000    0.7000    0.0000 C   0  0  0     0  0  0  0  0  0
+    0.0000    2.1000    0.0000 C   0  0  0     0  0  0  0  0  0
+    1.2124    0.0000    0.0000 C   0  0  0     0  0  0  0  0  0
+    1.2124    2.8000    0.0000 C   0  0  0     0  0  0  0  0  0
+    2.4249    0.7000    0.0000 C   0  0  0     0  0  0  0  0  0
+    2.4249    2.1000    0.0000 C   0  0  0     0  0  0  0  0  0
+  1  7  1  0  0  0  0
+  2  3  2  0  0  0  0
+  2  4  1  0  0  0  0
+  3  5  1  0  0  0  0
+  4  6  2  0  0  0  0
+  5  7  2  0  0  0  0
+  6  7  1  0  0  0  0
+M  END
+$$$$
+</code></pre>
+<p>Similar tests worked on both Linux and Windows using the same jarfile.</p>
+<p>There are still some issues to be addressed with this approach. For example, various reports indicate that NestedVM code runs about four to ten times slower than native execution. Benchmarking may be useful at this point.</p>
+<p>Another issue is how to go about making a Java InChI library with NestedVM. If you decompile the <strong>jinchi.jar</strong> file, you'll find that the <strong>JInChI.class</strong> file is a large and complex beast in which almost all methods are named as hex numbers. It may be possible to create a library by renaming certain methods and breaking the code into smaller classfiles, but the NestedVM documentation seems sparse on this subject.</p>
+<p>Despite these difficulties, this article demonstrates the power of NestedVM and describes the first (and currently only) example of a 100% Java InChI implementation.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

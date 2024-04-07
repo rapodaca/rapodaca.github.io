@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hacking PubChem - Learning to Speak PUG | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Hacking PubChem - Learning to Speak PUG</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-06-11T00:00:00.000Z">2007-06-11T00:00:00.000Z</time>
+      </header>
+      <p>A previous article introduced PubChem's <a href="/articles/2007/06/04/hacking-pubchem-power-user-gateway">Power User Gateway</a> (PUG), an XML-based communication channel. Although NIH kindly supplies a <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/specifications/pug.xsd">commented schema</a> for PUG queries and responses, there's nothing like seeing real examples when learning a new language. This article will describe one method for conveniently generating PUG XML queries.</p>
+<h2 id="letpubchembuildyourquery">Let PubChem Build Your Query</h2>
+<p>One of the options on the <a href="http://pubchem.ncbi.nlm.nih.gov/search/search.cgi">PubChem search page</a> is "Save Query." As it turns out, PubChem saves queries in PUG XML (I'll just call it PUGML). In other words, preparing a query using the PubChem search page and saving it gives a simple method for creating PUGML queries. Let's try it.</p>
+<p><img src="/images/posts/20070611/screenshot.png" alt="Screenshot" title="Screenshot"></p>
+<p>Using the "Sketch" button, draw the structure of benzimidazole. Under "Search Type", select "Substructure." Now click "Save Query", and you'll download a substructure query for benzimidazole in PUGML:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&amp;gt;
+&lt;!DOCTYPE PCT-Data PUBLIC "-//NCBI//NCBI PCTools/EN" "http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd"&gt;
+&lt;PCT-Data&gt;
+  &lt;PCT-Data_input&gt;
+    &lt;PCT-InputData&gt;
+      &lt;PCT-InputData_query&gt;
+        &lt;PCT-Query&gt;
+          &lt;PCT-Query_type&gt;
+            &lt;PCT-QueryType&gt;
+              &lt;PCT-QueryType_css&gt;
+                &lt;PCT-QueryCompoundCS&gt;
+                  &lt;PCT-QueryCompoundCS_query&gt;
+                    &lt;PCT-QueryCompoundCS_query_data&gt;C1=CC=CC2=C1N=C[N]2&lt;/PCT-QueryCompoundCS_query_data&gt;
+                  &lt;/PCT-QueryCompoundCS_query&gt;
+                  &lt;PCT-QueryCompoundCS_type&gt;
+                    &lt;PCT-QueryCompoundCS_type_subss&gt;
+                      &lt;PCT-CSStructure&gt;
+                        &lt;PCT-CSStructure_bonds value="true"/&gt;
+                      &lt;/PCT-CSStructure&gt;
+                    &lt;/PCT-QueryCompoundCS_type_subss&gt;
+                  &lt;/PCT-QueryCompoundCS_type&gt;
+                  &lt;PCT-QueryCompoundCS_results&gt;2000000&lt;/PCT-QueryCompoundCS_results&gt;
+                &lt;/PCT-QueryCompoundCS&gt;
+              &lt;/PCT-QueryType_css&gt;
+            &lt;/PCT-QueryType&gt;
+          &lt;/PCT-Query_type&gt;
+        &lt;/PCT-Query&gt;
+      &lt;/PCT-InputData_query&gt;
+    &lt;/PCT-InputData&gt;
+  &lt;/PCT-Data_input&gt;
+&lt;/PCT-Data&gt;
+</span></code></pre>
+<p>The <code>PCT-QueryCompoundCS_type_subss</code> element will tell PUG to look for substructures.</p>
+<h2 id="usingthesavedquerywithpug">Using the Saved Query with PUG</h2>
+<p>Saving this file as <strong>benzimidazole_sss.xml</strong>, lets us feed it to PUG:</p>
+<pre><code class="hljs bash language-bash">curl -d @benzimidazole_sss.xml <span class="hljs-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi"</span>
+</code></pre>
+<p>and get the following PUGML response:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&gt;</span>
+<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">PCT-Data</span> <span class="hljs-meta-keyword">PUBLIC</span> <span class="hljs-meta-string">"-//NCBI//NCBI PCTools/EN"</span> <span class="hljs-meta-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data_output</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"queued"</span>/&gt;</span>
+          <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_output</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_output_waiting</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Waiting</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Waiting_reqid</span>&gt;</span>62668946396085905<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Waiting_reqid</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Waiting_message</span>&gt;</span>Structure search job was submitted<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Waiting_message</span>&gt;</span>
+          <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Waiting</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData_output_waiting</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData_output</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Data_output</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Data</span>&gt;</span>
+</code></pre>
+<p>We can then check on the status of our query by saving the following as <strong>status.xml</strong>:</p>
+<pre class="prettyprint"><pct-data>
+  <pct-data_input>
+    <pct-inputdata>
+      <pct-inputdata_request>
+        <pct-request>
+          <pct-request_reqid>62668946396085905</pct-request_reqid>
+          <pct-request_type value="status">
+        </pct-request_type></pct-request>
+      </pct-inputdata_request>
+    </pct-inputdata>
+  </pct-data_input>
+</pct-data>
+</pre>
+<p>POSTing this to PUG:</p>
+<pre><code class="hljs bash language-bash">curl -d @status.xml <span class="hljs-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi"</span>
+</code></pre>
+<p>gives us the following PUGML:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&gt;</span>
+<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">PCT-Data</span> <span class="hljs-meta-keyword">PUBLIC</span> <span class="hljs-meta-string">"-//NCBI//NCBI PCTools/EN"</span> <span class="hljs-meta-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data_output</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"success"</span>/&gt;</span>
+          <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message_message</span>&gt;</span>Your search has already been completed successfully!.<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message_message</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_output</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_output_entrez</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Entrez</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Entrez_db</span>&gt;</span>pccompound<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Entrez_db</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Entrez_query-key</span>&gt;</span>1<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Entrez_query-key</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Entrez_webenv</span>&gt;</span>0CPrI_peUmUtWDooyjxpJ1XAXPcOl-ESZZxj8sJV9ZDR8musMjh1oBTib@1EDD43FA66AE1BE0_0001SID<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Entrez_webenv</span>&gt;</span>
+          <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Entrez</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData_output_entrez</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData_output</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Data_output</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Data</span>&gt;</span>
+
+[Last time](/articles/2007/06/04/hacking-pubchem-power-user-gateway), we got a URL to download a gzipped SD File. This time, our query specified results to be returned as an Entrez Key through the <span class="hljs-tag">&lt;<span class="hljs-name">code</span>&gt;</span>PCT-Entrez_webenv<span class="hljs-tag">&lt;/<span class="hljs-name">code</span>&gt;</span> element. We can construct a URL that will let us view these results:
+</code></pre>
+<p>bash
+http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=HistorySearch&amp;WebEnvRq=1&amp;db=pccompound&amp;query<em>key=1&amp;WebEnv=0CPrI</em>peUmUtWDooyjxpJ1XAXPcOl-ESZZxj8sJV9ZDR8musMjh1oBTib%401EDD43FA66AE1BE0_0001SID
+```</p>
+<h2 id="wheretonext">Where to Next?</h2>
+<p>If we wanted to get a gzipped SD File instead, we'd need to edit our original query. But manually editing XML is a lot like mowing a lawn with scissors. What we'd really like is a simple API in a language like Ruby that will let us build sophisticated PUG queries, process the results, and pipe them into other queries with little effort. But that's a story for another time.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

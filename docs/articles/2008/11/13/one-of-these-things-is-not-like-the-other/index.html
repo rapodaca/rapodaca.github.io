@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>One of These Things is Not Like The Others | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>One of These Things is Not Like The Others</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-11-13T00:00:00.000Z">2008-11-13T00:00:00.000Z</time>
+      </header>
+      <p>You can't get very far in cheminformatics without the ability to compare one molecule to another to find either an exact structure or substructure match. For example, if you want to build <a href="/articles/2007/01/24/thirty-two-free-chemistry-databases">chemical databases</a>, a good substructure matcher <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">comes in very handy</a>. As luck would have it, the substructure match problem (a variant of the <a href="http://en.wikipedia.org/wiki/Subgraph_isomorphism_problem">subgraph isomorphism problem</a>) is both <a href="http://en.wikipedia.org/wiki/NP-complete">computationally expensive</a> and difficult implement. This article discusses one approach to the problem.</p>
+<h2 id="background">Background</h2>
+<p>Recently, <a href="http://rguha.wordpress.com/">Rajarshi Guha</a> described some <a href="http://rguha.wordpress.com/2008/09/19/faster-substructure-search-in-the-cdk">benchmarking studies</a> suggesting that it was possible to greatly improve the speed of the <a href="http:/cdk.sf.net">Chemistry Development Kit</a> (CDK) substructure matching code. His code employed the widely-used <a href="http://portal.acm.org/citation.cfm?id=321925">Ullmann algorithm</a>.</p>
+<p>There's just one problem: the Ullmann algorithm detects edge-induced isomporphisms. This means, for example, that if your query molecule is propane and your test molecule is cyclopropane, you won't find a match with an Ullmann-backed tool. I'm still not sure if it's possible to modify an Ullmann implementation to make its matches node-induced. Based on the implementations I've seen, the answer appears to be "no."</p>
+<p>For substructure matching, we need an atom-induced isomorphism algorithm.</p>
+<h2 id="whatswrongwithexistingimplementations">What's Wrong with Existing Implementations?</h2>
+<p>To begin with, it must be pointed out that working isomorphism code is valuable and hard-won.</p>
+<p>Having said that, many Java implementations are written in a way that makes optimization difficult at best. Some start out as C code that then gets ported, mostly verbatim. Other are written with an understandable emphasis on speed over readability. For developers used to working with classes, objects, shallow loops, and short methods with expressive names, the impedance mismatch can be jarring to say the least.</p>
+<p>Here's an example, taken from the CDK, that while functional, would take a great deal of time to understand well enough to change:</p>
+<pre><code class="hljs java language-java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> List <span class="hljs-title">makeAtomsMapOfBondsMap</span><span class="hljs-params">(List l, IAtomContainer g1, IAtomContainer g2)</span> </span>{
+  <span class="hljs-keyword">if</span>(l==<span class="hljs-keyword">null</span>)
+    <span class="hljs-keyword">return</span>(l);
+  List result = <span class="hljs-keyword">new</span> ArrayList();
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &amp;lt; l.size(); i++) {
+    IBond bond1 = g1.getBond(((RMap) l.get(i)).getId1());
+    IBond bond2 = g2.getBond(((RMap) l.get(i)).getId2());
+    IAtom[] atom1 = BondManipulator.getAtomArray(bond1);
+    IAtom[] atom2 = BondManipulator.getAtomArray(bond2);
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> j = <span class="hljs-number">0</span>; j &amp;lt; <span class="hljs-number">2</span>; j++) {
+      List bondsConnectedToAtom1j = g1.getConnectedBondsList(atom1[j]);
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> k = <span class="hljs-number">0</span>; k &amp;lt; bondsConnectedToAtom1j.size(); k++) {
+        <span class="hljs-keyword">if</span> (bondsConnectedToAtom1j.get(k) != bond1) {
+          IBond testBond = (IBond)bondsConnectedToAtom1j.get(k);
+            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> m = <span class="hljs-number">0</span>; m &amp;lt; l.size(); m++) {
+              IBond testBond2;
+              <span class="hljs-keyword">if</span> (((RMap) l.get(m)).getId1() == g1.getBondNumber(testBond)) {
+                testBond2 = g2.getBond(((RMap) l.get(m)).getId2());
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> n = <span class="hljs-number">0</span>; n &amp;lt; <span class="hljs-number">2</span>; n++) {
+                  List bondsToTest = g2.getConnectedBondsList(atom2[n]);
+                  <span class="hljs-keyword">if</span> (bondsToTest.contains(testBond2)) {
+                    RMap map;
+                    <span class="hljs-keyword">if</span> (j == n) {
+                      map = <span class="hljs-keyword">new</span> RMap(g1.getAtomNumber(atom1[<span class="hljs-number">0</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">0</span>]));
+                    } <span class="hljs-keyword">else</span> {
+                      map = <span class="hljs-keyword">new</span> RMap(g1.getAtomNumber(atom1[<span class="hljs-number">1</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">0</span>]));
+                    }
+                    <span class="hljs-keyword">if</span> (!result.contains(map)) {
+                      result.add(map);
+                    }
+                    RMap map2;
+                    <span class="hljs-keyword">if</span> (j == n) {
+                      map2 = <span class="hljs-keyword">new</span> RMap(g1.getAtomNumber(atom1[<span class="hljs-number">1</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">1</span>]));
+                    } <span class="hljs-keyword">else</span> {
+                      map2 = <span class="hljs-keyword">new</span> RMap(g1.getAtomNumber(atom1[<span class="hljs-number">0</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">1</span>]));
+                    }
+                    <span class="hljs-keyword">if</span> (!result.contains(map2)) {
+                      result.add(map2);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  <span class="hljs-keyword">return</span> (result);
+}
+</code></pre>
+<h2 id="vflib">VFLib</h2>
+<p>Rajarshi's implementation of substructure search was based on a Java port of the <a href="http://amalfi.dis.unina.it/graph/db/vflib-2.0/doc/vflib.html">VFLib</a> C++ library. VFLib was developed by an Italian group to compare the performance of the VF algorithm with that of Ullmann.</p>
+<p>VFLib defines a single interface (<a href="http://amalfi.dis.unina.it/graph/db/vflib-2.0/doc/vflib-7.html">State</a>) that a variety of subgraph isomorphism matchers can implement in order to work interchangeably.</p>
+<p>What makes this so interesting is that when you can boil a software problem down to implementing an interface, it can become orders of magnitude simpler. But more on that later.</p>
+<p>Another interesting aspect of VFLib is that the code can be easily converted from an edge-induced implementation to a node-induced implementation. In other words, if we had a Java port of the VFLib2 code, we could begin to build families of Java-based substructure matchers that could be easily compared and optimized.</p>
+<h2 id="theviewfrom10000feet">The View from 10,000 Feet</h2>
+<p>One of the difficult aspects of implementing subgraph isomorphism algorithms is dividing the process up into understandable chunks. One way forward might be to look for commonalities among all of the approaches currently used. What might those be? Here are some possibilities:</p>
+<ul>
+<li><strong>Recursion.</strong> At the heart of any implementation typically lives a method that repeatedly calls itself (without creating a stack overflow).</li>
+<li><strong>Gradual accumulation of state.</strong>  What's that recursive method doing? Building up a map of the atoms from a query structure to a target structure, one pair of atoms at a time. Sometimes it fails and needs to go back to the last successful match. Sometimes it succeeds and needs to report that information to avoid accessing an out-of-bounds index. At every stage, the accumulated state must be sufficient to finish the mapping attempt.</li>
+<li><strong>Mapping comes for free.</strong> The implementation typically uses an internal map to keep track of what it's done, so getting one mapping (or more) of the query structure onto the target tends to be as easy as simply detecting that a match exists.</li>
+<li><strong>Optimization heuristics.</strong> Where to begin, what order to compare structural features, and what features should be compared anyway? The possibilities for taking advantage of simple optimization rules are significant. It should, therefore, be easy to run many implementations side-by-side in performance tests.</li>
+</ul>
+<p>A <a href="http://amalfi.dis.unina.it/graph/db/papers/vf-algorithm.pdf">paper</a> describing the VF algorithm, and the way VFLib implements it is freely available.</p>
+<p>In it, a high-level overview of the VF algorithm is presented:</p>
+<pre><code class="hljs bash language-bash">PROCEDURE Match(s)
+  INPUT: an intermediate state s; the initial state s0 has M(s0)=∅
+  OUTPUT: the mappings between the two graphs
+  IF M(s) covers all the nodes of G2 THEN
+    OUTPUT M(s)
+  ELSE
+    Compute the <span class="hljs-built_in">set</span> P(s) of the pairs candidate <span class="hljs-keyword">for</span> inclusion <span class="hljs-keyword">in</span> M(s)
+    FOREACH (n, m)∈ P(s)
+      IF F(s, n, m) THEN
+        Compute the state s<span class="hljs-string">' obtained by adding (n, m) to M(s)
+        CALL Match(s'</span>)
+      END IF
+    END FOREACH
+     Restore data structures
+  END IF
+END PROCEDURE
+</code></pre>
+<p>The <code>Match(s)</code> procedure plays the role of recursive function, while <code>s</code> and <code>s'</code> play the dual roles of state accumulators and feature comparators.</p>
+<p>VFLib, together with the paper describing it, does a good job of breaking the process up into manageable chunks from which unit tests, interface definitions, and ultimately working code can created in a variety of languages.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Substructure matching is one of the most difficult and most useful cheminformatics tasks. Although many Java cheminformatics toolkits support substructure search, their implementations can be difficult to understand, modify, and optimize. VFLib has some interesting features that could help to change that.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

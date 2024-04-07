@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Molecular Language for Modern Chemistry: FlexMol, Tetrahedral Chirality, and Monolaterol | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Molecular Language for Modern Chemistry: FlexMol, Tetrahedral Chirality, and Monolaterol</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-01-25T00:00:00.000Z">2007-01-25T00:00:00.000Z</time>
+      </header>
+      <p>Models of structure and bonding play a critical role in guiding chemical research. These models also define the scope and limitations of any cheminformatics system. Within the last several years, the gap between the structure and bonding models used by chemical information systems and by the chemists who use them has been widening. On this front, chemistry is moving much faster than cheminformatics. Sooner or later the difference must be reconciled.</p>
+<h2 id="aloomingproblem">A Looming Problem</h2>
+<p>Models of structure and bonding in cheminformatics, although adequate for organic chemistry in the 1970s, are outdated today. As <a href="http://depth-first.com/articles/2006/12/19/ferrocene-and-beyond-a-solution-to-the-molecular-representation-problem">recently discussed</a>, some of the most interesting molecules in organic chemistry can't be adequately represented by 99% of the available cheminformatics tools. This may not be a problem if your clients never work with these molecules (but they probably are already). It may not be a problem if your system never interacts with the outside world where these molecules are prevalent (but it will eventually). A quick fix is likely to produce even bigger problems down the road. What's needed is a comprehensive solution.</p>
+<p>FlexMol is a molecular language designed to solve this problem. For example, recent articles have demonstrated how FlexMol is capable of representing some of today's most difficult structural motifs: <a href="http://depth-first.com/articles/2006/12/20/a-molecular-language-for-modern-chemistry-getting-started-with-flexmol">metallocenes</a>; <a href="http://depth-first.com/articles/2007/01/09/a-molecular-language-for-modern-chemistry-flexmol-and-axial-chirality">biaryl axial chirality</a>; <a href="http://depth-first.com/articles/2007/01/12/flexmol-and-axial-chirality-n-arylacrylanilides">non-biaryl axial chirality</a>; <a href="http://depth-first.com/articles/2007/01/22/a-molecular-language-for-modern-chemistry-flexmol-and-planar-chiral-metacyclophanes">planar chirality</a>; and <a href="http://depth-first.com/articles/2007/01/17/a-molecular-language-for-modern-chemistry-cisplatin-transplatin-and-molecular-configuration">non-tetrahedral stereochemical configuration</a>.</p>
+<p>Although FlexMol handles these tough cases, it's not merely a specialty language for "weird" molecules. Rather, FlexMol provides a basic set of elements and principles that can be applied to any molecule, regardless of its peculiarities or lack thereof. For example, FlexMol defines a clean system for the representation for <a href="http://depth-first.com/articles/2007/01/02/a-molecular-language-for-modern-chemistry-flexmol-and-alkene-geometrical-isomerism">alkene geometry</a>. This basic level of functionality is not even provided by the industry-standard Molfile format, which requires 2-D atom coordinates.</p>
+<p>In this demonstration, we'll turn our attention to one of the most basic problems in cheminformatics - the representation of tetrahedral chirality. Using an example molecule from the recent literature, we'll see how the principles outlined in previous FlexMol examples also apply to stereogenic carbons.</p>
+<h2 id="conformationorconfiguration">Conformation or Configuration?</h2>
+<p>We need to answer a basic question before we can represent tetrahedral chirality: should we use configuration or conformation? Following the simple principle that isomers interconvertible by bond rotation are conformational isomers and all others are configurational isomers, it's clear that we'll be using configuration. More rigorous definitions are offered by <a href="http://dx.doi.org/10.1021/ci00027a001">Dietz</a>.</p>
+<h2 id="anexample">An Example</h2>
+<p><img src="/images/posts/20070125/molecule.png" alt="Molecule" title="Molecule"></p>
+<p>A <a href="http://dx.doi.org/10.1021/np060192x">recent paper</a> describes the isolation of the plant natural product Monolaterol and the assignment of its absolute configuration. Using the structure and atom numbering system shown above, we can construct a <a href="/images/posts/20070125/molecule.xml">complete FlexMol representation</a> of Monolaterol. Rather than reproduce it here, let's just consider the stereochemically-relevant part:</p>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!-- snip --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"15"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"16"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"14"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"12"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"15"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"12"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"16"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"14"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">configurationWheel</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomPair</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"15"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"14"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">atomPair</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"12"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">halfPlane</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">lower</span> <span class="hljs-attr">atom</span>=<span class="hljs-string">"16"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">lower</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">halfPlane</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">configurationWheel</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+<span class="hljs-comment">&lt;!-- snip --&gt;</span>
+</code></pre>
+<p>Three <code>configurationWheels</code> are defined. As in the case of representing the <a href="http://depth-first.com/articles/2007/01/17/a-molecular-language-for-modern-chemistry-cisplatin-transplatin-and-molecular-configuration">configuration of square-planar species</a>, each substituent of the chiral center is in turn placed along a wheel's axis, giving three wheels in total for Monolaterol. The relationships among atoms, planes, and axes is represented in the following cartoon:</p>
+<p><img src="/images/posts/20070125/configuration.png" alt="Configuration" title="Configuration"></p>
+<p>Notice also that there are two empty half-planes in each <code>conformationWheel</code>. Half-planes occur in pairs spaced 180 degrees apart. Given that there are two neighboring atoms to place into half-planes, two half-planes will be empty. We nevertheless must include them as placeholders. Notice that virtual hydrogens (those hydrogens not explicitly defined as part of the <code>atoms</code> element) are not placed into half-planes.</p>
+<p>It should be clear that the FlexMol representation of Monolaterol's (<em>R</em>)-enantiomer is distinguishable by visual inspection or by software. Each <code>configurationWheel</code> would be enantiomeric. As a result, the ordering of half-planes about their respective axes would be inverted.</p>
+<h2 id="sowhat">So What?</h2>
+<p>Most cheminformatics tools can represent tetrahedral chirality. In nearly every case, this is accomplished with stereodescriptors, atom parities, or chiral flags. Extending these systems to non-tetrahedral chirality requires more templates - a difficult, if not impossible, task in most cases. Worse still, such systems are often based on poorly-documented conventions, resulting in a great deal of confusion when writing software implementations.</p>
+<p>FlexMol takes a completely different approach by actually describing the chiral environment around an atom in terms of a simple system of axes and planes. The rules governing these elements are applied regardless of the kind of chirality being represented. This results in a system that works consistently for known forms of chirality, and which can be extended as new forms of chirality are encountered.</p>
+<h2 id="asoftwareimplementation">A Software Implementation</h2>
+<p>Any new molecular language requires a software implementation. For FlexMol, that implementation is provided by the <a href="http://sf.net/projects/octet">Octet Framework</a>. Octet is open source software written in Java that provides a FlexMol reader, a FlexMol writer, and many tools for working with molecular representations.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Although not often discussed, models of bonding and structure figure prominently in the ability of cheminformatics software to solve relevant problems. This is especially true in the increasingly important area of molecular chirality. In this area, FlexMol offers a system with unprecedented flexibility; it works just as well with stereogenic carbon as with numerous, less common forms of chirality.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Molecular Graph Canonicalization | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/10/06/molecular-graph-canonicalization/">
+      <meta property="og:title" content="Molecular Graph Canonicalization">
+      <meta property="og:description" content="Building a mental model for fast graph comparison techniques.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20211006/summary.png">
+      <meta content="Building a mental model for fast graph comparison techniques." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Molecular Graph Canonicalization</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-10-06T17:30:00Z">2021-10-06T17:30:00Z</time>
+      </header>
+      <p>Many kinds of molecular encoding are used in cheminformatics, but all are based on the concept of a molecular graph. A molecular graph is a graph whose nodes and edges are augmented to capture information relevant to molecular structure. Generally speaking, atoms map to nodes and bonds map to edges.</p>
+<p>Comparing two graphs for equivalence turns out to be challenging compared to other kinds of comparisons. Data structures like lists (e.g, strings and arrays) offer a simple, linear time approach: iterate the elements of both lists in parallel, returning false at the first mismatch or true if no mismatch is found. This linear approach is not directly applicable to graph comparisons, but with some work the problem can be recast as a linear search. This article describes the idea at a high level, offering a simple conceptual framework for a rather large body of literature.</p>
+<h2 id="applications">Applications</h2>
+<p>Before diving into solutions, it's worth noting some situations in which graph equivalence crops up. Most applications of graph equivalence arise in the context of creating and using molecular sets. A set contains no duplicates, so a molecular set requires a method for comparing two molecular graphs for equivalence. Such comparisons must occur whenever a member is added, removed, edited, or queried. Molecular sets are widely used in cheminformatics. </p>
+<p>One of the most import kinds of molecular set is the <em>registration system</em>. A registration system is a molecular set used by an organization to enforce not just graph equivalence, but more restrictive business rules as well. These often involve the perception of tautomerism, stereoisomerism, salt forms, and other higher forms of equivalence. Registration systems are typically complex, with layers of protocol for read and write access. An example is the <a href="https://www.cas.org/cas-data/cas-registry">Chemical Abstracts Service Registry</a>. This registration system contains over 188 million substances, many of which are represented as graphs. Pharmaceutical companies typically maintain their own registration systems, each with a slightly different set of business rules.</p>
+<p>But molecular sets that act like registries can follow much simpler rules as well. Here are but a few examples:</p>
+<ul>
+<li><a href="/articles/2021/06/04/molecular-assembly-index/">Molecular Assembly Index</a>, a topic recently covered here, uses the presence of a newly-generated molecule in a collection as the basis for a metric of molecular complexity relevant to the origins of life.</li>
+<li>Mapping chemical structure to properties requires a suitable method to identify and prevent duplicates. This topic lies in the vast area known as <a href="/articles/2020/07/27/a-guide-to-molecular-standardization/">molecular standardization</a>.</li>
+<li>The enumeration of the members of any chemical space, regardless of size, requires a method to identify and eliminate duplicates. <a href="https://dx.doi.org/10.1021/ci300415d#">GDB</a> is one example.</li>
+</ul>
+<p>The need to check for molecular equivalence is pervasive in cheminformatics because molecular sets tend to show up wherever molecular graphs do.</p>
+<h2 id="automorphism">Automorphism</h2>
+<p>Up to this point I've been using the term "equivalent" rather loosely. What I mean is <em>automorphic</em>. <a href="https://en.wikipedia.org/wiki/Automorphism">Automorphism</a> occurs when a graph is found to be isomorphic with itself. Like isomorphism, automorphism is associated with a mapping (or "permutation") of atoms from query to target graph. Because each represents the same graph, an automorphism maps each node to either itself or another member node.</p>
+<figure>
+  <img alt="Automorphism and Mapping" src="/images/posts/20211006/automorphism-mapping.png">
+  <figcaption>
+    <strong>Automorphism and Mapping.</strong> Two equivalent molecular graphs are found to be automorphic by successfully mapping each node of the query graph (left) to the target graph (right).
+  </figcaption>
+</figure>
+<p>A permutation can be thought of as an ordering the nodes of a graph. Imagine that we find an automorphism between two graphs of six nodes: (0→5); (1→1); (2→0); (3→3); (4→2); (5→4). An equivalent form would be the array <code>[5, 1, 0, 3, 2, 4]</code>. The array form reveals that under the mapping node 5 comes first, followed by nodes 1, 0, 3, 2, and 4, in that order.</p>
+<p>Something interesting happens when the mappings for two automorphic graphs with identical node orderings are exhaustively enumerated. The result is an <em><a href="https://en.wikipedia.org/wiki/Automorphism_group">automorphism group</a></em>. An automorphism group partitions the nodes of a graph into equivalent sets (aka "orbits"). The number of orbits and their occupancy describes the symmetry properties of a graph. As we'll see, the automorphism group also plays important role in graph equivalence problem.</p>
+<figure>
+  <img alt="Automorphism Group" src="/images/posts/20211006/automorphism-group.png">
+  <figcaption>
+    <strong>Automorphism Group.</strong> The result of exhaustively mapping all automorphisms between two graphs with identical node ordering. The mappings differ only in the pairing of topologically equivalent methyl groups. This analysis partitions the nodes of the graph into five topologically distinct sets: [0], [1], [2], [3], [4, 5].
+  </figcaption>
+</figure>
+<h2 id="bruteforcingautomorphism">Brute-Forcing Automorphism</h2>
+<p>Brute force is an effective method for determining whether two graphs of equal size and order, <code>A</code> and <code>B</code>, are automorphic. Pick a random node from <code>A</code> and call it <code>a</code>. Pick a random node from <code>B</code> and call it <code>b</code>. Do all relevant local properties of <code>a</code> and <code>b</code> match (e.g., degree, atomic number, charge, isotope, stereochemical configuration)? If <code>a</code> and <code>b</code> don't match, pick another node from <code>B</code> and try again. If <code>a</code> and <code>b</code> do match, pick a random neighbor of <code>a</code>, pick a random neighbor of <code>b</code>, and try to match them. Continue this process, backing out and retrying again as needed, until either all nodes have been matched or no matching node <code>b</code> can be found.</p>
+<p>A procedure very much like this one underpins the <a href="/articles/2008/11/13/one-of-these-things-is-not-like-the-other/">VF2 and Ullmann</a> algorithms. These algorithms are designed for the more general problem of isomorphism. Brute force is the only option when query and target graphs have unequal sizes (edge count), orders (node counts), or both. However, when node and edge counts are identical across query and target, as they are in the case of automorphism, we can do better.</p>
+<h2 id="canonicalization">Canonicalization</h2>
+<p>The efficiency of detecting an automorphism condition can be increased through <em><a href="https://en.wikipedia.org/wiki/Canonicalization">canonicalization</a></em>. In the context of graphs, canonicalization is the process of selecting one representation out of all possible representations. This is usually accomplished through the identification of an ordering of nodes that leads to the canonical form. For example, methanol has two possible representations: one in which the atom ordering places carbon ahead of oxygen, and one which places oxygen ahead of carbon. Each ordering leads to a different representation.</p>
+<figure>
+  <img alt="Canonicalization" src="/images/posts/20211006/canonicalization.png">
+  <figcaption>
+    <strong>Canonicalization.</strong> Automorphic graphs with different numberings (left, right) can be compared directly if first canonicalized (center).
+  </figcaption>
+</figure>
+<p>It turns out that this problem can be transformed into one that looks more like list comparison through canonicalization. Canonicalize both graphs, <code>A</code> and <code>B</code>, then compare each list of atoms. At the first mismatch, report no automorphism, otherwise report that an automorphism exists.</p>
+<p>At first glance, this operation may not appear to have achieved much. We must still canonicalize both the query and target graphs. That doesn't come cheap. Recall, however, the context in which most automorphism comparisons occur: molecular sets. The canonical form of all members can be computed and cached. Querying the set boils down to canonicalizing the query graph and performing a list-like comparison operation over the set. This approach really shines when seeking the intersection of two molecular sets as when two registry systems are merged or joined. In this sense, a canonicalized graph serves as a kind of <a href="https://en.wikipedia.org/wiki/Foreign_key">foreign key</a>. Not only that, but we can take advantage of <a href="https://en.wikipedia.org/wiki/Hash_function">hashing</a> to perform extremely efficient molecular lookups. This offers <a href="https://en.wikipedia.org/wiki/Primary_key">primary key</a> functionality. </p>
+<p>All it takes to get these benefits is a canonicalization algorithm.</p>
+<h2 id="bruteforcingcanonicalization">Brute Forcing Canonicalization</h2>
+<p>Many canonicalization algorithms have been developed. Like isomorphism algorithms, each canonicalization algorithm has at its core a simple kernel that can be expressed as a brute force procedure. For canonicalization, that kernel is the generation of a <em>code</em>.</p>
+<p>As defined by <a href="https://doi.org/10.1002/9783527618279.ch7a">Ivanciuc</a>, a code is a string (character sequence) obtained through algorithmic transformation of a graph. A code has the useful property of being transformable into the graph that generated it. For example, <a href="/articles/2021/09/22/beyond-smiles/">SMILES</a> fits the definition of a molecular code. Molecular graphs can be transformed to and from SMILES representation algorithmically. InChI, on the other hand, does not qualify as a code because <a href="/articles/2021/03/10/parsing-inchi-its-complicated/">an InChI string can't be transformed, generally speaking, into a molecular graph</a>. An InChI with "auxiliary information," however, does qualify as a code, a feature that was successfully used to <a href="https://doi.org/10.1186/1758-2946-4-22">generate canonical SMILES using InChI</a>.</p>
+<p>The availability of a molecular coding scheme like SMILES makes it possible to define a brute force canonicalization algorithm for a molecular graph <code>G</code>:</p>
+<ol>
+<li>Generate the set of all possible SMILES, <code>S</code>, from <code>G</code>.</li>
+<li>Select the <a href="https://en.wikipedia.org/wiki/Lexicographic_order">lexicographically smallest</a> SMILES, <code>s</code>, from <code>S</code>. The order of characters can be derived from <a href="https://en.wikipedia.org/wiki/ASCII">ASCII</a>.</li>
+<li>The canonical form of <code>G</code> is the molecular graph that results from reading <code>s</code>.</li>
+</ol>
+<p>Imagine using this procedure to canonicalize isopropanol. We begin by generating all possible SMILES:</p>
+<ul>
+<li>OC(C)C</li>
+<li>CC(C)O</li>
+<li>CC(O)C</li>
+<li>C(C)(C)O</li>
+<li>C(O)(C)C</li>
+</ul>
+<p>The ASCII character set associates each character with a unique number. The parentheses symbols precede the letters, with the left parentheses symbol (<code>(</code>) preceding the right (<code>)</code>). The SMILES for isopropanol can therefore be sorted in ascending lexicographical order as follows:</p>
+<ol>
+<li>C(C)(C)O</li>
+<li>C(O)(C)C</li>
+<li>CC(C)O</li>
+<li>CC(O)C</li>
+<li>OC(C)C</li>
+</ol>
+<p>From this ranking we conclude that the canonical form of isopropanol is the one produced from reading the SMILES <code>C(C)(C)O</code>.</p>
+<p>Using this procedure requires some attention to detail. For example, it's important to ensure that the rules explicitly state when and how <a href="/articles/2020/06/08/hydrogen-suppression-in-smiles/">hydrogen suppression</a> may be used. Likewise, we'd want to ensure that ring closure digits followed a set of consistent rules to avoid useless diversity.</p>
+<p>The main problem with the brute force approach as stated is inefficiency. A given molecular graph with <em>n</em> nodes will have up to <em>n</em>! different node orderings. For example, isopropanol with four heavy atoms has 24 (4!) possible orderings. This <em>factorial</em> scaling of the number of atom orderings bodes poorly for the brute force method.</p>
+<p>Notice, however, that only five unique SMILES for isopropanol are enumerated by brute force. What's going on here? The answer is twofold: syntax and symmetry.</p>
+<p>SMILES encoding yields atom indexes that follow a depth-first traversal pattern. This pattern eliminates many otherwise valid atom orderings. For example, it would be impossible to express a SMILES for isopropanol in which a primary carbon immediately preceded the oxygen atom because these two atoms are not bound to each other.</p>
+<p>A second factor is symmetry. Take the canonical SMILES, <code>C(C)(C)O</code>, for example. This form actually represents two equivalent numberings due to the topological equivalence of the methyl groups. Each of the five candidates in fact represents two different atom numbering systems due to symmetry. Symmetry reduced ten possible SMILES candidates to five.</p>
+<h2 id="optimizationstrategies">Optimization Strategies</h2>
+<p>SMILES syntax and molecular topological equivalence act to reduce the number of candidate SMILES. What other rules could be applied to further reduce the search space? What would it take to reduce the search space to one candidate? These are questions related to optimization.</p>
+<p>As mentioned previously, SMILES offers a powerful type of optimization essentially for free, by virtue of its its syntax. That optimization eliminates atom orderings that can't follow from a depth-first traversal.</p>
+<p>We can view the enumeration of all possible SMILES as a set of search trees, each one rooted at a starting atom. Each tree is terminated by a different candidate SMILES. What we'd like is a set of procedures that terminate the exploration of a search tree at the earliest possible point. </p>
+<p>The question then becomes, what other optimizations can be applied to terminate the exploration of unproductive search trees?</p>
+<h2 id="invariants">Invariants</h2>
+<p>The process of optimizing molecular canonicalization often begins with <em>graph invariants</em>. An invariant is a property of a graph that does not change with node ordering.</p>
+<p>Take the number of nodes of a graph (aka "order"), for example. Regardless of how nodes are ordered, the total number of nodes never changes. The same applies to edge count. But even though they are invariant, node and edge counts won't help us create more efficient canonicalization schemes.</p>
+<p>What will help are invariants that can partition atoms. For example, degree is the number of neighbors attached to a node. Regardless of what index it carries, the degree of a node remains constant. Atomic number is another graph invariant. Regardless of how a molecular graph is encoded, the atomic number of its atoms will never change. Other atom invariants include isotope and charge.</p>
+<figure>
+  <img alt="Degree Invariant" src="/images/posts/20211006/degree-invariant.png">
+  <figcaption>
+    <strong>Degree Invariant.</strong> Each atom is assigned a value obtained from the count of its neighbors.
+  </figcaption>
+</figure>
+<p>A large number of graph invariants have been described over the last few decades, many in the context of molecular graphs. For example, the idea of degree can be generalized to <em>extended connectivity</em>. Whereas degree only takes into account the connectivity of a given atom, extended connectivity accounts for the connectivity of neighbors, their neighbors and so on.</p>
+<p>To illustrate, consider an alternative definition of degree. Begin by labeling each atom with the index 1. Now compute the degree of a given atom as the sum of each neighbor's index. The tertiary carbon in isopropanol, for example, has three neighbors, each having an index of one. The degree of the tertiary carbon is therefore three (3*1).</p>
+<figure>
+  <img alt="Degree Invariant Revisited" src="/images/posts/20211006/degree-invariant-revisited.png">
+  <figcaption>
+    <strong>Degree Invariant Revisited.</strong> First assign every node the value 1. Next, replace every value with the sum over all neighbor values. The result equals degree.
+  </figcaption>
+</figure>
+<p>Extended connectivity takes this idea one step further by introducing iterations. After the first iteration, update the index of each atom with the result of the previous calculation. For the second iteration (<code>i</code>=1), this is the degree of each atom. Continue iterating until the number of unique indexes does not increase. This is the basis for the well-known <em><a href="https://dx.doi.org/10.1021/c160017a018">Morgan Algorithm</a></em>.</p>
+<figure>
+  <img alt="Extended Connectivity" src="/images/posts/20211006/extended-connectivity.png">
+  <figcaption>
+    <strong>Extended Connectivity.</strong> Each iteration replaces the value at a node with the sum of neighbor values. At each iteration, the number of unique values is tallied (`k`). If `k` is not greater than in the last iteration, then iteration is reported and the values a the previous iteration are reported. In this example, extended connectivity identifies five sets of topologically unique nodes, which is the theoretical maximum
+  </figcaption>
+</figure>
+<p>Another node invariant is <em>distance sum</em>. The distance sum for a node is the sum of all shortest path lengths to every other node. Computing this invariant requires <em>n</em> - 1 breadth-first traversals for every node and so scales quadratically with the number of nodes.</p>
+<figure>
+  <img alt="Distance Sum" src="/images/posts/20211006/distance-sum.png">
+  <figcaption>
+    <strong>Distance Sum.</strong> The value at each node equals the sum of shortest path length to every other node. Like extended connectivity, this example yields five sets of topologically unique nodes, although relative ranks differ.
+  </figcaption>
+</figure>
+<p>Some molecules possess features that cause many atoms to resist symmetry partitioning. Consider cubane, whose eight carbon atoms are topologically equivalent. None of the invariants so far described can differentiate these atoms. Nor is cubane the only example. Fullerenes such as C<sub>60</sub> are composed of large numbers of topologically equivalent atoms. Fortunately, the selection of the first atom can <a href="https://hrcak.srce.hr/2536">impose asymmetry</a> which, when coupled with iterative comparison, leads to efficient pruning of the search tree.</p>
+<p>Degree, extended connectivity, and distance sum are but some examples of the invariants that can be applied to optimize a canonicalization algorithm.</p>
+<h2 id="choosinganode">Choosing a Node</h2>
+<p>Given that SMILES strings derive from a depth-first traversal of a molecular graph, the selection of the starting node would seem to offer a good place to look for optimizations. In fact, the careful selection of the starting node can prune entire branches of the search space.</p>
+<p>Recall that the candidate SMILES strings for isopropanol, ranked in ascending lexicographical order, are:</p>
+<ol>
+<li>C(C)(C)O</li>
+<li>C(O)(C)C</li>
+<li>CC(C)O</li>
+<li>CC(O)C</li>
+<li>OC(C)C</li>
+</ol>
+<p>Some of the simple invariants that might be considered when choosing the first atom include:</p>
+<ul>
+<li>Degree. Starting with the atom of highest degree reduces the number of candidates to two: 1 and 2.</li>
+<li>Atomic number. Starting with the atom of highest atomic number reduces the candidates to just one: 5.</li>
+<li>Extended connectivity. Starting with the atom of highest extended connectivity reduces the number of candidates to two: 1 and 2.</li>
+<li>Distance sum.  Starting with the atom of lowest distance sum reduces the number of candidates to two: 1 and 2.</li>
+</ul>
+<p>These invariants can be (and often are) combined in various ways. For example, <a href="https://doi.org/10.1021/ci00062a008">Weininger</a> uses the invariants: degree; <a href="/articles/2019/11/06/virtual-hydrogens/">virtual hydrogen count</a>; graph hydrogen count; atomic number; sign of charge; absolute charge; and total hydrogen count.</p>
+<p>Depending on the desired level of optimization, still more invariants can be brought into play, mixed, and matched. Unfortunately, reports of such optimizations often don't reveal performance benchmarks, which complicates evaluation.</p>
+<p>When selecting subsequent atoms, either the same invariant set or a different one can be used. Additional heuristics can also be brought into play. For example, we might prefer to traverse nodes connected to previously-traversed nodes.</p>
+<p>Note that a valid canonicalization will result even from invariants of low discriminatory ability. Clearly, a brute force procedure without invariants works just fine. The selection of invariants isn't about obtaining a valid result, but rather obtaining it more efficiently.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Molecular canonicalization is a complex topic, but fortunately the underlying principles are easy to understand. This article presents a mental model for canonicalization that uses a brute force approach as the base case. From that base, the various optimizations that have been developed over the last few decades can be explored.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

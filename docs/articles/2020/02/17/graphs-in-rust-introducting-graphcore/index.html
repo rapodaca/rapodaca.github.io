@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Graphs in Rust: Introducing Gamma | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2020/02/17/graphs-in-rust-introducting-graphcore/">
+      <meta property="og:title" content="Graphs in Rust: Introducing Gamma">
+      <meta property="og:description" content="A new library for applied graph theory.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20200217/summary.jpg">
+      <meta content="A new library for applied graph theory." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Graphs in Rust: Introducing Gamma</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2020-03-13T01:15:00Z">Updated 2020-03-13T01:15:00Z</time>
+      </header>
+      <p>Graphs pervade science and technology. As such, many kinds of software projects rely on a graph library. This article introduces <a href="https://crates.io/crates/gamma">Gamma</a>, a new graph library written in Rust.</p>
+<h2 id="motivation">Motivation</h2>
+<p>Graphs are used heavily within <em>cheminformatics</em>, a field concerned with the collection, storage, and retrieval of information about substances. Most cheminformatics systems use a library for manipulating molecular structures. Such a library is known as a "cheminformatics toolkit" or just "toolkit."  At the core of every cheminformatics toolkit, whether explicitly acknowledged or not, sits a graph library.</p>
+<p>A cheminformatics toolkit uses graph representations to solve chemical information problems. For the most part, nodes map to atoms and edges map to bonds. Graphs of this kind are undirected. Numerical edge weights sometimes represent <a href="https://en.wikipedia.org/wiki/Bond_order">bond orders</a>.</p>
+<p>A number of graph algorithms are used in cheminformatics. To name three: <a href="/articles/2008/11/13/one-of-these-things-is-not-like-the-other/">subgraph isomorphism</a>; <a href="/articles/2019/04/02/the-maximum-matching-problem/">matching</a>; and cycle perception. Isomorphism finds embeddings and atom/bond mappings between two molecules. Matching is used for <a href="/articles/2020/02/10/a-comprehensive-treatment-of-aromaticity-in-the-smiles-language/">kekulization</a>, or the assignment of alternating single/double bonds in certain classes of molecule. Many important molecules in medicine and commerce contain one or more cycles, so cycle perception is essential for many molecular analyses.</p>
+<p>Most cheminformatics applications deal with <em>small organic molecules</em>. Graph representations of such molecules contain fewer than 50 nodes, with the degree of any node rarely exceeding four. A graph library used in cheminformatics must therefore be capable of efficient manipulation of small, sparsely-connected graphs.</p>
+<p>Other applications for graphs are possible. One application is <em>feature graphs</em>. In a feature graph, a node represent a molecular subgraph and an edge represents a bond between them. One especially useful feature graph uses relevant cycles for nodes.</p>
+<p>Graph can also represent relationships between molecules. For example, a <em>reaction graph</em> maps nodes to molecules and edges to reactions. Traversing such a graph yields information about feasible <a href="/articles/2013/04/23/planes-trains-and-organic-syntheses/">multistep chemical transformations</a>, a cornerstone of the modern world economy.</p>
+<p>Although these parameters apply specifically to cheminformatics, they also apply to many other fields. By factoring the graph manipulation aspect into a a separate library, it's hoped that Gamma can serve not only its intended domain, but others as well.</p>
+<p>No <a href="/articles/2020/01/20/cheminformatics-in-rust/">Rust cheminformatics toolkit</a> exists to my knowledge as of yet.</p>
+<h2 id="requirements">Requirements</h2>
+<p>A graph library suitable for cheminformatics in Rust should meet several criteria, including:</p>
+<ul>
+<li>A <code>Graph</code> trait defining a minimal API. Several implementations offer tradeoffs in functionality, convenience, and performance will be required in cheminformatics applications.</li>
+<li>At least one <code>Graph</code> reference implementation. This implementation can serve as a key primitive when designing graphs (such as molecules) with custom behavior.</li>
+<li>Traversal and analysis functions that accept <code>Graph</code> trait objects, not concrete implementations.</li>
+<li>Common Rust idioms should be used whenever possible. Synthetic node references, reference counting, interior mutability, and <code>unsafe</code> should all be avoided. Gamma should be as unsurprising as possible.</li>
+<li>A suite of up-to-date unit tests.</li>
+</ul>
+<h2 id="graphtrait">Graph Trait</h2>
+<p>The center of Gamma is the <code>Graph</code> trait, which defines the following methods:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> crate::graph::Error;
+
+<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Graph</span></span>&lt;<span class="hljs-symbol">'a</span>, N: <span class="hljs-symbol">'a</span>&gt; {
+    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">NodeIterator</span></span>: <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-symbol">'a</span> N&gt;;
+    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">NeighborIterator</span></span>: <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-symbol">'a</span> N&gt;;
+    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">EdgeIterator</span></span>: <span class="hljs-built_in">Iterator</span>&lt;Item=(&amp;<span class="hljs-symbol">'a</span> N, &amp;<span class="hljs-symbol">'a</span> N)&gt;;
+
+    <span class="hljs-comment">/// Returns true if there are no nodes, or false otherwise.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">is_empty</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">bool</span>;
+
+    <span class="hljs-comment">/// Returns the number of nodes in this graph.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">order</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">usize</span>;
+
+    <span class="hljs-comment">/// Returns the number of edges in this graph.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">size</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">usize</span>;
+
+    <span class="hljs-comment">/// Iterates the nodes of this graph</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">nodes</span></span>(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-keyword">self</span>) -&gt; Self::NodeIterator;
+
+    <span class="hljs-comment">/// Returns true if node is a member, or false otherwise. </span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">has_node</span></span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) -&gt; <span class="hljs-built_in">bool</span>;
+
+    <span class="hljs-comment">/// Iterates the neighbors of node.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">neighbors</span></span>(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-keyword">self</span>, node: &amp;N) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::NeighborIterator, Error&gt;;
+
+    <span class="hljs-comment">/// Returns the number of neighbors connected to node.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">degree</span></span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">usize</span>, Error&gt;;
+
+    <span class="hljs-comment">/// Iterates the edges of this graph.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">edges</span></span>(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-keyword">self</span>) -&gt; Self::EdgeIterator;
+
+    <span class="hljs-comment">/// Returns true if an edge exists between source and target.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">has_edge</span></span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;N, target: &amp;N) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">bool</span>, Error&gt;;
+}
+</code></pre>
+<p>This API was chosen to satisfy two opposing goals: utility and brevity. On the one hand, <code>Graph</code> should provide a rich API because it alone defines the features available to all graph traversals and analyses. On the other hand, the number of methods must be kept low to avoid burdening implementors with unnecessary work. A previous post offers some thoughts on <a href="/articles/2020/01/06/a-minimal-graph-api/">the minimal Graph API</a> used here.</p>
+<p>The choice of <a href="https://github.com/rust-lang/rfcs/blob/master/text/0195-associated-items.md">associated types</a> for node and edge iterators deserves some explanation. I considered an alternative <code>Graph</code> trait that returned boxed iterators, as given at the bottom of <a href="/articles/2020/01/20/cheminformatics-in-rust/">this article</a>. However, the requirement for boxed iterators seemed limiting. Although trait objects such as <code>Iterator</code> can be returned from bare functions, they <a href="https://stackoverflow.com/questions/27535289/what-is-the-correct-way-to-return-an-iterator-or-any-other-trait/27535594">must be boxed</a> if returned from functions that are themselves defined on traits. This requirement seemed a step up in complexity with poorly-defined performance tradeoffs. For this reason, associated types were chosen for the first releases of Gamma.</p>
+<p>Should edge weights be required, the <code>WeightedGraph</code> trait is available.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> crate::graph::Error;
+<span class="hljs-keyword">use</span> crate::graph::Graph;
+
+<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">WeightedGraph</span></span>&lt;<span class="hljs-symbol">'a</span>, N:<span class="hljs-symbol">'a</span>, E&gt; : Graph&lt;<span class="hljs-symbol">'a</span>, N&gt; {
+    <span class="hljs-comment">/// Returns the weight between source and target.</span>
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">weight</span></span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;<span class="hljs-symbol">'a</span> N, target: &amp;<span class="hljs-symbol">'a</span> N) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Option</span>&lt;&amp;E&gt;, Error&gt;;
+}
+</code></pre>
+<h2 id="hashgraph">HashGraph</h2>
+<p><code>HashGraph</code> provides a versatile default implementation of <code>Graph</code> and <code>WeightedGraph</code>. Unlike the traits it implements, <code>HashGraph</code> supplies the mutators for building a graph in a stepwise fashion. Behind the scenes, <code>HashGraph</code> is implemented as a <code>IndexMap</code> of <code>Vec</code>, in which nodes themselves serve as keys. The use of both data structures ensures that node and edge ordering will be stable to iteration.</p>
+<p>The <code>build</code> function allows for declarative construction of a <code>HashGraph</code>:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, ()),
+        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, ())
+    ]).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(graph.is_empty(), <span class="hljs-literal">false</span>);
+}
+</code></pre>
+<p>Alternatively, mutator methods can be used to accomplish the same result:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = HashGraph::&lt;_,()&gt;::new();
+
+    graph.add_node(<span class="hljs-number">0</span>).unwrap();
+    graph.add_node(<span class="hljs-number">1</span>).unwrap();
+    graph.add_node(<span class="hljs-number">2</span>).unwrap();
+    graph.add_edge(&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>).unwrap();
+    graph.add_edge(&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(graph.has_edge(&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">0</span>).unwrap(), <span class="hljs-literal">true</span>);
+}
+</code></pre>
+<p>Custom node types can be used directly with <code>HashGraph</code>. Unlike many graph libraries, Gamma lets you work directly with your own node references, rather than node references returned to you by the library. This vastly simplifies the use of custom node types. The only constraint on a node is that it must implement <code>std::hash::Hash</code> and <code>std::cmp::Eq</code>.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
+
+<span class="hljs-meta">#[derive(Eq, Hash, PartialEq, Debug)]</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node</span></span> {
+    value: <span class="hljs-built_in">u8</span>
+}
+
+<span class="hljs-keyword">impl</span> Node {
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(value: <span class="hljs-built_in">u8</span>) -&gt; <span class="hljs-keyword">Self</span> {
+        Node { value }
+    }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> n0 = &amp;Node::new(<span class="hljs-number">0</span>);
+    <span class="hljs-keyword">let</span> n1 = &amp;Node::new(<span class="hljs-number">1</span>);
+    <span class="hljs-keyword">let</span> graph = HashGraph::&lt;_, ()&gt;::build(
+        <span class="hljs-built_in">vec!</span>[ n0, n1 ], <span class="hljs-built_in">vec!</span>[ (&amp;n0, &amp;n1, ()) ]
+    ).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(graph.has_edge(&amp;n0, &amp;n1).unwrap(), <span class="hljs-literal">true</span>);
+}
+</code></pre>
+<p><code>HashGraph</code> supports the <code>WeightedGraph</code> trait by allowing any type to be used as a weight. For example, the following example shows how to use strings as weights.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-string">"a"</span>),
+        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-string">"b"</span>)
+    ]).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(graph.weight(&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>).unwrap(), <span class="hljs-literal">Some</span>(&amp;<span class="hljs-string">"a"</span>));
+}
+</code></pre>
+<h2 id="traversalwithiterators">Traversal with Iterators</h2>
+<p>Two types of traversal are included: breadth-first and depth-first. Both traversals are implemented as edge <code>Iterator</code>s. Taking this approach combines the broad applicability of these traversals with the vast array of transformations supported by Rust's <code>Iterator</code> trait.</p>
+<p>The edges returned by either traversal <code>Iterator</code> are represented as tuples of three values: two nodes, and a boolean. When true, the last value indicates that the edge produces a cut between two nodes in a cyclic graph.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
+<span class="hljs-keyword">use</span> gamma::traversal::depth_first;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, ()),
+        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, ()),
+        (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, ()),
+    ]).unwrap();
+    <span class="hljs-keyword">let</span> traversal = depth_first(&amp;graph, &amp;<span class="hljs-number">0</span>).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>),
+        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">false</span>),
+        (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, <span class="hljs-literal">true</span>)
+    ]);
+}
+</code></pre>
+<p>The above example uses the <code>#collect</code> transformation to create a <code>Vec</code> of edges, but much more is possible. For example, we can filter everything but cycle cut edges:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
+<span class="hljs-keyword">use</span> gamma:traversal::breadth_first;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, ()),
+        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, ()),
+        (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, ()),
+    ]).unwrap();
+    <span class="hljs-keyword">let</span> traversal = depth_first(&amp;graph, &amp;<span class="hljs-number">0</span>).unwrap();
+    <span class="hljs-keyword">let</span> cuts = traversal.filter(|edge| edge.<span class="hljs-number">2</span>);
+
+    <span class="hljs-built_in">assert_eq!</span>(cuts.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, <span class="hljs-literal">true</span>)
+    ]);
+}
+</code></pre>
+<p>Breath-first traversal works in exactly the same way:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
+<span class="hljs-keyword">use</span> gamma::traversal::breadth_first;
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+    <span class="hljs-keyword">let</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, ()),
+        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, ()),
+        (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, ()),
+    ]).unwrap();
+    <span class="hljs-keyword">let</span> traversal = breadth_first(&amp;graph, &amp;<span class="hljs-number">0</span>).unwrap();
+
+    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>),
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">false</span>),
+        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">true</span>)
+    ]);
+}
+</code></pre>
+<h2 id="otherwork">Other Work</h2>
+<p>I recently <a href="/articles/2020/02/03/graphs-in-rust-an-introduction-to-petgraph/">reviewed</a> Rust's most widely-used graph crate, <a href="https://docs.rs/petgraph/0.5.0/petgraph/">Petgraph</a>. Aside from being much less mature, Gamma differs in other important ways:</p>
+<ul>
+<li>Petgraph has no <code>Graph</code> trait.</li>
+<li>Petgraph's graph types use opaque node pointers rather than the direct node manipulation offered by Gamma.</li>
+<li>Petgraph has four not-quite-interchangeable graph types.</li>
+<li>Some Petgraph functions will not work across all graph types.</li>
+</ul>
+<p>These limitations made Petgraph less than ideal for the cheminformatics applications I'm planning.</p>
+<p><a href="https://github.com/purpleprotocol/graphlib/tree/master/src">Graphlib</a> offers another take on the Rust graph library. Unfortunately it too organizes itself around a concrete implementation of graph, rather than a trait.</p>
+<p>A handful of miscellaneous graph crates can also be found on <a href="https://crates.io">crates.io</a>.</p>
+<p>Gamma's design parts company with things that have been previously written about graphs in Rust. For example, <em><a href="https://rust-leipzig.github.io/architecture/2016/12/20/idiomatic-trees-in-rust/">Idiomatic tree and graph like structures in Rust</a></em> leads the discussion with a more complicated model involving reference counting and nodes that maintain references to neighbors. That model <em>could</em> be used with Gamma, but there wouldn't be much point. Other <a href="https://stackoverflow.com/q/34747464/54426">discussion</a> suggests starting with a <a href="https://libraries.io/cargo/typed-arena">Typed Arena</a>. Similar advice appears in <a href="https://github.com/nrc/r4cppp/blob/master/graphs/README.md">this document</a>. However, Gamma proves this approach to be unnecessary, at least within the scope of its requirements. Gamma likewise demonstrates <a href="http://smallcultfollowing.com/babysteps/blog/2015/04/06/modeling-graphs-in-rust-using-vector-indices/">vector indices</a> to be unnecessary. Gamma brings the full power of the Rust compiler to bear for every use of <code>Graph</code>.</p>
+<h2 id="futurework">Future Work</h2>
+<p>Future work on Gamma will focus on two goals:</p>
+<ol>
+<li>Refinement of the <code>Graph</code> trait. It should be easy to implement graphs with a variety of different internal representations. Whether or not the current design achieves that goal remains to be seen.</li>
+<li>Implementation of graph algorithms, specifically: matching; subgraph isomorphism; and <a href="https://www.combinatorics.org/ojs/index.php/eljc/article/view/v4i1r9">relevant cycle</a> perception.</li>
+</ol>
+<h2 id="conclusions">Conclusions</h2>
+<p>Gamma is a new graph library for Rust based around a streamlined, flexible <code>Graph</code> trait. The Gamma crate includes a reference <code>Graph</code> implementation along with two <code>Iterator</code>-based traversals. Future work will focus on adding graph algorithms useful for cheminformatics applications.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

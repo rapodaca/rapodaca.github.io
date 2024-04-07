@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>An Introduction to the Rubidium Cheminforamtics Toolkit - Interconvert SMILES, InChI, and Molfile with an Open Babel-Like Interface | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>An Introduction to the Rubidium Cheminforamtics Toolkit - Interconvert SMILES, InChI, and Molfile with an Open Babel-Like Interface</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-10-15T00:00:00.000Z">2007-10-15T00:00:00.000Z</time>
+      </header>
+      <p>Interconverting molecular languages is a very common operation in cheminformatics, so convenient conversion tools are desirable. Recent articles have discussed JRuby as a <a href="http://depth-first.com/articles/tag/ruby">functional cheminformatics scripting environement</a>. In this article, we'll see how this functionality can be combined with convenience for molecular language conversions.</p>
+<p>In addition to illustrating a technique, this article is the first in a series aimed at documenting a new cheminformatics toolkit for Ruby called "Rubidium". Rubidium will provide a unified set of Ruby APIs for working with diverse Open Source cheminformatics tools.</p>
+<p>Rubidium will be distributed under the highly permissive <a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This Rubidium library requires <a href="http://jruby.codehaus.org/">JRuby</a> and the <a href="http://cdk.sf.net">Chemistry Development Kit</a> (CDK). Copying the <a href="http://downloads.sourceforge.net/cdk/cdk-1.0.1.jar?modtime=1182877138&amp;big_mirror=0">CDK jarfile</a> into your JRuby <code>lib</code> directory is all that's needed.</p>
+<h2 id="thelibrary">The Library</h2>
+<p>The goal of this library is to provide a simple, yet flexible way to interconvert SMILES, InChI, and molfile formats. It was inspired the <a href="http://openbabel.sf.net">Open Babel</a> library, in which an <code>OBConversion</code> object is configured with input and output formats prior to performing one or more conversions. In today's library, a similar Ruby interface is created for the CDK. Because of it's length, it won't be presented in its entirety. Instead, it can be <a href="/images/posts/20071015/cdk.rb">downloaded here</a>.</p>
+<h2 id="testingthelibrary">Testing the Library</h2>
+<p>The library can be tested by saving it as a file called <strong>cdk.rb</strong> and invoking <code>jirb</code>. We can then convert a SMILES for benzene into the InChI for benzene:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'cdk'</span>
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; c=CDK::Conversion.new
+=&gt; <span class="hljs-comment">#&amp;lt;CDK::Conversion:0x4c6320 ... &amp;gt;</span>
+irb(main):003:0&gt; c.set_formats <span class="hljs-string">'smi'</span>, <span class="hljs-string">'inchi'</span>
+=&gt; <span class="hljs-string">"inchi"</span>
+irb(main):004:0&gt; c.convert <span class="hljs-string">'c1ccccc1'</span>
+=&gt; <span class="hljs-string">"InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H"</span>
+</code></pre>
+<p>Upcoming articles will show more examples of interconversions using this library, and discuss some of its limitations.</p>
+<h2 id="anaside">An Aside</h2>
+<p>It might be useful for Rubidium to support multiple <code>Conversions</code>, each using its own cheminformatics toolkit. For example, a recent article discussed <a href="http://depth-first.com/articles/2007/06/25/interconvert-almost-any-smiles-and-inchi-with-ruby-open-babel">SMILES and InChI interconversion with Ruby Open Babel</a>. With a little tweaking, the Ruby Open Babel <code>OBConversion</code> interface could be make identical to the Ruby interface used in today's tutorial. We could also configure <a href="http://joelib.sf.net">JOELib</a> and <a href="http://sf.net/projects/rosetta">Rosetta</a> <code>Conversions</code> in an analogous fashion.</p>
+<p>Rubidium would then offer a family of molecular language converters, each of which used exactly the same API. We could then pick the best converter based on the situation at hand.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>With just a little Ruby code, we've created a convenient Ruby interface for interconverting SMILES, InChI, and molfile formats. JRuby supports even more interconversions through the CDK as well as other Java and Java Native Interface libraries. Future articles will discuss some of the possibilities.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Rust PostgreSQL Extension for CAS Numbers | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:site" content="@rapodaca">
+      <meta name="twitter:creator" content="@rapodaca">
+      <meta property="og:url" content="http://depth-first.com/articles/2021/09/07/a-rust-postgresql-extension-for-cas-numbers/">
+      <meta property="og:title" content="A Rust PostgreSQL Extension for CAS Numbers">
+      <meta property="og:description" content="Making domain-specific types first-class citizens in one of the most popular database systems.">
+      <meta property="og:image" content="http://depth-first.com/images/posts/20210907/summary.png">
+      <meta content="Making domain-specific types first-class citizens in one of the most popular database systems." name="description">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Rust PostgreSQL Extension for CAS Numbers</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2021-09-07T15:00:00Z">2021-09-07T15:00:00Z</time>
+      </header>
+      <p>The <a href="/articles/2021/08/25/postgres-extensions-in-rust/">previous article</a> in this series introduced a simple method for writing PostgreSQL extensions in Rust with the <a href="https://github.com/zombodb/pgx">pgx crate</a>. The example in that article, although a complete extension, only exposed a function. A more interesting extension would define a custom data type that worked correctly with indexes. This article describes such an extension.</p>
+<h2 id="compilingandrunningtheextension">Compiling and Running the Extension</h2>
+<p>The extension, <a href="https://github.com/rapodaca/cas_number">cas_number</a> is available on GitHub. Assuming <a href="/articles/2021/08/25/postgres-extensions-in-rust/">the dependencies</a> are in place, compile as follows.</p>
+<pre><code class="hljs bash language-bash">cargo pgx run pg13
+</code></pre>
+<p>pgs starts a Postgres client after compiling the extension. Install it in the usual way.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">DROP</span> EXTENSION <span class="hljs-keyword">IF</span> <span class="hljs-keyword">EXISTS</span> cas_number <span class="hljs-keyword">cascade</span>; <span class="hljs-comment">-- allows re-installation later</span>
+<span class="hljs-keyword">CREATE</span> EXTENSION cas_number; <span class="hljs-comment">-- create the extension</span>
+</code></pre>
+<p>Having created the extension, we can work with CAS Numbers as if the type were native to Postgres. For example, we can create a table containing CAS Numbers like so.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> cas_numbers (<span class="hljs-keyword">id</span> <span class="hljs-built_in">int</span>, cas_number casnumber);
+<span class="hljs-comment">-- CREATE TABLE</span>
+</code></pre>
+<p>Here, the type <code>casnumber</code> was defined by the <code>cas_number</code> extension. Postgres respects the restrictions on this data type just like it would with <code>string</code> or <code>int</code>.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> cas_numbers (<span class="hljs-keyword">id</span>, cas_number)
+<span class="hljs-keyword">VALUES</span> (<span class="hljs-number">1</span>, <span class="hljs-string">'111-11-1'</span>);
+<span class="hljs-comment">-- ERROR:  invalid CAS Number</span>
+<span class="hljs-comment">-- ...</span>
+</code></pre>
+<p>The table can be populated with 100,000 random CAS Numbers.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> cas_numbers
+<span class="hljs-keyword">SELECT</span> generate_series(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>) <span class="hljs-keyword">as</span> <span class="hljs-keyword">id</span>,
+       random_cas_number();
+<span class="hljs-comment">-- INSERT 0 100000</span>
+</code></pre>
+<p>Queries on tables this large without indexes often perform poorly, which can be easily verified here. The problem can be overcome with an index on the <code>cas_number</code> field.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">index</span> cas_numbers_cas_number <span class="hljs-keyword">on</span> cas_numbers (cas_number);
+<span class="hljs-comment">-- CREATE INDEX</span>
+</code></pre>
+<p>Now Postgres will use the index rather than the default sequential scan strategy for many kinds of queries.</p>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
+<span class="hljs-keyword">SELECT</span>   <span class="hljs-keyword">id</span>, cas_number
+<span class="hljs-keyword">FROM</span>     cas_numbers
+<span class="hljs-keyword">WHERE</span>    cas_number &gt; <span class="hljs-string">'67-64-1'</span>
+<span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> cas_number
+<span class="hljs-keyword">LIMIT</span>    <span class="hljs-number">25</span>;
+<span class="hljs-comment">--                                                                     QUERY PLAN                                                                     </span>
+<span class="hljs-comment">-- ---------------------------------------------------------------------------------------------------------------------------------------------------</span>
+<span class="hljs-comment">--  Limit  (cost=0.42..3.04 rows=25 width=36) (actual time=0.791..0.822 rows=25 loops=1)</span>
+<span class="hljs-comment">--    -&gt;  Index Scan using cas_numbers_cas_number on cas_numbers  (cost=0.42..3499.74 rows=33333 width=36) (actual time=0.790..0.817 rows=25 loops=1)</span>
+<span class="hljs-comment">--          Index Cond: (cas_number &gt; '67-64-1'::casnumber)</span>
+<span class="hljs-comment">--  Planning Time: 0.356 ms</span>
+<span class="hljs-comment">--  Execution Time: 0.900 ms</span>
+<span class="hljs-comment">-- (5 rows)</span>
+</code></pre>
+<h2 id="casnumbersandtheirvalidation">CAS Numbers and Their Validation</h2>
+<p>The extension defines a custom data type, <code>casnumber</code>, that models a <a href="https://www.cas.org/cas-data/cas-registry">Chemical Abstracts Service Registry Number</a>® (aka "CAS Number"). A CAS Number is a unique identifier for chemical substances managed by the <a href="https://www.acs.org">American Chemical Society</a>. CAS Numbers look vaguely like phone numbers, but work quite differently.</p>
+<p>A CAS number is a string composed of three groups of digit characters (<code>0</code>-<code>9</code>) separated by the dash character (<code>-</code>). For example, the CAS Number for water is <code>7732-18-5</code>. The leftmost group of characters, which I call the "base," contains between two and seven digits. A leading zero is not allowed, but there are no other restrictions. The middle group contains two digits, which I call the "suffix." The rightmost group contains a single "check" digit.</p>
+<p>The following regular expression can be used to validate CAS Numbers:</p>
+<pre><code class="hljs console language-console">^[1-9]\d{1,6}-\d{2}-\d$
+</code></pre>
+<p>The purpose of the check digit is to prevent data entry errors. It is computed as follows. Read all digits, excluding the check digit, sequentially from right-to-left. Assign the first digit an index <code>i</code> of 1, the next an index <code>i</code> 2, and so on. A checksum <code>c</code> is computed by the summation:</p>
+<span title="c = sum_(i=1)^n i*V_i"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>i</mi><mo>⋅</mo><msub><mi>V</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">{c}={\sum_{{{i}={1}}}^{{n}}}{i}\cdot{V}_{{i}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">c</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.929066em;vertical-align:-1.277669em;"></span><span class="mord"><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6513970000000002em;"><span style="top:-1.872331em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span></span><span class="mrel mtight">=</span><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span></span><span style="top:-3.050005em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3000050000000005em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.277669em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathdefault">i</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.22222em;">V</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></span>
+<p>where <code>i</code> is the one-based, right-to-left index of the digit and <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">{V}_{{i}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.83333em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord"><span style="margin-right: 0.22222em;" class="mord mathdefault">V</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.31166399999999994em;"><span class="" style="top: -2.5500000000000003em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span> is the value of the digit at index <code>i</code>.</p>
+<p>The check digit is then computed as the modulo-10 remainder of <code>c</code>.</p>
+<p>For example, <a href="https://en.wikipedia.org/wiki/Paclitaxel">paclitaxel</a> ("Taxol") has the CAS Number <code>33069-62-4</code>. The check digit is 4, which can be computed as:</p>
+<pre><code class="hljs console language-console">(2*1 + 6*2 + 9*3 + 6*4 + 0*5 + 3*6 + 3*7) % 10 = 4
+</code></pre>
+<p>The Postgres extension performs this check during the translation of <code>string</code> instances.</p>
+<h2 id="overviewoftheextension">Overview of the Extension</h2>
+<p>The extension itself is comprised of just two Rust source files: <code>lib.rs</code> and <code>cas_number.rs</code>. The former file just brings the latter into scope and invokes the macro responsible for embedding the Postgres extension signature.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// lib.rs</span>
+<span class="hljs-keyword">use</span> pgx::*;
+
+<span class="hljs-keyword">mod</span> cas_number;
+
+pg_module_magic!();
+</code></pre>
+<p>The file <code>cas_number.rs</code> defines the custom Postgres type and an exported helper function. The type is just an annotated Rust <code>struct</code> following the <a href="https://doc.rust-lang.org/rust-by-example/generics/new_types.html">newtype</a> pattern:</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// ... macro invocations</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">CasNumber</span></span>(<span class="hljs-built_in">String</span>);
+</code></pre>
+<p><code>CasNumber</code> contains a private field of type <code>String</code>. This pattern makes it possible to apply various macros and function definitions to <code>CasNumber</code>, including those required by pgx. pgx automatically translates the Rust symbol <code>CasNumber</code> to <code>casnumber</code> in Postgres sessions.</p>
+<h2 id="casnumbervalidationinrust">CAS Number Validation in Rust</h2>
+<p>The business end of the extension is the <code>validate</code> function, which returns <code>true</code> given a valid CAS Number <code>str</code> encoding or <code>false</code> otherwise.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// cas_number.rs</span>
+<span class="hljs-comment">// ...</span>
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">validate</span></span>(id: &amp;<span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">bool</span> {
+    <span class="hljs-keyword">let</span> re = Regex::new(<span class="hljs-string">r"^([1-9])(\d{1,6})-(\d{2})-(\d)$"</span>).unwrap();
+
+    <span class="hljs-keyword">let</span> caps = <span class="hljs-keyword">match</span> re.captures(id) {
+        <span class="hljs-literal">Some</span>(caps) =&gt; caps,
+        <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>,
+    };
+
+    <span class="hljs-keyword">let</span> digits = <span class="hljs-built_in">format!</span>(
+        <span class="hljs-string">"{}{}{}"</span>,
+        caps.get(<span class="hljs-number">1</span>).unwrap().as_str(),
+        caps.get(<span class="hljs-number">2</span>).unwrap().as_str(),
+        caps.get(<span class="hljs-number">3</span>).unwrap().as_str()
+    );
+
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> checksum = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">for</span> (n, digit) <span class="hljs-keyword">in</span> digits.chars().rev().enumerate() {
+        checksum += (n + <span class="hljs-number">1</span>) <span class="hljs-keyword">as</span> <span class="hljs-built_in">u32</span> * digit.to_digit(<span class="hljs-number">10</span>).unwrap();
+    }
+
+    checksum % <span class="hljs-number">10</span> == caps.get(<span class="hljs-number">4</span>).unwrap().as_str().parse::&lt;<span class="hljs-built_in">u32</span>&gt;().unwrap()
+}
+</code></pre>
+<h2 id="generatingrandomcasnumbersinrust">Generating Random CAS Numbers in Rust</h2>
+<p>Also included with the extension is the <code>random_cas_number</code> function, which generates valid <code>CasNumber</code> instances. It can be used to build large tables containing columns of type <code>casnumber</code> for mockups and performance testing.</p>
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// cas_number.rs</span>
+<span class="hljs-comment">// ...</span>
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">random_cas_number</span></span>() -&gt; CasNumber {
+    <span class="hljs-keyword">let</span> base = rand::thread_rng().gen_range(<span class="hljs-number">4</span>, <span class="hljs-number">9</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> digits = <span class="hljs-built_in">Vec</span>::new();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> checksum: <span class="hljs-built_in">u32</span> = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..(base + <span class="hljs-number">2</span>) {
+        <span class="hljs-keyword">let</span> digit = random_digit(i == <span class="hljs-number">0</span>);
+        checksum += (base <span class="hljs-keyword">as</span> <span class="hljs-built_in">u32</span> + <span class="hljs-number">2</span> - i <span class="hljs-keyword">as</span> <span class="hljs-built_in">u32</span>) * digit <span class="hljs-keyword">as</span> <span class="hljs-built_in">u32</span>;
+
+        digits.push(digit)
+    }
+
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> string = <span class="hljs-built_in">String</span>::new();
+
+    <span class="hljs-keyword">for</span> (i, digit) <span class="hljs-keyword">in</span> digits.into_iter().enumerate() {
+        <span class="hljs-keyword">if</span> i == base <span class="hljs-keyword">as</span> <span class="hljs-built_in">usize</span> {
+            string.push_str(<span class="hljs-string">"-"</span>);
+        }
+
+        string.push_str(&amp;digit.to_string())
+    }
+
+    CasNumber(<span class="hljs-built_in">format!</span>(<span class="hljs-string">"{}-{}"</span>, string, checksum % <span class="hljs-number">10</span>))
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">random_digit</span></span>(exclude_zero: <span class="hljs-built_in">bool</span>) -&gt; <span class="hljs-built_in">u8</span> {
+    <span class="hljs-keyword">if</span> exclude_zero {
+        rand::thread_rng().gen_range(<span class="hljs-number">1</span>, <span class="hljs-number">9</span>)
+    } <span class="hljs-keyword">else</span> {
+        rand::thread_rng().gen_range(<span class="hljs-number">0</span>, <span class="hljs-number">9</span>)
+    }
+}
+</code></pre>
+<h2 id="why">Why?</h2>
+<p>The utility of Postgres extensions like the one described here may not be apparent at first (or second) glance. The primary purpose is to enable Postgres to ensure that custom data types are properly validated before use - just like any other native type. A secondary purpose is to offload domain-specific data management tasks to Postgres that would otherwise take place elsewhere, such as in an application layer. In many situations, it makes sense to keep data manipulation and validation logic within the database itself and within transactional boundaries.</p>
+<p>This isn't necessarily an either-or proposition. For example, form validation in Web applications typically occurs in three different places: on the form itself using HTML controls; in the server application layer; and in the database. Each stage of validation serves a different purpose. Postgres extensions such as the one described here make it possible to extend boundary checking patterns commonly used for primitives such as decimals and integers to custom data types like CAS Numbers.</p>
+<p>Of course Postgres can be (and often is) used without an application layer at all. In these cases, Postgres is responsible for all data validation. Extensions like the one described here make it possible to use Postgres as if it had native support for domain-specific data types.</p>
+<p>Either way, writing Postgres extensions in Rust using pgx brings important benefits. As you can see, most of the work of generating the extension is done by pgx. That leaves the developer with only the task of writing the domain-specific code to control the extension. Given that the language is Rust, all of its features such as high performance, high-level ergonomics, the Cargo package manager, and type safety are at your fingertips. </p>
+<h2 id="otherwork">Other Work</h2>
+<p>The extensions described here is based on a demo extension for phone numbers contained in <a href="https://github.com/zombodb/postgresconf">this repository</a>. In addition to replacing phone numbers for CAS Numbers, my example simplifies the project layout, localizing plugin and validation logic in one file and eliminating other functionality to highlight extension points.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Extensions make it possible to work with domain-specific data types as if they were native to Postgres. This article describes a non-trivial Postgres extension with both a custom function and a custom data type that works well with indexes. The <a href="https://github.com/rapodaca/cas_number">project repository</a> can serve as a template for a variety of high-performance extensions supporting domain-specific types and functions.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

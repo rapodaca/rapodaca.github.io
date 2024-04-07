@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Making the Case: Personal Chemistry Client | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Making the Case: Personal Chemistry Client</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2007-01-19T00:00:00.000Z">2007-01-19T00:00:00.000Z</time>
+      </header>
+      <p>Good software designed with chemists in mind is still quite rare, and when that software is Open Source it's even rarer still. Two very popular titles are <a href="http://jmol.sourceforge.net/">Jmol</a> and <a href="http://pymol.sourceforge.net/">PyMol</a>. A third, <a href="http://www.bioclipse.net/">Bioclipse</a>, is gaining in popularity. So it was with great interest that I came upon a company called <a href="http://www.akosgmbh.de/">AKos Consulting &amp; Solutions</a>, and their Open Source application <a href="http://www.akosgmbh.de/pcc/">Personal Chemistry Client</a> (PCC).</p>
+<p><img src="/images/posts/20070119/screenshot.png" alt="Personal Chemistry Client" title="Personal Chemistry Client"></p>
+<p>PCC, as best as I can tell, is designed to be a personal chemical database. The good news is that PCC is licensed under the <a href="http://opensource.org/licenses/gpl-license.php">GNU General Public License</a>. The bad news is that PCC also requires two important things from your computer:</p>
+<ul>
+<li>A system capable of running the Microsoft .NET 2.0 Framework. The framework itself is included with the download. Unfortunately, this requirement rules out running PCC on Linux or Mac OSX.</li>
+<li>The free (<a href="http://depth-first.com/articles/2006/09/27/hacking-pubchem-free-speech-or-free-beer">as in beer</a>) ActiveX plugin <a href="http://www.hyleos.net/?s=applications&amp;p=ChemView">ChemViewX</a> from <a href="http://www.hyleos.net/">Hyleos</a>. This plugin is also included with the download.</li>
+</ul>
+<p>I was able to download, install, and use PCC on my system (Windows XP Home) without a problem. Aside from some confusing behaviors of its template components, the application seems to work as described.</p>
+<p>Behind the scenes, PCC uses the <a href="http://cdk.sf.net">Chemistry Development Kit</a> (CDK) for structure searching. It's not clear what rendering engine is used by the ChemViewX plugin. Just looking at the output, though, it may well also be CDK.</p>
+<p>The emergence of PCC, an Open Source program developed by a for-profit vendor, is an exciting development. Business models may take some time to solidify, but chemistry clearly offers numerous <a href="http://depth-first.com/articles/2006/09/03/peculiarities-of-chemical-information">peculiarities</a> to take advantage of. And the folks behind PCC are well ahead of the curve.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

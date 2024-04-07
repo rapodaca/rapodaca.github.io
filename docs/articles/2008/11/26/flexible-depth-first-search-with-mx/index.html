@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Flexible Depth-First Search With MX | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Flexible Depth-First Search With MX</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-11-26T00:00:00.000Z">2008-11-26T00:00:00.000Z</time>
+      </header>
+      <p>Graph theory is an essential component of cheminformatics, if you dig deeply enough. <a href="http://code.google.com/p/mx-java/">MX</a> is a lightweight cheminformatics toolkit written in Java with a major goal of exposing the most important cheminformatics graph manipulations in a flexible, Java-centric way. Previous releases have focused on implementing <a href="/articles/2008/11/17/substructure-search-from-scratch-in-java-part-1-the-atom-mapping-problem">subgraph monomorphism</a> functionality for use in substructure search. The new MX release, <a href="http://code.google.com/p/mx-java/downloads/list">0.104.0</a>, introduces support for depth-first traversal. This article will give a simple example using this feature.</p>
+<h2 id="downloadingmx">Downloading MX</h2>
+<p>MX can be downloaded in source or binary form:</p>
+<ul>
+<li><a href="http://code.google.com/p/mx-java/downloads/detail?name=mx-0.104.0.jar&amp;can=2&amp;q=">mx-0.104.0.jar</a> Platform-independent bytecode.</li>
+<li><a href="http://code.google.com/p/mx-java/downloads/detail?name=mx-0.104.0-src.tar.gz&amp;can=2&amp;q=">mx-0.104.0-src.tar.gz</a> Source code and regression tests.</li>
+</ul>
+<h2 id="scriptingmxwithjruby">Scripting MX with JRuby</h2>
+<p>A <a href="/articles/2008/11/24/getting-started-with-mx">previous article</a> outlined the simple steps needed to install JRuby on unix-based systems for scripting MX.</p>
+<h2 id="findingallpathsfromagivenatom">Finding All Paths From a Given Atom</h2>
+<p>A fundamental graph operation in cheminformatics is finding all paths through a molecule from a starting atom. MX makes this easy with the <code>com.metamolecular.mx.path.PathFinder</code> class. Depth-first traversal is used in creating <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">molecular fingerprints</a>. Another use is in creating <a href="http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html">SMILES strings</a>, although a limited form of depth-first traversal is used in which each atom in a molecule is traversed only once.</p>
+<p>We can create a short library to print out all of the paths through a molecule in JRuby:</p>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'mx-0.104.0.jar'</span>
+import <span class="hljs-string">'com.metamolecular.mx.path.PathFinder'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PathPrinter</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
+    @finder = PathFinder.new
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">print_paths</span> <span class="hljs-title">atom</span></span>
+    paths = @finder.find_all_paths atom
+
+    puts <span class="hljs-string">"printing all paths through the molecule"</span>
+
+    paths.each <span class="hljs-keyword">do</span> <span class="hljs-params">|path|</span>
+      print_path path
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  private
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">print_path</span> <span class="hljs-title">path</span></span>
+    path.each <span class="hljs-keyword">do</span> <span class="hljs-params">|atom|</span>
+      print atom.get_index
+      print <span class="hljs-string">'-'</span> <span class="hljs-keyword">unless</span> path.get(path.length - <span class="hljs-number">1</span>).equals(atom)
+    <span class="hljs-keyword">end</span>
+
+    puts
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>Saving the above code in a file called <code>pathprinter.rb</code>, we can test it from interactive JRuby:</p>
+<pre><code class="hljs bash language-bash">jirb
+irb(main):001:0&gt; require <span class="hljs-string">'pathprinter'</span>                   
+=&gt; <span class="hljs-literal">true</span>
+irb(main):002:0&gt; import com.metamolecular.mx.io.Molecules
+=&gt; Java::ComMetamolecularMxIo::Molecules
+irb(main):003:0&gt; benzene=Molecules.create_benzene        
+=&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0x43da1b @java_object=com.metamolecular.mx.model.DefaultMolecule@8a2023&gt;</span>
+irb(main):004:0&gt; p=PathPrinter.new                       
+=&gt; <span class="hljs-comment">#&amp;lt;PathPrinter:0x19ed7e @finder=#&amp;lt;Java::ComMetamolecularMxPath::PathFinder:0x3727c5 @java_object=com.metamolecular.mx.path.PathFinder@1140709&gt;</span>
+irb(main):005:0&gt; p.print_paths benzene.get_atom(0)       
+printing all paths through the molecule
+0-5-4-3-2-1
+0-1-2-3-4-5
+=&gt; nil
+</code></pre>
+<h2 id="howitworks">How It Works</h2>
+<p>Two classes collaborate in this traversal: <a href="http://github.com/rapodaca/mx/tree/master/src%2Fcom%2Fmetamolecular%2Fmx%2Fpath%2FPathFinder.java"><code>com.metamolecular.mx.path.PathFinder</code></a> and <a href="http://github.com/rapodaca/mx/tree/master/src%2Fcom%2Fmetamolecular%2Fmx%2Fpath%2FDefaultStep.java"><code>com.metamolecular.mx.path.DefaultStep</code></a>.</p>
+<p>Creating a depth-first traversal of your own is as simple as creating a <code>DefaultStep</code> from an <code>Atom</code> and implementing a <code>walk</code> method similar to the one shown below:</p>
+<pre><code class="hljs java language-java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">walk</span><span class="hljs-params">(Step step)</span>
+</span>{
+  <span class="hljs-keyword">if</span> (!step.hasNextBranch())
+  {
+    <span class="hljs-comment">// do something with the completed branch</span>
+
+    <span class="hljs-keyword">return</span>;
+  }
+
+  <span class="hljs-keyword">while</span>(step.hasNextBranch())
+  {
+    Atom next = step.nextBranch();
+
+    <span class="hljs-keyword">if</span> (step.isBranchFeasible(next))
+    {
+      walk(step.nextStep(next));
+
+      step.backTrack();
+    }
+  }
+}
+</code></pre>
+<h2 id="conclusions">Conclusions</h2>
+<p>Depth-first traversal is an important tool in any cheminformatics library. MX offers an implementation of this traversal strategy that can be easily customized.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

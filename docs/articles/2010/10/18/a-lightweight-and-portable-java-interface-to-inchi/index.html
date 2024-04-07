@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>A Lightweight and Portable Java Interface to InChI | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>A Lightweight and Portable Java Interface to InChI</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-10-18T00:00:00.000Z">2010-10-18T00:00:00.000Z</time>
+      </header>
+      <p>If you work in cheminformatics and you use Java, you'll eventually face the problem of <a href="http://depth-first.com/articles/2008/12/10/mr-inchi-tear-down-this-wall">how to generate InChIs in Java</a>. This blog has covered a few approaches to integrating InChI over the years, including the use of <a href="http://depth-first.com/articles/2006/09/16/taking-a-swig-of-inchi">SWIG to statically link to the InChI code</a> and <a href="http://depth-first.com/articles/2007/12/03/from-c-source-code-to-platform-independent-executable-jarfile-using-nestedvm-to-build-jinchi">NestedVM to compile the InChI C source into Java bytecode</a>. NestedVM ports much better than SWIG, but at the price of a  performance penalty on the order of 10-20 fold. What if we could have the best of both performance and portability when using InChI with Java? This article shows one way to do it.</p>
+<h2 id="adaptingasolution">Adapting a Solution</h2>
+<p>The approach we'll take in this article is based on <a href="http://depth-first.com/articles/2008/05/30/a-simple-and-portable-ruby-interface-to-inchi-part-2-silencing-console-output">a portable interface to InChI in Ruby</a> that was presented here a while back. That solution was based on using an operating system shell to invoke the InChI executable from Ruby.</p>
+<h2 id="alightweightjavainterfacetoinchi">A Lightweight Java Interface to InChI</h2>
+<p>Java has long had the ability to execute arbitrary binaries through <code>Runtime.getRuntime().exec()</code>. We can even execute these binaries within a shell environment, giving the ability to use pipes and other high-level features. The only prerequisite is to have the InChI command-line program accessible on our path.</p>
+<p>Putting <code>Runtime.getRuntime().exec()</code> together with some syntactic sugar gives the Java class below:</p>
+<pre><code class="hljs java language-java"><span class="hljs-keyword">import</span> java.io.InputStreamReader;
+<span class="hljs-keyword">import</span> java.io.BufferedReader;
+<span class="hljs-keyword">import</span> java.io.FileReader;
+<span class="hljs-keyword">import</span> java.io.IOException;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">InChI</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> BufferedReader <span class="hljs-title">runInChI</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
+    String[] command = {
+      <span class="hljs-string">"/bin/sh"</span>,
+      <span class="hljs-string">"-c"</span>,
+      <span class="hljs-string">"echo \""</span> + molfile + <span class="hljs-string">"\" | inchi -STDIO -AuxNone -NoLabels -Key 2&gt;/dev/null"</span>
+    };
+    Process inchi = Runtime.getRuntime().exec(command);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BufferedReader(<span class="hljs-keyword">new</span> InputStreamReader(inchi.getInputStream()));
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">getInChIFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
+    BufferedReader input = runInChI(molfile);
+    String result = input.readLine();      
+    input.close();
+
+    <span class="hljs-keyword">return</span> result == <span class="hljs-keyword">null</span> ? <span class="hljs-string">""</span> : result;
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">getInChIKeyFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
+    BufferedReader input = runInChI(molfile);
+    input.readLine();
+    String result = input.readLine();
+    input.close();
+
+    <span class="hljs-keyword">return</span> result == <span class="hljs-keyword">null</span> ? <span class="hljs-string">""</span> : result.substring(<span class="hljs-number">9</span>);
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">readFile</span><span class="hljs-params">(String filename)</span> <span class="hljs-keyword">throws</span> IOException </span>{
+    BufferedReader in = <span class="hljs-keyword">new</span> BufferedReader(<span class="hljs-keyword">new</span> FileReader(filename));
+    String str = <span class="hljs-string">""</span>;
+    String molfile = <span class="hljs-string">""</span>;
+
+    <span class="hljs-keyword">while</span> ((str = in.readLine()) != <span class="hljs-keyword">null</span>) {
+      molfile = molfile + str + <span class="hljs-string">"\n"</span>;
+    }
+
+    in.close();
+
+    <span class="hljs-keyword">return</span> molfile;
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>{
+    <span class="hljs-keyword">try</span> {
+      String molfile = readFile(args[<span class="hljs-number">0</span>]);
+
+      System.out.println(getInChIFromMolfile(molfile));
+      System.out.println(getInChIKeyFromMolfile(molfile));
+    } <span class="hljs-keyword">catch</span> (IOException ignore) {
+      ignore.printStackTrace();
+    }
+  }  
+}
+</code></pre>
+<p>You can test this code by saving it to a file called <strong>InChI.java</strong> and compiling it:</p>
+<pre><code class="hljs bash language-bash">javac InChI.java
+</code></pre>
+<p>and then running it:</p>
+<pre><code class="hljs bash language-bash">java InChI path/to/molfile
+</code></pre>
+<h2 id="caveats">Caveats</h2>
+<p>Lightweight and (mostly) portable though it may be, the approach described here does have limitations. First, if you're on Windows, you'll need to adapt it. The change shouldn't be difficult and we could even add runtime platform detection to decide whether to run the Unix or Windows flavor of <code>Runtime.getRuntime().exec()</code>. Another limitation is that this code should never be used to run untrusted input files. A few properly placed characters would be enough for an attacker to run arbitrary commands. One solution would be to apply a character whitelist for molfile input. Another limitation: this approach will not work in sandboxed environments such as a browser running the Java Plugin.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>With a few lines of Java we've created a lightweight interface to the InChI library. Although not without limitations, it offers the quickest and easiest way to begin working with InChI in Java. But why bother? Future articles will offer some ideas.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

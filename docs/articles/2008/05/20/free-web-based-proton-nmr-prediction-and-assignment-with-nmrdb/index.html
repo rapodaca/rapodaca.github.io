@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Free Web-Based Proton NMR Prediction and Assignment with NMRDB | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>Free Web-Based Proton NMR Prediction and Assignment with NMRDB</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2008-05-20T00:00:00.000Z">2008-05-20T00:00:00.000Z</time>
+      </header>
+      <p>NMR Prediction software can be a useful tool in spectral assignment and unknown identification. Until recently, the only available software consisted of rather expensive desktop-based packages. But a new Web service called <a href="http://nmrdb.org">nmrdb.org</a> looks ready to change that.</p>
+<h2 id="aboutnmrdborg">About nmrdb.org</h2>
+<p><a href="http://nmrdb.org">nmrdb.org</a> is actually three services in one: <a href="http://www.nmrdb.org/resurector">NMR Resurrector</a>; <a href="http://www.nmrdb.org/nemo">NMR Assigner</a>; and <a href="http://www.nmrdb.org/predictor">NMR Predictor</a>.</p>
+<p>NMR Resurector is a remarkable tool that re-creates a proton NMR plot from tabulated peak frequencies. Output is available in PDF, and PNG image format.</p>
+<p>NMR Assigner enables the interactive correlation of the atoms of a molecule with the peaks in a spectrum. Output is available in ACS format ready for inclusion in manuscripts, or as a text table.</p>
+<p>NMR Predictor generates a complete proton NMR spectrum from an arbitrary chemical structure provided as a molfile or drawn with a structure editor. An interactive display (similar in concept to one <a href="/articles/2008/02/06/the-chemically-enabled-user-interface-an-introduction-to-leafcutter">discussed here recently</a>) highlights both the atom giving rise to a signal and the signal itself in response to hovering with the mouse. Output is available in both PDF and PNG image format.</p>
+<p>With each of nmrdb's services, a precompiled set of data can be used as a way to become familiar with what the service can do.</p>
+<h2 id="nmrdborgawebservice">nmrdb.org a Web Service</h2>
+<p>Although useful as a standalone tool, NMR Resurector could be even more powerful when used as a Web service in combination with other Web applications. As a hint of the kinds of things that might be possible, nmrdb is capable of creating a predicted spectrum through a special URL into which a SMILES string is embedded. For example, click on the structure of cholesterol below (or use <a href="http://www.nmrdb.org/predictor?smiles=CC%28C%29CCC%5BC%40%40H%5D%28C%29%5BC%40H%5D1CC%5BC%40%40H%5D2%5BC%40%40%5D1%28CC%5BC%40H%5D3%5BC%40H%5D2CC%3DC4%5BC%40%40%5D3%28CC%5BC%40%40H%5D%28C4%29O%29C%29C">this link)</a>:</p>
+<p><a href="http://www.nmrdb.org/predictor?smiles=CC%28C%29CCC%5BC%40%40H%5D%28C%29%5BC%40H%5D1CC%5BC%40%40H%5D2%5BC%40%40%5D1%28CC%5BC%40H%5D3%5BC%40H%5D2CC%3DC4%5BC%40%40%5D3%28CC%5BC%40%40H%5D%28C4%29O%29C%29C"><img src="/images/posts/20080520/cholesterol.png" alt="Cholesterol" title="Cholesterol"></a></p>
+<p><a href="http://chemspider.com">ChemSpider</a> has added this capability to its compound summary pages under the link "NMR".</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>nmrdb.org is a very well thought-out service that could be of immediate benefit to chemists and developers alike. It also demonstrates that <a href="/articles/2007/01/24/thirty-two-free-chemistry-databases">creating databases</a> is but one way to chemically enable the Web.</p>
+    </article>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

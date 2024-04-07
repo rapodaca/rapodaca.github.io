@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The FDA Unique Ingredient Identifier (UNII) | Depth-First</title>
+    <link rel="alternate" href="/articles.atom" title="Depth-First" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="me" href="https://fosstodon.org/@rapodaca">
+        <link rel="stylesheet" href="/css/document.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/article.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div class="wrapper">
+        <div class="site-id"><a href="/">Depth-First</a></div>
+        <nav>
+          <ul>
+            <li><a href="/articles/">Archive</a></li><li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrapper">
+            <article>
+      <header>
+        <h1>The FDA Unique Ingredient Identifier (UNII)</h1>
+        <p class="byline">By Richard L. Apodaca</p>
+          <time datetime="2010-10-19T00:00:00.000Z">2010-10-19T00:00:00.000Z</time>
+      </header>
+      <p>Did you know that United States Food and Drug Administration (FDA) maintains a Substance Registration System (SRS) that aims to centralize information on every ingredient contained in domestically-marketed foods, drugs, and medical devices? A central component of this system is the Unique Ingredient Identifier (UNII). The key documentation and resources on this system are scattered and extremely difficult to locate. This article summarizes some of the more important points about the SRS/UNII initiative from the perspective of cheminformatics.</p>
+<h2 id="whatisit">What is it?</h2>
+<p>According to the <a href="http://www.fda.gov/ForIndustry/DataStandards/SubstanceRegistrationSystem-UniqueIngredientIdentifierUNII/default.htm">SRS Website</a>:</p>
+<blockquote>
+  <p>The overall purpose of the joint FDA/USP Substance Registration System (SRS) is to support health information technology initiatives by generating unique ingredient identifiers (UNIIs) for substances in drugs, biologics, foods, and devices. The UNII is a non- proprietary, free, unique, unambiguous, non semantic, alphanumeric identifier based on a substance's molecular structure and/or descriptive information.</p>
+</blockquote>
+<p>A lot of information about the SRS is contained in the <a href="http://www.fda.gov/downloads/ForIndustry/DataStandards/SubstanceRegistrationSystem-UniqueIngredientIdentifierUNII/ucm127743.pdf">FDA Substance Registration System User's Guide Version 5c</a>. This 88-page document explains in great detail how to prepare a registration for the SRS. For example, these are the guidelines for registering substances containing azide groups:</p>
+<p><img src="/images/posts/azide-srs.png" class="figure"></p>
+<h2 id="whatareuniicodes">What are UNII Codes?</h2>
+<p>One of the more interesting aspects of the SRS is the structure and purpose of UNII codes. From the <a href="http://fdasis.nlm.nih.gov/srs/jsp/srs/faq.jsp#unii">SRS FAQ</a>:</p>
+<blockquote>
+  <p>A UNII is an identifier for a single defined substance. UNIIs contain 9 randomly generated alphanumeric characters with a tenth check alphanumeric character. Database managers may request the check character algorithm from fda-srs@altum.com. In order to generate a UNII, a certain amount of information must be available to unambiguously identify a given substance. The assignment of the same UNII to two materials does not indicate that these materials are equivalent in preparation method, impurity profile, or utilization, but rather only indicates that they represent the same molecular entity or elements upon which the definition is based.</p>
+</blockquote>
+<p>All well and good, but how do we use this system to find information about substances?</p>
+<h2 id="substancelookup">Substance Lookup</h2>
+<p>The NIH offers a service that can be used to <a href="http://fdasis.nlm.nih.gov/srs/srs.jsp">find a UNII based on substance name or vice versa</a>:</p>
+<p><img src="/images/posts/unii-lookup.png" alt="UNII Lookup" title="UNII Lookup"></p>
+<h2 id="downloadtheuniitosubstancenamedictionary">Download the UNII to Substance Name Dictionary</h2>
+<p>The FDA documentation makes clear the non-proprietary nature of UNII codes, and the copyright statement makes clear that the entire database is a public-domain work, like most works created by the federal government. So SRS and its contents can safely be repurposed and mashed up to create new services and databases - if the source files can be located.</p>
+<p>However, locating a link to download the up-to-date contents of the FDA's UNII database from the FDA site was an exercise in frustration. <a href="http://www.cancer.gov/cancertopics/cancerlibrary/terminologyresources/page5/print">By pure chance</a> I stumbled on the <a href="http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162523.htm">UNII dictionary download page</a>. The link can also be accessed (through a couple of hops) via the <a href="http://fdasis.nlm.nih.gov/srs/srs.jsp">NIH's UNII lookup site</a>.</p>
+<p>The Excel file obtained by clicking on the download link contained the following columns:</p>
+<ul>
+<li>Preferred Substance Name</li>
+<li>UNII</li>
+<li>Substance Name</li>
+<li>ITIS TSM</li>
+<li>Molecular Formula</li>
+</ul>
+<p>The file contained 61,804 entries. Although each UNII represents a single substance, multiple substance names can be associated with one UNII. In other words, this file makes it possible to disambiguate many of the most widely-used substance names. The presence or absence of the <code>Molecular Formula</code> field appeared to be a good indicator of whether the substance represented a discrete molecular entity (e.g., "OROTIC ACID MONOHYDRATE") or a complex mixture (e.g., "RABBIT HAIR"). The presence of an "n" in the formula suggests a polymeric material (e.g., "TRITON X 100").</p>
+<p>It's unclear how often this download file is updated, but the date in the filename indicates that the copy I received was created on October 11, 2010 - about a week ago.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>The FDA's SRS system, and more particularly the information it contains, can be a useful addition to any chemical database. With a few well-marked signposts it should be possible to extract useful chemical information out of free government databases using UNII as the linking mechanism. Stay tuned for more.</p>
+    </article>
+      <div id="disqus_thread"></div>
+      <script src="/js/comments.js"></script>
+
+      </div>
+    </main>
+    <footer>
+      <ul>
+        <li>&copy; 2006-2023<li><a href="https://creativecommons.org/licenses/by/2.0/">CC-BY</a></li><li><a href="/about/">Richard L. Apodaca</a></li><li><a href="/articles.atom">Feed</a></li>
+      </ul>
+    </footer>
+    <script src="/js/moment.js"></script>
+    <script src="/js/timestamps.js"></script>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>
