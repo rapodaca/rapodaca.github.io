@@ -3,8 +3,7 @@ title: About the Author
 layout: page.hbs
 ---
   
-Richard L. Apodaca is a chemist living in La Jolla, California. His company,
-[Metamolecular](http://metamolecular.com), solves chemical information problems through software products and consulting services.
+Richard L. Apodaca is a chemist living in La Jolla, California.
 
 E-mail: <a href="mailto:rich.apodaca@gmail.com">rich.apodaca@gmail.com</a>
 
