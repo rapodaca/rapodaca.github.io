@@ -4,12 +4,20 @@
   <title>Depth-First</title>
   <link href="https://depth-first.com/articles.atom" rel="self"/>
   <link href="https://depth-first.com"/>
-  <updated>2024-04-07T02:43:09.346Z</updated>
+  <updated>2024-04-22T20:39:34.359Z</updated>
   <id>http://depth-first.com/</id>
   <author>
     <name>Richard L. Apodaca</name>
   </author>
 
+    <entry>
+      <title>Round Two</title>
+      <link href="https://depth-first.com/articles/2024/04/22/round-two/"/>
+        <updated>2024-04-22T23:15:00Z</updated>
+        <published>2024-04-22T23:15:00Z</published>
+      <id>http://depth-first.com/articles/2024/04/22/round-two/</id>
+      <summary>Every glioblastoma surgery fails sooner or later. Mine was no exception.</summary>
+    </entry>
     <entry>
       <title>Median</title>
       <link href="https://depth-first.com/articles/2024/03/29/median/"/>
@@ -201,13 +209,5 @@
         <published>2023-07-18T19:30:00Z</published>
       <id>http://depth-first.com/articles/2023/07/18/the-principle-of-least-convenience/</id>
       <summary>Clawing back lost abilities, one at a time.</summary>
-    </entry>
-    <entry>
-      <title>Glioblastoma's Dismal Standard of Care: The Stupp Protocol</title>
-      <link href="https://depth-first.com/articles/2023/07/10/glioblastomas-dismal-standard-of-care-the-stupp-protocol/"/>
-        <updated>2023-07-10T18:30:00Z</updated>
-        <published>2023-07-10T18:30:00Z</published>
-      <id>http://depth-first.com/articles/2023/07/10/glioblastomas-dismal-standard-of-care-the-stupp-protocol/</id>
-      <summary>Coming to grips with a disease whose best treatment is not very good.</summary>
     </entry>
 </feed>
