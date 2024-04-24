@@ -28,7 +28,7 @@
     "dev": "node ./bin/server",
     "test": "mocha -G --recursive --watch --reporter min",
     "deploy": "bin/deploy.sh",
-    "clean": "rm -rf build/*",
+    "clean": "rm -rf docs/*",
     "build": "node ./metalsmith.js"
   }
 }

@@ -1,10 +1,9 @@
+const fs = require('fs');
 const metalsmith = require('metalsmith');
-// const markdown = require('metalsmith-markdown');
 const markdown = require('./lib/markdown');
 const collections = require('metalsmith-collections');
 const metadata = require('metalsmith-collection-metadata');
 const permalinks = require('metalsmith-permalinks');
-// const hjs = require('highlightjs');
 const renameArticles = require('./lib/rename-articles');
 const handlebars = require('./lib/handlebars');
 
@@ -35,13 +34,6 @@ const app = metalsmith(__dirname)
     }
   }))
   .use(markdown({ }))
-  // .use(markdown({
-  //   gfp: true,
-  //   tables: true,
-  //   highlight: (code, name) => {
-  //     return hjs.highlight(name, code).value;
-  //   }
-  // }))
   .use(renameArticles)
   .use(permalinks({
     relative: false
@@ -57,6 +49,12 @@ if (module.parent) {
   app.build((err) => {
     if (err) {
       throw err;
+    } else {
+      fs.copyFile('src/CNAME', 'docs/CNAME', err => {
+        if (err) {
+          throw err;
+        }
+      })
     }
   });
 }
