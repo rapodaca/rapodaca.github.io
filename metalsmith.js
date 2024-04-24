@@ -54,7 +54,13 @@ if (module.parent) {
         if (err) {
           throw err;
         }
-      })
+      });
+      fs.copyFile('docs/404/index.html', 'docs/404.html', err => {
+        if (err) {
+          throw err;
+        }
+      });
+      fs.rmSync('docs/404', {recursive: true});
     }
   });
 }
