@@ -107,14 +107,14 @@
 <h2 id="moleculeinjavascript">Molecule in JavaScript</h2>
 <p>To make things less abstract, here's one approach to the <code>Molecule</code> API proposal written in modern JavaScript (specifically, ES6):</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">// minimal Graph API</span>
-<span class="hljs-keyword">import</span> Graph <span class="hljs-keyword">from</span> <span class="hljs-string">'../graph/graph.js'</span>; 
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">Graph</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;../graph/graph.js&#x27;</span>; 
 
 <span class="hljs-comment">/**
- * @interface
+ * <span class="hljs-doctag">@interface</span>
  */</span>
-<span class="hljs-keyword">const</span> Element = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Element</span> = <span class="hljs-keyword">class</span> {
   <span class="hljs-comment">/**
-   * <span class="hljs-doctag">@return <span class="hljs-type">{string}</span></span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">string</span>}
    */</span>
   symbol () { }
 
@@ -122,66 +122,66 @@
 };
 
 <span class="hljs-comment">/**
- * @interface
+ * <span class="hljs-doctag">@interface</span>
  */</span>
-<span class="hljs-keyword">const</span> Isocomp = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Isocomp</span> = <span class="hljs-keyword">class</span> {
   <span class="hljs-comment">/**
-   * <span class="hljs-doctag">@return <span class="hljs-type">{boolean}</span></span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">boolean</span>}
    */</span>
   natural () { <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; }
 
   <span class="hljs-comment">/**
-   * <span class="hljs-doctag">@return <span class="hljs-type">{Iterable&lt;number&gt;}</span></span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">Iterable&lt;number&gt;</span>}
    */</span>
   isotopes () { <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>; }
 };
 
 <span class="hljs-comment">/**
- * @interface
+ * <span class="hljs-doctag">@interface</span>
  */</span>
-<span class="hljs-keyword">const</span> Molecule = <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Graph</span> </span>{
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Molecule</span> = <span class="hljs-keyword">class</span> <span class="hljs-title class_">extends</span> <span class="hljs-title class_">Graph</span> {
   <span class="hljs-comment">/**
    * Returns the element of the atom identified by id.
    * 
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
-   * <span class="hljs-doctag">@return <span class="hljs-type">{Element}</span></span>
-   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">id</span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">Element</span>}
+   * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given invalid id
    */</span>
   element (id) { <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>; }
 
   <span class="hljs-comment">/**
    * Returns the isotopic composition of the atom identified by id.
    * 
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
-   * <span class="hljs-doctag">@return <span class="hljs-type">{Isocomp}</span></span>
-   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">id</span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">Isocomp</span>}
+   * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given invalid id
    */</span>
   isocomp (id) { <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span> }
 
   <span class="hljs-comment">/**
    * Returns the valence electron count of the atom identified by id.
    * 
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
-   * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span> </span>an integer greater than or equal to zero
-   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">id</span>
+   * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>} an integer greater than or equal to zero
+   * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given invalid id
    */</span>
   electrons (id) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
 
   <span class="hljs-comment">/**
    * Returns the virtual hydrogen count of the atom identified by id.
    * 
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
-   * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span> </span>an integer greater than or equal to zero
-   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">id</span>
+   * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>} an integer greater than or equal to zero
+   * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given invalid id
    */</span>
   hydrogens (id) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
 
   <span class="hljs-comment">/**
    * Returns the formal charge of the atom identified by id.
    * 
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
-   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span> </span>may be a non-integer
-   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid id
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">id</span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">number</span>} may be a non-integer
+   * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given invalid id
    */</span>
   charge (id) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
 
@@ -194,19 +194,19 @@
    * 
    * If no parity is assigned, 0 is returned.
    * 
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
-   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span> </span>-1 (anti), 0 (none), 1 (syn)
-   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid sid or tid
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">id</span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">number</span>} -1 (anti), 0 (none), 1 (syn)
+   * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given invalid sid or tid
    */</span>
   atomParity (id) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
 
   <span class="hljs-comment">/**
    * Returns the formal bond order between atoms identified by sid and tid.
    * 
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">sid</span></span>
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">tid</span></span>
-   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span></span>
-   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid sid or tid
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">sid</span>
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">tid</span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">number</span>}
+   * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given invalid sid or tid
    */</span>
   bondOrder (sid, tid) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
 
@@ -217,15 +217,15 @@
    * negative, the lowest-indexed atom on one terminal is anti to the
    * lowest-indexed atom on the mating terminal.
    * 
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">sid</span></span>
-   * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">tid</span></span>
-   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span> </span>-1 (anti), 0 (none), 1 (syn)
-   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid sid or tid
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">sid</span>
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">tid</span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">number</span>} -1 (anti), 0 (none), 1 (syn)
+   * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given invalid sid or tid
    */</span>
   bondParity (sid, tid) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; }
 };
 
-<span class="hljs-keyword">export</span> { Molecule, Element, Isocomp }
+<span class="hljs-keyword">export</span> { <span class="hljs-title class_">Molecule</span>, <span class="hljs-title class_">Element</span>, <span class="hljs-title class_">Isocomp</span> }
 </code></pre>
 <h2 id="extensionviarichexpressionconstructs">Extension via Rich Expression Constructs</h2>
 <p>It may seem as if the <code>Molecule</code> interface precludes advanced forms of molecular representation such as multi-atom bonding and non-template stereochemistry. On the contrary, the approach outlined here supports them by not interfering with them.</p>

@@ -48,12 +48,12 @@
 <p>This assumes the <code>JAVA_HOME</code> was already set. If not, it will need to point to your systems Java installation directory.</p>
 <p>The whole process can be automated by including the above line at the end of your <code>.bash_profile</code> file (or equivalent).</p>
 <p>As a simple demonstration, let's say you'd like to depict the 2-D structure encoded by a SMILES string as a 200x200 pixel PNG image. With RCDK-0.2.0, this can be done with the following Ruby code (which can be entered interactively via <code>irb</code>):</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'util'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;util&#x27;</span>
 
-smiles = <span class="hljs-string">'Oc1ccccc1'</span> <span class="hljs-comment">#phenol</span>
-RCDK::Util::Image.smiles_to_png(smiles, <span class="hljs-string">'phenol.png'</span>, <span class="hljs-number">200</span>, <span class="hljs-number">200</span>)
+smiles = <span class="hljs-string">&#x27;Oc1ccccc1&#x27;</span> <span class="hljs-comment">#phenol</span>
+<span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Image</span>.smiles_to_png(smiles, <span class="hljs-string">&#x27;phenol.png&#x27;</span>, <span class="hljs-number">200</span>, <span class="hljs-number">200</span>)
 </code></pre>
 <p>This code creates <code>phenol.png</code> in your current directory:</p>
 <p>Of course, there's much more to RCDK than just SMILES depiction. Future articles will describe some of the many possibilities.</p>

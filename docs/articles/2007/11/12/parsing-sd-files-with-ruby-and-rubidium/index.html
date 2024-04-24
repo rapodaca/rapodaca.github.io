@@ -74,23 +74,23 @@ Installing RDoc documentation <span class="hljs-keyword">for</span> rbtk-0.1.1-j
 <h2 id="parsingansdfile">Parsing an SD File</h2>
 <p>Let's say we'd like to extract all InChIs from a PubChem dataset. If you don't have one handy, a compilation of about 2000 PubChem benzodiazepines has been <a href="http://rubyforge.org/frs/download.php/27768/pubchem_benzodiazepine_20071110.sdf.gz">deposited on RubyForge</a>.</p>
 <p>With our unzipped datafile in our working directory, we can now test the SD File parser by saving the following library to a file called <strong>parse.rb</strong>:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-gem <span class="hljs-string">'rbtk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rubidium/sdf'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+gem <span class="hljs-string">&#x27;rbtk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubidium/sdf&#x27;</span>
 
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">parse_sd</span> <span class="hljs-title">filename</span></span>
-  p = Rubidium::SDF::Parser.new File.new(filename)
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">parse_sd</span> filename
+  p = <span class="hljs-title class_">Rubidium::SDF::Parser</span>.new <span class="hljs-title class_">File</span>.new(filename)
 
-  p.each <span class="hljs-keyword">do</span> <span class="hljs-params">|entry|</span>
-    puts <span class="hljs-string">"InChI: <span class="hljs-subst">#{entry[<span class="hljs-string">'PUBCHEM_NIST_INCHI'</span>]}</span>"</span>
+  p.each <span class="hljs-keyword">do</span> |<span class="hljs-params">entry</span>|
+    puts <span class="hljs-string">&quot;InChI: <span class="hljs-subst">#{entry[<span class="hljs-string">&#x27;PUBCHEM_NIST_INCHI&#x27;</span>]}</span>&quot;</span>
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <p>which can be tested with <code>jirb</code>:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'parse'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;parse&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):002:0&gt; parse_sd <span class="hljs-string">'pubchem_benzodiazepine_20071110.sdf'</span>
+irb(main):002:0&gt; parse_sd <span class="hljs-string">&#x27;pubchem_benzodiazepine_20071110.sdf&#x27;</span>
 InChI: InChI=1/C16H12Cl2N2O/c1-20-14-7-6-12(18)8-13(14)16(19-9-15(20)21)10-2-4-11(17)5-3-10/h2-8H,9H2,1H3
 
 [truncated]

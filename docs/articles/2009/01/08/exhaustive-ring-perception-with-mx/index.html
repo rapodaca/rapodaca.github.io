@@ -42,7 +42,7 @@
 <p>Ring perception can be tested conveniently using either <a href="/articles/2008/11/24/getting-started-with-mx">JRuby</a> or <a href="/articles/2008/12/01/open-source-cheminformatics-in-python-with-mx">Jython</a>. In these examples, we'll use JRuby.</p>
 <p>To find all rings in benzene, we'd use something like:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'mx-0.108.1.jar'</span>                         
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;mx-0.108.1.jar&#x27;</span>                         
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; import com.metamolecular.mx.ring.HanserRingFinder
 =&gt; Java::ComMetamolecularMxRing::HanserRingFinder
@@ -54,15 +54,15 @@ irb(main):005:0&gt; finder = HanserRingFinder.new
 =&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxRing::HanserRingFinder:0x76f2e8 @java_object=com.metamolecular.mx.ring.HanserRingFinder@1458dcb&gt;</span>
 irb(main):006:0&gt; rings = finder.find_rings benzene                
 =&gt; <span class="hljs-comment">#&amp;lt;Java::JavaUtil::ArrayList:0x1b83048 @java_object=[[com.metamolecular.mx.model.DefaultMolecule$AtomImpl@169dd64, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@145f5e3, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@122d9c, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@170984c, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@11ed166, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@45aa2c, com.metamolecular.mx.model.DefaultMolecule$AtomImpl@169dd64]]&gt;</span>
-irb(main):007:0&gt; rings[0].collect{|atom| atom.get_index}.join(<span class="hljs-string">"-"</span>)
-=&gt; <span class="hljs-string">"5-0-1-2-3-4-5"</span>
+irb(main):007:0&gt; rings[0].collect{|atom| atom.get_index}.<span class="hljs-built_in">join</span>(<span class="hljs-string">&quot;-&quot;</span>)
+=&gt; <span class="hljs-string">&quot;5-0-1-2-3-4-5&quot;</span>
 irb(main):008:0&gt; rings.size
 =&gt; 1
 </code></pre>
 <p>Here, we're taking advantage of the Ruby <a href="http://www.ruby-doc.org/core/classes/Array.html#M002205"><code>Array.join</code></a> function to place a dash between each atom index.</p>
 <p>To really push the system, we could find all rings in cubane:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&amp;gt; require <span class="hljs-string">'mx-0.108.1.jar'</span>                         
+irb(main):001:0&amp;gt; require <span class="hljs-string">&#x27;mx-0.108.1.jar&#x27;</span>                         
 =&amp;gt; <span class="hljs-literal">true</span>
 irb(main):002:0&amp;gt; import com.metamolecular.mx.ring.HanserRingFinder
 =&amp;gt; Java::ComMetamolecularMxRing::HanserRingFinder
@@ -76,8 +76,8 @@ irb(main):006:0&amp;gt; rings = finder.find_rings cubane
 =&amp;gt; <span class="hljs-comment">#collection with many objects</span>
 irb(main):007:0&amp;gt; rings.size                                       
 =&amp;gt; 28
-irb(main):008:0&amp;gt; rings[0].collect{|atom| atom.get_index}.join(<span class="hljs-string">"-"</span>)
-=&amp;gt; <span class="hljs-string">"3-0-1-2-3"</span>
+irb(main):008:0&amp;gt; rings[0].collect{|atom| atom.get_index}.<span class="hljs-built_in">join</span>(<span class="hljs-string">&quot;-&quot;</span>)
+=&amp;gt; <span class="hljs-string">&quot;3-0-1-2-3&quot;</span>
 </code></pre>
 <h2 id="otherimprovements">Other Improvements</h2>
 <p>The MX-0.108.1 release includes some other changes as well.</p>

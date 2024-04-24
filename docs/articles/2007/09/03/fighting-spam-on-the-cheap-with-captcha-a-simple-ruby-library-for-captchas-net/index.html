@@ -56,24 +56,24 @@
 <p>The <a href="http://catpchas.net">captchas.net site</a> has a more complete description of the algorithm and an interactive CAPTCHA generator that is very helpful in understanding how CAPTCHAs are generated.</p>
 <h2 id="asimplelibrary">A Simple Library</h2>
 <p>Given the algorithm, a short Ruby library can be written to find the text encoded in a captchas.net CAPTCHA:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'digest/md5'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;digest/md5&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">Captcha</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_text</span> <span class="hljs-title">secret</span>, <span class="hljs-title">random</span>, <span class="hljs-title">alphabet=</span>'<span class="hljs-title">abcdefghijklmnopqrstuvwxyz</span>', <span class="hljs-title">character_count</span> = 6</span>
-    <span class="hljs-keyword">if</span> character_count &amp;lt; <span class="hljs-number">1</span> <span class="hljs-params">||</span> character_count &amp;gt; <span class="hljs-number">16</span>
-      raise <span class="hljs-string">"Character count of <span class="hljs-subst">#{character_count}</span> is outside the range of 1-16"</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">Captcha</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_text</span> secret, random, alphabet=<span class="hljs-string">&#x27;abcdefghijklmnopqrstuvwxyz&#x27;</span>, character_count = <span class="hljs-number">6</span>
+    <span class="hljs-keyword">if</span> character_count &amp;lt; <span class="hljs-number">1</span> |<span class="hljs-params"></span>| character_count &amp;gt; <span class="hljs-number">16</span>
+      <span class="hljs-keyword">raise</span> <span class="hljs-string">&quot;Character count of <span class="hljs-subst">#{character_count}</span> is outside the range of 1-16&quot;</span>
     <span class="hljs-keyword">end</span>
 
-    input = <span class="hljs-string">"<span class="hljs-subst">#{secret}</span><span class="hljs-subst">#{random}</span>"</span>
+    input = <span class="hljs-string">&quot;<span class="hljs-subst">#{secret}</span><span class="hljs-subst">#{random}</span>&quot;</span>
 
-    <span class="hljs-keyword">if</span> alphabet != <span class="hljs-string">'abcdefghijklmnopqrstuvwxyz'</span> <span class="hljs-params">||</span> character_count != <span class="hljs-number">6</span>
-      input &amp;lt;&amp;lt;  <span class="hljs-string">":<span class="hljs-subst">#{alphabet}</span>:<span class="hljs-subst">#{character_count}</span>"</span>
+    <span class="hljs-keyword">if</span> alphabet != <span class="hljs-string">&#x27;abcdefghijklmnopqrstuvwxyz&#x27;</span> |<span class="hljs-params"></span>| character_count != <span class="hljs-number">6</span>
+      input &amp;lt;&amp;lt;  <span class="hljs-string">&quot;:<span class="hljs-subst">#{alphabet}</span>:<span class="hljs-subst">#{character_count}</span>&quot;</span>
     <span class="hljs-keyword">end</span>
 
-    bytes = Digest::MD5.hexdigest(input).slice(<span class="hljs-number">0</span>..(<span class="hljs-number">2</span>*character_count - <span class="hljs-number">1</span>)).scan(<span class="hljs-regexp">/../</span>)
-    text = <span class="hljs-string">''</span>
+    bytes = <span class="hljs-title class_">Digest</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:MD5</span>.hexdigest(input).slice(<span class="hljs-number">0</span>..(<span class="hljs-number">2</span>*character_count - <span class="hljs-number">1</span>)).scan(<span class="hljs-regexp">/../</span>)
+    text = <span class="hljs-string">&#x27;&#x27;</span>
 
-    bytes.each <span class="hljs-keyword">do</span> <span class="hljs-params">|byte|</span>
+    bytes.each <span class="hljs-keyword">do</span> |<span class="hljs-params">byte</span>|
       text &amp;lt;&amp;lt; alphabet[byte.hex % alphabet.size].chr
     <span class="hljs-keyword">end</span>
 
@@ -83,21 +83,21 @@
 </code></pre>
 <p>We can test the library using irb:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'captcha'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;captcha&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include Captcha
 =&gt; Object
-irb(main):003:0&gt; get_text <span class="hljs-string">'secret'</span>, <span class="hljs-string">'my_random_text'</span>
-=&gt; <span class="hljs-string">"hnrppb"</span>
+irb(main):003:0&gt; get_text <span class="hljs-string">&#x27;secret&#x27;</span>, <span class="hljs-string">&#x27;my_random_text&#x27;</span>
+=&gt; <span class="hljs-string">&quot;hnrppb&quot;</span>
 </code></pre>
 <p>If we wanted to include numerical digits and require additional characters, the library enables this as well:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'captcha'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;captcha&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include Captcha
 =&gt; Object
-irb(main):003:0&gt; get_text <span class="hljs-string">'secret'</span>, <span class="hljs-string">'my_random_text'</span>, <span class="hljs-string">'abcdefghijklmnopqrstuvwxyz0123456789'</span>, 7
-=&gt; <span class="hljs-string">"62m3acs"</span>
+irb(main):003:0&gt; get_text <span class="hljs-string">&#x27;secret&#x27;</span>, <span class="hljs-string">&#x27;my_random_text&#x27;</span>, <span class="hljs-string">&#x27;abcdefghijklmnopqrstuvwxyz0123456789&#x27;</span>, 7
+=&gt; <span class="hljs-string">&quot;62m3acs&quot;</span>
 </code></pre>
 <h2 id="conclusions">Conclusions</h2>
 <p>That's really all there is to the Ruby library. Once we can create a CAPTCHA image and decode its contents, we can begin to think about building an integrated Rails solution. But that's a story for another time.</p>

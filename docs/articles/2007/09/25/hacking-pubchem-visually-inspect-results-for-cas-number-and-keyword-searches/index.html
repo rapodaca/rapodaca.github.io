@@ -39,36 +39,36 @@
 <pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">%=</span> "<span class="hljs-attr">PubChem</span> <span class="hljs-attr">Search</span> <span class="hljs-attr">for</span> #{<span class="hljs-attr">term</span>}" %&gt;</span>
+      &lt;%= &quot;PubChem Search for #{term}&quot; %&gt;
     <span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">%=</span> "<span class="hljs-attr">Search:</span> #{<span class="hljs-attr">term</span>}" %&gt;</span>
+      &lt;%= &quot;Search: #{term}&quot; %&gt;
     <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">table</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">%</span> <span class="hljs-attr">col</span> = <span class="hljs-string">0</span> %&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">%</span> <span class="hljs-attr">cids.each</span> <span class="hljs-attr">do</span> |<span class="hljs-attr">cid</span>| %&gt;</span>
+      &lt;% col = 0 %&gt;
+      &lt;% cids.each do |cid| %&gt;
         <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>
-          <span class="hljs-tag">&lt;<span class="hljs-name">%</span> <span class="hljs-attr">image</span> = <span class="hljs-string">"http://pubchem.ncbi.nlm.nih.gov/image/imgsrv.fcgi?cid=#{cid}"</span> %&gt;</span>
-          <span class="hljs-tag">&lt;<span class="hljs-name">%</span> <span class="hljs-attr">summary</span> = <span class="hljs-string">"http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=#{cid}"</span> %&gt;</span>
-          <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"&lt;%= summary %&gt;"</span>&gt;</span>
-            <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"&lt;%= image %&gt;"</span> <span class="hljs-attr">border</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">img</span>&gt;</span>
+          &lt;% image = &quot;http://pubchem.ncbi.nlm.nih.gov/image/imgsrv.fcgi?cid=#{cid}&quot; %&gt;
+          &lt;% summary = &quot;http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=#{cid}&quot; %&gt;
+          <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;&lt;%= summary %&gt;&quot;</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;&lt;%= image %&gt;&quot;</span> <span class="hljs-attr">border</span>=<span class="hljs-string">&quot;2&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">img</span>&gt;</span>
           <span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span>
-            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"font-size: 8px"</span>&gt;</span>
-              <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"&lt;%= summary %&gt;"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">%=</span> "<span class="hljs-attr">CID-</span>#{<span class="hljs-attr">cid</span>}" %&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;font-size: 8px&quot;</span>&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;&lt;%= summary %&gt;&quot;</span>&gt;</span>&lt;%= &quot;CID-#{cid}&quot; %&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
             <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>
           <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">%</span> <span class="hljs-attr">col</span> += <span class="hljs-string">1</span> %&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">%</span> <span class="hljs-attr">if</span> <span class="hljs-attr">col</span> &gt;</span> 5 %&gt;
-          <span class="hljs-tag">&lt;<span class="hljs-name">%</span> <span class="hljs-attr">col</span> = <span class="hljs-string">0</span> %&gt;</span>
+        &lt;% col += 1 %&gt;
+        &lt;% if col &gt; 5 %&gt;
+          &lt;% col = 0 %&gt;
           <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">%</span> <span class="hljs-attr">end</span> %&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">%end</span> %&gt;</span>
+        &lt;% end %&gt;
+      &lt;%end %&gt;
       <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
@@ -78,25 +78,25 @@
 <p>Saving this library to a file called <strong>template.rhtml</strong> is all we need to do.</p>
 <h2 id="thelibrary">The Library</h2>
 <p>The library is a modification of the one shown in <a href="/articles/2007/09/13/hacking-pubchem-convert-cas-numbers-into-pubchem-cids-with-ruby">the previous article</a> in this series:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'mechanize'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'erb'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;mechanize&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;erb&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">PubChemTerms</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">report</span> <span class="hljs-title">term</span></span>
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">PubChemTerms</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">report</span> term
     cids = get_cids term
-    erb = ERB.new(IO.read(<span class="hljs-string">"template.rhtml"</span>))
+    erb = <span class="hljs-variable constant_">ERB</span>.new(<span class="hljs-variable constant_">IO</span>.read(<span class="hljs-string">&quot;template.rhtml&quot;</span>))
 
-    File.open <span class="hljs-string">"output.html"</span>, <span class="hljs-string">'w+'</span> <span class="hljs-keyword">do</span> <span class="hljs-params">|file|</span>
+    <span class="hljs-title class_">File</span>.open <span class="hljs-string">&quot;output.html&quot;</span>, <span class="hljs-string">&#x27;w+&#x27;</span> <span class="hljs-keyword">do</span> |<span class="hljs-params">file</span>|
       file &amp;lt;&amp;lt; erb.result(binding)
     <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_cids</span> <span class="hljs-title">term</span></span>
-    agent = WWW::Mechanize.new
-    page = agent.get <span class="hljs-string">"http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pccompound&amp;retmax=100&amp;term=<span class="hljs-subst">#{term}</span>"</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_cids</span> term
+    agent = <span class="hljs-variable constant_">WWW</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Mechanize</span>.new
+    page = agent.get <span class="hljs-string">&quot;http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pccompound&amp;retmax=100&amp;term=<span class="hljs-subst">#{term}</span>&quot;</span>
 
-    (page.parser/<span class="hljs-string">"id"</span>).collect {<span class="hljs-params">|id|</span> id.innerHTML}
+    (page.parser/<span class="hljs-string">&quot;id&quot;</span>).collect {|<span class="hljs-params">id</span>| id.innerHTML}
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -104,22 +104,22 @@
 <h2 id="testing">Testing</h2>
 <p>By saving the above library in a file called <strong>pubchem.rb</strong>, we can search by keyword via interactive ruby (irb):</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'pubchem'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;pubchem&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include PubChemTerms
 =&gt; Object
-irb(main):003:0&gt; report <span class="hljs-string">'esomeprazole'</span>
+irb(main):003:0&gt; report <span class="hljs-string">&#x27;esomeprazole&#x27;</span>
 =&gt; <span class="hljs-comment">#&lt;File:output.html (closed)&gt;</span>
 </code></pre>
 <p>This produces a file called <strong>output.html</strong> that can be viewed with any browser:</p>
 <p><img src="/images/posts/20070925/screenshot.png" alt="Screenshot" title="Screenshot"></p>
 <p>As in the original version of the library, we can also query by CAS number:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'pubchem'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;pubchem&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include PubChemTerms
 =&gt; Object
-irb(main):003:0&gt; report <span class="hljs-string">'119141-88-7'</span>
+irb(main):003:0&gt; report <span class="hljs-string">&#x27;119141-88-7&#x27;</span>
 =&gt; <span class="hljs-comment">#&lt;File:output.html (closed)&gt;</span>
 </code></pre>
 <h2 id="conclusions">Conclusions</h2>

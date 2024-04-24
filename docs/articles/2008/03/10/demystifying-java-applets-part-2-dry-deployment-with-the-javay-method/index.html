@@ -37,33 +37,33 @@
 <h2 id="keepingitdry">Keeping it DRY</h2>
 <p>The code from the previous article used two completely different <code>&amp;lt;object&amp;gt;</code> tags: one for Internet Explorer and one for all other browsers:</p>
 <pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!--[if !IE]&amp;gt; --&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">classid</span>=<span class="hljs-string">"java:com/metamolecular/chemwriter/applet/EditorApplet.class"</span> 
-              <span class="hljs-attr">type</span>=<span class="hljs-string">"application/x-java-applet"</span>
-              <span class="hljs-attr">archive</span>=<span class="hljs-string">"/path/to/applets/chemwriter.jar"</span> 
-              <span class="hljs-attr">height</span>=<span class="hljs-string">"350"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"550"</span> &gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"code"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"com/metamolecular/chemwriter/applet/EditorApplet.class"</span> /&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">classid</span>=<span class="hljs-string">&quot;java:com/metamolecular/chemwriter/applet/EditorApplet.class&quot;</span> 
+              <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;application/x-java-applet&quot;</span>
+              <span class="hljs-attr">archive</span>=<span class="hljs-string">&quot;/path/to/applets/chemwriter.jar&quot;</span> 
+              <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;350&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;550&quot;</span> &gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;code&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;com/metamolecular/chemwriter/applet/EditorApplet.class&quot;</span> /&gt;</span>
   <span class="hljs-comment">&lt;!-- For Konqueror --&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"archive"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"/path/to/applets/chemwriter.jar"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"persistState"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"false"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;archive&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;/path/to/applets/chemwriter.jar&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;persistState&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;false&quot;</span> /&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"/path/to/images/chemwriter_logo.png"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/path/to/images/chemwriter_logo.png&quot;</span> /&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span>ChemWriter content requires Java 1.4.2 or higher, which your browser does not appear to have.<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
 
-    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://www.java.com/en/download/index.jsp"</span>&gt;</span>Get the latest Java Plug-in.<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;http://www.java.com/en/download/index.jsp&quot;</span>&gt;</span>Get the latest Java Plug-in.<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">object</span>&gt;</span>
 <span class="hljs-comment">&lt;!--&lt;![endif]--&gt;</span>
 <span class="hljs-comment">&lt;!--[if IE]&gt;
-&lt;object classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" 
-                codebase="http://java.sun.com/products/plugin/autodl/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"
-                height="350" width="550" &gt; 
-  &lt;param name="code" value="com/metamolecular/chemwriter/applet/EditorApplet.class" /&gt;
-  &lt;param name="archive" value="/path/to/applets/chemwriter.jar" /&gt;
-  &lt;param name="persistState" value="false" /&gt;
+&lt;object classid=&quot;clsid:8AD9C840-044E-11D1-B3E9-00805F499D93&quot; 
+                codebase=&quot;http://java.sun.com/products/plugin/autodl/jinstall-1_4-windows-i586.cab#Version=1,4,0,0&quot;
+                height=&quot;350&quot; width=&quot;550&quot; &gt; 
+  &lt;param name=&quot;code&quot; value=&quot;com/metamolecular/chemwriter/applet/EditorApplet.class&quot; /&gt;
+  &lt;param name=&quot;archive&quot; value=&quot;/path/to/applets/chemwriter.jar&quot; /&gt;
+  &lt;param name=&quot;persistState&quot; value=&quot;false&quot; /&gt;
   &lt;center&gt;
-    &lt;img src="/path/to/images/chemwriter_logo.png" /&gt;
+    &lt;img src=&quot;/path/to/images/chemwriter_logo.png&quot; /&gt;
     &lt;p&gt;&lt;strong&gt;ChemWriter content requires Java 1.4.2 or higher, which your browser does not appear to have.&lt;/strong&gt;&lt;/p&gt;
-    &lt;p&gt;&lt;a href="http://www.java.com/en/download/index.jsp"&gt;Get the latest Java Plug-in.&lt;/a&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;http://www.java.com/en/download/index.jsp&quot;&gt;Get the latest Java Plug-in.&lt;/a&gt;&lt;/p&gt;
   &lt;/center&gt;
 &lt;/object&gt;
 &lt;![endif]--&gt;</span>
@@ -76,16 +76,16 @@
 <p>The twice-cooked method violates one of the most important principles in software development: <a href="http://en.wikipedia.org/wiki/Don't_repeat_yourself">Don't Repeat Yourself (DRY)</a>. It's an invitation cross-browser bugs. If we forget to include the same parameter twice, or if we mistakenly use one parameter for IE and another for standards-compliant browsers, for example, we've just created a potentially nasty headache for ourselves.</p>
 <h2 id="dryingupthec4ctag">Drying Up the <code>&amp;lt;object&amp;gt;</code> Tag</h2>
 <p>We can DRY up our applet <code>&amp;lt;object&amp;gt;</code> tag by factoring out what's common: the parameters listing; the failsafe code; and the closing <code>&amp;lt;object&amp;gt;</code> tag:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!--[if IE]&gt;&lt;object classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" codebase="http://java.sun.com/products/plugin/autodl/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"
-width="480" height="350"&gt;&lt;script&gt;/*&lt;![endif]--&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span>&gt;</span><span class="actionscript"><span class="hljs-comment">/**/</span></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<pre><code class="hljs xml language-xml"><span class="hljs-comment">&lt;!--[if IE]&gt;&lt;object classid=&quot;clsid:8AD9C840-044E-11D1-B3E9-00805F499D93&quot; codebase=&quot;http://java.sun.com/products/plugin/autodl/jinstall-1_4-windows-i586.cab#Version=1,4,0,0&quot;
+width=&quot;480&quot; height=&quot;350&quot;&gt;&lt;script&gt;/*&lt;![endif]--&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/javascript&quot;</span>&gt;</span><span class="language-javascript"><span class="hljs-comment">/**/</span></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 <span class="hljs-comment">&lt;!--[if !IE]&gt;&lt;!--&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"application/x-java-applet;version=1.4.2"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"480"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"350"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">object</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;application/x-java-applet;version=1.4.2&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;480&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;350&quot;</span>&gt;</span>
 <span class="hljs-comment">&lt;!--&lt;![endif]--&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"code"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"com/metamolecular/chemwriter/applet/EditorApplet.class"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"archive"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"/applets/chemwriter.jar"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"persistState"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"false"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"licenseKey"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"4BC4-3C59-3E7D-182B-92B7-2E68"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://metamolecular.com/java/"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;code&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;com/metamolecular/chemwriter/applet/EditorApplet.class&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;archive&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;/applets/chemwriter.jar&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;persistState&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;false&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">param</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;licenseKey&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;4BC4-3C59-3E7D-182B-92B7-2E68&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;http://metamolecular.com/java/&quot;</span>&gt;</span>
     Plugin required
   <span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">object</span>&gt;</span>

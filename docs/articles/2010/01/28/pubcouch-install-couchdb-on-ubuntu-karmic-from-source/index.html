@@ -41,7 +41,7 @@
 <p>I was disappointed at the lack of documentation for installing CouchDB from source on Karmic, so I've decided to share what worked from me here. This procedure worked on a newly-built system with no previous CouchDB installation. If you've already installed the binary packages, or other versions of Erlang or SpiderMonkey, you may have more work to do. What follows is a little out of order, and I may clean up when time permits.</p>
 <h2 id="downloadcompileandinstallcouchdb">Download, Compile, and Install CouchDB</h2>
 <pre><code class="hljs bash language-bash">sudo aptitude install build-essential erlang libicu-dev libmozjs-dev libcurl4-openssl-dev
-mkdir src
+<span class="hljs-built_in">mkdir</span> src
 <span class="hljs-built_in">cd</span> src
 wget http://apache.cs.utah.edu/couchdb/0.10.1/apache-couchdb-0.10.1.tar.gz
 tar xvf apache-couchdb-0.10.1.tar.gz
@@ -52,16 +52,16 @@ sudo make install
 </code></pre>
 <h2 id="configurecouchdb">Configure CouchDB</h2>
 <p>The <a href="http://books.couchdb.org/relax/">CouchDB Book</a> indicates these permissions need to be set, so I used:</p>
-<pre><code class="hljs bash language-bash">sudo chmod -R 0770 /usr/<span class="hljs-built_in">local</span>/etc/couchdb
-sudo chmod -R 0770 /usr/<span class="hljs-built_in">local</span>/var/lib/couchdb
-sudo chmod -R 0770 /usr/<span class="hljs-built_in">local</span>/var/<span class="hljs-built_in">log</span>/couchdb
-sudo chmod -R 0770 /usr/<span class="hljs-built_in">local</span>/var/run/couchdb
+<pre><code class="hljs bash language-bash">sudo <span class="hljs-built_in">chmod</span> -R 0770 /usr/local/etc/couchdb
+sudo <span class="hljs-built_in">chmod</span> -R 0770 /usr/local/var/lib/couchdb
+sudo <span class="hljs-built_in">chmod</span> -R 0770 /usr/local/var/log/couchdb
+sudo <span class="hljs-built_in">chmod</span> -R 0770 /usr/local/var/run/couchdb
 
-sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/etc/couchdb
-sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/etc/couchdb
-sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/var/lib/couchdb
-sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/var/<span class="hljs-built_in">log</span>/couchdb
-sudo chown -R couchdb:couchdb /usr/<span class="hljs-built_in">local</span>/var/run/couchdb
+sudo <span class="hljs-built_in">chown</span> -R couchdb:couchdb /usr/local/etc/couchdb
+sudo <span class="hljs-built_in">chown</span> -R couchdb:couchdb /usr/local/etc/couchdb
+sudo <span class="hljs-built_in">chown</span> -R couchdb:couchdb /usr/local/var/lib/couchdb
+sudo <span class="hljs-built_in">chown</span> -R couchdb:couchdb /usr/local/var/log/couchdb
+sudo <span class="hljs-built_in">chown</span> -R couchdb:couchdb /usr/local/var/run/couchdb
 </code></pre>
 <p>Unfortunately, CouchDB won't run at this point:</p>
 <pre><code class="hljs bash language-bash">sudo -i -u couchdb couchdb -b
@@ -69,11 +69,11 @@ sudo: unable to change directory to /var/lib/couchdb: No such file or directory
 Apache CouchDB needs write permission on the STDOUT file: couchdb.stdout
 </code></pre>
 <p>We need to create the missing directory and assign its permissions:</p>
-<pre><code class="hljs bash language-bash">$ sudo mkdir /var/lib/couchdb
-$ sudo chown -R couchdb:couchdb /var/lib/couchdb
+<pre><code class="hljs bash language-bash">$ sudo <span class="hljs-built_in">mkdir</span> /var/lib/couchdb
+$ sudo <span class="hljs-built_in">chown</span> -R couchdb:couchdb /var/lib/couchdb
 </code></pre>
 <p>I like to be able to run servers using init.d, so I used:</p>
-<pre><code class="hljs bash language-bash">$ sudo cp -v /usr/<span class="hljs-built_in">local</span>/etc/init.d/couchdb /etc/init.d/couchdb
+<pre><code class="hljs bash language-bash">$ sudo <span class="hljs-built_in">cp</span> -v /usr/local/etc/init.d/couchdb /etc/init.d/couchdb
 </code></pre>
 <p>Now we can start CouchDB and confirm it's working:</p>
 <pre><code class="hljs bash language-bash">$ sudo /etc/init.d/couchdb start
@@ -90,8 +90,8 @@ tcp        0      0 127.0.0.1:5984          0.0.0.0:*               LISTEN
 <h2 id="onelastwrinkle">One Last Wrinkle</h2>
 <p>Although you'll be able to create and read documents with what we've done so far, a cryptic error is displayed when we try to compile views: "{exit_status,127}".</p>
 <p>Starting with <a href="http://osdir.com/ml/couchdb-user/2009-03/msg00415.html">this thread</a>, I was able to piece together the answer. Running the following command shows us that Couch can't find one of the Spidermonkey libraries:</p>
-<pre><code class="hljs bash language-bash">$ /usr/<span class="hljs-built_in">local</span>/bin/couchjs /usr/<span class="hljs-built_in">local</span>/share/couchdb/server/main.js
-/usr/<span class="hljs-built_in">local</span>/lib/couchdb/bin/couchjs: error <span class="hljs-keyword">while</span> loading shared libraries: libmozjs.so.0d: cannot open shared object file: No such file or directory
+<pre><code class="hljs bash language-bash">$ /usr/local/bin/couchjs /usr/local/share/couchdb/server/main.js
+/usr/local/lib/couchdb/bin/couchjs: error <span class="hljs-keyword">while</span> loading shared libraries: libmozjs.so.0d: cannot open shared object file: No such file or directory
 </code></pre>
 <p>We can find out which package might fit the bill with:</p>
 <pre><code class="hljs bash language-bash">$ aptitude search libmozjs

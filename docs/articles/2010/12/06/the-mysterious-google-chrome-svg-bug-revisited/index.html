@@ -35,28 +35,28 @@
       </header>
       <p>A previous post outlined the steps I took to track down <a href="/articles/2010/12/03/the-mysterious-google-chrome-svg-bug/">a bug in Google Chrome that prevented the firing of mouse events on certain SVG elements</a>. After <a href="http://code.google.com/p/chromium/issues/detail?id=65238">filing a bug report</a>, one commenter <a href="http://code.google.com/p/chromium/issues/detail?id=65238#c3">suggested that I create a single file that illustrates the bug</a>, rather than a full Google Closure project.</p>
 <p>That's exactly what I did. You can <a href="/demos/chrome-bug-65238/chrome-on-linux-windows-svg-event-bug.xhtml">view the test page here</a>. In addition to major simplification, this demo shows that the Chrome SVG event bug also affects event firing from rectangles as well ellipses. Here's the source:</p>
-<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://www.w3.org/1999/xhtml"</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&quot;http://www.w3.org/1999/xhtml&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Chrome on Linux/Windows SVG Event Bug<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css">
       <span class="hljs-selector-tag">p</span> { <span class="hljs-attribute">width</span>: <span class="hljs-number">600px</span>; <span class="hljs-attribute">line-height</span>: <span class="hljs-number">1.5em</span>; }
-      <span class="hljs-selector-tag">svg</span> { <span class="hljs-attribute">width</span>: <span class="hljs-number">600px</span>; <span class="hljs-attribute">height</span>: <span class="hljs-number">200px</span>;}
+      svg { <span class="hljs-attribute">width</span>: <span class="hljs-number">600px</span>; <span class="hljs-attribute">height</span>: <span class="hljs-number">200px</span>;}
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="actionscript">
-      <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">enter</span><span class="hljs-params">(event)</span> </span>{
-        event.target.setAttribute(<span class="hljs-string">"fill"</span>, <span class="hljs-string">"#22AA00"</span>);
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">
+      <span class="hljs-keyword">function</span> <span class="hljs-title function_">enter</span>(<span class="hljs-params">event</span>) {
+        event.<span class="hljs-property">target</span>.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-string">&quot;fill&quot;</span>, <span class="hljs-string">&quot;#22AA00&quot;</span>);
       };
-      <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">exit</span><span class="hljs-params">(event)</span> </span>{
-        event.target.setAttribute(<span class="hljs-string">"fill"</span>, <span class="hljs-string">"#AA2222"</span>);
+      <span class="hljs-keyword">function</span> <span class="hljs-title function_">exit</span>(<span class="hljs-params">event</span>) {
+        event.<span class="hljs-property">target</span>.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-string">&quot;fill&quot;</span>, <span class="hljs-string">&quot;#AA2222&quot;</span>);
       };
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://www.w3.org/2000/svg"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">g</span> <span class="hljs-attr">transform</span>=<span class="hljs-string">"translate(0, 200) scale(100, -100)"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">ellipse</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">rx</span>=<span class="hljs-string">"0.75"</span> <span class="hljs-attr">ry</span>=<span class="hljs-string">"0.75"</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">"#AA2222"</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">"enter(evt)"</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">"exit(evt)"</span> /&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">ellipse</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">"3"</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">"1"</span> <span class="hljs-attr">rx</span>=<span class="hljs-string">"0.2"</span> <span class="hljs-attr">ry</span>=<span class="hljs-string">"0.2"</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">"#AA2222"</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">"enter(evt)"</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">"exit(evt)"</span> /&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">"4"</span> <span class="hljs-attr">y</span>=<span class="hljs-string">"0.9"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"0.2"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"0.2"</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">"#AA2222"</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">"enter(evt)"</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">"exit(evt)"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&quot;http://www.w3.org/2000/svg&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">g</span> <span class="hljs-attr">transform</span>=<span class="hljs-string">&quot;translate(0, 200) scale(100, -100)&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">ellipse</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">&quot;1&quot;</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">&quot;1&quot;</span> <span class="hljs-attr">rx</span>=<span class="hljs-string">&quot;0.75&quot;</span> <span class="hljs-attr">ry</span>=<span class="hljs-string">&quot;0.75&quot;</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">&quot;#AA2222&quot;</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">&quot;enter(evt)&quot;</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">&quot;exit(evt)&quot;</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">ellipse</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">&quot;3&quot;</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">&quot;1&quot;</span> <span class="hljs-attr">rx</span>=<span class="hljs-string">&quot;0.2&quot;</span> <span class="hljs-attr">ry</span>=<span class="hljs-string">&quot;0.2&quot;</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">&quot;#AA2222&quot;</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">&quot;enter(evt)&quot;</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">&quot;exit(evt)&quot;</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">&quot;4&quot;</span> <span class="hljs-attr">y</span>=<span class="hljs-string">&quot;0.9&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;0.2&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;0.2&quot;</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">&quot;#AA2222&quot;</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">&quot;enter(evt)&quot;</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">&quot;exit(evt)&quot;</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">g</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
@@ -64,12 +64,12 @@
       This test works on all recent SVG-enabled browsers, but fails in Google Chrome 8.0.552.215 on Linux and Windows.
     <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
-      On Chrome for Linux and Windows, the smaller circle and square on the right don't turn green. On Chrome for OS X, all
+      On Chrome for Linux and Windows, the smaller circle and square on the right don&#x27;t turn green. On Chrome for OS X, all
       three shapes turn green, which is the expected behavior.
     <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
-      For details, see <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"http://code.google.com/p/chromium/issues/detail?id=65238"</span>&gt;</span>this bug report<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
-      and <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"/articles/2010/12/03/the-mysterious-google-chrome-svg-bug/"</span>&gt;</span>this writeup<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>.
+      For details, see <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;http://code.google.com/p/chromium/issues/detail?id=65238&quot;</span>&gt;</span>this bug report<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+      and <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/articles/2010/12/03/the-mysterious-google-chrome-svg-bug/&quot;</span>&gt;</span>this writeup<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>.
     <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>

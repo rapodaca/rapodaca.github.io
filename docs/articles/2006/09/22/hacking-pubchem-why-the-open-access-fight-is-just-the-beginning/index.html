@@ -44,16 +44,16 @@
 <p>The interaction of non-browser software with public databases, although rich in potential payoffs, can also lead to a great deal of damage. PubChem contains millions of structure-searchable compounds. Setting the wrong kinds of programs loose on this site could cause service interruptions ranging from the annoying to the severe.</p>
 <p>There is no standard mechanism for website owners to spell out acceptable use policies to non-browser software. The closest thing we have to a standard is the <a href="http://www.robotstxt.org/wc/exclusion.html">Robots Exclusion Protocol</a>. This protocol defines acceptable behaviors for a robot, which according to <a href="http://www.robotstxt.org/wc/faq.html#what">one definition</a> consist of: "… a program that automatically traverses the Web's hypertext structure by retrieving a document, and recursively retrieving all documents that are referenced." Other definitions are in use. The one thing these definitions seem to have in common is the concept of scale: the more comprehensive and indiscriminate the program is in its interactions with a website, the more like a robot, and less like a browser, it becomes.</p>
 <p>Site owners specify their robots policy in a file called <strong>robots.txt</strong> hosted on their servers. The <a href="http://pubchem.ncbi.nlm.nih.gov/robots.txt">PubChem robots.txt file</a> currently includes the following policies:</p>
-<pre><code class="hljs http language-http"><span class="hljs-attribute">User-agent</span>: *
-<span class="hljs-attribute">Disallow</span>: /substance/PcsSrv.cgi
-<span class="hljs-attribute">Disallow</span>: /summary/summary.cgi
-<span class="hljs-attribute">Disallow</span>: /assay/assay.cgi
-<span class="hljs-attribute">Disallow</span>: /image/imgsrv.fcgi
-<span class="hljs-attribute">Disallow</span>: /image/smi2gif.fcgi
-<span class="hljs-attribute">Disallow</span>: /image/smi2gif.cgi
-<span class="hljs-attribute">Disallow</span>: /image/structurefly.cgi
-<span class="hljs-attribute">Disallow</span>: /search/NbrQsrv.cgi
-<span class="hljs-attribute">Disallow</span>: /search/PreQSrv.cgi
+<pre><code class="hljs http language-http"><span class="hljs-attribute">User-agent</span><span class="hljs-punctuation">: </span>*
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/substance/PcsSrv.cgi
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/summary/summary.cgi
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/assay/assay.cgi
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/image/imgsrv.fcgi
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/image/smi2gif.fcgi
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/image/smi2gif.cgi
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/image/structurefly.cgi
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/search/NbrQsrv.cgi
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/search/PreQSrv.cgi
 </code></pre>
 <p>Here, <code>User-agent</code> refers to the name of the robot, which is set as a wildcard, meaning any robot. The <code>Disallow</code> lines refer to resources off-limits to robots.</p>
 <p>One of these disallowed resources, <code>/search/PreQSrv.cgi</code> is explicitly used in the <a href="http://depth-first.com/articles/2006/09/21/hacking-pubchem-query-by-smiles">PubChem SMILES query article</a>.</p>

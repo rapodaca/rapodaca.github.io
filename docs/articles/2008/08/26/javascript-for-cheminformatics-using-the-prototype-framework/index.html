@@ -41,58 +41,58 @@
 <h2 id="creatingtheclasses">Creating the Classes</h2>
 <p>We could use JavaScript's built-in method for creating objects from class-like structures, but Prototype's approach is cleaner.</p>
 <p>In the following library, we define a Molecule as a collection of Atoms and Bonds with useful relationships:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">var</span> Molecule = Class.create({
-  <span class="hljs-attr">initialize</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
-    <span class="hljs-keyword">this</span>.atoms = [];
-    <span class="hljs-keyword">this</span>.bonds = [];
+<pre><code class="hljs js language-js"><span class="hljs-keyword">var</span> <span class="hljs-title class_">Molecule</span> = <span class="hljs-title class_">Class</span>.<span class="hljs-title function_">create</span>({
+  <span class="hljs-attr">initialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>){
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">atoms</span> = [];
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">bonds</span> = [];
   },
 
-  <span class="hljs-attr">addAtom</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">label</span>)</span>{
-    <span class="hljs-keyword">var</span> atom = <span class="hljs-keyword">new</span> Atom(label);
+  <span class="hljs-attr">addAtom</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">label</span>){
+    <span class="hljs-keyword">var</span> atom = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Atom</span>(label);
 
-    <span class="hljs-keyword">this</span>.atoms.push(atom);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">atoms</span>.<span class="hljs-title function_">push</span>(atom);
 
     <span class="hljs-keyword">return</span> atom;
   },
 
-  <span class="hljs-attr">connect</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">sourceAtom, targetAtom, bondType</span>)</span>{
-    <span class="hljs-keyword">var</span> bond = <span class="hljs-keyword">new</span> Bond(sourceAtom, targetAtom, bondType);
+  <span class="hljs-attr">connect</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">sourceAtom, targetAtom, bondType</span>){
+    <span class="hljs-keyword">var</span> bond = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Bond</span>(sourceAtom, targetAtom, bondType);
 
-    sourceAtom.neighbors.push(targetAtom);
-    sourceAtom.bonds.push(bond);
-    targetAtom.neighbors.push(sourceAtom);
-    targetAtom.bonds.push(bond);
+    sourceAtom.<span class="hljs-property">neighbors</span>.<span class="hljs-title function_">push</span>(targetAtom);
+    sourceAtom.<span class="hljs-property">bonds</span>.<span class="hljs-title function_">push</span>(bond);
+    targetAtom.<span class="hljs-property">neighbors</span>.<span class="hljs-title function_">push</span>(sourceAtom);
+    targetAtom.<span class="hljs-property">bonds</span>.<span class="hljs-title function_">push</span>(bond);
 
-    <span class="hljs-keyword">this</span>.bonds.push(bond);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">bonds</span>.<span class="hljs-title function_">push</span>(bond);
 
     <span class="hljs-keyword">return</span> bond;
   }
 });
 
-<span class="hljs-keyword">var</span> Atom = Class.create({
-  <span class="hljs-attr">initialize</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">label</span>)</span>{
-    <span class="hljs-keyword">this</span>.label = label;
-    <span class="hljs-keyword">this</span>.neighbors = [];
-    <span class="hljs-keyword">this</span>.bonds = [];
+<span class="hljs-keyword">var</span> <span class="hljs-title class_">Atom</span> = <span class="hljs-title class_">Class</span>.<span class="hljs-title function_">create</span>({
+  <span class="hljs-attr">initialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">label</span>){
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">label</span> = label;
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">neighbors</span> = [];
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">bonds</span> = [];
   }
 });
 
-<span class="hljs-keyword">var</span> Bond= Class.create({
-  <span class="hljs-attr">initialize</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">source, target, type</span>)</span>{
-    <span class="hljs-keyword">this</span>.source = source;
-    <span class="hljs-keyword">this</span>.target = target;
-    <span class="hljs-keyword">this</span>.type = type;
+<span class="hljs-keyword">var</span> <span class="hljs-title class_">Bond</span>= <span class="hljs-title class_">Class</span>.<span class="hljs-title function_">create</span>({
+  <span class="hljs-attr">initialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">source, target, type</span>){
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">source</span> = source;
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">target</span> = target;
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">type</span> = type;
   },
 
-  <span class="hljs-attr">getMate</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">atom</span>)</span>{
-    <span class="hljs-keyword">if</span> (atom == <span class="hljs-keyword">this</span>.source) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.target;
-    <span class="hljs-keyword">if</span> (atom == <span class="hljs-keyword">this</span>.target) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.source;
+  <span class="hljs-attr">getMate</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">atom</span>){
+    <span class="hljs-keyword">if</span> (atom == <span class="hljs-variable language_">this</span>.<span class="hljs-property">source</span>) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">target</span>;
+    <span class="hljs-keyword">if</span> (atom == <span class="hljs-variable language_">this</span>.<span class="hljs-property">target</span>) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">source</span>;
 
     <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
   },
 
-  <span class="hljs-attr">contains</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">atom</span>)</span>{
-    <span class="hljs-keyword">return</span> (atom == <span class="hljs-keyword">this</span>.source || atom == <span class="hljs-keyword">this</span>.target);
+  <span class="hljs-attr">contains</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">atom</span>){
+    <span class="hljs-keyword">return</span> (atom == <span class="hljs-variable language_">this</span>.<span class="hljs-property">source</span> || atom == <span class="hljs-variable language_">this</span>.<span class="hljs-property">target</span>);
   }
 });
 </code></pre>
@@ -100,8 +100,8 @@
 <p>We can test the library interactively by saving it in a file called <strong>chem.js</strong> and creating some simple HTML:</p>
 <pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"prototype.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"chem.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/javascript&quot;</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;prototype.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/javascript&quot;</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;chem.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
@@ -110,9 +110,9 @@
 <p>We can then use the <a href="http://addons.mozilla.org/en-US/firefox/addon/1843">Firebug console</a> to test the library interactively:</p>
 <pre><code class="hljs bash language-bash">&gt;&gt;&gt; m = new Molecule();
 Object atoms=[0] bonds=[0]
-&gt;&gt;&gt; c = m.addAtom(<span class="hljs-string">"C"</span>);
+&gt;&gt;&gt; c = m.addAtom(<span class="hljs-string">&quot;C&quot;</span>);
 Object label=C neighbors=[0] bonds=[0]
-&gt;&gt;&gt;n = m.addAtom(<span class="hljs-string">"N"</span>);
+&gt;&gt;&gt;n = m.addAtom(<span class="hljs-string">&quot;N&quot;</span>);
 Object label=N neighbors=[0] bonds=[0]
 &gt;&gt;&gt; m.connect(c, n, 3);
 &gt;&gt;&gt; c.neighbors.size()

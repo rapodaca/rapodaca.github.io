@@ -40,14 +40,14 @@
 </code></pre>
 <h2 id="runtheconfigurescript">Run the Configure Script</h2>
 <p>The configure script we used last time didn't attempt to statically compile the binary utilities in the <strong>tools</strong> directory. This time, we'll add flags to allow this:</p>
-<pre><code class="hljs bash language-bash">./configure --<span class="hljs-built_in">disable</span>-dynamic-modules --<span class="hljs-built_in">enable</span>-static=yes --<span class="hljs-built_in">enable</span>-shared=no --<span class="hljs-built_in">enable</span>-inchi --host=mips-unknown-elf
+<pre><code class="hljs bash language-bash">./configure --disable-dynamic-modules --enable-static=<span class="hljs-built_in">yes</span> --enable-shared=no --enable-inchi --host=mips-unknown-elf
 make
 </code></pre>
 <p><em>Note: leaving out the static compile directives does not produce a fully-functioning classfile either.</em></p>
 <p>Next, we'll attempt to directly create the <code>babel</code> binary in Java classfile format, as we did last time:</p>
 <pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> tools
 java org.ibex.nestedvm.Compiler -outfile Babel.class Babel babel
-Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">"main"</span> java.lang.IllegalStateException: unresolved phantom target
+Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">&quot;main&quot;</span> java.lang.IllegalStateException: unresolved phantom target
         at org.ibex.classgen.MethodGen.resolveTarget(MethodGen.java:555)
         at org.ibex.classgen.MethodGen._generateCode(MethodGen.java:664)
         at org.ibex.classgen.MethodGen.generateCode(MethodGen.java:618)

@@ -40,11 +40,11 @@
 <h2 id="tabcompletion">Tab Completion</h2>
 <p>Code completion is one of those things that, once you've used it, you wonder how you ever got by without. Although it tends not to be activated by default, irb fully supports code completion with the "Tab" key.</p>
 <p>To activate this feature, add the following line to your <strong>.irbrc</strong> file:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'irb/completion'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;irb/completion&#x27;</span>
 </code></pre>
 <p>As an example, let's say you'd like to use irb to understand how <code>OpenBabel::OBMol</code> objects work. Entering the following code gets you there:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'openbabel'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;openbabel&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; mol=OpenBabel::OBMol.new
 =&gt; <span class="hljs-comment">#&amp;lt;OpenBabel::OBMol:0xb7cd30a4&amp;gt;</span>
@@ -79,12 +79,12 @@ irb(main):003:0&gt; OpenBabel::OBM
 <p>Just like other shell environments, irb supports a command line history through the up and down arrows. Like Tab completion, it's one of those things you can't work without.</p>
 <p>As you use irb, you'll find yourself exiting and re-entering frequently. By default, irb doesn't support persistent command histories. This means your previous commands are lost every time you exit. What a pain.</p>
 <p>Luckily, it's easy to create a persistent command history. Fire up your text editor and make the following changes to <strong>.irbrc</strong>:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'irb/completion'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'irb/ext/save-history'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;irb/completion&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;irb/ext/save-history&#x27;</span>
 
-ARGV.concat [ <span class="hljs-string">"--readline"</span>, <span class="hljs-string">"--prompt-mode"</span>, <span class="hljs-string">"simple"</span> ]
-IRB.conf[<span class="hljs-symbol">:SAVE_HISTORY</span>] = <span class="hljs-number">100</span>
-IRB.conf[<span class="hljs-symbol">:HISTORY_FILE</span>] = <span class="hljs-string">"<span class="hljs-subst">#{ENV[<span class="hljs-string">'HOME'</span>]}</span>/.irb-save-history"</span>
+<span class="hljs-variable constant_">ARGV</span>.concat [ <span class="hljs-string">&quot;--readline&quot;</span>, <span class="hljs-string">&quot;--prompt-mode&quot;</span>, <span class="hljs-string">&quot;simple&quot;</span> ]
+<span class="hljs-variable constant_">IRB</span>.conf[<span class="hljs-symbol">:SAVE_HISTORY</span>] = <span class="hljs-number">100</span>
+<span class="hljs-variable constant_">IRB</span>.conf[<span class="hljs-symbol">:HISTORY_FILE</span>] = <span class="hljs-string">&quot;<span class="hljs-subst">#{<span class="hljs-variable constant_">ENV</span>[<span class="hljs-string">&#x27;HOME&#x27;</span>]}</span>/.irb-save-history&quot;</span>
 </code></pre>
 <p>From now on, your last 100 irb commands will be just a single key away, regardless of how many sessions ago they were entered.</p>
 <p>One caveat: if you compile Ruby from source, you may notice that the command history doesn't work. Instead, pressing the up-arrow displays "[[A".</p>

@@ -68,23 +68,23 @@
 <p>The file <a href="http://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/cargo/reference/manifest.html"><code>Cargo.toml</code></a>  (aka "manifest") contains the project's configuration. Leave everything, but append a new block called <code>[lib]</code>. The result should look something this:</p>
 <pre><code class="hljs toml language-toml"><span class="hljs-comment"># Cargo.toml</span>
 <span class="hljs-section">[package]</span>
-<span class="hljs-attr">name</span> = <span class="hljs-string">"hello"</span>
-<span class="hljs-attr">version</span> = <span class="hljs-string">"0.1.0"</span>
-<span class="hljs-attr">authors</span> = [<span class="hljs-string">"Richard Apodaca &lt;rich.apodaca@gmail.com&gt;"</span>]
-<span class="hljs-attr">edition</span> = <span class="hljs-string">"2018"</span>
+<span class="hljs-attr">name</span> = <span class="hljs-string">&quot;hello&quot;</span>
+<span class="hljs-attr">version</span> = <span class="hljs-string">&quot;0.1.0&quot;</span>
+<span class="hljs-attr">authors</span> = [<span class="hljs-string">&quot;Richard Apodaca &lt;rich.apodaca@gmail.com&gt;&quot;</span>]
+<span class="hljs-attr">edition</span> = <span class="hljs-string">&quot;2018&quot;</span>
 
 <span class="hljs-section">[dependencies]</span>
 
 <span class="hljs-comment"># new material</span>
 <span class="hljs-section">[lib]</span>
-<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">"cdylib"</span>]
+<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">&quot;cdylib&quot;</span>]
 </code></pre>
 <h2 id="bringonthecode">Bring on the Code!</h2>
 <p>Rust code lives in the <code>src</code> directory. Your new project contains the default file <code>src/lib.rs</code>. Replace its contents with the following:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
 
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">add_one</span></span>(x: <span class="hljs-built_in">i32</span>) -&gt; <span class="hljs-built_in">i32</span> {
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">add_one</span>(x: <span class="hljs-type">i32</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">i32</span> {
     x + <span class="hljs-number">1</span>
 }
 </code></pre>
@@ -107,18 +107,18 @@ ls -la target/wasm32-unknown-unknown/release/hello.wasm
 <p><code>wasm-gc</code> cut the output to the bone, leaving a 209 byte file.</p>
 <h2 id="javascriptandhtml">JavaScript and HTML</h2>
 <p>One of the simpler (but not only) ways to execute the Wasm output is with a browser running a little JavaScript. Add the following to a new file called <code>index.html</code> a the project root:</p>
-<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;utf-8&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>title<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">
       (<span class="hljs-keyword">async</span> () =&gt; {
-        <span class="hljs-keyword">let</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'target/wasm32-unknown-unknown/release/hello.wasm'</span>);
-        <span class="hljs-keyword">let</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
-        <span class="hljs-keyword">let</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, { });
+        <span class="hljs-keyword">let</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&#x27;target/wasm32-unknown-unknown/release/hello.wasm&#x27;</span>);
+        <span class="hljs-keyword">let</span> bytes = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">arrayBuffer</span>();
+        <span class="hljs-keyword">let</span> { instance } = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(bytes, { });
 
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'The answer is: '</span>, instance.exports.add_one(<span class="hljs-number">13</span>));
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;The answer is: &#x27;</span>, instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">add_one</span>(<span class="hljs-number">13</span>));
       })();
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>

@@ -64,21 +64,21 @@
 </ul>
 <h2 id="atest">A Test</h2>
 <p>The following code displays the InChI for benzoic acid with and without mobile hydrogen atom perception. It requires both <a href="http://depth-first.com/articles/tag/rino">Rino</a> and <a href="http://depth-first.com/articles/tag/rcdk">Ruby CDK</a>. The latter library is used to convert a SMILES string into a molfile for use by Rino.</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-require_gem <span class="hljs-string">'rino'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rino&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
 
-molfile=RCDK::Util::Lang.smiles_to_molfile <span class="hljs-string">'c1ccccc1C(=O)O'</span> <span class="hljs-comment"># benzoic acid</span>
-reader = Rino::MolfileReader.new
+molfile=<span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Lang</span>.smiles_to_molfile <span class="hljs-string">&#x27;c1ccccc1C(=O)O&#x27;</span> <span class="hljs-comment"># benzoic acid</span>
+reader = <span class="hljs-title class_">Rino</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:MolfileReader</span>.new
 inchi = reader.read(molfile)
 
-puts <span class="hljs-string">"Without mobile hydrogen perception:\n<span class="hljs-subst">#{inchi}</span>\n\n"</span>
+puts <span class="hljs-string">&quot;Without mobile hydrogen perception:\n<span class="hljs-subst">#{inchi}</span>\n\n&quot;</span>
 
-reader.options &amp;lt;&amp;lt; <span class="hljs-string">'-FixedH'</span>
+reader.options &amp;lt;&amp;lt; <span class="hljs-string">&#x27;-FixedH&#x27;</span>
 inchi = reader.read(molfile)
 
-puts <span class="hljs-string">"With mobile hydrogen perception:\n<span class="hljs-subst">#{inchi}</span>"</span>
+puts <span class="hljs-string">&quot;With mobile hydrogen perception:\n<span class="hljs-subst">#{inchi}</span>&quot;</span>
 </code></pre>
 <p>The <code>-FixedH</code> flag used by the reader the second time tells Rino to identify mobile hydrogens in the InChI output. Some InChI authors use this form of InChI and others don't. PubChem is an example of a large InChI author that does use mobile hydrogen perception, as their entry for <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=243">benzoic acid</a> demonstrates. To perform an exact match of your InChIs with theirs, the <code>-FixedH</code> flag must be set.</p>
 <h2 id="runningthetest">Running the Test</h2>

@@ -54,14 +54,14 @@
 <li>A string column called "smiles" that will hold the SMILES string of each compound in compact form.</li>
 </ol>
 <p>We can create the table with the following:</p>
-<pre><code class="hljs bash language-bash">mysql&gt; create table compounds (id int not null auto_increment, primary key(id), fingerprint_id int, smiles text);
+<pre><code class="hljs bash language-bash">mysql&gt; create table compounds (<span class="hljs-built_in">id</span> int not null auto_increment, primary key(<span class="hljs-built_in">id</span>), fingerprint_id int, smiles text);
 Query OK, 0 rows affected (0.01 sec)
 
 mysql&gt; describe compounds;
 +----------------+---------+------+-----+---------+----------------+
 | Field          | Type    | Null | Key | Default | Extra          |
 +----------------+---------+------+-----+---------+----------------+
-| id             | int(11) | NO   | PRI | NULL    | auto_increment | 
+| <span class="hljs-built_in">id</span>             | int(11) | NO   | PRI | NULL    | auto_increment | 
 | fingerprint_id | int(11) | YES  |     | NULL    |                | 
 | smiles         | text    | YES  |     | NULL    |                | 
 +----------------+---------+------+-----+---------+----------------+
@@ -72,14 +72,14 @@ mysql&gt; describe compounds;
 <pre><code class="hljs bash language-bash">mysql&gt; delete from fingerprints;
 Query OK, 0 rows affected (0.00 sec)
 
-mysql&gt; select * from fingerprints;
+mysql&gt; <span class="hljs-keyword">select</span> * from fingerprints;
 Empty <span class="hljs-built_in">set</span> (0.00 sec)
 
 mysql&gt; describe fingerprints;
 +--------+---------------------+------+-----+---------+----------------+
 | Field  | Type                | Null | Key | Default | Extra          |
 +--------+---------------------+------+-----+---------+----------------+
-| id     | int(11)             | NO   | PRI | NULL    | auto_increment | 
+| <span class="hljs-built_in">id</span>     | int(11)             | NO   | PRI | NULL    | auto_increment | 
 | byte0  | bigint(64) unsigned | YES  |     | 0       |                | 
 | byte1  | bigint(64) unsigned | YES  |     | 0       |                | 
 | byte2  | bigint(64) unsigned | YES  |     | 0       |                | 
@@ -103,24 +103,24 @@ mysql&gt; describe fingerprints;
 <pre><code class="hljs bash language-bash">mysql&gt; insert into fingerprints () values();
 Query OK, 1 row affected (0.00 sec)
 
-mysql&gt; select * from fingerprints;
+mysql&gt; <span class="hljs-keyword">select</span> * from fingerprints;
 +-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
-| id    | byte0 | byte1 | byte2 | byte3 | byte4 | byte5 | byte6 | byte7 | byte8 | byte9 | byte10 | byte11 | byte12 | byte13 | byte14 | byte15 |
+| <span class="hljs-built_in">id</span>    | byte0 | byte1 | byte2 | byte3 | byte4 | byte5 | byte6 | byte7 | byte8 | byte9 | byte10 | byte11 | byte12 | byte13 | byte14 | byte15 |
 +-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
 | 16806 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |      0 |      0 |      0 |      0 |      0 |      0 | 
 +-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
 1 row <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
 </code></pre>
 <p>Let's associate two compounds with this fingerprint:</p>
-<pre><code class="hljs bash language-bash">mysql&gt; insert into compounds (fingerprint_id,smiles) values(16806,<span class="hljs-string">'c1ccccc1'</span>);
+<pre><code class="hljs bash language-bash">mysql&gt; insert into compounds (fingerprint_id,smiles) values(16806,<span class="hljs-string">&#x27;c1ccccc1&#x27;</span>);
 Query OK, 1 row affected (0.01 sec)
 
-mysql&gt; insert into compounds (fingerprint_id,smiles) values(16806,<span class="hljs-string">'c1ccccc1Br'</span>);
+mysql&gt; insert into compounds (fingerprint_id,smiles) values(16806,<span class="hljs-string">&#x27;c1ccccc1Br&#x27;</span>);
 Query OK, 1 row affected (0.00 sec)
 
-mysql&gt; select * from compounds;
+mysql&gt; <span class="hljs-keyword">select</span> * from compounds;
 +----+----------------+------------+
-| id | fingerprint_id | smiles     |
+| <span class="hljs-built_in">id</span> | fingerprint_id | smiles     |
 +----+----------------+------------+
 | 20 |          16806 | c1ccccc1   | 
 | 21 |          16806 | c1ccccc1Br | 
@@ -128,9 +128,9 @@ mysql&gt; select * from compounds;
 2 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
 </code></pre>
 <p>We can now find all compounds with fingerprints containing no bits set:</p>
-<pre><code class="hljs bash language-bash">mysql&gt; select compounds.* from compounds inner join fingerprints on compounds.fingerprint_id=fingerprints.id <span class="hljs-built_in">where</span> fingerprints.byte0=0 and fingerprints.byte1=0 and fingerprints.byte2=0 and fingerprints.byte3=0 and fingerprints.byte4=0 and fingerprints.byte5=0 and fingerprints.byte6=0 and fingerprints.byte7=0 and fingerprints.byte8=0 and fingerprints.byte8=0 and fingerprints.byte9=0 and fingerprints.byte10=0 and fingerprints.byte11=0 and fingerprints.byte12=0 and fingerprints.byte13=0 and fingerprints.byte14=0 and fingerprints.byte15=0;
+<pre><code class="hljs bash language-bash">mysql&gt; <span class="hljs-keyword">select</span> compounds.* from compounds inner <span class="hljs-built_in">join</span> fingerprints on compounds.fingerprint_id=fingerprints.id <span class="hljs-built_in">where</span> fingerprints.byte0=0 and fingerprints.byte1=0 and fingerprints.byte2=0 and fingerprints.byte3=0 and fingerprints.byte4=0 and fingerprints.byte5=0 and fingerprints.byte6=0 and fingerprints.byte7=0 and fingerprints.byte8=0 and fingerprints.byte8=0 and fingerprints.byte9=0 and fingerprints.byte10=0 and fingerprints.byte11=0 and fingerprints.byte12=0 and fingerprints.byte13=0 and fingerprints.byte14=0 and fingerprints.byte15=0;
 +----+----------------+------------+
-| id | fingerprint_id | smiles     |
+| <span class="hljs-built_in">id</span> | fingerprint_id | smiles     |
 +----+----------------+------------+
 | 20 |          16806 | c1ccccc1   | 
 | 21 |          16806 | c1ccccc1Br | 

@@ -55,27 +55,27 @@ cargo test
 <p>Purr is organized around the <code>Mol</code> data structure which exposes two public attributes — one representing a list of <code>Atom</code>s and the other representing a list of <code>Bond</code>s. This design follows from the observation that SMILES encodes a molecular graph. It seems reasonable that the output of a SMILES parser would be a graph-like object. To this end, Purr defines a total of four flat data structures that closely align with the related concepts in the SMILES language.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// simplified listing</span>
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Mol</span></span> {
-    <span class="hljs-keyword">pub</span> atoms: <span class="hljs-built_in">Vec</span>&lt;Atom&gt;,
-    <span class="hljs-keyword">pub</span> bonds: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Bond&gt;&gt;
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Mol</span> {
+    <span class="hljs-keyword">pub</span> atoms: <span class="hljs-type">Vec</span>&lt;Atom&gt;,
+    <span class="hljs-keyword">pub</span> bonds: <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">Vec</span>&lt;Bond&gt;&gt;
 }
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Atom</span></span> {
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Atom</span> {
     <span class="hljs-keyword">pub</span> element: Element,
-    <span class="hljs-keyword">pub</span> aromatic: <span class="hljs-built_in">bool</span>,
-    <span class="hljs-keyword">pub</span> isotope: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">u16</span>&gt;,
-    <span class="hljs-keyword">pub</span> hcount: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">u8</span>&gt;,
-    <span class="hljs-keyword">pub</span> charge: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">i8</span>&gt;,
-    <span class="hljs-keyword">pub</span> parity: <span class="hljs-built_in">Option</span>&lt;Parity&gt;,
-    <span class="hljs-keyword">pub</span> map: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">u8</span>&gt;,
+    <span class="hljs-keyword">pub</span> aromatic: <span class="hljs-type">bool</span>,
+    <span class="hljs-keyword">pub</span> isotope: <span class="hljs-type">Option</span>&lt;<span class="hljs-type">u16</span>&gt;,
+    <span class="hljs-keyword">pub</span> hcount: <span class="hljs-type">Option</span>&lt;<span class="hljs-type">u8</span>&gt;,
+    <span class="hljs-keyword">pub</span> charge: <span class="hljs-type">Option</span>&lt;<span class="hljs-type">i8</span>&gt;,
+    <span class="hljs-keyword">pub</span> parity: <span class="hljs-type">Option</span>&lt;Parity&gt;,
+    <span class="hljs-keyword">pub</span> map: <span class="hljs-type">Option</span>&lt;<span class="hljs-type">u8</span>&gt;,
 }
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Bond</span></span> {
-    <span class="hljs-keyword">pub</span> tid: <span class="hljs-built_in">usize</span>,
-    <span class="hljs-keyword">pub</span> style: <span class="hljs-built_in">Option</span>&lt;Style&gt;
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Bond</span> {
+    <span class="hljs-keyword">pub</span> tid: <span class="hljs-type">usize</span>,
+    <span class="hljs-keyword">pub</span> style: <span class="hljs-type">Option</span>&lt;Style&gt;
 }
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Style</span></span> {
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">Style</span> {
     Single,
     Double,
     Triple,
@@ -86,9 +86,9 @@ cargo test
 }
 </code></pre>
 <p>The <code>bonds</code> attribute of <code>Mol</code> deserves some attention. This jagged 2D array represents an <a href="https://en.wikipedia.org/wiki/Adjacency_list">adjacency list</a> graph representation. In other words, <code>bonds</code> indexes the list of bonds associated with a given atomic ID. For example, to find the list of bonds at atomic ID 0, use <code>bonds[0]</code>, and so on.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> mol = get_mol(); <span class="hljs-comment">// get_mol is defined somewhere else</span>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">mol</span> = <span class="hljs-title function_ invoke__">get_mol</span>(); <span class="hljs-comment">// get_mol is defined somewhere else</span>
 
-<span class="hljs-built_in">println!</span>(<span class="hljs-string">"Bond list at ID 1: {:#?}"</span>, mol.bonds.get(<span class="hljs-number">1</span>).unwrap());
+<span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Bond list at ID 1: {:#?}&quot;</span>, mol.bonds.<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-number">1</span>).<span class="hljs-title function_ invoke__">unwrap</span>());
 </code></pre>
 <p>Also note that <code>Bond</code> defines only two attributes: the ID of the target atom (<code>tid</code>) and an optional bond <code>Style</code>. A source atom ID would be redundant, so it isn't used. The <code>style</code> attribute represents one of the seven valid SMILES bond types. Dot (<code>.</code>) is not a bond type and so it is not included within the <code>Style</code> enum.</p>
 <p>An adjacency list may seem like overkill. Why not use an <a href="https://en.wikipedia.org/wiki/Edge_list">edge list</a> instead? This could be accomplished with an <code>edges</code> attribute represented by a flat <code>Vec&lt;Bond&gt;</code>. The reason relates to the interplay between atom parity and rings.</p>
@@ -104,91 +104,91 @@ cargo test
 <p><code>Builder</code> provides a simple API for building a <code>Mol</code>. All methods except one are mutators reflecting the kinds of actions taken when reading a SMILES string from left to right: creation from a root atom; setting a bond style; connecting a new atom to the root; opening or closing a ring; opening or closing a branch; and beginning a new root.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// simplified listing</span>
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Builder</span></span> {
-    atoms: <span class="hljs-built_in">Vec</span>&lt;Atom&gt;,      <span class="hljs-comment">// atoms to be added</span>
-    bonds: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">Vec</span>&lt;Bond&gt;&gt;, <span class="hljs-comment">// adjacency list</span>
-    style: <span class="hljs-built_in">Option</span>&lt;Style&gt;,  <span class="hljs-comment">// the current bond style</span>
-    stack: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">usize</span>&gt;,     <span class="hljs-comment">// used for opening/closing branches</span>
-    root: <span class="hljs-built_in">usize</span>,           <span class="hljs-comment">// id of atom to be extended</span>
-    cuts: HashMap&lt;<span class="hljs-built_in">u8</span>, Cut&gt; <span class="hljs-comment">// rnum to Cut mapping</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Builder</span> {
+    atoms: <span class="hljs-type">Vec</span>&lt;Atom&gt;,      <span class="hljs-comment">// atoms to be added</span>
+    bonds: <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">Vec</span>&lt;Bond&gt;&gt;, <span class="hljs-comment">// adjacency list</span>
+    style: <span class="hljs-type">Option</span>&lt;Style&gt;,  <span class="hljs-comment">// the current bond style</span>
+    stack: <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">usize</span>&gt;,     <span class="hljs-comment">// used for opening/closing branches</span>
+    root: <span class="hljs-type">usize</span>,           <span class="hljs-comment">// id of atom to be extended</span>
+    cuts: HashMap&lt;<span class="hljs-type">u8</span>, Cut&gt; <span class="hljs-comment">// rnum to Cut mapping</span>
 }
 
-<span class="hljs-keyword">impl</span> Builder {
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(root: Atom) -&gt; <span class="hljs-keyword">Self</span> {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Builder</span> {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(root: Atom) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> {
         <span class="hljs-comment">// Returns a Builder struct, adding root to atoms and setting</span>
         <span class="hljs-comment">// self.root to 0</span>
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">root</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, atom: Atom) {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">root</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, atom: Atom) {
         <span class="hljs-comment">// Begins a new root when dot (.) bond found</span>
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">extend</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, atom: Atom) {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">extend</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, atom: Atom) {
         <span class="hljs-comment">// Create a bond between current root and atom</span>
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">bond</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, style: Style) {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">bond</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, style: Style) {
         <span class="hljs-comment">// Sets the current bond style</span>
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">open</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">open</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) {
         <span class="hljs-comment">// Opens a branch</span>
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">close</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">close</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) {
         <span class="hljs-comment">// Closes a branch</span>
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">cut</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, rnum: <span class="hljs-built_in">u8</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">cut</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, rnum: <span class="hljs-type">u8</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;(), Error&gt; {
         <span class="hljs-comment">// Opens or closes a ring identified by rnum.</span>
         <span class="hljs-comment">// Returns an error if the left/right bond styles are</span>
         <span class="hljs-comment">// incompatible.</span>
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">to_mol</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;Mol, Error&gt; {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">to_mol</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;Mol, Error&gt; {
         <span class="hljs-comment">// Consumes this Builder and returns the Mol under construction,</span>
         <span class="hljs-comment">// or an error given invalid state (open rings or branches).</span>
     }
 }
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Cut</span></span> {
-    id: <span class="hljs-built_in">usize</span>,
-    index: <span class="hljs-built_in">usize</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Cut</span> {
+    id: <span class="hljs-type">usize</span>,
+    index: <span class="hljs-type">usize</span>
 }
 </code></pre>
 <p>Having instantiated a <code>Builder</code>, a parser can maintain singular focus on translating SMILES tokens into <code>Builder</code> API calls.</p>
 <h2 id="thesmiles_to_molfunction">The <code>smiles_to_mol</code> Function</h2>
 <p>Having discussed data structures and helpers, we're now in a position to consider the <code>smiles_to_mol</code> function itself. This function accepts a <a href="https://doc.rust-lang.org/book/ch04-03-slices.html#string-slices">string slice</a>. If it represents a valid SMILES, the corresponding <code>Mol</code> is returned. Otherwise an <code>Error</code> is returned.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">smiles_to_mol</span></span>(text: &amp;<span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">Result</span>&lt;Mol, Error&gt; {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> scanner = Scanner::new(text);
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">smiles_to_mol</span>(text: &amp;<span class="hljs-type">str</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;Mol, Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">scanner</span> = Scanner::<span class="hljs-title function_ invoke__">new</span>(text);
 
-    <span class="hljs-keyword">if</span> scanner.done() {
-        <span class="hljs-keyword">return</span> <span class="hljs-literal">Err</span>(Error::EndOfLine);
+    <span class="hljs-keyword">if</span> scanner.<span class="hljs-title function_ invoke__">done</span>() {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">Err</span>(Error::EndOfLine);
     }
 
-    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(atom) = bare_atom(&amp;<span class="hljs-keyword">mut</span> scanner)? {
-        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> state = State {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(atom) = <span class="hljs-title function_ invoke__">bare_atom</span>(&amp;<span class="hljs-keyword">mut</span> scanner)? {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">state</span> = State {
             scanner: scanner,
-            builder: Builder::new(atom),
+            builder: Builder::<span class="hljs-title function_ invoke__">new</span>(atom),
             dot: <span class="hljs-literal">false</span>
         };
 
         <span class="hljs-keyword">loop</span> {
-            <span class="hljs-keyword">if</span> !chain(&amp;<span class="hljs-keyword">mut</span> state)? &amp;&amp; !branch(&amp;<span class="hljs-keyword">mut</span> state)? {
-                <span class="hljs-keyword">if</span> !state.scanner.done() {
-                    <span class="hljs-keyword">break</span> <span class="hljs-literal">Err</span>(Error::InvalidCharacter(state.scanner.cursor()))
+            <span class="hljs-keyword">if</span> !<span class="hljs-title function_ invoke__">chain</span>(&amp;<span class="hljs-keyword">mut</span> state)? &amp;&amp; !<span class="hljs-title function_ invoke__">branch</span>(&amp;<span class="hljs-keyword">mut</span> state)? {
+                <span class="hljs-keyword">if</span> !state.scanner.<span class="hljs-title function_ invoke__">done</span>() {
+                    <span class="hljs-keyword">break</span> <span class="hljs-title function_ invoke__">Err</span>(Error::<span class="hljs-title function_ invoke__">InvalidCharacter</span>(state.scanner.<span class="hljs-title function_ invoke__">cursor</span>()))
                 }
 
-                <span class="hljs-keyword">break</span> <span class="hljs-keyword">match</span> state.builder.to_mol() {
-                    <span class="hljs-literal">Ok</span>(molecule) =&gt; <span class="hljs-literal">Ok</span>(molecule),
-                    <span class="hljs-literal">Err</span>(_) =&gt; {
+                <span class="hljs-keyword">break</span> <span class="hljs-keyword">match</span> state.builder.<span class="hljs-title function_ invoke__">to_mol</span>() {
+                    <span class="hljs-title function_ invoke__">Ok</span>(molecule) =&gt; <span class="hljs-title function_ invoke__">Ok</span>(molecule),
+                    <span class="hljs-title function_ invoke__">Err</span>(_) =&gt; {
                         <span class="hljs-built_in">unimplemented!</span>()
                     }
                 }
             }
         }
     } <span class="hljs-keyword">else</span> {
-        <span class="hljs-literal">Err</span>(Error::InvalidCharacter(<span class="hljs-number">0</span>))
+        <span class="hljs-title function_ invoke__">Err</span>(Error::<span class="hljs-title function_ invoke__">InvalidCharacter</span>(<span class="hljs-number">0</span>))
     }
 }
 </code></pre>
@@ -197,21 +197,21 @@ cargo test
 <p>Rather than discuss all of the helper functions, here I'll just highlight a few that illustrate the main points.</p>
 <p>The <code>chain</code> helper function greedily parses a sequence of atoms, returning when no more progress is possible. Notice the correlation between the production rule <code>&lt;chain&gt;</code> and the layout of the function.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// &lt;chain&gt; ::= ( &lt;dot&gt; &lt;atom&gt; | &lt;bond&gt;? ( &lt;atom&gt; | &lt;rnum&gt;) )+</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">chain</span></span>(state: &amp;<span class="hljs-keyword">mut</span> State) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">bool</span>, Error&gt; {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> result = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">chain</span>(state: &amp;<span class="hljs-keyword">mut</span> State) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">bool</span>, Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">result</span> = <span class="hljs-literal">false</span>;
 
     <span class="hljs-keyword">loop</span> {
-        <span class="hljs-keyword">if</span> dot(state)? {
-            <span class="hljs-keyword">if</span> !atom(state)? {
-                <span class="hljs-keyword">break</span> <span class="hljs-literal">Err</span>(Error::InvalidCharacter(state.scanner.cursor()))
+        <span class="hljs-keyword">if</span> <span class="hljs-title function_ invoke__">dot</span>(state)? {
+            <span class="hljs-keyword">if</span> !<span class="hljs-title function_ invoke__">atom</span>(state)? {
+                <span class="hljs-keyword">break</span> <span class="hljs-title function_ invoke__">Err</span>(Error::<span class="hljs-title function_ invoke__">InvalidCharacter</span>(state.scanner.<span class="hljs-title function_ invoke__">cursor</span>()))
             }
-        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> bond(state)? {
-            <span class="hljs-keyword">if</span> !atom(state)? &amp;&amp; !rnum(state)? {
-                <span class="hljs-keyword">break</span> <span class="hljs-literal">Err</span>(Error::InvalidCharacter(state.scanner.cursor()))
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-title function_ invoke__">bond</span>(state)? {
+            <span class="hljs-keyword">if</span> !<span class="hljs-title function_ invoke__">atom</span>(state)? &amp;&amp; !<span class="hljs-title function_ invoke__">rnum</span>(state)? {
+                <span class="hljs-keyword">break</span> <span class="hljs-title function_ invoke__">Err</span>(Error::<span class="hljs-title function_ invoke__">InvalidCharacter</span>(state.scanner.<span class="hljs-title function_ invoke__">cursor</span>()))
             }
         } <span class="hljs-keyword">else</span> {
-            <span class="hljs-keyword">if</span> !atom(state)? &amp;&amp; !rnum(state)? {
-                <span class="hljs-keyword">break</span> <span class="hljs-literal">Ok</span>(result)
+            <span class="hljs-keyword">if</span> !<span class="hljs-title function_ invoke__">atom</span>(state)? &amp;&amp; !<span class="hljs-title function_ invoke__">rnum</span>(state)? {
+                <span class="hljs-keyword">break</span> <span class="hljs-title function_ invoke__">Ok</span>(result)
             }
         }
 
@@ -220,34 +220,34 @@ cargo test
 }
 </code></pre>
 <p>The <code>branch</code> helper greedily parses a branch enclosed by opening and closing parentheses (<code>(</code> and <code>)</code>, respectively). After popping an open parentheses (<code>(</code>), a loop is entered. It terminates if the <code>Scanner</code> is done or if a close parentheses (<code>)</code>) is found. An <code>Error</code> will be triggered by failure to find a closing <code>)</code> or failure to find a <code>&lt;line&gt;</code> construct within the branch. The <code>open</code> and <code>close</code> methods of <code>Builder</code> keep track of practically unlimited levels of nesting.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-comment">// &lt;branch&gt; ::= "(" ( &lt;bond&gt;? &lt;line&gt; )+ ")"</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">branch</span></span>(state: &amp;<span class="hljs-keyword">mut</span> State) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">bool</span>, Error&gt; {
-    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-string">'('</span>) = state.scanner.peek() {
-        state.scanner.pop();
+<pre><code class="hljs rust language-rust"><span class="hljs-comment">// &lt;branch&gt; ::= &quot;(&quot; ( &lt;bond&gt;? &lt;line&gt; )+ &quot;)&quot;</span>
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">branch</span>(state: &amp;<span class="hljs-keyword">mut</span> State) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">bool</span>, Error&gt; {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(<span class="hljs-string">&#x27;(&#x27;</span>) = state.scanner.<span class="hljs-title function_ invoke__">peek</span>() {
+        state.scanner.<span class="hljs-title function_ invoke__">pop</span>();
     } <span class="hljs-keyword">else</span> {
-        <span class="hljs-keyword">return</span> <span class="hljs-literal">Ok</span>(<span class="hljs-literal">false</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-literal">false</span>);
     }
 
-    state.builder.open();
+    state.builder.<span class="hljs-title function_ invoke__">open</span>();
 
-    <span class="hljs-keyword">while</span> !state.scanner.done() {
-        bond(state)?;
+    <span class="hljs-keyword">while</span> !state.scanner.<span class="hljs-title function_ invoke__">done</span>() {
+        <span class="hljs-title function_ invoke__">bond</span>(state)?;
 
-        <span class="hljs-keyword">if</span> !line(state)? {
-            <span class="hljs-keyword">return</span> <span class="hljs-literal">Err</span>(Error::InvalidCharacter(state.scanner.cursor()));
+        <span class="hljs-keyword">if</span> !<span class="hljs-title function_ invoke__">line</span>(state)? {
+            <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">Err</span>(Error::<span class="hljs-title function_ invoke__">InvalidCharacter</span>(state.scanner.<span class="hljs-title function_ invoke__">cursor</span>()));
         }
 
-        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-string">')'</span>) = state.scanner.peek() {
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(<span class="hljs-string">&#x27;)&#x27;</span>) = state.scanner.<span class="hljs-title function_ invoke__">peek</span>() {
             <span class="hljs-keyword">break</span>;
         }
     }
 
-    state.builder.close();
+    state.builder.<span class="hljs-title function_ invoke__">close</span>();
 
-    <span class="hljs-keyword">match</span> state.scanner.pop() {
-        <span class="hljs-literal">Some</span>(<span class="hljs-string">')'</span>) =&gt; <span class="hljs-literal">Ok</span>(<span class="hljs-literal">true</span>),
-        <span class="hljs-literal">Some</span>(_) =&gt; <span class="hljs-literal">Err</span>(Error::InvalidCharacter(state.scanner.cursor())),
-        <span class="hljs-literal">None</span> =&gt; <span class="hljs-literal">Err</span>(Error::EndOfLine)
+    <span class="hljs-keyword">match</span> state.scanner.<span class="hljs-title function_ invoke__">pop</span>() {
+        <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-string">&#x27;)&#x27;</span>) =&gt; <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-literal">true</span>),
+        <span class="hljs-title function_ invoke__">Some</span>(_) =&gt; <span class="hljs-title function_ invoke__">Err</span>(Error::<span class="hljs-title function_ invoke__">InvalidCharacter</span>(state.scanner.<span class="hljs-title function_ invoke__">cursor</span>())),
+        <span class="hljs-literal">None</span> =&gt; <span class="hljs-title function_ invoke__">Err</span>(Error::EndOfLine)
     }
 }
 </code></pre>

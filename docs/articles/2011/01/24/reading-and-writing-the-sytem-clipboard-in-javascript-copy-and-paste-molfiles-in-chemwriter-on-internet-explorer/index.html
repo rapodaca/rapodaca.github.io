@@ -57,10 +57,10 @@
 </ul>
 <p>It should be emphasized that the consent dialog only appears at the moment a script attempts to access the system clipboard.</p>
 <p>You can test clipboard access on IE in your own scripts (or interactively with the 'Developer Tools' console). To read the clipboard:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">var</span> data = <span class="hljs-built_in">window</span>.clipboardData.getData(<span class="hljs-string">'Text'</span>);
+<pre><code class="hljs js language-js"><span class="hljs-keyword">var</span> data = <span class="hljs-variable language_">window</span>.<span class="hljs-property">clipboardData</span>.<span class="hljs-title function_">getData</span>(<span class="hljs-string">&#x27;Text&#x27;</span>);
 </code></pre>
 <p>To write the clipboard:</p>
-<pre><code class="hljs js language-js"><span class="hljs-built_in">window</span>.clipboardData.setData(<span class="hljs-string">'Text'</span>, <span class="hljs-string">'this is a test'</span>);
+<pre><code class="hljs js language-js"><span class="hljs-variable language_">window</span>.<span class="hljs-property">clipboardData</span>.<span class="hljs-title function_">setData</span>(<span class="hljs-string">&#x27;Text&#x27;</span>, <span class="hljs-string">&#x27;this is a test&#x27;</span>);
 </code></pre>
 <h2 id="iequirks">IE Quirks</h2>
 <p>As might be expected, the user experience for this feature varies according to the version of IE being used. Given a setting of 'Prompt' for clipboard access, here's a summary of what we've found:</p>

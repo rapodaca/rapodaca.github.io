@@ -43,34 +43,34 @@
 <p>The only thing you'll need for this tutorial is Ruby, preferably v1.8 or better.</p>
 <h2 id="code">Code</h2>
 <p>Create a file called <code>query.rb</code> in your working directory containing the following code:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'uri'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'net/http'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;uri&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;net/http&#x27;</span>
 
 <span class="hljs-comment"># A simple SMILES query for PubChem based on the file &lt;tt&gt;pubchem.rb&lt;/tt&gt;,</span>
 <span class="hljs-comment"># and originally part of Chemruby (http://rubyforge.org/project/chemruby).</span>
-<span class="hljs-comment"># Distributed under Ruby's License.</span>
+<span class="hljs-comment"># Distributed under Ruby&#x27;s License.</span>
 <span class="hljs-comment">#</span>
 <span class="hljs-comment"># Copyright (C) 2005, 2006 KADOWAKI Tadashi &lt;kado<span class="hljs-doctag">@kuicr</span>.kyoto-u.ac.jp&gt;</span>
 <span class="hljs-comment">#                          TANAKA   Nobuya  &lt;tanaka<span class="hljs-doctag">@kuicr</span>.kyoto-u.ac.jp&gt;</span>
 <span class="hljs-comment">#                          APODACA  Richard &lt;r_apodaca<span class="hljs-doctag">@users</span>.sf.net&gt;</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PubChemQuery</span></span>
-  @@host=<span class="hljs-string">"pubchem.ncbi.nlm.nih.gov"</span>
-  @@searchpath=<span class="hljs-string">"/search/"</span>
-  @@query=<span class="hljs-string">"PreQSrv.cgi"</span>
-  @@boundary=<span class="hljs-string">"-----boundary-----"</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">PubChemQuery</span>
+  <span class="hljs-variable">@@host</span>=<span class="hljs-string">&quot;pubchem.ncbi.nlm.nih.gov&quot;</span>
+  <span class="hljs-variable">@@searchpath</span>=<span class="hljs-string">&quot;/search/&quot;</span>
+  <span class="hljs-variable">@@query</span>=<span class="hljs-string">&quot;PreQSrv.cgi&quot;</span>
+  <span class="hljs-variable">@@boundary</span>=<span class="hljs-string">&quot;-----boundary-----&quot;</span>
 
   <span class="hljs-comment"># Synthetic form data. Lifted from Chemruby pubchem.rb</span>
-  @@data = [
-    @@boundary, <span class="hljs-string">"Content-Disposition: form-data; name=\"mode\""</span>, <span class="hljs-string">""</span>, <span class="hljs-string">"simplequery"</span>,
-    @@boundary, <span class="hljs-string">"Content-Disposition: form-data; name=\"queue\""</span>, <span class="hljs-string">""</span>, <span class="hljs-string">"ssquery"</span>,
-    @@boundary, <span class="hljs-string">"Content-Disposition: form-data; name=\"simple_searchdata\""</span>, <span class="hljs-string">""</span>, <span class="hljs-string">'%s'</span>,
-    @@boundary, <span class="hljs-string">"Content-Disposition: form-data; name=\"simple_searchtype\""</span>, <span class="hljs-string">""</span>, <span class="hljs-string">"fs"</span>,
-    @@boundary, <span class="hljs-string">"Content-Disposition: form-data; name=\"maxhits\""</span>, <span class="hljs-string">""</span>, <span class="hljs-string">'%s'</span>,
-    @@boundary].join(<span class="hljs-string">"\x0d\x0a"</span>)
+  <span class="hljs-variable">@@data</span> = [
+    <span class="hljs-variable">@@boundary</span>, <span class="hljs-string">&quot;Content-Disposition: form-data; name=\&quot;mode\&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;simplequery&quot;</span>,
+    <span class="hljs-variable">@@boundary</span>, <span class="hljs-string">&quot;Content-Disposition: form-data; name=\&quot;queue\&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;ssquery&quot;</span>,
+    <span class="hljs-variable">@@boundary</span>, <span class="hljs-string">&quot;Content-Disposition: form-data; name=\&quot;simple_searchdata\&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&#x27;%s&#x27;</span>,
+    <span class="hljs-variable">@@boundary</span>, <span class="hljs-string">&quot;Content-Disposition: form-data; name=\&quot;simple_searchtype\&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;fs&quot;</span>,
+    <span class="hljs-variable">@@boundary</span>, <span class="hljs-string">&quot;Content-Disposition: form-data; name=\&quot;maxhits\&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&#x27;%s&#x27;</span>,
+    <span class="hljs-variable">@@boundary</span>].join(<span class="hljs-string">&quot;\x0d\x0a&quot;</span>)
 
   <span class="hljs-comment"># Returns an Array of CIDs matching smiles. If no matches are found,</span>
   <span class="hljs-comment"># nil is returned.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">query_by_smiles</span><span class="hljs-params">(smiles, maxhits = <span class="hljs-number">100</span>)</span></span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">self</span>.query_by_smiles(smiles, maxhits = <span class="hljs-number">100</span>)
     form_response = post_form(smiles, maxhits)
     wait_response = process_wait_page(form_response)
     url = get_report_url(wait_response)
@@ -78,17 +78,17 @@
     url ? process_report(url) : <span class="hljs-literal">nil</span>
   <span class="hljs-keyword">end</span>
 
-private
+<span class="hljs-keyword">private</span>
 
   <span class="hljs-comment"># Returns the response to posting the initial search form.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">post_form</span><span class="hljs-params">(smiles, maxhits)</span></span>
-    response = <span class="hljs-string">''</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">self</span>.post_form(smiles, maxhits)
+    response = <span class="hljs-string">&#x27;&#x27;</span>
 
-    Net::HTTP.start(@@host, <span class="hljs-number">80</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|http|</span>
-      response = http.post(@@searchpath + @@query, @@data % [smiles, maxhits],
+    <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:HTTP</span>.start(<span class="hljs-variable">@@host</span>, <span class="hljs-number">80</span>) <span class="hljs-keyword">do</span> |<span class="hljs-params">http</span>|
+      response = http.post(<span class="hljs-variable">@@searchpath</span> + <span class="hljs-variable">@@query</span>, <span class="hljs-variable">@@data</span> % [smiles, maxhits],
       {
-        <span class="hljs-string">'Content-Type'</span> =&gt; <span class="hljs-string">"multipart/form-data; boundary=<span class="hljs-subst">#{@@boundary}</span>"</span>,
-        <span class="hljs-string">'Referer'</span> =&gt; <span class="hljs-string">"http://pubchem.ncbi.nlm.nih.gov/search/"</span>
+        <span class="hljs-string">&#x27;Content-Type&#x27;</span> =&gt; <span class="hljs-string">&quot;multipart/form-data; boundary=<span class="hljs-subst">#{<span class="hljs-variable">@@boundary</span>}</span>&quot;</span>,
+        <span class="hljs-string">&#x27;Referer&#x27;</span> =&gt; <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/search/&quot;</span>
       }).body
     <span class="hljs-keyword">end</span>
 
@@ -96,12 +96,12 @@ private
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Processes the wait page displayed after submission of the search form.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">process_wait_page</span><span class="hljs-params">(body)</span></span>
-    response = <span class="hljs-string">''</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">self</span>.process_wait_page(body)
+    response = <span class="hljs-string">&#x27;&#x27;</span>
 
-    <span class="hljs-keyword">if</span> m = <span class="hljs-regexp">/url="([^"]+)"/</span>.match(body)
-      Net::HTTP.start(@@host, <span class="hljs-number">80</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|http|</span>
-        response = http.get(@@searchpath + m[<span class="hljs-number">1</span>]).body
+    <span class="hljs-keyword">if</span> m = <span class="hljs-regexp">/url=&quot;([^&quot;]+)&quot;/</span>.match(body)
+      <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:HTTP</span>.start(<span class="hljs-variable">@@host</span>, <span class="hljs-number">80</span>) <span class="hljs-keyword">do</span> |<span class="hljs-params">http</span>|
+        response = http.get(<span class="hljs-variable">@@searchpath</span> + m[<span class="hljs-number">1</span>]).body
       <span class="hljs-keyword">end</span>
     <span class="hljs-keyword">end</span>
 
@@ -110,16 +110,16 @@ private
 
   <span class="hljs-comment"># Returns the URL, as a String, to the search report, given the specified</span>
   <span class="hljs-comment"># body of the wait page.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">get_report_url</span><span class="hljs-params">(body)</span></span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">self</span>.get_report_url(body)
     url = <span class="hljs-literal">nil</span>
 
-    Net::HTTP.start(@@host, <span class="hljs-number">80</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|http|</span>
-      <span class="hljs-keyword">while</span> /setTimeout\(<span class="hljs-string">'document.location.replace\("([^"]+)"\);'</span>, (\d+)\)/ =~ body <span class="hljs-keyword">do</span>
-        sleep($2.to_f/<span class="hljs-number">100</span>)
+    <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:HTTP</span>.start(<span class="hljs-variable">@@host</span>, <span class="hljs-number">80</span>) <span class="hljs-keyword">do</span> |<span class="hljs-params">http</span>|
+      <span class="hljs-keyword">while</span> /setTimeout\(<span class="hljs-string">&#x27;document.location.replace\(&quot;([^&quot;]+)&quot;\);&#x27;</span>, (\d+)\)/ =~ body <span class="hljs-keyword">do</span>
+        sleep(<span class="hljs-variable">$2</span>.to_f/<span class="hljs-number">100</span>)
 
-        response = http.get(URI.parse($1).to_s)
+        response = http.get(<span class="hljs-variable constant_">URI</span>.parse(<span class="hljs-variable">$1</span>).to_s)
         body = response.body
-        url = response[<span class="hljs-string">'location'</span>]
+        url = response[<span class="hljs-string">&#x27;location&#x27;</span>]
       <span class="hljs-keyword">end</span>
     <span class="hljs-keyword">end</span>
 
@@ -127,13 +127,13 @@ private
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Extracts CIDs from the search report contained at url.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">process_report</span><span class="hljs-params">(url)</span></span>
-    cid = Array.new
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">self</span>.process_report(url)
+    cid = <span class="hljs-title class_">Array</span>.new
 
-    Net::HTTP.start(@@host, <span class="hljs-number">80</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|http|</span>
+    <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:HTTP</span>.start(<span class="hljs-variable">@@host</span>, <span class="hljs-number">80</span>) <span class="hljs-keyword">do</span> |<span class="hljs-params">http</span>|
       <span class="hljs-comment"># text format</span>
-      url.sub!(<span class="hljs-regexp">/cmd=Select\+from\+History/</span>, <span class="hljs-string">'cmd=Text&amp;dopt=Brief'</span>)
-      http.get(url).body.scan(<span class="hljs-regexp">/\d+: CID: (\d+)/</span>).each <span class="hljs-keyword">do</span> <span class="hljs-params">|id|</span>
+      url.sub!(<span class="hljs-regexp">/cmd=Select\+from\+History/</span>, <span class="hljs-string">&#x27;cmd=Text&amp;dopt=Brief&#x27;</span>)
+      http.get(url).body.scan(<span class="hljs-regexp">/\d+: CID: (\d+)/</span>).each <span class="hljs-keyword">do</span> |<span class="hljs-params">id</span>|
         cid.push(id[<span class="hljs-number">0</span>])
       <span class="hljs-keyword">end</span>
     <span class="hljs-keyword">end</span>
@@ -146,31 +146,31 @@ private
 <p>The PubChemQuery class contains a single public class method, <code>query_by_smiles</code>. This method builds a form to submit, based on the supplied SMILES string and optional <code>maxhits</code> argument. It then waits until PubChem indicates that the query is about to finish processing. The URL for the results report page is then parsed. If a nonempty URL was found, then its page is loaded, and CIDs are scraped. Otherwise, the method returns <code>nil</code>.</p>
 <h2 id="usage">Usage</h2>
 <p>Using <code>PubChemQuery</code> consists of invoking its class method <code>query_by_smiles</code>. You can do so either via the Ruby interpreter (<code>ruby</code>), or preferably through Interactive Ruby (<code>irb</code>).</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'query'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;query&#x27;</span>
 
-smiles = <span class="hljs-string">"c1cccc(Cl)c1(Cl)"</span> <span class="hljs-comment"># chlorobenzene</span>
-puts <span class="hljs-string">"Searching CID(s) for SMILES, <span class="hljs-subst">#{smiles}</span> ..."</span>
-cid = PubChemQuery.query_by_smiles(smiles)
+smiles = <span class="hljs-string">&quot;c1cccc(Cl)c1(Cl)&quot;</span> <span class="hljs-comment"># chlorobenzene</span>
+puts <span class="hljs-string">&quot;Searching CID(s) for SMILES, <span class="hljs-subst">#{smiles}</span> ...&quot;</span>
+cid = <span class="hljs-title class_">PubChemQuery</span>.query_by_smiles(smiles)
 puts cid <span class="hljs-comment"># =&gt; 7239</span>
 </code></pre>
 <h2 id="layeringcomplexity">Layering Complexity</h2>
 <p>We can combine the SMILES query API discussed here with the molfile and image retrieval discussed in the <a href="http://depth-first.com/articles/2006/08/30/hacking-pubchem-with-ruby">earlier Hacking Pubchem article</a>.</p>
 <p>Let's say you'd like to download PubChem's 2-D image of imatinib (Gleevec) by submitting its SMILES string. Copy the file named <code>pubchem.rb</code>, provided in the original PubChem tutorial, into your working directory. Now you can programmatically download imatinib's 2-D image from PubChem based only on a SMILES string, for example:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'pubchem'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'query'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;pubchem&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;query&#x27;</span>
 
-smiles=<span class="hljs-string">"Cc3ccc(NC(=O)c2ccc(CN1CCN(C)CC1)cc2)cc3Nc5nccc(c4cccnc4)n5"</span> <span class="hljs-comment">#imatinib</span>
-puts <span class="hljs-string">"Searching CID(s) for SMILES, <span class="hljs-subst">#{smiles}</span> ..."</span>
-cid = PubChemQuery.query_by_smiles(smiles)
+smiles=<span class="hljs-string">&quot;Cc3ccc(NC(=O)c2ccc(CN1CCN(C)CC1)cc2)cc3Nc5nccc(c4cccnc4)n5&quot;</span> <span class="hljs-comment">#imatinib</span>
+puts <span class="hljs-string">&quot;Searching CID(s) for SMILES, <span class="hljs-subst">#{smiles}</span> ...&quot;</span>
+cid = <span class="hljs-title class_">PubChemQuery</span>.query_by_smiles(smiles)
 
 <span class="hljs-keyword">if</span> cid
-  puts <span class="hljs-string">"CID found: <span class="hljs-subst">#{cid[<span class="hljs-number">0</span>]}</span>"</span>
+  puts <span class="hljs-string">&quot;CID found: <span class="hljs-subst">#{cid[<span class="hljs-number">0</span>]}</span>&quot;</span>
 
-  filename = cid[<span class="hljs-number">0</span>] + <span class="hljs-string">".png"</span>
-  puts <span class="hljs-string">"Writing image to <span class="hljs-subst">#{filename}</span> ..."</span>
-  PubChem.write_image(cid[<span class="hljs-number">0</span>], filename)
+  filename = cid[<span class="hljs-number">0</span>] + <span class="hljs-string">&quot;.png&quot;</span>
+  puts <span class="hljs-string">&quot;Writing image to <span class="hljs-subst">#{filename}</span> ...&quot;</span>
+  <span class="hljs-title class_">PubChem</span>.write_image(cid[<span class="hljs-number">0</span>], filename)
 <span class="hljs-keyword">else</span>
-  puts <span class="hljs-string">"No CID for <span class="hljs-subst">#{smiles}</span> was found."</span>
+  puts <span class="hljs-string">&quot;No CID for <span class="hljs-subst">#{smiles}</span> was found.&quot;</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <p>This produces an image of imatinib called <code>5291.png</code> in your working directory:</p>

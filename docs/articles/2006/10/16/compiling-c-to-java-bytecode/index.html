@@ -47,11 +47,11 @@
 <p>To learn more about AMPC, I downloaded and installed the Demo version 1.5.1. It installed without a hitch.</p>
 <p>AMPC actually consists of two components - a command-line utility and an IDE. Those of you used to <a href="http://www.eclipse.org/">Eclipse</a> will be somewhat disappointed with AMPC's IDE, which is based on <a href="http://www.scintilla.org/SciTE.html">SciTE</a>. For this reason, I spent most of my time with the command-line utility.</p>
 <p>I decided the venerable Hello World application should be my first stop. I saved this version to a file called <strong>hello.c</strong>:</p>
-<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
 
-<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span>
-</span>{
-  <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Hello World - From C!\n"</span>);
+<span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+{
+  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Hello World - From C!\n&quot;</span>);
 
   <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 }
@@ -65,21 +65,21 @@ Hello World - From C!
 </code></pre>
 <h2 id="amorecomplexdemo">A More Complex Demo</h2>
 <p>One of the key differences between C and Java is that C has pointers and Java does not. So how does AMPC handle a simple program that uses pointers? Very well, it turns out. For this test, I used the following source code, which I lifted from <a href="http://www.gamedev.net/reference/articles/article1697.asp">this tutorial</a>:</p>
-<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
 
-<span class="hljs-keyword">int</span> j, k;
-<span class="hljs-keyword">int</span> *ptr;
+<span class="hljs-type">int</span> j, k;
+<span class="hljs-type">int</span> *ptr;
 
-<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span>
-</span>{
+<span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+{
     j = <span class="hljs-number">1</span>;
     k = <span class="hljs-number">2</span>;
     ptr = &amp;k;
-    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n"</span>);
-    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"j has the value %d and is stored at %p\n"</span>, j, (<span class="hljs-keyword">void</span> *)&amp;j);
-    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"k has the value %d and is stored at %p\n"</span>, k, (<span class="hljs-keyword">void</span> *)&amp;k);
-    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"ptr has the value %p and is stored at %p\n"</span>, ptr, (<span class="hljs-keyword">void</span> *)&amp;ptr);
-    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"The value of the integer pointed to by ptr is %d\n"</span>, *ptr);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n&quot;</span>);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;j has the value %d and is stored at %p\n&quot;</span>, j, (<span class="hljs-type">void</span> *)&amp;j);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;k has the value %d and is stored at %p\n&quot;</span>, k, (<span class="hljs-type">void</span> *)&amp;k);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;ptr has the value %p and is stored at %p\n&quot;</span>, ptr, (<span class="hljs-type">void</span> *)&amp;ptr);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;The value of the integer pointed to by ptr is %d\n&quot;</span>, *ptr);
 
     <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 }

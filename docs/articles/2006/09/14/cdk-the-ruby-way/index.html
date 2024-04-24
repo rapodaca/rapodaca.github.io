@@ -44,19 +44,19 @@
 </code></pre>
 <p>This step is needed due to the way that RJB is currently implemented. If <code>$JAVA_HOME</code> was not already set, it should point to your system's Java installation. Future versions of RJB may find a way to avoid this manual configuration step.</p>
 <p>After RCDK has been installed and your <code>LD_LIBRARY_PATH</code> has been set, using RCDK is straightforward (notice the shortened <code>import</code> statement):</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
 
-SmilesParser = import <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
+<span class="hljs-title class_">SmilesParser</span> = import <span class="hljs-string">&#x27;org.openscience.cdk.smiles.SmilesParser&#x27;</span>
 
-parser = SmilesParser.new
-smiles = <span class="hljs-string">'c1ccccc1'</span>
+parser = <span class="hljs-title class_">SmilesParser</span>.new
+smiles = <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>
 mol = parser.parseSmiles(smiles)
 
 puts mol.getAtomCount <span class="hljs-comment"># =&gt;6</span>
 </code></pre>
 <p>A local jarfile (say, foo-0.1.1.jar) can be added to your classpath with the following:</p>
-<pre><code class="hljs ruby language-ruby">Java::Classpath.add(<span class="hljs-string">'foo-0.1.1.jar'</span>)
+<pre><code class="hljs ruby language-ruby"><span class="hljs-title class_">Java</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Classpath</span>.add(<span class="hljs-string">&#x27;foo-0.1.1.jar&#x27;</span>)
 </code></pre>
 <p>This approach to using the CDK has the added advantage that a Ruby-specific convenience layer could be introduced in a transparent way. For example, a very common chemical informatics task is to interconvert molfiles and SMILES strings. In the future, RCDK may introduce methods that will do these kinds of common tasks automatically, without the need to refer to CDK classes.</p>
 <p>I don't know of <a href="http://www.ruby-forum.com/topic/81021#new">any other attempts</a> to package Java jarfiles as RubyGems for use with the C implementation of Ruby. It's a very simple approach that may be applicable to other Java libraries, especially as more Java programmers turn to Ruby. I have tested RCDK on Mandriva Linux 2006. Other operating systems may have their own configuration issues.</p>

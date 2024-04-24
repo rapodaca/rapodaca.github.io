@@ -37,10 +37,10 @@
 <p>The use of Ruby in chemical informatics, although currenly rare, can be expected to increase. One especially interesting project is <a href="http://chemruby.org">ChemRuby</a>. Although the website is written in Japanese, there is enough English to get a feel for what ChemRuby is all about.</p>
 <p>I was unsuccessful in installing the 1.0 source due to a failed dependency on the Ruby library "dbm". I was, however, able to install version 0.9.3 via RubyGems (<code>sudo gem install chemruby</code>).</p>
 <p>The code snippet below creates cyclohexane from the corresponding SMILES string, and then prints out the the number of atoms and molecular weight.</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'chemruby'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;chemruby&#x27;</span>
 
-mol = SMILES(<span class="hljs-string">'C1CCCCC1'</span>)
+mol = <span class="hljs-variable constant_">SMILES</span>(<span class="hljs-string">&#x27;C1CCCCC1&#x27;</span>)
 
 puts mol.nodes.size
 puts mol.molecular_weight

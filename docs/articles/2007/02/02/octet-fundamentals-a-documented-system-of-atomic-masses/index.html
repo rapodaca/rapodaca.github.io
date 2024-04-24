@@ -37,16 +37,16 @@
 <h2 id="adocumentedsystemofatomicmasses">A Documented System of Atomic Masses</h2>
 <p>Mass and isotopic composition are fundamental atomic properties. In addition to the mass values themselves, the errors of these determinations are also important. Because these quantities are sometimes in dispute, it is essential that they be cross-referenced to the primary literature. Fortunately, a landmark work titled <a href="http://www.iupac.org/publications/pac/2003/7506/7506x0683.html">"Atomic weights of the elements"</a> (AWOTE) accomplishing exactly this objective was published in 2000 by a team led by J. K. Böhlke from the U.S. Geological survey.</p>
 <p>Octet uses an XML representation of the data contained in AWOTE. To view the entire document, <a href="/images/posts/20070202/mass.xml">click here</a>. To illustrate the kind of data included in this document, consider this entry for the element carbon:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">entry</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">"C"</span> <span class="hljs-attr">atomic-number</span>=<span class="hljs-string">"6"</span>&gt;</span>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">entry</span> <span class="hljs-attr">symbol</span>=<span class="hljs-string">&quot;C&quot;</span> <span class="hljs-attr">atomic-number</span>=<span class="hljs-string">&quot;6&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">natural-abundance</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">mass</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"12.0107"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0.0008"</span> /&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">isotope</span> <span class="hljs-attr">mass-number</span>=<span class="hljs-string">"12"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">mass</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"12"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">abundance</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"0.9893"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0.0008"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">mass</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;12.0107&quot;</span> <span class="hljs-attr">error</span>=<span class="hljs-string">&quot;0.0008&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">isotope</span> <span class="hljs-attr">mass-number</span>=<span class="hljs-string">&quot;12&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">mass</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;12&quot;</span> <span class="hljs-attr">error</span>=<span class="hljs-string">&quot;0&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">abundance</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;0.9893&quot;</span> <span class="hljs-attr">error</span>=<span class="hljs-string">&quot;0.0008&quot;</span> /&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">isotope</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">isotope</span> <span class="hljs-attr">mass-number</span>=<span class="hljs-string">"13"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">mass</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"13.003354838"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0.000000005"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">abundance</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"0.0107"</span> <span class="hljs-attr">error</span>=<span class="hljs-string">"0.0008"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">isotope</span> <span class="hljs-attr">mass-number</span>=<span class="hljs-string">&quot;13&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">mass</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;13.003354838&quot;</span> <span class="hljs-attr">error</span>=<span class="hljs-string">&quot;0.000000005&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">abundance</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;0.0107&quot;</span> <span class="hljs-attr">error</span>=<span class="hljs-string">&quot;0.0008&quot;</span> /&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">isotope</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">natural-abundance</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">entry</span>&gt;</span>
@@ -54,11 +54,11 @@
 <p>Carbon has two naturally-occurring stable isotopes, <sup>12</sup>C and <sup>13</sup>C. They have relative abundances of 98.93% and 1.07%, and masses of 12 (exactly) and 13.003354838±0.000000005 unified mass units (u), respectively. Every element from hydrogen to uranium is included, excluding technitium. By reference to AWOTE, the determination of every value in the XML file can be found in the primary literature.</p>
 <h2 id="usingtheatomicmasssystem">Using the Atomic Mass System</h2>
 <p>As a demonstration of Octet's system of atomic masses, consider the following Ruby code:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rjb'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rjb&#x27;</span>
 
-atomic_system=Rjb::import(<span class="hljs-string">'net.sf.octet.model.BasicAtomicSystem'</span>).getInstance
-carbon_distribution=atomic_system.getNaturalAbundance(atomic_system.getAtomicSymbol(<span class="hljs-string">"C"</span>))
+atomic_system=<span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span>(<span class="hljs-string">&#x27;net.sf.octet.model.BasicAtomicSystem&#x27;</span>).getInstance
+carbon_distribution=atomic_system.getNaturalAbundance(atomic_system.getAtomicSymbol(<span class="hljs-string">&quot;C&quot;</span>))
 
 puts carbon_distribution.countNuclei <span class="hljs-comment"># =&gt;2</span>
 puts carbon_distribution.getNucleus(<span class="hljs-number">0</span>).getMassNumber <span class="hljs-comment"># =&gt;12</span>

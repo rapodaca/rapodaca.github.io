@@ -61,7 +61,7 @@ cargo pgx init
 </code></pre>
 <p>The second argument, <code>pg13</code> indicates that the extension will run on Postgres 13. Other options would be <code>pg12</code>, <code>pg11</code> and <code>pg10</code>.</p>
 <p>After compilation (in my hands about 8 minutes), you'll be dropped into a <code>psql</code> shell. Test the extension by calling the <code>hello_my_extension</code> function.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> hello_my_extension() <span class="hljs-keyword">AS</span> <span class="hljs-keyword">test</span>;
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> hello_my_extension() <span class="hljs-keyword">AS</span> test;
 <span class="hljs-comment">--         test         </span>
 <span class="hljs-comment">-- ---------------------</span>
 <span class="hljs-comment">--  Hello, my_extension</span>
@@ -74,8 +74,8 @@ cargo pgx init
 pg_module_magic!();
 
 <span class="hljs-meta">#[pg_extern]</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hello_my_extension</span></span>() -&gt; &amp;<span class="hljs-symbol">'static</span> <span class="hljs-built_in">str</span> {
-    <span class="hljs-string">"Hello, my_extension"</span>
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">hello_my_extension</span>() <span class="hljs-punctuation">-&gt;</span> &amp;<span class="hljs-symbol">&#x27;static</span> <span class="hljs-type">str</span> {
+    <span class="hljs-string">&quot;Hello, my_extension&quot;</span>
 }
 </code></pre>
 <p>Everything from this starting point on is pure Rust. pgx takes care of writing all bindings and all of the infrastructure needed to support an extension.</p>

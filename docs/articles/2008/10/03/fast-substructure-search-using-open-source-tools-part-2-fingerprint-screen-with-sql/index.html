@@ -74,7 +74,7 @@ c1ccccc1O
 <h2 id="addingfingerprintstothedatabase">Adding Fingerprints to the Database</h2>
 <p>To use Open Babel's fingerprints with out database, we need to convert the 32-bit hexadecimal numerical output to 64-bit decimal format. This is not difficult and most programming environments make this very simple. For example, the following Ruby code will convert the third and fourth 32-bit hexadecimal numbers in the benzene fingerprint into a 64-bit decimal number:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; <span class="hljs-string">"0000000000000200"</span>.hex
+irb(main):001:0&gt; <span class="hljs-string">&quot;0000000000000200&quot;</span>.hex
 =&gt; 512
 </code></pre>
 <p>Performing this conversion for every pair of 32-bit hex numbers in each fingerprint gives a set of numbers we can place directly into our database:</p>
@@ -92,9 +92,9 @@ values
 (8, 2305843009213694464, 0, 144115188075855872, 2112, 32768, 8589934592, 8, 0, 131072, 134217728, 0, 0, 0, 131072, 0);
 </code></pre>
 <p>Our table is now ready to be queried:</p>
-<pre><code class="hljs bash language-bash">mysql&gt; select * from fingerprints;
+<pre><code class="hljs bash language-bash">mysql&gt; <span class="hljs-keyword">select</span> * from fingerprints;
 +----+------+---------------------+------+--------------------+------+-------+------------+------+------+--------+-----------+------+------+------+--------+------+
-| id | fp0  | fp1                 | fp2  | fp3                | fp4  | fp5   | fp6        | fp7  | fp8  | fp9    | fp10      | fp11 | fp12 | fp13 | fp14   | fp15 |
+| <span class="hljs-built_in">id</span> | fp0  | fp1                 | fp2  | fp3                | fp4  | fp5   | fp6        | fp7  | fp8  | fp9    | fp10      | fp11 | fp12 | fp13 | fp14   | fp15 |
 
 
 +----+------+---------------------+------+--------------------+------+-------+------------+------+------+--------+-----------+------+------+------+--------+------+
@@ -109,7 +109,7 @@ values
 <p>B<sub>i</sub> &amp; A<sub>i</sub> = B<sub>i</sub></p>
 <p>for all bits i in A and B.</p>
 <p>Let's say we have a two-bit fingerprint consisting of 01 and 11 (binary) in our database. We can use MySQL to test whether the molecule from which the second fingerprint was derived could be a substructure of the molecule from which the first fingerprint was derived with this syntax:</p>
-<pre><code class="hljs bash language-bash">mysql&gt; select 1&amp;3;
+<pre><code class="hljs bash language-bash">mysql&gt; <span class="hljs-keyword">select</span> 1&amp;3;
 +-----+
 | 1&amp;3 |
 +-----+
@@ -120,9 +120,9 @@ values
 <p>The answer is yes, there could be a substructure match because 1&amp;3 = 1.</p>
 <p>We're now ready to perform our first substructure screen using SQL. This consists of selecting all rows for which each of the 16 fingerprint components, when anded together with a query fingerprint component, gives back the original component.</p>
 <p>To see if phenol is a substructure of benzene, we could use the following:</p>
-<pre><code class="hljs bash language-bash">mysql&gt; select id from fingerprints <span class="hljs-built_in">where</span> fp0&amp;0=0 and fp1&amp;512=512 and fp2&amp;0=0 and fp3&amp;0=0 and fp4&amp;2112=2112 and fp5&amp;32768=32768 and fp6&amp;0=0 and fp7&amp;0=0 and fp8&amp;0=0 and fp9&amp;0=0 and fp10&amp;134217728=134217728 and fp11&amp;0=0 and fp12&amp;0=0 and fp13&amp;0=0 and fp14&amp;131072=131072 and fp15&amp;0=0;
+<pre><code class="hljs bash language-bash">mysql&gt; <span class="hljs-keyword">select</span> <span class="hljs-built_in">id</span> from fingerprints <span class="hljs-built_in">where</span> fp0&amp;0=0 and fp1&amp;512=512 and fp2&amp;0=0 and fp3&amp;0=0 and fp4&amp;2112=2112 and fp5&amp;32768=32768 and fp6&amp;0=0 and fp7&amp;0=0 and fp8&amp;0=0 and fp9&amp;0=0 and fp10&amp;134217728=134217728 and fp11&amp;0=0 and fp12&amp;0=0 and fp13&amp;0=0 and fp14&amp;131072=131072 and fp15&amp;0=0;
 +----+
-| id |
+| <span class="hljs-built_in">id</span> |
 +----+
 |  1 | 
 |  2 | 

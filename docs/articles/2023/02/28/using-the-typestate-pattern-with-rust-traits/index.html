@@ -52,16 +52,16 @@
 </figure>
 <h2 id="firstpasswithconcretetypes">First Pass with Concrete Types</h2>
 <p>A simple approach would be to model <code>Builder</code> on a struct with two mutable methods, <code>push</code> and <code>finish</code>. The former would accept a <code>char</code> argument, causing mutation of the product under construction; the latter would return the completed product without mutation. The optional return type of <code>push</code> allows <code>Builder</code> to finish after reaching some pre-determined internal state. Similarly, clients can request the product, if available, by calling <code>finish</code>.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Builder</span></span>;
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Foo</span></span>;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Builder</span>;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Foo</span>;
 
-<span class="hljs-keyword">impl</span> Builder {
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Foo&gt; {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Builder</span> {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Foo&gt; {
         <span class="hljs-comment">// 💥 Runtime error if this is called after error</span>
         todo!()
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">finish</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Foo&gt;{
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">finish</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Foo&gt;{
         <span class="hljs-comment">// 💥 Should further pushes be allowed after an error or a previous</span>
         <span class="hljs-comment">// finish?</span>
         todo!()
@@ -76,133 +76,133 @@
 </ul>
 <p>We could make the answers to these questions part of the documentation for the crate. Unfortunately, this would fail if clients didn't read the documentation, or changes to the code rendered the documentation incorrect.</p>
 <p>A sturdier approach would eliminate the possibility of misusing <code>Builder</code> altogether. For example, the mutable borrow in <code>finish</code> could be replaced with a move. The compiler now prevents any use of <code>Builder</code>, mutable or otherwise, after <code>finish</code> is called. Entering the "finished" state destroys the <code>Builder</code>.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Builder</span></span>;
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Foo</span></span>;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Builder</span>;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Foo</span>;
 
-<span class="hljs-keyword">impl</span> Builder {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Builder</span> {
     <span class="hljs-comment">// None indicates that the </span>
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Foo&gt; {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Foo&gt; {
         <span class="hljs-comment">// 💥 this can still be called after a previous error</span>
         todo!()
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">finish</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Foo&gt; {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">finish</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Foo&gt; {
         <span class="hljs-comment">// 👍 Typestate: use after finish is no longer possible</span>
         todo!()
     }
 }
 </code></pre>
 <p>But this leaves the headache of dealing with calls to <code>push</code> after an error. This problem too can be eliminated by replacing the mutable borrow with a move. But to support that, we need to replace the return type of <code>push</code>. If <code>Builder</code> is in fact not done, clients need a way to keep pushing. That can be accomplished with a return type of <code>Target</code>. Builders that are done return the <code>Target::Product</code> variant, or the <code>Target::Builder</code> variant otherwise.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Builder</span></span>;
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Foo</span></span>;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Builder</span>;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Foo</span>;
 
-<span class="hljs-keyword">impl</span> Builder {
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Builder</span> {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target {
         <span class="hljs-comment">// 👍 Typestate: push can never be called twice.</span>
         todo!()
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">finish</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Foo&gt; {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">finish</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Foo&gt; {
         <span class="hljs-comment">// 👍 Typestate: use after finish is no longer possible</span>
         todo!()
     }
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Target</span></span> {
-    Builder(Builder),
-    Product(Foo)
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Target</span> {
+    <span class="hljs-title function_ invoke__">Builder</span>(Builder),
+    <span class="hljs-title function_ invoke__">Product</span>(Foo)
 }
 </code></pre>
 <p>This small bit of infrastructure enables something very useful: the clean separation between the construction of a product and the management of the character stream that directs it. No matter how complex the process of managing the flow of characters becomes, <code>Builder</code> remains completely decoupled from it.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Error</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">enum</span> <span class="hljs-title class_">Error</span> {
     NotDone
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">build</span></span>(target: Target) -&gt; <span class="hljs-built_in">Result</span>&lt;Foo, Error&gt; {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">build</span>(target: Target) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;Foo, Error&gt; {
     <span class="hljs-comment">// in production, char comes from an iterator</span>
-    <span class="hljs-keyword">let</span> <span class="hljs-built_in">char</span> = <span class="hljs-literal">Some</span>(<span class="hljs-string">'#'</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">char</span> = <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-string">&#x27;#&#x27;</span>);
 
     <span class="hljs-keyword">match</span> target {
-        Target::Builder(builder) =&gt; {
-            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-built_in">char</span>) = <span class="hljs-built_in">char</span> {
-                build(builder.push(<span class="hljs-built_in">char</span>))
+        Target::<span class="hljs-title function_ invoke__">Builder</span>(builder) =&gt; {
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(<span class="hljs-type">char</span>) = <span class="hljs-type">char</span> {
+                <span class="hljs-title function_ invoke__">build</span>(builder.<span class="hljs-title function_ invoke__">push</span>(<span class="hljs-type">char</span>))
             } <span class="hljs-keyword">else</span> {
-                <span class="hljs-literal">Ok</span>(builder.finish().ok_or(Error::NotDone)?)
+                <span class="hljs-title function_ invoke__">Ok</span>(builder.<span class="hljs-title function_ invoke__">finish</span>().<span class="hljs-title function_ invoke__">ok_or</span>(Error::NotDone)?)
             }
         }
-        Target::Product(product) =&gt; <span class="hljs-literal">Ok</span>(product)
+        Target::<span class="hljs-title function_ invoke__">Product</span>(product) =&gt; <span class="hljs-title function_ invoke__">Ok</span>(product)
     }
 }
 </code></pre>
 <p>This design is certainly viable, and this is where most discussions of the typestate pattern end. But what happens if we want <code>build</code> to control more than just the production of values of type <code>Foo</code>?</p>
 <h2 id="thebuildertrait">The Builder Trait</h2>
 <p>One way to generalize the construction of products would be to replace the <code>Builder</code> struct with a <code>Builder</code> trait.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Builder</span></span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">trait</span> <span class="hljs-title class_">Builder</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">finish</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Foo&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">finish</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Foo&gt;;
 }
 </code></pre>
 <p>Unfortunately, making this change is not going to be simple. We need a way to deal with the problem that values associated with enum variants must have concrete types. Bare traits are not allowed. Attempting to associate an enum variant with a bare trait yields the compiler error: "trait objects must include the <code>dyn</code> keyword rustc(<a href="https://doc.rust-lang.org/error_codes/E0782.html">E0782</a>)".</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Target</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">enum</span> <span class="hljs-title class_">Target</span> {
     <span class="hljs-comment">// 💥 dyn keyword, but how?</span>
-    Builder(Builder),
-    Product(Foo)
+    <span class="hljs-title function_ invoke__">Builder</span>(Builder),
+    <span class="hljs-title function_ invoke__">Product</span>(Foo)
 }
 </code></pre>
 <p>This error and the proposed solution, "add <code>dyn</code> keyword before this trait", are nevertheless quite misleading. Just prefixing <code>Builder</code> with the <code>dyn</code> keyword won't work. There is one and only one way to take the compiler's advice, and that is to replace <code>Builder</code> with <code>Box&lt;dyn Builder&gt;</code>.</p>
 <h2 id="boxedtraitobject">Boxed Trait Object</h2>
 <p>The following example shows how to associate a <a href="https://bennett.dev/dont-use-boxed-trait-objects-for-struct-internals/">"boxed trait object"</a> with an enum variant.</p>
-<pre><code class="hljs rust language-rust">  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Foo</span></span>;
+<pre><code class="hljs rust language-rust">  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Foo</span>;
 
-<span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Builder</span></span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target;
+<span class="hljs-keyword">trait</span> <span class="hljs-title class_">Builder</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">finish</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Foo&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">finish</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Foo&gt;;
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Target</span></span> {
-    <span class="hljs-comment">// 💥 This won't ultimately work.</span>
-    Builder(<span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Builder&gt;),
-    Product(Foo)
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Target</span> {
+    <span class="hljs-comment">// 💥 This won&#x27;t ultimately work.</span>
+    <span class="hljs-title function_ invoke__">Builder</span>(<span class="hljs-type">Box</span>&lt;<span class="hljs-keyword">dyn</span> Builder&gt;),
+    <span class="hljs-title function_ invoke__">Product</span>(Foo)
 }
 </code></pre>
 <p>But this solution is doomed to failure. Although compilation finishes without error, it's no longer possible to use <code>Target</code> as before in the <code>build</code> function.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Foo</span></span>;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Foo</span>;
 
-<span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Builder</span></span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target;
+<span class="hljs-keyword">trait</span> <span class="hljs-title class_">Builder</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target;
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Target</span></span> {
-    Builder(<span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Builder&gt;),
-    Product(Foo)
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Target</span> {
+    <span class="hljs-title function_ invoke__">Builder</span>(<span class="hljs-type">Box</span>&lt;<span class="hljs-keyword">dyn</span> Builder&gt;),
+    <span class="hljs-title function_ invoke__">Product</span>(Foo)
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Error</span></span> {
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Error</span> {
     NotDone
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">build</span></span>(target: Target) -&gt; <span class="hljs-built_in">Result</span>&lt;Foo, Error&gt; {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">build</span>(target: Target) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;Foo, Error&gt; {
     <span class="hljs-comment">// in production, this comes from an iterator</span>
-    <span class="hljs-keyword">let</span> <span class="hljs-built_in">char</span> = <span class="hljs-literal">Some</span>(<span class="hljs-string">'#'</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">char</span> = <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-string">&#x27;#&#x27;</span>);
 
     <span class="hljs-keyword">match</span> target {
-        Target::Builder(builder) =&gt; {
-            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-built_in">char</span>) = <span class="hljs-built_in">char</span> {
-                build(builder.push(<span class="hljs-built_in">char</span>))
+        Target::<span class="hljs-title function_ invoke__">Builder</span>(builder) =&gt; {
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(<span class="hljs-type">char</span>) = <span class="hljs-type">char</span> {
+                <span class="hljs-title function_ invoke__">build</span>(builder.<span class="hljs-title function_ invoke__">push</span>(<span class="hljs-type">char</span>))
             } <span class="hljs-keyword">else</span> {
-                <span class="hljs-comment">// 💥 method 'done' not found on Box&lt;dyn Builder&gt;</span>
-                <span class="hljs-literal">Ok</span>(builder.done().ok_or(Error::NotDone)?)
+                <span class="hljs-comment">// 💥 method &#x27;done&#x27; not found on Box&lt;dyn Builder&gt;</span>
+                <span class="hljs-title function_ invoke__">Ok</span>(builder.<span class="hljs-title function_ invoke__">done</span>().<span class="hljs-title function_ invoke__">ok_or</span>(Error::NotDone)?)
             }
         }
-        Target::Product(product) =&gt; <span class="hljs-literal">Ok</span>(product)
+        Target::<span class="hljs-title function_ invoke__">Product</span>(product) =&gt; <span class="hljs-title function_ invoke__">Ok</span>(product)
     }
 }
 </code></pre>
 <p>The <code>push</code> method no longer works because it's not defined on <code>Box&lt;dyn Builder&gt;</code>. We could satisfy the compiler by adding an implementation of <code>Builder</code> to <code>Box&lt;dyn Builder&gt;</code>, but actually implementing the resulting method is impossible. Although methods can be called on boxed trait objects (the <code>self</code> parameter here), it's impossible to access any attributes from them. </p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">impl</span> Builder <span class="hljs-keyword">for</span> <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> Builder&gt; {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">impl</span> <span class="hljs-title class_">Builder</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Box</span>&lt;<span class="hljs-keyword">dyn</span> Builder&gt; {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target {
         <span class="hljs-comment">// 💥 How to implement this?</span>
         todo!()
     }
@@ -211,75 +211,75 @@
 <p>The problems don't end there. Once boxed, a value can never be unboxed. Even if we could somehow cobble together a way to give <code>push</code> the data it needs, moving <code>self</code> as required by the <code>build</code> function is impossible.</p>
 <h2 id="traittypeparameter">Trait Type Parameter</h2>
 <p>Boxed trait objects are clearly a dead end. Fortunately, Rust offers another way to associate a trait with an enum variant: type parameters. The following example shows how.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Builder</span></span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target&lt;Builder&gt;;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">trait</span> <span class="hljs-title class_">Builder</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target&lt;Builder&gt;;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">finish</span></span>(<span class="hljs-keyword">self</span>) -&gt; Foo
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">finish</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> Foo
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Target</span></span>&lt;B: Builder&gt; {
-    Builder(B),
-    Product(Foo)
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Target</span>&lt;B: Builder&gt; {
+    <span class="hljs-title function_ invoke__">Builder</span>(B),
+    <span class="hljs-title function_ invoke__">Product</span>(Foo)
 }
 </code></pre>
 <p>Adding the type parameter <code>B</code> makes it possible to use <code>Target</code> with <code>build</code> to get very close to a workable solution.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Foo</span></span>;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Foo</span>;
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Error</span></span> {
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Error</span> {
     NotDone
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">build</span></span>&lt;B: Builder&gt;(target: Target&lt;B&gt;) -&gt; <span class="hljs-built_in">Result</span>&lt;Foo, Error&gt; {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">build</span>&lt;B: Builder&gt;(target: Target&lt;B&gt;) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;Foo, Error&gt; {
     <span class="hljs-comment">// in production, this comes from an iterator</span>
-    <span class="hljs-keyword">let</span> <span class="hljs-built_in">char</span> = <span class="hljs-literal">Some</span>(<span class="hljs-string">'#'</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">char</span> = <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-string">&#x27;#&#x27;</span>);
 
     <span class="hljs-keyword">match</span> target {
-        Target::Builder(builder) =&gt; {
-            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-built_in">char</span>) = <span class="hljs-built_in">char</span> {
-                build(builder.push(<span class="hljs-built_in">char</span>))
+        Target::<span class="hljs-title function_ invoke__">Builder</span>(builder) =&gt; {
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(<span class="hljs-type">char</span>) = <span class="hljs-type">char</span> {
+                <span class="hljs-title function_ invoke__">build</span>(builder.<span class="hljs-title function_ invoke__">push</span>(<span class="hljs-type">char</span>))
             } <span class="hljs-keyword">else</span> {
-                <span class="hljs-literal">Ok</span>(builder.done().ok_or(Error::NotDone)?)
+                <span class="hljs-title function_ invoke__">Ok</span>(builder.<span class="hljs-title function_ invoke__">done</span>().<span class="hljs-title function_ invoke__">ok_or</span>(Error::NotDone)?)
             }
         }
-        Target::Product(product) =&gt; <span class="hljs-literal">Ok</span>(product)
+        Target::<span class="hljs-title function_ invoke__">Product</span>(product) =&gt; <span class="hljs-title function_ invoke__">Ok</span>(product)
     }
 }
 </code></pre>
 <p>Although the above listing compiles and will dutifully produce values of type <code>Foo</code> given the right implementations, <code>build</code> can't produce values of any other type. What's needed is a way to abstract the kind of product that <code>Builder</code> returns.</p>
 <h2 id="abstractingproducttype">Abstracting Product Type</h2>
 <p>Type parameters can also be used with traits. The following listing illustrates how to do this with <code>Builder</code> to abstract the type of product constructed.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">FooBuilder</span></span>;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">FooBuilder</span>;
 
-<span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Builder</span></span>&lt;P&gt;: <span class="hljs-built_in">Sized</span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target&lt;P, <span class="hljs-keyword">Self</span>&gt;;
+<span class="hljs-keyword">trait</span> <span class="hljs-title class_">Builder</span>&lt;P&gt;: <span class="hljs-built_in">Sized</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target&lt;P, <span class="hljs-keyword">Self</span>&gt;;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">done</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;P&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">done</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;P&gt;;
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Target</span></span>&lt;T, B: Builder&lt;T&gt;&gt; {
-    Builder(B),
-    Product(T)
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Target</span>&lt;T, B: Builder&lt;T&gt;&gt; {
+    <span class="hljs-title function_ invoke__">Builder</span>(B),
+    <span class="hljs-title function_ invoke__">Product</span>(T)
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Error</span></span> {
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Error</span> {
     NotDone
 }
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Product</span></span>;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Product</span>;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">build</span></span>&lt;P, B: Builder&lt;P&gt;&gt;(target: Target&lt;P, B&gt;) -&gt; <span class="hljs-built_in">Result</span>&lt;P, Error&gt; {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">build</span>&lt;P, B: Builder&lt;P&gt;&gt;(target: Target&lt;P, B&gt;) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;P, Error&gt; {
     <span class="hljs-comment">// in production, this comes from an iterator</span>
-    <span class="hljs-keyword">let</span> <span class="hljs-built_in">char</span> = <span class="hljs-literal">Some</span>(<span class="hljs-string">'#'</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">char</span> = <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-string">&#x27;#&#x27;</span>);
 
     <span class="hljs-keyword">match</span> target {
-        Target::Builder(builder) =&gt; {
-            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-built_in">char</span>) = <span class="hljs-built_in">char</span> {
-                build(builder.push(<span class="hljs-built_in">char</span>))
+        Target::<span class="hljs-title function_ invoke__">Builder</span>(builder) =&gt; {
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(<span class="hljs-type">char</span>) = <span class="hljs-type">char</span> {
+                <span class="hljs-title function_ invoke__">build</span>(builder.<span class="hljs-title function_ invoke__">push</span>(<span class="hljs-type">char</span>))
             } <span class="hljs-keyword">else</span> {
-                <span class="hljs-literal">Ok</span>(builder.done().ok_or(Error::NotDone)?)
+                <span class="hljs-title function_ invoke__">Ok</span>(builder.<span class="hljs-title function_ invoke__">done</span>().<span class="hljs-title function_ invoke__">ok_or</span>(Error::NotDone)?)
             }
         }
-        Target::Product(product) =&gt; <span class="hljs-literal">Ok</span>(product)
+        Target::<span class="hljs-title function_ invoke__">Product</span>(product) =&gt; <span class="hljs-title function_ invoke__">Ok</span>(product)
     }
 }
 </code></pre>
@@ -290,132 +290,132 @@
 </blockquote>
 <p>One consequence of binding to <code>Sized</code> is that borrowing is no longer possible. But that's of no concern here because the point was to prevent borrowing in the first place.</p>
 <p>The new <code>Builder&lt;P&gt;</code> trait works until we try to actually <em>implement</em> <code>Builder</code>:</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">FooBuilder</span></span>;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">FooBuilder</span>;
 
-<span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Builder</span></span>&lt;P&gt;: <span class="hljs-built_in">Sized</span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target&lt;P, <span class="hljs-keyword">Self</span>&gt;;
+<span class="hljs-keyword">trait</span> <span class="hljs-title class_">Builder</span>&lt;P&gt;: <span class="hljs-built_in">Sized</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target&lt;P, <span class="hljs-keyword">Self</span>&gt;;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">done</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;P&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">done</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;P&gt;;
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Target</span></span>&lt;T, B: Builder&lt;T&gt;&gt; {
-    Builder(B),
-    Product(T)
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Target</span>&lt;T, B: Builder&lt;T&gt;&gt; {
+    <span class="hljs-title function_ invoke__">Builder</span>(B),
+    <span class="hljs-title function_ invoke__">Product</span>(T)
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Error</span></span> {
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Error</span> {
     NotDone
 }
 
-<span class="hljs-keyword">impl</span>&lt;P&gt; Builder&lt;P&gt; <span class="hljs-keyword">for</span> FooBuilder {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target&lt;P, <span class="hljs-keyword">Self</span>&gt; {
+<span class="hljs-keyword">impl</span>&lt;P&gt; Builder&lt;P&gt; <span class="hljs-keyword">for</span> <span class="hljs-title class_">FooBuilder</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target&lt;P, <span class="hljs-keyword">Self</span>&gt; {
         todo!()
     }
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">done</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;P&gt; {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">done</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;P&gt; {
         <span class="hljs-comment">// 💥 How to implement this method?</span>
         <span class="hljs-comment">// We need to return a type parameter, not a value!</span>
         todo!()
     }
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">build</span></span>&lt;P, B: Builder&lt;P&gt;&gt;(target: Target&lt;P, B&gt;) -&gt; <span class="hljs-built_in">Result</span>&lt;P, Error&gt; {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">build</span>&lt;P, B: Builder&lt;P&gt;&gt;(target: Target&lt;P, B&gt;) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;P, Error&gt; {
     <span class="hljs-comment">// in production, this comes from an iterator</span>
-    <span class="hljs-keyword">let</span> <span class="hljs-built_in">char</span> = <span class="hljs-literal">Some</span>(<span class="hljs-string">'#'</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">char</span> = <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-string">&#x27;#&#x27;</span>);
 
     <span class="hljs-keyword">match</span> target {
-        Target::Builder(builder) =&gt; {
-            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-built_in">char</span>) = <span class="hljs-built_in">char</span> {
-                build(builder.push(<span class="hljs-built_in">char</span>))
+        Target::<span class="hljs-title function_ invoke__">Builder</span>(builder) =&gt; {
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(<span class="hljs-type">char</span>) = <span class="hljs-type">char</span> {
+                <span class="hljs-title function_ invoke__">build</span>(builder.<span class="hljs-title function_ invoke__">push</span>(<span class="hljs-type">char</span>))
             } <span class="hljs-keyword">else</span> {
-                <span class="hljs-literal">Ok</span>(builder.done().ok_or(Error::NotDone)?)
+                <span class="hljs-title function_ invoke__">Ok</span>(builder.<span class="hljs-title function_ invoke__">done</span>().<span class="hljs-title function_ invoke__">ok_or</span>(Error::NotDone)?)
             }
         }
-        Target::Product(product) =&gt; <span class="hljs-literal">Ok</span>(product)
+        Target::<span class="hljs-title function_ invoke__">Product</span>(product) =&gt; <span class="hljs-title function_ invoke__">Ok</span>(product)
     }
 }
 </code></pre>
 <p>We solve this problem by replacing the type parameter <code>P</code>, with the actual type being built:</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Builder</span></span>&lt;P&gt;: <span class="hljs-built_in">Sized</span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target&lt;P, <span class="hljs-keyword">Self</span>&gt;;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">trait</span> <span class="hljs-title class_">Builder</span>&lt;P&gt;: <span class="hljs-built_in">Sized</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target&lt;P, <span class="hljs-keyword">Self</span>&gt;;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">done</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;P&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">done</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;P&gt;;
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Target</span></span>&lt;T, B: Builder&lt;T&gt;&gt; {
-    Builder(B),
-    Product(T)
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Target</span>&lt;T, B: Builder&lt;T&gt;&gt; {
+    <span class="hljs-title function_ invoke__">Builder</span>(B),
+    <span class="hljs-title function_ invoke__">Product</span>(T)
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Error</span></span> {
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Error</span> {
     NotDone
 }
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Foo</span></span>;
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Bar</span></span>;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Foo</span>;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Bar</span>;
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">FooBuilder</span></span>;
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BarBuilder</span></span>;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">FooBuilder</span>;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">BarBuilder</span>;
 
-<span class="hljs-keyword">impl</span> Builder&lt;Foo&gt; <span class="hljs-keyword">for</span> FooBuilder {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target&lt;Foo, <span class="hljs-keyword">Self</span>&gt; {
-        Target::Product(Foo)
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Builder</span>&lt;Foo&gt; <span class="hljs-keyword">for</span> <span class="hljs-title class_">FooBuilder</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target&lt;Foo, <span class="hljs-keyword">Self</span>&gt; {
+        Target::<span class="hljs-title function_ invoke__">Product</span>(Foo)
     }
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">done</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Foo&gt; {
-        <span class="hljs-literal">Some</span>(Foo)
-    }
-}
-
-<span class="hljs-keyword">impl</span> Builder&lt;Bar&gt; <span class="hljs-keyword">for</span> BarBuilder {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target&lt;Bar, <span class="hljs-keyword">Self</span>&gt; {
-        Target::Product(Bar)
-    }
-
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">done</span></span>(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Bar&gt; {
-        <span class="hljs-literal">Some</span>(Bar)
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">done</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Foo&gt; {
+        <span class="hljs-title function_ invoke__">Some</span>(Foo)
     }
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">test</span></span>() {
-    <span class="hljs-keyword">let</span> foo_builder = FooBuilder;
-    <span class="hljs-keyword">let</span> foo = build(Target::Builder(foo_builder));
-    <span class="hljs-keyword">let</span> bar_builder = BarBuilder;
-    <span class="hljs-keyword">let</span> bar = build(Target::Builder(bar_builder));
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Builder</span>&lt;Bar&gt; <span class="hljs-keyword">for</span> <span class="hljs-title class_">BarBuilder</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target&lt;Bar, <span class="hljs-keyword">Self</span>&gt; {
+        Target::<span class="hljs-title function_ invoke__">Product</span>(Bar)
+    }
+
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">done</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Bar&gt; {
+        <span class="hljs-title function_ invoke__">Some</span>(Bar)
+    }
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">build</span></span>&lt;P, B: Builder&lt;P&gt;&gt;(target: Target&lt;P, B&gt;) -&gt; <span class="hljs-built_in">Result</span>&lt;P, Error&gt; {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">test</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">foo_builder</span> = FooBuilder;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">foo</span> = <span class="hljs-title function_ invoke__">build</span>(Target::<span class="hljs-title function_ invoke__">Builder</span>(foo_builder));
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">bar_builder</span> = BarBuilder;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">bar</span> = <span class="hljs-title function_ invoke__">build</span>(Target::<span class="hljs-title function_ invoke__">Builder</span>(bar_builder));
+}
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">build</span>&lt;P, B: Builder&lt;P&gt;&gt;(target: Target&lt;P, B&gt;) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;P, Error&gt; {
     <span class="hljs-comment">// in production, this comes from an iterator</span>
-    <span class="hljs-keyword">let</span> <span class="hljs-built_in">char</span> = <span class="hljs-literal">Some</span>(<span class="hljs-string">'#'</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">char</span> = <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-string">&#x27;#&#x27;</span>);
 
     <span class="hljs-keyword">match</span> target {
-        Target::Builder(builder) =&gt; {
-            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-built_in">char</span>) = <span class="hljs-built_in">char</span> {
-                build(builder.push(<span class="hljs-built_in">char</span>))
+        Target::<span class="hljs-title function_ invoke__">Builder</span>(builder) =&gt; {
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(<span class="hljs-type">char</span>) = <span class="hljs-type">char</span> {
+                <span class="hljs-title function_ invoke__">build</span>(builder.<span class="hljs-title function_ invoke__">push</span>(<span class="hljs-type">char</span>))
             } <span class="hljs-keyword">else</span> {
-                <span class="hljs-literal">Ok</span>(builder.done().ok_or(Error::NotDone)?)
+                <span class="hljs-title function_ invoke__">Ok</span>(builder.<span class="hljs-title function_ invoke__">done</span>().<span class="hljs-title function_ invoke__">ok_or</span>(Error::NotDone)?)
             }
         }
-        Target::Product(product) =&gt; <span class="hljs-literal">Ok</span>(product)
+        Target::<span class="hljs-title function_ invoke__">Product</span>(product) =&gt; <span class="hljs-title function_ invoke__">Ok</span>(product)
     }
 }
 </code></pre>
 <h2 id="moretypestate">More Typestate?</h2>
 <p>How much further should the idea of typestate be taken with this example? It's possible to call <code>finish</code> when a <code>Builder</code> isn't actually finished, ultimately yielding a runtime error. Maybe this can be avoided by splitting the <code>Builder</code> trait further:</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Push</span></span>&lt;T, B: Branch&lt;T, <span class="hljs-keyword">Self</span>&gt;&gt;: <span class="hljs-built_in">Sized</span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target&lt;T, <span class="hljs-keyword">Self</span>, B&gt;;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">trait</span> <span class="hljs-title class_">Push</span>&lt;T, B: Branch&lt;T, <span class="hljs-keyword">Self</span>&gt;&gt;: <span class="hljs-built_in">Sized</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target&lt;T, <span class="hljs-keyword">Self</span>, B&gt;;
 }
 
-<span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Branch</span></span>&lt;T, P: Push&lt;T, <span class="hljs-keyword">Self</span>&gt;&gt;: <span class="hljs-built_in">Sized</span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(<span class="hljs-keyword">self</span>, <span class="hljs-built_in">char</span>: <span class="hljs-built_in">char</span>) -&gt; Target&lt;T, P, <span class="hljs-keyword">Self</span>&gt;;
+<span class="hljs-keyword">trait</span> <span class="hljs-title class_">Branch</span>&lt;T, P: Push&lt;T, <span class="hljs-keyword">Self</span>&gt;&gt;: <span class="hljs-built_in">Sized</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(<span class="hljs-keyword">self</span>, <span class="hljs-type">char</span>: <span class="hljs-type">char</span>) <span class="hljs-punctuation">-&gt;</span> Target&lt;T, P, <span class="hljs-keyword">Self</span>&gt;;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">finish</span></span>(<span class="hljs-keyword">self</span>) -&gt; T;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">finish</span>(<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> T;
 }
 
-<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Target</span></span>&lt;T, P: Push&lt;T, B&gt;, B: Branch&lt;T, P&gt;&gt; {
-    Push(P),
-    Branch(B),
-    Product(T)
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">Target</span>&lt;T, P: Push&lt;T, B&gt;, B: Branch&lt;T, P&gt;&gt; {
+    <span class="hljs-title function_ invoke__">Push</span>(P),
+    <span class="hljs-title function_ invoke__">Branch</span>(B),
+    <span class="hljs-title function_ invoke__">Product</span>(T)
 }
 </code></pre>
 <p>This two-trait approach would make it impossible to call <code>finish</code> until the previous state permits it by retuning a <code>Target::Branch</code> variant. This seems safer, but at what cost? The design becomes more complex, with two traits rather than one. The type parameter signature is also busier. But the main reason to take this no further is that doing so does not solve the problem of runtime errors. A client expecting a branch state but receiving a push state will still generate a runtime error. Vanishing returns suggest we're done — for now at least.</p>

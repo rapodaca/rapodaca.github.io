@@ -46,7 +46,7 @@
 </code></pre>
 <p>Next, let's create a directory to hold the various components we'll need during the build process:</p>
 <pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> /your/projects/directory
-mkdir jinchi
+<span class="hljs-built_in">mkdir</span> jinchi
 <span class="hljs-built_in">cd</span> jinchi
 </code></pre>
 <p>Next, we'll download and unpack the InChI source distribution:</p>
@@ -86,23 +86,23 @@ Options:
 <h2 id="step3buildthejinchijarfile">Step 3: Build the JInChI Jarfile</h2>
 <p>We begin by moving up the the root directory of our jinchi project, creating a new directory to hold our java-specific files (the <strong>JInChI.class</strong> file and the NestedVM runtime), and copying them into it:</p>
 <pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> ../../..
-mkdir jinchi-1.0.2b.1
-mv InChI-1-software-1-02-beta/cInChI/gcc_makefile/JInChI.class jinchi-1.0.2b.1/
-cp -r /your/path/to/nestedvm/build/org/ jinchi-1.0.2b.1
+<span class="hljs-built_in">mkdir</span> jinchi-1.0.2b.1
+<span class="hljs-built_in">mv</span> InChI-1-software-1-02-beta/cInChI/gcc_makefile/JInChI.class jinchi-1.0.2b.1/
+<span class="hljs-built_in">cp</span> -r /your/path/to/nestedvm/build/org/ jinchi-1.0.2b.1
 </code></pre>
 <p>An executable jarfile generally needs a manifest to point to the main execution class. One way to do that is to first create a manifest:</p>
 <pre><code class="hljs bash language-bash">vi jinchi-1.0.2b.1/MANIFEST.MF
 </code></pre>
 <p>It's essential that this file end with a newline.</p>
-<pre><code class="hljs bash language-bash">cat jinchi-1.0.2b.1/MANIFEST.MF
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cat</span> jinchi-1.0.2b.1/MANIFEST.MF
 Main-Class: JInChI
 </code></pre>
 <p>With everything in place, we can create the jarfile:</p>
 <pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> jinchi-1.0.2b.1/
-ls
+<span class="hljs-built_in">ls</span>
 JInChI.class  MANIFEST.MF  org/
 jar -cfm jinchi-1.0.2b.1.jar MANIFEST.MF *
-ls
+<span class="hljs-built_in">ls</span>
 jinchi-1.0.2b.1.jar  JInChI.class  MANIFEST.MF  org/
 </code></pre>
 <p>We've successfully converted standard C source code into a platform independent executable jarfile. But does it work?</p>

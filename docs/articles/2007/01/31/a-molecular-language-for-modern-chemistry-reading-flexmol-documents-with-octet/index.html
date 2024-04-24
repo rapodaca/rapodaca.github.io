@@ -51,11 +51,11 @@ ruby test.rb
 </code></pre>
 <p>You can get more hands-on experience with loading and processing the monolaterol FlexMol document using interactive Ruby (irb). For example:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'reader'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;reader&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; r=Reader.new
 =&gt; <span class="hljs-comment">#&lt;Reader:0x2b9ab173a1f0 @xml_reader=#&lt;#&lt;Class:0x2b9ab1741680&gt;:0x2b9ab1736690&gt;, @handler=#&lt;#&lt;Class:0x2b9ab1741680&gt;:0x2b9ab1736e10&gt;, @builder=#&lt;#&lt;Class:0x2b9ab1741680&gt;:0x2b9ab1736b90&gt;&gt;</span>
-irb(main):003:0&gt; mol=r.read_file <span class="hljs-string">'s_monolaterol.xml'</span>
+irb(main):003:0&gt; mol=r.read_file <span class="hljs-string">&#x27;s_monolaterol.xml&#x27;</span>
 =&gt; <span class="hljs-comment">#&lt;#&lt;Class:0x2b9ab1741680&gt;:0x2b9ab172cd48&gt;</span>
 irb(main):004:0&gt; mol.countAtoms
 =&gt; 21

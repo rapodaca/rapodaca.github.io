@@ -73,11 +73,11 @@
 </ul>
 <h2 id="javascripthtmlcss">JavaScript/HTML/CSS</h2>
 <p>Two files set up the browser environment: an HTML file and a JavaScript file.</p>
-<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">head</span> <span class="hljs-attr">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span> <span class="hljs-attr">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;utf-8&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Cereus Editor<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css">
       <span class="hljs-selector-tag">body</span> {
         <span class="hljs-attribute">margin</span>: <span class="hljs-number">2em</span>;
       }
@@ -94,50 +94,50 @@
   <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Smival<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">placeholder</span>=<span class="hljs-string">"Enter a SMILES..."</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">input</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"./validate.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">placeholder</span>=<span class="hljs-string">&quot;Enter a SMILES...&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">input</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;module&quot;</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;./validate.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
 </code></pre>
 <p>The HTML file (listed above) sets up the UI and invokes the <code>validate.js</code> script as an ES6 module. Aside from these two tasks, it's just HTML5 boilerplate.</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> path = <span class="hljs-string">'/target/wasm32-unknown-unknown/release/smival.wasm'</span>;
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> path = <span class="hljs-string">&#x27;/target/wasm32-unknown-unknown/release/smival.wasm&#x27;</span>;
 
-<span class="hljs-keyword">const</span> read_smiles = <span class="hljs-function"><span class="hljs-params">instance</span> =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">read_smiles</span> = instance =&gt; {
   <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-params">smiles</span> =&gt;</span> {
-    <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> TextEncoder();
-    <span class="hljs-keyword">const</span> encoded = encoder.encode(<span class="hljs-string">`<span class="hljs-subst">${smiles}</span>\0`</span>);
-    <span class="hljs-keyword">const</span> length = encoded.length;
-    <span class="hljs-keyword">const</span> pString = instance.exports.alloc(length);
-    <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(
-      instance.exports.memory.buffer, pString, length
+    <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextEncoder</span>();
+    <span class="hljs-keyword">const</span> encoded = encoder.<span class="hljs-title function_">encode</span>(<span class="hljs-string">`<span class="hljs-subst">${smiles}</span>\0`</span>);
+    <span class="hljs-keyword">const</span> length = encoded.<span class="hljs-property">length</span>;
+    <span class="hljs-keyword">const</span> pString = instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">alloc</span>(length);
+    <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(
+      instance.<span class="hljs-property">exports</span>.<span class="hljs-property">memory</span>.<span class="hljs-property">buffer</span>, pString, length
     );
 
-    view.set(encoded);
+    view.<span class="hljs-title function_">set</span>(encoded);
 
-    <span class="hljs-keyword">return</span> instance.exports.read_smiles(pString);
+    <span class="hljs-keyword">return</span> instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">read_smiles</span>(pString);
   };
 };
 
-<span class="hljs-keyword">const</span> watch = <span class="hljs-function"><span class="hljs-params">instance</span> =&gt;</span> {
-  <span class="hljs-keyword">const</span> read = read_smiles(instance);
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">watch</span> = instance =&gt; {
+  <span class="hljs-keyword">const</span> read = <span class="hljs-title function_">read_smiles</span>(instance);
 
-  <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'input'</span>).addEventListener(<span class="hljs-string">'input'</span>, e =&gt; {
+  <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;input&#x27;</span>).<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;input&#x27;</span>, <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> {
     <span class="hljs-keyword">const</span> { target } = e;
 
-    <span class="hljs-keyword">if</span> (read(target.value) === <span class="hljs-number">0</span>) {
-      target.classList.remove(<span class="hljs-string">'invalid'</span>);
+    <span class="hljs-keyword">if</span> (<span class="hljs-title function_">read</span>(target.<span class="hljs-property">value</span>) === <span class="hljs-number">0</span>) {
+      target.<span class="hljs-property">classList</span>.<span class="hljs-title function_">remove</span>(<span class="hljs-string">&#x27;invalid&#x27;</span>);
     } <span class="hljs-keyword">else</span> {
-      target.classList.add(<span class="hljs-string">'invalid'</span>);
+      target.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&#x27;invalid&#x27;</span>);
     }
   });
 }
 
 (<span class="hljs-keyword">async</span> () =&gt; {
-  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(path);
-  <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
-  <span class="hljs-keyword">const</span> wasm = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, { });
+  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(path);
+  <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">arrayBuffer</span>();
+  <span class="hljs-keyword">const</span> wasm = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(bytes, { });
 
-  watch(wasm.instance);
+  <span class="hljs-title function_">watch</span>(wasm.<span class="hljs-property">instance</span>);
 })();
 </code></pre>
 <p>The JavaScript file's responsibilities are more involved (<code>validate.js</code>, above). The <a href="https://en.wikipedia.org/wiki/Immediately_invoked_function_expression">IIFE</a> at the bottom kicks the process off by building a Wasm instance from the raw binary. It then watches for changes by invoking the <code>watch</code> function.</p>
@@ -152,9 +152,9 @@
 <span class="hljs-keyword">use</span> chemcore::daylight;
 
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">alloc</span></span>(length: <span class="hljs-built_in">usize</span>) -&gt; *<span class="hljs-keyword">mut</span> c_void {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> buf = <span class="hljs-built_in">Vec</span>::with_capacity(length);
-    <span class="hljs-keyword">let</span> ptr = buf.as_mut_ptr();
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">alloc</span>(length: <span class="hljs-type">usize</span>) <span class="hljs-punctuation">-&gt;</span> *<span class="hljs-keyword">mut</span> c_void {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">buf</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">with_capacity</span>(length);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">ptr</span> = buf.<span class="hljs-title function_ invoke__">as_mut_ptr</span>();
 
     mem::forget(buf);
 
@@ -162,21 +162,21 @@
 }
 
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">read_smiles</span></span>(
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">read_smiles</span>(
     p_smiles: *<span class="hljs-keyword">mut</span> c_char
-) -&gt; <span class="hljs-built_in">i8</span> {
-    <span class="hljs-keyword">let</span> smiles = <span class="hljs-keyword">unsafe</span> {
-        CString::from_raw(p_smiles)
+) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">i8</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">smiles</span> = <span class="hljs-keyword">unsafe</span> {
+        CString::<span class="hljs-title function_ invoke__">from_raw</span>(p_smiles)
     };
 
-    <span class="hljs-keyword">match</span> smiles.into_string() {
-        <span class="hljs-literal">Ok</span>(smiles) =&gt; {
-            <span class="hljs-keyword">match</span> daylight::read(&amp;smiles) {
-                <span class="hljs-literal">Ok</span>(_) =&gt; <span class="hljs-number">0</span>,
-                <span class="hljs-literal">Err</span>(_) =&gt; -<span class="hljs-number">1</span>
+    <span class="hljs-keyword">match</span> smiles.<span class="hljs-title function_ invoke__">into_string</span>() {
+        <span class="hljs-title function_ invoke__">Ok</span>(smiles) =&gt; {
+            <span class="hljs-keyword">match</span> daylight::<span class="hljs-title function_ invoke__">read</span>(&amp;smiles) {
+                <span class="hljs-title function_ invoke__">Ok</span>(_) =&gt; <span class="hljs-number">0</span>,
+                <span class="hljs-title function_ invoke__">Err</span>(_) =&gt; -<span class="hljs-number">1</span>
             }
         },
-        <span class="hljs-literal">Err</span>(_) =&gt; -<span class="hljs-number">2</span>
+        <span class="hljs-title function_ invoke__">Err</span>(_) =&gt; -<span class="hljs-number">2</span>
     }
 }
 </code></pre>
@@ -184,7 +184,7 @@
 <pre><code class="hljs toml language-toml"><span class="hljs-comment"># ...</span>
 
 <span class="hljs-section">[lib]</span>
-<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">"cdylib"</span>]
+<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">&quot;cdylib&quot;</span>]
 </code></pre>
 <p>After this change, the project can be built with the following call to <code>cargo</code>:</p>
 <pre><code class="hljs console language-console">cargo build --target wasm32-unknown-unknown --release

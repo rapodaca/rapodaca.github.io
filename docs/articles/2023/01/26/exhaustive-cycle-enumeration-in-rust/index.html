@@ -48,14 +48,14 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> ciclo::Graph;
 <span class="hljs-keyword">use</span> ciclo::all_cycles;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">test</span></span>() {
-    <span class="hljs-keyword">let</span> graph = Graph::from_edges(<span class="hljs-built_in">vec!</span>[
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">test</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">graph</span> = Graph::<span class="hljs-title function_ invoke__">from_edges</span>(<span class="hljs-built_in">vec!</span>[
         (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>),
         (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>),
         (<span class="hljs-number">2</span>, <span class="hljs-number">0</span>),
-    ]).unwrap();
+    ]).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">println!</span>(all_cycles(graph));
+    <span class="hljs-built_in">println!</span>(<span class="hljs-title function_ invoke__">all_cycles</span>(graph));
 }
 </code></pre>
 <p>More examples can be found in the project's unit test suite.</p>
@@ -65,17 +65,17 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> std::collections::HashSet;
 <span class="hljs-keyword">use</span> ciclo::Graph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">test</span></span>() {
-    <span class="hljs-keyword">let</span> left = Cycle::new(<span class="hljs-built_in">vec!</span>[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>]);
-    <span class="hljs-keyword">let</span> right = Cycle::new(<span class="hljs-built_in">vec!</span>[<span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>]);
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">test</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">left</span> = Cycle::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-built_in">vec!</span>[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>]);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">right</span> = Cycle::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-built_in">vec!</span>[<span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>]);
 
     <span class="hljs-built_in">assert_eq!</span>(left, right)
 
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> set = HashSet::new();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">set</span> = HashSet::<span class="hljs-title function_ invoke__">new</span>();
 
-    set.insert(left);
+    set.<span class="hljs-title function_ invoke__">insert</span>(left);
 
-    <span class="hljs-built_in">assert!</span>(set.contains(&amp;right))
+    <span class="hljs-built_in">assert!</span>(set.<span class="hljs-title function_ invoke__">contains</span>(&amp;right))
 }
 </code></pre>
 <p><code>BTreeMap</code> might look like an option here, but it's not. The order in which cycles are iterated and expressed linearly depends on the implementations of <code>Graph</code> and <code>all_cycles</code>. A hashable <code>Cycle</code> type prevents test suites from failing under future optimization.</p>

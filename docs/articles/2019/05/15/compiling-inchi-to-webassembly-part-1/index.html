@@ -69,28 +69,28 @@
 <p>My company maintains an unofficial InChI source code repository <a href="https://github.com/metamolecular/inchi">here</a>. Clone and make it your working directory. Alternatively, <a href="https://www.inchi-trust.org/downloads/">download from the InChI site</a>.</p>
 <pre><code class="hljs bash language-bash">git <span class="hljs-built_in">clone</span> https://github.com/metamolecular/inchi
 <span class="hljs-built_in">cd</span> inchi
-ls
+<span class="hljs-built_in">ls</span>
 INCHI_API  INCHI_BASE INCHI_EXE  LICENCE    README.md  readme.txt
 </code></pre>
 <p>Two directories contain the source files we'll need: <code>INCHI_BASE</code>, and <code>INCHI_EXE</code>.</p>
 <p>Although the InCHI repository contains makefiles, they're too tightly coupled to be useful for the purpose of cross-compilation. Instead, we'll need to devise a simple way to get the C compiler to build InChI's <code>main</code> function.</p>
 <p>In the interest of keeping the InChI repository itself clean, create a <code>build</code> subdirectory and change into it:</p>
-<pre><code class="hljs bash language-bash">mkdir build
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">mkdir</span> build
 <span class="hljs-built_in">cd</span> build
 </code></pre>
 <p><a href="https://halogenandtoast.com/error-driven-development/">Error-driven devlopment</a> is a powerful way to learn new techniques. The idea is to begin with the simplest possible idea, no matter how unlikely to work. Then, using the error messages that result, figure out how to get to the next error. Continue until you either exhaust all errors or paths forward.</p>
 <p>The simplest idea would be to invoke the C compiler directly on the file containing InChI's <code>main</code> function. It can be found at <code>INCHI_EXE/inchi-1/src/ichimain.c</code>. Attempting to compile <code>ichimain.c</code> directly gave:</p>
 <pre><code class="hljs bash language-bash">cc \
   ../INCHI_EXE/inchi-1/src/ichimain.c
-../INCHI_EXE/inchi-1/src/ichimain.c:50:10: fatal error: <span class="hljs-string">'conio.h'</span> file not found
+../INCHI_EXE/inchi-1/src/ichimain.c:50:10: fatal error: <span class="hljs-string">&#x27;conio.h&#x27;</span> file not found
 <span class="hljs-comment">#include &lt;conio.h&gt;</span>
          ^~~~~~~~~
 1 error generated.
 </code></pre>
 <p><code>conio.h</code> is a MS-DOS header. Given that I'm compiling on a MacOS system, the error is to be expected. Searching the source for the text "<code>conio.h</code>" offers a clue. Starting on line 48 of the file <code>INCHI_BASE/src/ichiparm.c</code>, for example, we find:</p>
-<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> COMPILE_ANSI_ONLY</span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;conio.h&gt;</span></span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span>
+<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> COMPILE_ANSI_ONLY</span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;conio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">endif</span></span>
 </code></pre>
 <p>This suggests that we can move past the error by setting the <code>COMPILE_ANSI_ONLY</code> flag. This can be accomplished by updating the build command:</p>
 <pre><code class="hljs bash language-bash">cc \
@@ -99,8 +99,8 @@ INCHI_API  INCHI_BASE INCHI_EXE  LICENCE    README.md  readme.txt
 </code></pre>
 <p>Doing so generates the new error:</p>
 <pre><code class="hljs bash language-bash">../INCHI_EXE/inchi-1/src/ichimain.c:56:10: fatal error: 
-      <span class="hljs-string">'../../INCHI_BASE/src/mode.h'</span> file not found
-<span class="hljs-comment">#include "../../INCHI_BASE/src/mode.h"</span>
+      <span class="hljs-string">&#x27;../../INCHI_BASE/src/mode.h&#x27;</span> file not found
+<span class="hljs-comment">#include &quot;../../INCHI_BASE/src/mode.h&quot;</span>
          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 </code></pre>
 <p>Now would be a good time to point the compiler to its required headers. Browsing through the <code>INCHI_BASE/src</code> directory reveals it to contain many header files. We can include them with:</p>
@@ -126,7 +126,7 @@ INCHI_API  INCHI_BASE INCHI_EXE  LICENCE    README.md  readme.txt
 <pre><code class="hljs bash language-bash">[...]
 3 warnings generated.
 Undefined symbols <span class="hljs-keyword">for</span> architecture x86_64:
-  <span class="hljs-string">"_FreeAllINChIArrays"</span>, referenced from:
+  <span class="hljs-string">&quot;_FreeAllINChIArrays&quot;</span>, referenced from:
       _ProcessSingleInputFile <span class="hljs-keyword">in</span> ichimain-787c41.o
 [...]
 </code></pre>
@@ -139,7 +139,7 @@ Undefined symbols <span class="hljs-keyword">for</span> architecture x86_64:
   -DTARGET_EXE_STANDALONE
 </code></pre>
 <p>No errors! Listing the contents of the working directory yields a new file, <code>a.out</code>. This is the binary executable. For now, delete it.</p>
-<pre><code class="hljs bash language-bash">rm a.out
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">rm</span> a.out
 </code></pre>
 <p>We're almost there. All that remains is to generate a binary with a more descriptive name than <code>a.out</code>. This can be accomplished with the following change:</p>
 <pre><code class="hljs bash language-bash">cc \
@@ -157,8 +157,8 @@ Linux Build of May 13 2019 09:38:13
 [... more output]
 </code></pre>
 <p>My <code>example.mol</code> file encoding benzene yielded the following output:</p>
-<pre><code class="hljs bash language-bash">cat example.mol.txt
-* Input_File: <span class="hljs-string">"example.mol"</span>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cat</span> example.mol.txt
+* Input_File: <span class="hljs-string">&quot;example.mol&quot;</span>
 Structure: 1
 InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H
 AuxInfo=1/0/N:1,2,6,3,5,4/E:(1,2,3,4,5,6)/rA:6nCCCCCC/rB:d1;s2;d3;s4;s1d5;/rC:60.6483,-42.3537,0;69.3086,-47.3537,0;77.9689,-42.3537,0;77.9689,-32.3537,0;69.3086,-27.3537,0;60.6483,-32.3537,0;
@@ -175,15 +175,15 @@ AuxInfo=1/0/N:1,2,6,3,5,4/E:(1,2,3,4,5,6)/rA:6nCCCCCC/rB:d1;s2;d3;s4;s1d5;/rC:60
 </code></pre>
 <p>On MacOS you're likely to see the following error:</p>
 <pre><code class="hljs bash language-bash">../INCHI_BASE/src/util.c:1562:33: error: implicit declaration of <span class="hljs-keyword">function</span>
-      <span class="hljs-string">'__isascii'</span> is invalid <span class="hljs-keyword">in</span> C99 [-Werror,-Wimplicit-function-declaration]
+      <span class="hljs-string">&#x27;__isascii&#x27;</span> is invalid <span class="hljs-keyword">in</span> C99 [-Werror,-Wimplicit-function-declaration]
         <span class="hljs-keyword">for</span> ( i = 0; i &lt; len &amp;&amp; __isascii( p[i] ) &amp;&amp; isspace( p[i] ); i++ )
 </code></pre>
 <p><a href="https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/isascii-isascii-iswascii"><code>__isascii</code></a> is yet another a Windows-only API used by InChI. It's far from clear why the IUPAC team included multiple platform-specific dependencies by default in its build. Fortunately, it also provided workarounds.</p>
 <p>Searching the source tree for the text <code>__isascii</code> reveals a hint in <code>INCHI_BASE/src/util.c</code>. Starting on line 47, we find:</p>
-<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-meta-keyword">if</span> defined(COMPILE_ANSI_ONLY) &amp;&amp; defined(__APPLE__)</span>
+<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(COMPILE_ANSI_ONLY) &amp;&amp; defined(__APPLE__)</span>
 <span class="hljs-comment">/*    For build under OSX, advice from Burt Leland */</span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"ichicomp.h"</span>    <span class="hljs-comment">/* Needed for __isascii define */</span></span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;ichicomp.h&quot;</span>    <span class="hljs-comment">/* Needed for __isascii define */</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">endif</span></span>
 </code></pre>
 <p>Adding the <code>__APPLE__</code> flag gives the following command:</p>
 <pre><code class="hljs bash language-bash">emcc \
@@ -199,7 +199,7 @@ AuxInfo=1/0/N:1,2,6,3,5,4/E:(1,2,3,4,5,6)/rA:6nCCCCCC/rB:d1;s2;d3;s4;s1d5;/rC:60
 <p>Success! </p>
 <h2 id="testinginabrowser">Testing in a Browser</h2>
 <p>At this point we're ready to test the generated WebAssembly. If you open the <code>inchi.html</code> file into your browser directly, you're likely to be greeted with a hung progress spinner and something like the following error:</p>
-<pre><code class="hljs bash language-bash">both async and sync fetching of the wasm failed
+<pre><code class="hljs bash language-bash">both async and <span class="hljs-built_in">sync</span> fetching of the wasm failed
 </code></pre>
 <p>The problem is that security constraints prevent modern browsers from opening resource files from pages loaded with the <code>file:///</code> protocol. We can work around this limitation by running a web server. A convenient lightweight server available on most systems is Python's <a href="https://docs.python.org/2/library/simplehttpserver.html">SimpleHTTPServer</a>. Execute it in your working directory with:</p>
 <pre><code class="hljs bash language-bash">python -m SimpleHTTPServer

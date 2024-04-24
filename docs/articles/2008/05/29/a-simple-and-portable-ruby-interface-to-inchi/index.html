@@ -36,22 +36,22 @@
       <p>Although the <a href="http://depth-first.com/articles/2007/09/27/inchi-for-newbies">InChI</a> software itself is written in C, it can still be used via Ruby. <a href="http://depth-first.com/articles/2007/03/19/customize-inchi-output-with-rino">Rino</a> offers one implementation of a Ruby InChI interface that makes use of a C extension. This article describes a more concise and portable solution.</p>
 <h2 id="thecode">The Code</h2>
 <p>The following code will accept a String encoding a molfile and return either its InChI, or an empty String if no InChI could be found:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">InChI</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">inchi_for</span> <span class="hljs-title">molfile</span></span>
-    output = <span class="hljs-string">%x[echo "<span class="hljs-subst">#{molfile}</span>" | cInChI-1 -STDIO]</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">module</span> <span class="hljs-title class_">InCh</span>I
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">inchi_for</span> molfile
+    output = <span class="hljs-string">%x[echo &quot;<span class="hljs-subst">#{molfile}</span>&quot; | cInChI-1 -STDIO]</span>
 
-    output.eql?(<span class="hljs-string">""</span>) ? <span class="hljs-string">""</span> : output.split(<span class="hljs-regexp">/\n/</span>)[<span class="hljs-number">1</span>]
+    output.eql?(<span class="hljs-string">&quot;&quot;</span>) ? <span class="hljs-string">&quot;&quot;</span> : output.split(<span class="hljs-regexp">/\n/</span>)[<span class="hljs-number">1</span>]
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <p>This code takes advantage of Ruby's built-in support for <a href="http://www.ruby-doc.org/docs/ProgrammingRuby/html/tut_expressions.html#UA">Command Expansion</a>.</p>
 <h2 id="testingthecode">Testing the Code</h2>
 <p>The code below tests the library:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'inchi'</span>
-<span class="hljs-keyword">include</span> InChI
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;inchi&#x27;</span>
+<span class="hljs-keyword">include</span> <span class="hljs-title class_">InCh</span>I
 
 molfile =
-<span class="hljs-string">"http://chempedia.com/compounds/106.mol
+<span class="hljs-string">&quot;http://chempedia.com/compounds/106.mol
   -OEChem-03010811072D
 
  12 12  0     0  0  0  0  0  0999 V2000
@@ -79,9 +79,9 @@ molfile =
   5  6  1  0  0  0  0
   5 11  1  0  0  0  0
   6 12  1  0  0  0  0
-M  END"</span>
+M  END&quot;</span>
 
-puts <span class="hljs-string">"Found InChI: <span class="hljs-subst">#{inchi_for(molfile)}</span>"</span>
+puts <span class="hljs-string">&quot;Found InChI: <span class="hljs-subst">#{inchi_for(molfile)}</span>&quot;</span>
 </code></pre>
 <p>We can run the test by saving it in a file called <strong>test.rb</strong> and executing it:</p>
 <pre><code class="hljs bash language-bash">ruby test.rb

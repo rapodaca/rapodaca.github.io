@@ -36,7 +36,7 @@
       <p><a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">Molecular fingerprints</a> play an important role in cheminformatics. <a href="http://metamolecular.com/mx">MX</a>, the high-performance cheminformatics toolkit written in Java, comes complete with the ability to generate molecular fingerprints. This article, the first of a new series discussing MX through compilable snippets of Java code, shows how to interactively test fingerprints in MX through a simple command-line utility.</p>
 <h2 id="whattheprogramdoes">What the Program Does</h2>
 <p>From the command line, the program accepts a SMILES string as input and returns the indices of all bits set using the MX PathFingerprinter:</p>
-<pre><code class="hljs bash language-bash">$ java -cp .:mx-1.0-beta-2.jar FPTest
+<pre><code class="hljs bash language-bash">$ java -<span class="hljs-built_in">cp</span> .:mx-1.0-beta-2.jar FPTest
 &gt; CCCCC
 {185, 293, 595, 742, 927}
 &gt; CCCCCC
@@ -49,7 +49,7 @@
 <p>Note: the MX SMILES parser is only partially implemented at the moment and will not accept isotopes, stereochemistry, or lower-case atom labels.</p>
 <h2 id="createaworkspace">Create a Workspace</h2>
 <p>Create a workspace and download the <a href="http://cloud.github.com/downloads/metamolecular/mx/mx-1.0-beta-2.jar">MX jarfile</a>:</p>
-<pre><code class="hljs bash language-bash">$ mkdir fptest
+<pre><code class="hljs bash language-bash">$ <span class="hljs-built_in">mkdir</span> fptest
 $ <span class="hljs-built_in">cd</span> fptest
 $ wget http://cloud.github.com/downloads/metamolecular/mx/mx-1.0-beta-2.jar
 </code></pre>
@@ -63,33 +63,33 @@ $ wget http://cloud.github.com/downloads/metamolecular/mx/mx-1.0-beta-2.jar
 <span class="hljs-keyword">import</span> com.metamolecular.mx.model.Molecule;
 <span class="hljs-keyword">import</span> com.metamolecular.mx.fingerprint.PathFingerprinter;
 
-<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">FPTest</span> </span>{
-  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> PathFingerprinter fingerprinter = <span class="hljs-keyword">new</span> PathFingerprinter();
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FPTest</span> {
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">PathFingerprinter</span> <span class="hljs-variable">fingerprinter</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PathFingerprinter</span>();
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>{
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
     <span class="hljs-keyword">try</span> {
-      BufferedReader in = <span class="hljs-keyword">new</span> BufferedReader(<span class="hljs-keyword">new</span> InputStreamReader(System.in));
-      String str = <span class="hljs-string">""</span>;
-      <span class="hljs-keyword">while</span> (str != <span class="hljs-keyword">null</span>) {
-          System.out.print(<span class="hljs-string">"&gt; "</span>);
+      <span class="hljs-type">BufferedReader</span> <span class="hljs-variable">in</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(System.in));
+      <span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;
+      <span class="hljs-keyword">while</span> (str != <span class="hljs-literal">null</span>) {
+          System.out.print(<span class="hljs-string">&quot;&gt; &quot;</span>);
           str = in.readLine();
           processInput(str);
       }
     } <span class="hljs-keyword">catch</span> (IOException e) {
     }
   }
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">processInput</span><span class="hljs-params">(String input)</span> </span>{
-    <span class="hljs-keyword">if</span> (<span class="hljs-string">"exit"</span>.equals(input)) {
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processInput</span><span class="hljs-params">(String input)</span> {
+    <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;exit&quot;</span>.equals(input)) {
       System.exit(<span class="hljs-number">0</span>);
     }
-    Molecule molecule = SMILESReader.read(input);
-    BitSet fp = fingerprinter.getFingerprint(molecule);
+    <span class="hljs-type">Molecule</span> <span class="hljs-variable">molecule</span> <span class="hljs-operator">=</span> SMILESReader.read(input);
+    <span class="hljs-type">BitSet</span> <span class="hljs-variable">fp</span> <span class="hljs-operator">=</span> fingerprinter.getFingerprint(molecule);
     System.out.println(fp);
   }
 }
 </code></pre>
 <h2 id="compile">Compile</h2>
-<pre><code class="hljs bash language-bash">javac -cp mx-1.0-beta-2.jar FPTest.java
+<pre><code class="hljs bash language-bash">javac -<span class="hljs-built_in">cp</span> mx-1.0-beta-2.jar FPTest.java
 </code></pre>
 <h2 id="conclusions">Conclusions</h2>
 <p>A good fingerprint generator is a powerful item in any cheminformatics toolbox. This tutorial has shown a simple method for getting started with fingerprints using MX.</p>

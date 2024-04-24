@@ -43,59 +43,59 @@
 <h2 id="step1consolidateactions">Step 1: Consolidate Actions</h2>
 <p>Our first version of Depict defined three <code>SmilesController</code> actions: <code>input</code>; <code>depict</code>; and <code>image_for</code>. Because we want to show the molecular image on the same page on which SMILES input happens, we'll consolidate <code>input</code> and <code>depict</code> into a single action.</p>
 <p>To do this, we'll edit <code>depict/app/controllers/smiles_controller.rb</code> by removing the <code>input</code> method and rewriting the <code>depict</code> and <code>image_for</code> methods:</p>
-<pre><code class="hljs ruby language-ruby">require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<pre><code class="hljs ruby language-ruby">require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
 
-jrequire <span class="hljs-string">'java.io.ByteArrayOutputStream'</span>
-jrequire <span class="hljs-string">'net.sf.structure.cdk.util.ImageKit'</span>
-jrequire <span class="hljs-string">'javax.imageio.ImageIO'</span>
+jrequire <span class="hljs-string">&#x27;java.io.ByteArrayOutputStream&#x27;</span>
+jrequire <span class="hljs-string">&#x27;net.sf.structure.cdk.util.ImageKit&#x27;</span>
+jrequire <span class="hljs-string">&#x27;javax.imageio.ImageIO&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmilesController</span> &lt; ApplicationController</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">SmilesController</span> &lt; <span class="hljs-title class_ inherited__">ApplicationController</span>
 
   <span class="hljs-comment"># Consolidated depict method.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict</span></span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">depict</span>
     <span class="hljs-keyword">if</span> params[<span class="hljs-symbol">:smiles</span>]
-      @smiles = params[<span class="hljs-symbol">:smiles</span>][<span class="hljs-symbol">:value</span>]
+      <span class="hljs-variable">@smiles</span> = params[<span class="hljs-symbol">:smiles</span>][<span class="hljs-symbol">:value</span>]
     <span class="hljs-keyword">else</span>
-      @smiles = <span class="hljs-string">''</span>
+      <span class="hljs-variable">@smiles</span> = <span class="hljs-string">&#x27;&#x27;</span>
     <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">image_for</span></span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">image_for</span>
     smiles = params[<span class="hljs-symbol">:smiles</span>]
 
-    <span class="hljs-comment"># Just return if we can't get a SMILES string.</span>
+    <span class="hljs-comment"># Just return if we can&#x27;t get a SMILES string.</span>
     <span class="hljs-keyword">if</span> !smiles
       <span class="hljs-keyword">return</span>
     <span class="hljs-keyword">end</span>
 
-    mol = RCDK::Util::Lang.read_smiles smiles
-    mol = RCDK::Util::XY::coordinate_molecule mol
-    out=Java::Io::ByteArrayOutputStream.new
-    image=Net::Sf::Structure::Cdk::Util::ImageKit.createRenderedImage(mol, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>)
+    mol = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Lang</span>.read_smiles smiles
+    mol = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:XY</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:coordinate_molecule</span> mol
+    out=<span class="hljs-title class_">Java</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Io</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:ByteArrayOutputStream</span>.new
+    image=<span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Sf</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Structure</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:ImageKit</span>.createRenderedImage(mol, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>)
 
-    Javax::Imageio::ImageIO.write(image, <span class="hljs-string">"png"</span>, out)
+    <span class="hljs-title class_">Javax</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Imageio</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:ImageIO</span>.write(image, <span class="hljs-string">&quot;png&quot;</span>, out)
 
-    send_data(out.toByteArray, <span class="hljs-symbol">:type</span> =&gt; <span class="hljs-string">"image/png"</span>, <span class="hljs-symbol">:disposition</span> =&gt; <span class="hljs-string">"inline"</span>, <span class="hljs-symbol">:filename</span> =&gt; <span class="hljs-string">"molecule.png"</span>)
+    send_data(out.toByteArray, <span class="hljs-symbol">:type</span> =&gt; <span class="hljs-string">&quot;image/png&quot;</span>, <span class="hljs-symbol">:disposition</span> =&gt; <span class="hljs-string">&quot;inline&quot;</span>, <span class="hljs-symbol">:filename</span> =&gt; <span class="hljs-string">&quot;molecule.png&quot;</span>)
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>  
 </code></pre>
 <p>We need to check whether the SMILES in <code>image_for</code> is <code>nil</code> because when the application is first lanched, no SMILES string is defined. By checking for this condition and exiting if found, our application can gracefully start up and respond to a blank input field.</p>
 <p>We no longer need a View for the <code>input</code> action, the functionality of which we'll be moving into the View for our new <code>depict</code> action. Delete <code>depict/app/views/smiles/input.rhtml</code>, and edit <code>depict/app/view/smiles/depict.rhtml</code> so that is looks like the following:</p>
-<pre><code class="hljs html language-html">&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;Depict&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;h1&gt;Depict a SMILES String&lt;/h1&gt;
-    &lt;img src=&amp;quot;&lt;%= url_for :action =&gt; &amp;quot;image_for&amp;quot;, :smiles =&gt; @smiles %&gt;&amp;quot;&gt;&lt;/img&gt;&lt;br /&gt;
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Depict<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Depict a SMILES String<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&amp;quot;</span>&lt;%= <span class="hljs-string">url_for</span> <span class="hljs-attr">:action</span> =&gt;</span> <span class="hljs-symbol">&amp;quot;</span>image_for<span class="hljs-symbol">&amp;quot;</span>, :smiles =&gt; @smiles %&gt;<span class="hljs-symbol">&amp;quot;</span>&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">img</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
 
-    &lt;%= form_tag :action=&gt;'depict' %&gt;
-      &lt;label&gt;SMILES: &lt;/label&gt;
-      &lt;%= text_field('smiles', 'value', :value =&gt; @smiles) %&gt;&lt;br /&gt;
+    &lt;%= form_tag :action=&gt;&#x27;depict&#x27; %&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span>&gt;</span>SMILES: <span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      &lt;%= text_field(&#x27;smiles&#x27;, &#x27;value&#x27;, :value =&gt; @smiles) %&gt;<span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
     &lt;%= end_form_tag %&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
 </code></pre>
 <p>This new template is simply a combination of the two previous templates. Pointing your browser to <a href="http://localhost:3000/smiles/depict">http://localhost:3000/smiles/depict</a> and entering a valid SMILES string should give a screen similar to the one below:</p>
 <p><img src="/images/posts/20061127/step_1_1.png" alt="Step 1.1" title="Step 1.1"></p>
@@ -112,42 +112,42 @@ jrequire <span class="hljs-string">'javax.imageio.ImageIO'</span>
 <li>Valid SMILES: Returns a dynamic URL that will generate a 2-D molecular image on the fly from binary data generated in the same manner as our current <code>image_for</code> action.</li>
 </ul>
 <p>Let's add the functionality we need to our <code>SmilesHelper</code>, which is contained in the file <code>depict/app/helpers/smiles_helper.rb</code>:</p>
-<pre><code class="hljs ruby language-ruby">require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<pre><code class="hljs ruby language-ruby">require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
 
 <span class="hljs-comment"># New jrequire calls.</span>
-jrequire <span class="hljs-string">'java.io.ByteArrayOutputStream'</span>
-jrequire <span class="hljs-string">'net.sf.structure.cdk.util.ImageKit'</span>
-jrequire <span class="hljs-string">'javax.imageio.ImageIO'</span>
+jrequire <span class="hljs-string">&#x27;java.io.ByteArrayOutputStream&#x27;</span>
+jrequire <span class="hljs-string">&#x27;net.sf.structure.cdk.util.ImageKit&#x27;</span>
+jrequire <span class="hljs-string">&#x27;javax.imageio.ImageIO&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">SmilesHelper</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">image_for_smiles</span><span class="hljs-params">(param)</span></span>
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">SmilesHelper</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">image_for_smiles</span>(<span class="hljs-params">param</span>)
     smiles = param[<span class="hljs-symbol">:smiles</span>]
 
-    <span class="hljs-keyword">if</span> smiles.eql? <span class="hljs-string">''</span>
-      <span class="hljs-keyword">return</span> <span class="hljs-string">'/images/blank.png'</span>
+    <span class="hljs-keyword">if</span> smiles.eql? <span class="hljs-string">&#x27;&#x27;</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;/images/blank.png&#x27;</span>
     <span class="hljs-keyword">end</span>
 
     render(smiles)
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">render</span><span class="hljs-params">(smiles)</span></span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">render</span>(<span class="hljs-params">smiles</span>)
     <span class="hljs-keyword">begin</span>    
-      mol = RCDK::Util::Lang.read_smiles smiles
-      mol = RCDK::Util::XY::coordinate_molecule mol
-      image=Net::Sf::Structure::Cdk::Util::ImageKit.createRenderedImage(mol, <span class="hljs-number">400</span>, <span class="hljs-number">400</span>)
+      mol = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Lang</span>.read_smiles smiles
+      mol = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:XY</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:coordinate_molecule</span> mol
+      image=<span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Sf</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Structure</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:ImageKit</span>.createRenderedImage(mol, <span class="hljs-number">400</span>, <span class="hljs-number">400</span>)
     <span class="hljs-keyword">rescue</span>
-      <span class="hljs-keyword">return</span> <span class="hljs-string">'/images/invalid.png'</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;/images/invalid.png&#x27;</span>
     <span class="hljs-keyword">end</span>
 
-    out = Java::Io::ByteArrayOutputStream.new
+    out = <span class="hljs-title class_">Java</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Io</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:ByteArrayOutputStream</span>.new
 
-    Javax::Imageio::ImageIO.write(image, <span class="hljs-string">"png"</span>, out)
+    <span class="hljs-title class_">Javax</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Imageio</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:ImageIO</span>.write(image, <span class="hljs-string">&quot;png&quot;</span>, out)
 
     flash[<span class="hljs-symbol">:bytes</span>] = out.toByteArray
     flash[<span class="hljs-symbol">:smiles</span>] = smiles
 
-    url_for <span class="hljs-symbol">:action</span> =&gt; <span class="hljs-string">'image_for'</span>, <span class="hljs-symbol">:id</span> =&gt; smiles
+    url_for <span class="hljs-symbol">:action</span> =&gt; <span class="hljs-string">&#x27;image_for&#x27;</span>, <span class="hljs-symbol">:id</span> =&gt; smiles
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -157,39 +157,39 @@ jrequire <span class="hljs-string">'javax.imageio.ImageIO'</span>
 <p>where <code>SMILES</code> is the escaped form of the user-specified SMILES string. If two images are served with exactly the same URL, some browsers (e.g., Konqueror) will assume they represent the same image and will re-use the image in their cache. So, we append the SMILES string to the URL as a way to get these browsers to refresh Depict's image area.</p>
 <h2 id="step3invokethenewimage_for_smilesmethod">Step 3: Invoke the New <code>image_for_smiles</code> Method</h2>
 <p>We've added a new <code>image_for_smiles</code> method as a Helper, but Depict isn't yet using it. Let's change that by modifying the way that our image URL is generated in <code>depict/app/views/smiles/depict.rhtml</code>:</p>
-<pre><code class="hljs html language-html">&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;Depict&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;h1&gt;Depict a SMILES String&lt;/h1&gt;
-    &lt;img src=&amp;quot;&lt;%= image_for_smiles :smiles =&gt; @smiles %&gt;&amp;quot;&gt;&lt;/img&gt;&lt;br /&gt;
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Depict<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Depict a SMILES String<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&amp;quot;</span>&lt;%= <span class="hljs-string">image_for_smiles</span> <span class="hljs-attr">:smiles</span> =&gt;</span> @smiles %&gt;<span class="hljs-symbol">&amp;quot;</span>&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">img</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
 
-    &lt;%= form_tag :action=&gt;'depict' %&gt;
-      &lt;label&gt;SMILES: &lt;/label&gt;
-      &lt;%= text_field('smiles', 'value', :value =&gt; @smiles) %&gt;&lt;br /&gt;
+    &lt;%= form_tag :action=&gt;&#x27;depict&#x27; %&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span>&gt;</span>SMILES: <span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      &lt;%= text_field(&#x27;smiles&#x27;, &#x27;value&#x27;, :value =&gt; @smiles) %&gt;<span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
     &lt;%= end_form_tag %&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
 </code></pre>
 <h2 id="step4simplifysmilescontroller">Step 4: Simplify <code>SmilesController</code></h2>
 <p>We're now no longer using <code>SmilesController</code> (<code>depict/app/controllers/smiles_controller.rb</code>) to perform the bulk of the work related to 2-D image generation. Let's update our Controller to reflect these changes:</p>
 <pre><code class="hljs ruby language-ruby"><span class="hljs-comment"># No libraries need to be loaded now.</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SmilesController</span> &lt; ApplicationController</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">SmilesController</span> &lt; <span class="hljs-title class_ inherited__">ApplicationController</span>
   <span class="hljs-comment"># Consolidated depict method.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict</span></span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">depict</span>
     <span class="hljs-keyword">if</span> params[<span class="hljs-symbol">:smiles</span>]
-      @smiles = params[<span class="hljs-symbol">:smiles</span>][<span class="hljs-symbol">:value</span>]
+      <span class="hljs-variable">@smiles</span> = params[<span class="hljs-symbol">:smiles</span>][<span class="hljs-symbol">:value</span>]
     <span class="hljs-keyword">else</span>
-      @smiles = <span class="hljs-string">''</span>
+      <span class="hljs-variable">@smiles</span> = <span class="hljs-string">&#x27;&#x27;</span>
     <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Consolidated image_for method.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">image_for</span></span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">image_for</span>
     <span class="hljs-keyword">if</span> flash[<span class="hljs-symbol">:bytes</span>]
-      send_data(flash[<span class="hljs-symbol">:bytes</span>], <span class="hljs-symbol">:type</span> =&gt; <span class="hljs-string">"image/png"</span>, <span class="hljs-symbol">:disposition</span> =&gt; <span class="hljs-string">"inline"</span>, <span class="hljs-symbol">:filename</span> =&gt; <span class="hljs-string">"<span class="hljs-subst">#{flash[<span class="hljs-symbol">:smiles</span>]}</span>.png"</span>)
+      send_data(flash[<span class="hljs-symbol">:bytes</span>], <span class="hljs-symbol">:type</span> =&gt; <span class="hljs-string">&quot;image/png&quot;</span>, <span class="hljs-symbol">:disposition</span> =&gt; <span class="hljs-string">&quot;inline&quot;</span>, <span class="hljs-symbol">:filename</span> =&gt; <span class="hljs-string">&quot;<span class="hljs-subst">#{flash[<span class="hljs-symbol">:smiles</span>]}</span>.png&quot;</span>)
     <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
@@ -249,35 +249,35 @@ jrequire <span class="hljs-string">'javax.imageio.ImageIO'</span>
 <span class="hljs-selector-tag">a</span><span class="hljs-selector-pseudo">:hover</span>, <span class="hljs-selector-tag">a</span><span class="hljs-selector-pseudo">:active</span> {<span class="hljs-attribute">color</span>: <span class="hljs-number">#FFFFFF</span>; <span class="hljs-attribute">background</span>: <span class="hljs-number">#993333</span>;}
 </code></pre>
 <p>Next, we need to tell Rails where to find the above CSS. Open up <code>depict/app/views/smiles/depict.rhtml</code> and add the following eRuby line inside the <code>head</code> tags:</p>
-<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">%=</span> <span class="hljs-attr">stylesheet_link_tag</span> "<span class="hljs-attr">default</span>", <span class="hljs-attr">:media</span> =&gt;</span> "all" %&gt;
+<pre><code class="hljs html language-html">&lt;%= stylesheet_link_tag &quot;default&quot;, :media =&gt; &quot;all&quot; %&gt;
 </code></pre>
 <p>That's all there is to it. Reloading Depict should give a screen similar to the one below.</p>
 <p><img src="/images/posts/20061127/step_6_1.png" alt="Step 6.1" title="Step 6.1"></p>
 <h2 id="step7cleanuptheview">Step 7: Clean Up the View</h2>
 <p>You may have noticed that the style sheet added in the previous step defines some features we're not currently using. Let's update Depict's View (<code>depict/app/views/depict.rhtml</code>) to reflect the changes to our CSS:</p>
-<pre><code class="hljs html language-html">&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;Depict&lt;/title&gt;
-    &lt;%= stylesheet_link_tag &amp;quot;default&amp;quot;, :media =&gt; &amp;quot;all&amp;quot; %&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;h1&gt;Depict a SMILES String&lt;/h1&gt;
-    &lt;div class=&amp;quot;image&amp;quot;&gt;
-      &lt;img src=&amp;quot;&lt;%= image_for_smiles :smiles =&gt; @smiles %&gt;&amp;quot;&gt;&lt;/img&gt;
-    &lt;/div&gt;
-    &lt;br /&gt;&lt;br /&gt;
-      &lt;div class=&amp;quot;smiles&amp;quot;&gt;
-      &lt;%= form_tag :action=&gt;'depict' %&gt;
-        &lt;label&gt;SMILES: &lt;/label&gt;
-        &lt;%= text_field('smiles', 'value', :align=&gt;'center', :value =&gt; @smiles) %&gt;&lt;br /&gt;
+<pre><code class="hljs html language-html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Depict<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    &lt;%= stylesheet_link_tag <span class="hljs-symbol">&amp;quot;</span>default<span class="hljs-symbol">&amp;quot;</span>, :media =&gt; <span class="hljs-symbol">&amp;quot;</span>all<span class="hljs-symbol">&amp;quot;</span> %&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Depict a SMILES String<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&amp;quot;image&amp;quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&amp;quot;</span>&lt;%= <span class="hljs-string">image_for_smiles</span> <span class="hljs-attr">:smiles</span> =&gt;</span> @smiles %&gt;<span class="hljs-symbol">&amp;quot;</span>&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">img</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&amp;quot;smiles&amp;quot;</span>&gt;</span>
+      &lt;%= form_tag :action=&gt;&#x27;depict&#x27; %&gt;
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span>&gt;</span>SMILES: <span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+        &lt;%= text_field(&#x27;smiles&#x27;, &#x27;value&#x27;, :align=&gt;&#x27;center&#x27;, :value =&gt; @smiles) %&gt;<span class="hljs-tag">&lt;<span class="hljs-name">br</span> /&gt;</span>
       &lt;%= end_form_tag %&gt;
-      &lt;/div&gt;
-  &lt;/body&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
 
-  &lt;div class=&amp;quot;about&amp;quot;&gt;
-    &lt;a href=&amp;quot;/articles/2006/11/27/anatomy-of-a-cheminformatics-web-application-beautifying-depict&amp;quot;&gt;About this Application&lt;/a&gt;
-  &lt;/div&gt;
-&lt;/html&gt;
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&amp;quot;about&amp;quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&amp;quot;/articles/2006/11/27/anatomy-of-a-cheminformatics-web-application-beautifying-depict&amp;quot;</span>&gt;</span>About this Application<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
 </code></pre>
 <p>The changes here consist of grouping related HTML elements together into <code>div</code> blocks and adding a link to the article you're reading at the bottom of the article. The interaction of the above code and the style sheet we created in Step 6 produces a screen, such as the one below, when a valid SMILES string is entered.</p>
 <p><img src="/images/posts/20061127/step_7_1.png" alt="Step 7.1" title="Step 7.1"></p>

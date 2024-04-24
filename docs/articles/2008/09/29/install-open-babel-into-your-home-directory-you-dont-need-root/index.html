@@ -36,7 +36,7 @@
       <p>Occasionally you may want to install <a href="http://openbabel.org">Open Babel</a> into your home directory, or some other non-root directory. This problem most commonly crops up when using a server on which you don't have root privileges. Another reason could be that you're practicing or experimenting, and just want to keep the mess out of your system directories. The following tip shows how to install Open Babel to an arbitrary directory on your filesystem.</p>
 <p>Let's say you've created a directory under your home directory called "local" to host your personal binaries and libraries. Let's also say that this directory contains a subdirectory called, surprisingly enough, "openbabel."</p>
 <p>This series of commands will install Open Babel to "$HOME/local/openbabel":</p>
-<pre><code class="hljs bash language-bash">./configure --prefix=<span class="hljs-variable">$HOME</span>/<span class="hljs-built_in">local</span>/openbabel --<span class="hljs-built_in">exec</span>-prefix=<span class="hljs-variable">$HOME</span>/<span class="hljs-built_in">local</span>/openbabel
+<pre><code class="hljs bash language-bash">./configure --prefix=<span class="hljs-variable">$HOME</span>/local/openbabel --exec-prefix=<span class="hljs-variable">$HOME</span>/local/openbabel
 [lots of output]
 $ make
 [even more output]
@@ -47,7 +47,7 @@ $ make install
 <pre><code class="hljs bash language-bash">sudo aptitude install build-essential
 </code></pre>
 <p>We can then run Open Babel:</p>
-<pre><code class="hljs bash language-bash"><span class="hljs-variable">$HOME</span>/<span class="hljs-built_in">local</span>/openbabel/bin/babel -ismi -oinchi
+<pre><code class="hljs bash language-bash"><span class="hljs-variable">$HOME</span>/local/openbabel/bin/babel -ismi -oinchi
 c1ccccc1
 InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H
 1 molecule converted

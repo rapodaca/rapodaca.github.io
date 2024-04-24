@@ -46,12 +46,12 @@
 <p>The root of the problem is that on Windows, keyboard focus is granted to an object regardless of whether the object's hosting browser window is focused. What's needed, therefore, is a way for the applet to implement a window focus check.</p>
 <p>Apparently, nothing in the Applet API itself can solve this problem. The <code>Applet</code>, <code>JApplet</code>, and <code>AppletContext</code> classes only deal with much higher-level considerations. </p>
 <p>However, it's possible to take advantage of support for <a href="https://developer.mozilla.org/En/Core_JavaScript_1.5_Guide:LiveConnect_Overview">LiveConnect</a> technology on Windows, which is actually quite good. Using LiveConnect in combination with JavaScript's <code>Document.hasFocus()</code> method offers the makings of a solution. For example, the following code can be used as a starting point within a Java applet to determine if the containing browser window is focused:</p>
-<pre><code class="hljs js language-js">netscape.javascript.JSObject js = netscape.javascript.JSObject.getWindow(<span class="hljs-keyword">this</span>);
-<span class="hljs-built_in">Object</span> result = js.eval(<span class="hljs-string">"document.hasFocus();"</span>);
+<pre><code class="hljs js language-js">netscape.<span class="hljs-property">javascript</span>.<span class="hljs-property">JSObject</span> js = netscape.<span class="hljs-property">javascript</span>.<span class="hljs-property">JSObject</span>.<span class="hljs-title function_">getWindow</span>(<span class="hljs-variable language_">this</span>);
+<span class="hljs-title class_">Object</span> result = js.<span class="hljs-built_in">eval</span>(<span class="hljs-string">&quot;document.hasFocus();&quot;</span>);
 
-<span class="hljs-keyword">if</span> (<span class="hljs-string">"true"</span>.equals(result.toString()))
+<span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;true&quot;</span>.<span class="hljs-title function_">equals</span>(result.<span class="hljs-title function_">toString</span>()))
 {
-  requestFocusMethod();
+  <span class="hljs-title function_">requestFocusMethod</span>();
 }
 </code></pre>
 <p>Of course, <code>requestFocusMethod()</code> needs to be defined, we need to check for <code>null</code>, and we need to handle exceptions that could arise from a missing <code>netscape.javascript</code> package. You'll also need to ensure that non-windows browsers such as Safari/OS X never even try to execute the LiveConnect code due to a very buggy implementation.</p>

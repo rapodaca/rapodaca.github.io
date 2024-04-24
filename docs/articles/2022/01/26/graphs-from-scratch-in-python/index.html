@@ -66,113 +66,113 @@
 <p>A protocol can be implicit in the sense that a function might assume that an argument supports a specific set of methods. This assumption might even be stated in the documentation, but that's the extent of it. The function behaves as if the methods are present. If they're not the interpreter raises a runtime error. This is called "<a href="https://en.wikipedia.org/wiki/Duck_typing">duck typing</a>."</p>
 <p>It's also possible to define a protocol explicitly using the <code>Protocol</code> <a href="https://docs.python.org/3/library/typing.html">type hint</a>. This approach makes it easier to structure documentation. But more than this, an explicit protocol can be analyzed by Python type checkers. These type checkers can themselves be integrated into developer tools to reveal type errors before runtime. This way of working has a lot in common with <a href="/articles/2021/11/03/typed-javascript/">Typed Javascript</a>.</p>
 <p>The following <code>Protocol</code> translates the minimum graph API to a Python Protocol.</p>
-<pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Iterator, Protocol, Tuple
+<pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Iterator, Protocol, <span class="hljs-type">Tuple</span>
 
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">graph</span><span class="hljs-params">(Protocol)</span>:</span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__len__</span><span class="hljs-params">(self)</span> -&gt; int:</span>
-        <span class="hljs-string">"""Return the node count."""</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">graph</span>(<span class="hljs-title class_ inherited__">Protocol</span>):
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__len__</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-string">&quot;&quot;&quot;Return the node count.&quot;&quot;&quot;</span>
         ...
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__contains__</span><span class="hljs-params">(self, id: int)</span> -&gt; bool:</span>
-        <span class="hljs-string">"""Test whether a node is present."""</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__contains__</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+        <span class="hljs-string">&quot;&quot;&quot;Test whether a node is present.&quot;&quot;&quot;</span>
         ...
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__iter__</span><span class="hljs-params">(self)</span> -&gt; Iterator[int]:</span>
-        <span class="hljs-string">"""Iterate all nodes."""</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__iter__</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        <span class="hljs-string">&quot;&quot;&quot;Iterate all nodes.&quot;&quot;&quot;</span>
         ...
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__repr__</span><span class="hljs-params">(self)</span> -&gt; str:</span>
-        <span class="hljs-string">"""Return a debugging string."""</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__repr__</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">str</span>:
+        <span class="hljs-string">&quot;&quot;&quot;Return a debugging string.&quot;&quot;&quot;</span>
         ...
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">iteredges</span><span class="hljs-params">(self)</span> -&gt; Iterator[Tuple[int, int]]:</span>
-        <span class="hljs-string">"""Iterate all edges."""</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">iteredges</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-type">Tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>]]:
+        <span class="hljs-string">&quot;&quot;&quot;Iterate all edges.&quot;&quot;&quot;</span>
         ...
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">size</span><span class="hljs-params">(self)</span> -&gt; int:</span>
-        <span class="hljs-string">"""Return the edge count."""</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">size</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-string">&quot;&quot;&quot;Return the edge count.&quot;&quot;&quot;</span>
         ...
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">iterneighbors</span><span class="hljs-params">(self, id: int)</span> -&gt; Iterator[int]:</span>
-        <span class="hljs-string">"""Iterate the neighbors of a node."""</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">iterneighbors</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        <span class="hljs-string">&quot;&quot;&quot;Iterate the neighbors of a node.&quot;&quot;&quot;</span>
         ...
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">degree</span><span class="hljs-params">(self, id: int)</span> -&gt; int:</span>
-        <span class="hljs-string">"""Return the count of nodes attached to a node."""</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">degree</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-string">&quot;&quot;&quot;Return the count of nodes attached to a node.&quot;&quot;&quot;</span>
         ...
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">has_edge</span><span class="hljs-params">(self, sid: int, tid: int)</span> -&gt; bool:</span>
-        <span class="hljs-string">"""Test whether an edge exists."""</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">has_edge</span>(<span class="hljs-params">self, sid: <span class="hljs-built_in">int</span>, tid: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+        <span class="hljs-string">&quot;&quot;&quot;Test whether an edge exists.&quot;&quot;&quot;</span>
         ...
 </code></pre>
 <p>This protocol reflects a collection-centric view in which a <code>Graph</code> contains zero or more integer node identifiers ("ids"). Ids can be counted, tested for membership, and iterated by virtue of the <a href="https://docs.python.org/3/reference/datamodel.html#special-method-names">special methods</a> <code>__len__</code>, <code>__contains__</code>, and <code>__iter__</code>, respectively. A debug string is available through <code>__repr__</code>.</p>
-<pre><code class="hljs python language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_graph</span><span class="hljs-params">(graph: Graph)</span>:</span>
-    <span class="hljs-keyword">for</span> id <span class="hljs-keyword">in</span> graph:
-        print(<span class="hljs-string">"Found node id"</span>, id)
+<pre><code class="hljs python language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_graph</span>(<span class="hljs-params">graph: Graph</span>):
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">id</span> <span class="hljs-keyword">in</span> graph:
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Found node id&quot;</span>, <span class="hljs-built_in">id</span>)
 
-    print(<span class="hljs-string">"Sorted node list"</span>, sorted(graph))
-    print(<span class="hljs-string">"Unsorted node list"</span>, [id <span class="hljs-keyword">for</span> id <span class="hljs-keyword">in</span> graph])
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Sorted node list&quot;</span>, <span class="hljs-built_in">sorted</span>(graph))
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Unsorted node list&quot;</span>, [<span class="hljs-built_in">id</span> <span class="hljs-keyword">for</span> <span class="hljs-built_in">id</span> <span class="hljs-keyword">in</span> graph])
 
     <span class="hljs-keyword">if</span> graph:
-        print(<span class="hljs-string">"Graph is not empty."</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Graph is not empty.&quot;</span>)
     <span class="hljs-keyword">else</span>:
-        print(<span class="hljs-string">"Graph is empty."</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Graph is empty.&quot;</span>)
 
     <span class="hljs-keyword">if</span> <span class="hljs-number">42</span> <span class="hljs-keyword">in</span> graph:
-        print(<span class="hljs-string">"So special!"</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;So special!&quot;</span>)
     <span class="hljs-keyword">else</span>:
-        print(<span class="hljs-string">"Not so special."</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Not so special.&quot;</span>)
 
-    print(<span class="hljs-string">"Here I am"</span>, repr(graph))
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Here I am&quot;</span>, <span class="hljs-built_in">repr</span>(graph))
 </code></pre>
 <p>This concept goes by the name of "data model." The Python data model links classes, special methods, built-in functions and types, and protocols into a cohesive whole. For an excellent treatment of this topic see this talk by <a href="https://twitter.com/dontusethiscode">James Powell</a>.</p>
 <div class="videowrapper">
   <iframe src="https://www.youtube.com/embed/cKPlPJyQrt4" allowfullscreen=""></iframe>
 </div>
 <p>What remains of the <code>Graph</code> protocol is implemented without special methods, but with Python idioms and conventions in mind. For example, a simple way to reveal edges would be to return a list of tuples. But that's not what <code>Graph</code> does. Instead, it returns an iterator of tuples. As we'll see, this offers flexibility to implementors of <code>Graph</code>, without restricting the uses of the return value:</p>
-<pre><code class="hljs python language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">report_edges</span><span class="hljs-params">(graph: Graph)</span>:</span>
+<pre><code class="hljs python language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">report_edges</span>(<span class="hljs-params">graph: Graph</span>):
     <span class="hljs-keyword">for</span> sid, tid <span class="hljs-keyword">in</span> graph.iteredges():
-        print(<span class="hljs-string">f"Found edge (<span class="hljs-subst">{sid}</span>, <span class="hljs-subst">{tid}</span>)."</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Found edge (<span class="hljs-subst">{sid}</span>, <span class="hljs-subst">{tid}</span>).&quot;</span>)
 
-    print(<span class="hljs-string">"A list of bonds:"</span>, list(graph.iteredges()))
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;A list of bonds:&quot;</span>, <span class="hljs-built_in">list</span>(graph.iteredges()))
 </code></pre>
 <p>The same applies to reporting neighbors:</p>
-<pre><code class="hljs python language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">report_neighbors</span><span class="hljs-params">(id: int, graph: Graph)</span>:</span>
-    <span class="hljs-keyword">for</span> tid <span class="hljs-keyword">in</span> graph.iterneighbors(id):
-        print(<span class="hljs-string">f"Found neighbor <span class="hljs-subst">{tid}</span>."</span>)
+<pre><code class="hljs python language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">report_neighbors</span>(<span class="hljs-params"><span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span>, graph: Graph</span>):
+    <span class="hljs-keyword">for</span> tid <span class="hljs-keyword">in</span> graph.iterneighbors(<span class="hljs-built_in">id</span>):
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Found neighbor <span class="hljs-subst">{tid}</span>.&quot;</span>)
 
-    print(<span class="hljs-string">"A list of neighbors:"</span>, list(graph.iterneighbors(id)))
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;A list of neighbors:&quot;</span>, <span class="hljs-built_in">list</span>(graph.iterneighbors(<span class="hljs-built_in">id</span>)))
 </code></pre>
 <p>Bundled with <code>Graph</code> are five custom exceptions that are raised either in the context of constructing or using a <code>Graph</code>.</p>
-<pre><code class="hljs python language-python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DuplicateNode</span><span class="hljs-params">(Exception)</span>:</span>
-    <span class="hljs-string">"""Raised when building a graph with duplicate nodes."""</span>
+<pre><code class="hljs python language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">DuplicateNode</span>(<span class="hljs-title class_ inherited__">Exception</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Raised when building a graph with duplicate nodes.&quot;&quot;&quot;</span>
 
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DuplicateEdge</span><span class="hljs-params">(Exception)</span>:</span>
-    <span class="hljs-string">"""Raised when building a graph with duplicate edges."""</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">DuplicateEdge</span>(<span class="hljs-title class_ inherited__">Exception</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Raised when building a graph with duplicate edges.&quot;&quot;&quot;</span>
 
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Loop</span><span class="hljs-params">(Exception)</span>:</span>
-    <span class="hljs-string">"""Raised when building a graph with with a loop."""</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Loop</span>(<span class="hljs-title class_ inherited__">Exception</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Raised when building a graph with with a loop.&quot;&quot;&quot;</span>
 
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UnknownNode</span><span class="hljs-params">(Exception)</span>:</span>
-    <span class="hljs-string">"""Raised when accessing a node whose id is not found."""</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">UnknownNode</span>(<span class="hljs-title class_ inherited__">Exception</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Raised when accessing a node whose id is not found.&quot;&quot;&quot;</span>
 
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HalfEdge</span><span class="hljs-params">(Exception)</span>:</span>
-    <span class="hljs-string">"""Raised when building an adjacency-style graph without a back edge."""</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">HalfEdge</span>(<span class="hljs-title class_ inherited__">Exception</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Raised when building an adjacency-style graph without a back edge.&quot;&quot;&quot;</span>
 </code></pre>
 <p>Let's make this discussion of the <code>Graph</code> protocol more concrete with an implementation.</p>
 <h2 id="adjacencylist">AdjacencyList</h2>
 <p>An <a href="https://en.wikipedia.org/wiki/Adjacency_list">adjacency list</a> is a graph implementation that associates each node with a list of neighbors. This pattern is implemented by the <code>AdjacencyList</code> class.</p>
-<pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Iterator, Tuple
+<pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Iterator, <span class="hljs-type">Tuple</span>
 <span class="hljs-keyword">from</span> pygraph.graph <span class="hljs-keyword">import</span> DuplicateEdge, HalfEdge, Loop, UnknownNode
 
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AdjacencyList</span>:</span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, adjacency: dict[int, list[int]])</span>:</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">AdjacencyList</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, adjacency: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">list</span>[<span class="hljs-built_in">int</span>]]</span>):
         <span class="hljs-keyword">for</span> sid, tids <span class="hljs-keyword">in</span> adjacency.items():
             <span class="hljs-keyword">for</span> tid <span class="hljs-keyword">in</span> tids:
                 <span class="hljs-keyword">try</span>:
@@ -187,44 +187,44 @@
                 <span class="hljs-keyword">elif</span> tid == sid:
                     <span class="hljs-keyword">raise</span> Loop
 
-        self._adjacency = dict(adjacency)
+        self._adjacency = <span class="hljs-built_in">dict</span>(adjacency)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__len__</span><span class="hljs-params">(self)</span> -&gt; int:</span>
-        <span class="hljs-keyword">return</span> len(self._adjacency)
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__len__</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(self._adjacency)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__contains__</span><span class="hljs-params">(self, id: int)</span> -&gt; bool:</span>
-        <span class="hljs-keyword">return</span> id <span class="hljs-keyword">in</span> self._adjacency
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__contains__</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">id</span> <span class="hljs-keyword">in</span> self._adjacency
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__iter__</span><span class="hljs-params">(self)</span> -&gt; Iterator[int]:</span>
-        <span class="hljs-keyword">return</span> iter(self._adjacency.keys())
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__iter__</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>(self._adjacency.keys())
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__repr__</span><span class="hljs-params">(self)</span> -&gt; str:</span>
-        <span class="hljs-keyword">return</span> <span class="hljs-string">'AdjacencyList({})'</span>.format(self._adjacency)
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__repr__</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">str</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;AdjacencyList({})&#x27;</span>.<span class="hljs-built_in">format</span>(self._adjacency)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">iteredges</span><span class="hljs-params">(self)</span> -&gt; Iterator[Tuple[int, int]]:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">iteredges</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-type">Tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>]]:
         <span class="hljs-keyword">for</span> sid, tids <span class="hljs-keyword">in</span> self._adjacency.items():
             <span class="hljs-keyword">for</span> tid <span class="hljs-keyword">in</span> tids:
                 <span class="hljs-keyword">if</span> sid &lt; tid:
                     <span class="hljs-keyword">yield</span> (sid, tid)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">iterneighbors</span><span class="hljs-params">(self, id: int)</span> -&gt; Iterator[int]:</span>
-        <span class="hljs-keyword">return</span> iter(self._neighbors(id))
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">iterneighbors</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>(self._neighbors(<span class="hljs-built_in">id</span>))
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">size</span><span class="hljs-params">(self)</span> -&gt; int:</span>
-        <span class="hljs-keyword">return</span> sum(<span class="hljs-number">1</span> <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> self.iteredges())
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">size</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">sum</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> self.iteredges())
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">degree</span><span class="hljs-params">(self, id: int)</span> -&gt; int:</span>
-        <span class="hljs-keyword">return</span> len(self._neighbors(id))
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">degree</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(self._neighbors(<span class="hljs-built_in">id</span>))
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">has_edge</span><span class="hljs-params">(self, sid: int, tid: int)</span> -&gt; bool:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">has_edge</span>(<span class="hljs-params">self, sid: <span class="hljs-built_in">int</span>, tid: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
         <span class="hljs-keyword">if</span> tid <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> self:
             <span class="hljs-keyword">raise</span> UnknownNode
 
         <span class="hljs-keyword">return</span> tid <span class="hljs-keyword">in</span> self._neighbors(sid)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_neighbors</span><span class="hljs-params">(self, id: int)</span> -&gt; list[int]:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_neighbors</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">int</span>]:
         <span class="hljs-keyword">try</span>:
-            result = self._adjacency[id]
+            result = self._adjacency[<span class="hljs-built_in">id</span>]
         <span class="hljs-keyword">except</span> KeyError:
             <span class="hljs-keyword">raise</span> UnknownNode
 
@@ -232,7 +232,7 @@
 </code></pre>
 <p><code>AdjacencyList</code> is backed by a <code>dict[int, list[int]]</code>, or a mapping of node id to neighbor list. This data structure by itself offers a remarkably good match to the minimal graph API, as can be seen from the delegated methods <code>__len__</code>, <code>__contains__</code>, <code>__iter__</code>, <code>iterneighbors</code>, and <code>degree</code>.</p>
 <p>The remaining methods illustrate mismatches between a raw dict and the minimal graph API. Take, for example, <code>iteredges</code>.</p>
-<pre><code class="hljs python language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">iteredges</span><span class="hljs-params">(self)</span> -&gt; Iterator[Tuple[int, int]]:</span>
+<pre><code class="hljs python language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">iteredges</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-type">Tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>]]:
     <span class="hljs-keyword">for</span> sid, tids <span class="hljs-keyword">in</span> self._adjacency.items():
         <span class="hljs-keyword">for</span> tid <span class="hljs-keyword">in</span> tids:
             <span class="hljs-keyword">if</span> sid &lt; tid:
@@ -240,7 +240,7 @@
 </code></pre>
 <p>The backing dict doesn't offer a direct method for edge iteration. Fortunately, a short <a href="https://wiki.python.org/moin/Generators">generator</a> can be used instead. No temporary collections (e.g, list or set) are required to avoid iterating non-unique edges. Instead, we use a trick that simply checks that the source id is less than the target id before yielding. This approach has the added advantage of always iterating edges in the same sense and direction.</p>
 <p>Given that <code>AdjacencyList</code> uses a clone of the dict passed to it through the constructor, the <code>__init__</code> method may seem overly busy. What's happening here is a check to ensure that the dict does not contain any of the following bad encodings: a non-member neighbor; a half-edge (sid-&gt;tid without tid-&gt;sid); a duplicate edge; or a loop (edge to self).</p>
-<pre><code class="hljs python language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, adjacency: dict[int, list[int]])</span>:</span>
+<pre><code class="hljs python language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, adjacency: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">list</span>[<span class="hljs-built_in">int</span>]]</span>):
     <span class="hljs-keyword">for</span> sid, tids <span class="hljs-keyword">in</span> adjacency.items():
         <span class="hljs-keyword">for</span> tid <span class="hljs-keyword">in</span> tids:
             <span class="hljs-keyword">try</span>:
@@ -255,19 +255,19 @@
             <span class="hljs-keyword">elif</span> tid == sid:
                 <span class="hljs-keyword">raise</span> Loop
 
-    self._adjacency = dict(adjacency)
+    self._adjacency = <span class="hljs-built_in">dict</span>(adjacency)
 </code></pre>
 <p>Three methods, <code>iterneighbors</code>, <code>degree</code>, and <code>has_edge</code> call a private helper method, <code>_neighbors</code>. The sole purpose of doing so is to avoid the duplication that would result from transforming the built-in <code>KeyError</code> into the custom <code>UnknownNode</code> exception.</p>
 <p>The sailing has been pretty smooth with <code>AdjacencyList</code>. Now let's consider an implementation that trades a simpler backing data type for a more complex implementation.</p>
 <h2 id="edgelist">EdgeList</h2>
 <p>An <a href="https://en.wikipedia.org/wiki/Edge_list">edge list</a> views a graph as a list of edges. <code>EdgeList</code> implements this idea.</p>
-<pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Iterator, Tuple
+<pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Iterator, <span class="hljs-type">Tuple</span>
 <span class="hljs-keyword">from</span> pygraph.graph <span class="hljs-keyword">import</span> DuplicateEdge, Loop, UnknownNode
 
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EdgeList</span>:</span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, edges: list[Tuple[int, int]])</span>:</span>
-        seen = set()
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">EdgeList</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, edges: <span class="hljs-built_in">list</span>[<span class="hljs-type">Tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>]]</span>):
+        seen = <span class="hljs-built_in">set</span>()
 
         <span class="hljs-keyword">for</span> (sid, tid) <span class="hljs-keyword">in</span> edges:
             <span class="hljs-keyword">if</span> (sid, tid) <span class="hljs-keyword">in</span> seen <span class="hljs-keyword">or</span> (tid, sid) <span class="hljs-keyword">in</span> seen:
@@ -277,37 +277,37 @@
 
             seen.add((sid, tid))
 
-        self._edges = list(edges)
+        self._edges = <span class="hljs-built_in">list</span>(edges)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__len__</span><span class="hljs-params">(self)</span> -&gt; int:</span>
-        <span class="hljs-keyword">return</span> sum(<span class="hljs-number">1</span> <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> self._nodes())
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__len__</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">sum</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> self._nodes())
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__contains__</span><span class="hljs-params">(self, id: int)</span> -&gt; bool:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__contains__</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
         <span class="hljs-keyword">for</span> sid, tid <span class="hljs-keyword">in</span> self._edges:
-            <span class="hljs-keyword">if</span> id == sid <span class="hljs-keyword">or</span> id == tid:
+            <span class="hljs-keyword">if</span> <span class="hljs-built_in">id</span> == sid <span class="hljs-keyword">or</span> <span class="hljs-built_in">id</span> == tid:
                 <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span>
         <span class="hljs-keyword">else</span>:
             <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span>
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__iter__</span><span class="hljs-params">(self)</span> -&gt; Iterator[int]:</span>
-        <span class="hljs-keyword">return</span> iter(self._nodes())
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__iter__</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>(self._nodes())
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__repr__</span><span class="hljs-params">(self)</span> -&gt; str:</span>
-        <span class="hljs-keyword">return</span> <span class="hljs-string">'EdgeList({})'</span>.format(self._edges)
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__repr__</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">str</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;EdgeList({})&#x27;</span>.<span class="hljs-built_in">format</span>(self._edges)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">iteredges</span><span class="hljs-params">(self)</span> -&gt; Iterator[Tuple[int, int]]:</span>
-        <span class="hljs-keyword">return</span> iter(self._edges)
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">iteredges</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-type">Tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>]]:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>(self._edges)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">size</span><span class="hljs-params">(self)</span> -&gt; int:</span>
-        <span class="hljs-keyword">return</span> len(self._edges)
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">size</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(self._edges)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">iterneighbors</span><span class="hljs-params">(self, id: int)</span> -&gt; Iterator[int]:</span>
-        <span class="hljs-keyword">return</span> iter(self._neighbors(id))
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">iterneighbors</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>(self._neighbors(<span class="hljs-built_in">id</span>))
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">degree</span><span class="hljs-params">(self, id: int)</span> -&gt; int:</span>
-        <span class="hljs-keyword">return</span> sum(<span class="hljs-number">1</span> <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> self._neighbors(id))
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">degree</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">sum</span>(<span class="hljs-number">1</span> <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> self._neighbors(<span class="hljs-built_in">id</span>))
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">has_edge</span><span class="hljs-params">(self, sid: int, tid: int)</span> -&gt; bool:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">has_edge</span>(<span class="hljs-params">self, sid: <span class="hljs-built_in">int</span>, tid: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
         <span class="hljs-keyword">if</span> sid <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> self <span class="hljs-keyword">or</span> tid <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> self:
             <span class="hljs-keyword">raise</span> UnknownNode
 
@@ -319,21 +319,21 @@
         <span class="hljs-keyword">else</span>:
             <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span>
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_neighbors</span><span class="hljs-params">(self, id: int)</span> -&gt; Iterator[int]:</span>
-        <span class="hljs-keyword">if</span> id <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> self:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_neighbors</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">id</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> self:
             <span class="hljs-keyword">raise</span> UnknownNode
         <span class="hljs-keyword">else</span>:
-            <span class="hljs-keyword">return</span> self._mates(id)
+            <span class="hljs-keyword">return</span> self._mates(<span class="hljs-built_in">id</span>)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_mates</span><span class="hljs-params">(self, id: int)</span> -&gt; Iterator[int]:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_mates</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
         <span class="hljs-keyword">for</span> sid, tid <span class="hljs-keyword">in</span> self._edges:
-            <span class="hljs-keyword">if</span> id == sid:
+            <span class="hljs-keyword">if</span> <span class="hljs-built_in">id</span> == sid:
                 <span class="hljs-keyword">yield</span> tid
-            <span class="hljs-keyword">elif</span> id == tid:
+            <span class="hljs-keyword">elif</span> <span class="hljs-built_in">id</span> == tid:
                 <span class="hljs-keyword">yield</span> sid
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_nodes</span><span class="hljs-params">(self)</span> -&gt; Iterator[int]:</span>
-        seen = set()
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_nodes</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        seen = <span class="hljs-built_in">set</span>()
 
         <span class="hljs-keyword">for</span> sid, tid <span class="hljs-keyword">in</span> self._edges:
             <span class="hljs-keyword">if</span> sid <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> seen:
@@ -352,12 +352,12 @@
 <p>Still, <code>EdgeList</code> offers the advantage of efficient operations over the set of all edges. Recall that this was something <code>AdjacencyList</code> wasn't very good at. Maybe it's possible to get the best of both worlds.</p>
 <h2 id="hybrid">Hybrid</h2>
 <p>The node-centered efficiency of <code>AdjacencyList</code> can be combined with the edge-centered efficiency of <code>EdgeList</code> with <code>Hybrid</code>. An instance of this class will be backed by both an adjacency list and an edge list generated from it.</p>
-<pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Iterator, Tuple
+<pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Iterator, <span class="hljs-type">Tuple</span>
 <span class="hljs-keyword">from</span> pygraph.graph <span class="hljs-keyword">import</span> HalfEdge, Loop, UnknownNode
 
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Hybrid</span>:</span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, adjacency: dict[int, list[int]])</span>:</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Hybrid</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, adjacency: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">list</span>[<span class="hljs-built_in">int</span>]]</span>):
         self._edges = []
 
         <span class="hljs-keyword">for</span> sid, tids <span class="hljs-keyword">in</span> adjacency.items():
@@ -374,41 +374,41 @@
                 <span class="hljs-keyword">elif</span> sid &lt; tid:
                     self._edges.append((sid, tid))
 
-        self._adjacency = dict(adjacency)
+        self._adjacency = <span class="hljs-built_in">dict</span>(adjacency)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__len__</span><span class="hljs-params">(self)</span> -&gt; int:</span>
-        <span class="hljs-keyword">return</span> len(self._adjacency)
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__len__</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(self._adjacency)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__contains__</span><span class="hljs-params">(self, id: int)</span> -&gt; bool:</span>
-        <span class="hljs-keyword">return</span> id <span class="hljs-keyword">in</span> self._adjacency
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__contains__</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">id</span> <span class="hljs-keyword">in</span> self._adjacency
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__iter__</span><span class="hljs-params">(self)</span> -&gt; Iterator[int]:</span>
-        <span class="hljs-keyword">return</span> iter(self._adjacency.keys())
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__iter__</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>(self._adjacency.keys())
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__repr__</span><span class="hljs-params">(self)</span> -&gt; str:</span>
-        <span class="hljs-keyword">return</span> <span class="hljs-string">'Hybrid({})'</span>.format(self._adjacency)
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__repr__</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">str</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Hybrid({})&#x27;</span>.<span class="hljs-built_in">format</span>(self._adjacency)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">iteredges</span><span class="hljs-params">(self)</span> -&gt; Iterator[Tuple[int, int]]:</span>
-        <span class="hljs-keyword">return</span> iter(self._edges)
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">iteredges</span>(<span class="hljs-params">self</span>) -&gt; Iterator[<span class="hljs-type">Tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>]]:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>(self._edges)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">size</span><span class="hljs-params">(self)</span> -&gt; int:</span>
-        <span class="hljs-keyword">return</span> len(self._edges)
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">size</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(self._edges)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">iterneighbors</span><span class="hljs-params">(self, id: int)</span> -&gt; Iterator[int]:</span>
-        <span class="hljs-keyword">return</span> iter(self._neighbors(id))
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">iterneighbors</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; Iterator[<span class="hljs-built_in">int</span>]:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>(self._neighbors(<span class="hljs-built_in">id</span>))
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">degree</span><span class="hljs-params">(self, id: int)</span> -&gt; int:</span>
-        <span class="hljs-keyword">return</span> len(self._neighbors(id))
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">degree</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">int</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(self._neighbors(<span class="hljs-built_in">id</span>))
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">has_edge</span><span class="hljs-params">(self, sid: int, tid: int)</span> -&gt; bool:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">has_edge</span>(<span class="hljs-params">self, sid: <span class="hljs-built_in">int</span>, tid: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
         <span class="hljs-keyword">if</span> tid <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> self:
             <span class="hljs-keyword">raise</span> UnknownNode
 
         <span class="hljs-keyword">return</span> tid <span class="hljs-keyword">in</span> self._neighbors(sid)
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_neighbors</span><span class="hljs-params">(self, id: int)</span> -&gt; list[int]:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_neighbors</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">int</span>]:
         <span class="hljs-keyword">try</span>:
-            result = self._adjacency[id]
+            result = self._adjacency[<span class="hljs-built_in">id</span>]
         <span class="hljs-keyword">except</span> KeyError:
             <span class="hljs-keyword">raise</span> UnknownNode
 
@@ -420,13 +420,13 @@
 <p>It's possible to declare <code>Graph</code> as an ABC like so.</p>
 <pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> abc <span class="hljs-keyword">import</span> ABC
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Graph</span><span class="hljs-params">(ABC)</span>:</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Graph</span>(<span class="hljs-title class_ inherited__">ABC</span>):
     <span class="hljs-keyword">pass</span>
 </code></pre>
 <p>The distinction between <code>Protocol</code> and <code>ABC</code> is both subtle and important. A <code>Protocol</code> requires nothing from a conforming class other than a set of methods. An ABC, on the other hand, requires an inheritance relationship.</p>
 <pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> pygraph <span class="hljs-keyword">import</span> Graph
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ConcreteGraph</span><span class="hljs-params">(Graph)</span>:</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ConcreteGraph</span>(<span class="hljs-title class_ inherited__">Graph</span>):
     <span class="hljs-comment"># method overrides</span>
     <span class="hljs-keyword">pass</span>
 </code></pre>

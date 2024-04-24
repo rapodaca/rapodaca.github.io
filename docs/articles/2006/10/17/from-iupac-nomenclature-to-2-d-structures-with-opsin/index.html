@@ -42,63 +42,63 @@
 <p>We'll use RCDK to augment OPSIN's capabilities. Thanks to CDK's built-in CML support, RCDK can read CML and generate an <code>AtomContainer</code> representation. RCDK also supports the assignment of 2-D coordinates to an <code>AtomContainer</code> via CDK's <code>StructureDiagramGenerator</code>. To produce the PNG image, we'll use the 2-D rendering capability made possible through <a href="/articles/2006/08/28/drawing-2-d-structures-with-structure-cdk">Structure-CDK</a>, which is a built-in component of RCDK.</p>
 <h2 id="asimplerubylibrary">A Simple Ruby Library</h2>
 <p>Create a working directory and copy <a href="http://prdownloads.sourceforge.net/oscar3-chem/opsin-big-0.1.0.jar?download">opsin-big-0.1.0.jar</a> into it. Next, create a file called <strong>depictor.rb</strong> containing the following Ruby code:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk&#x27;</span>
 
-Java::Classpath.add(<span class="hljs-string">'opsin-big-0.1.0.jar'</span>)
+<span class="hljs-title class_">Java</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Classpath</span>.add(<span class="hljs-string">&#x27;opsin-big-0.1.0.jar&#x27;</span>)
 
-<span class="hljs-keyword">require</span> <span class="hljs-string">'util'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;util&#x27;</span>
 
 <span class="hljs-comment"># A simple IUPAC-&gt;2-D structure convertor.</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Depictor</span></span>
-  @@StringReader = import <span class="hljs-string">'java.io.StringReader'</span>
-  @@NameToStructure = import <span class="hljs-string">'uk.ac.cam.ch.wwmm.opsin.NameToStructure'</span>
-  @@CMLReader = import <span class="hljs-string">'org.openscience.cdk.io.CMLReader'</span>
-  @@ChemFile = import <span class="hljs-string">'org.openscience.cdk.ChemFile'</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Depictor</span>
+  <span class="hljs-variable">@@StringReader</span> = import <span class="hljs-string">&#x27;java.io.StringReader&#x27;</span>
+  <span class="hljs-variable">@@NameToStructure</span> = import <span class="hljs-string">&#x27;uk.ac.cam.ch.wwmm.opsin.NameToStructure&#x27;</span>
+  <span class="hljs-variable">@@CMLReader</span> = import <span class="hljs-string">&#x27;org.openscience.cdk.io.CMLReader&#x27;</span>
+  <span class="hljs-variable">@@ChemFile</span> = import <span class="hljs-string">&#x27;org.openscience.cdk.ChemFile&#x27;</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @nts = @@NameToStructure.new
-    @cml_reader = @@CMLReader.new
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@nts</span> = <span class="hljs-variable">@@NameToStructure</span>.new
+    <span class="hljs-variable">@cml_reader</span> = <span class="hljs-variable">@@CMLReader</span>.new
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Writes a width by height PNG to</span>
   <span class="hljs-comment"># filename&gt; for the molecule described by</span>
   <span class="hljs-comment"># iupac_name.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict_png</span><span class="hljs-params">(iupac_name, filename, width, height)</span></span>
-    cml = @nts.parseToCML(iupac_name)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">depict_png</span>(<span class="hljs-params">iupac_name, filename, width, height</span>)
+    cml = <span class="hljs-variable">@nts</span>.parseToCML(iupac_name)
 
-    throw(<span class="hljs-string">"Can't parse name: <span class="hljs-subst">#{iupac_name}</span>"</span>) <span class="hljs-keyword">unless</span> cml
+    <span class="hljs-keyword">throw</span>(<span class="hljs-string">&quot;Can&#x27;t parse name: <span class="hljs-subst">#{iupac_name}</span>&quot;</span>) <span class="hljs-keyword">unless</span> cml
 
     molfile = cml_to_molfile(cml)
 
-    RCDK::Util::Image.molfile_to_png(molfile, filename, width, height)
+    <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Image</span>.molfile_to_png(molfile, filename, width, height)
   <span class="hljs-keyword">end</span>
 
-  private
+  <span class="hljs-keyword">private</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">cml_to_molfile</span><span class="hljs-params">(cml)</span></span>
-    string_reader = StringReader.new(cml.toXML)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">cml_to_molfile</span>(<span class="hljs-params">cml</span>)
+    string_reader = <span class="hljs-title class_">StringReader</span>.new(cml.toXML)
 
-    @cml_reader.setReader(string_reader)
+    <span class="hljs-variable">@cml_reader</span>.setReader(string_reader)
 
-    chem_file = @cml_reader.read(@@ChemFile.new)
+    chem_file = <span class="hljs-variable">@cml_reader</span>.read(<span class="hljs-variable">@@ChemFile</span>.new)
     molecule = chem_file.getChemSequence(<span class="hljs-number">0</span>).getChemModel(<span class="hljs-number">0</span>).getSetOfMolecules.getMolecule(<span class="hljs-number">0</span>)
 
-    molecule = RCDK::Util::XY.coordinate_molecule(molecule)
+    molecule = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:XY</span>.coordinate_molecule(molecule)
 
-    RCDK::Util::Lang.get_molfile(molecule)
+    <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Lang</span>.get_molfile(molecule)
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <h2 id="testingtesting">Testing, Testing</h2>
 <p>A short test will demonstrate the capabilities of the <code>Depictor</code> library. Add the following to a file called <strong>test.rb</strong> in your working directory (or enter it interactively with irb):</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'depictor'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;depictor&#x27;</span>
 
-depictor = Depictor.new
-name = <span class="hljs-string">'3,3-dimethyl-7-oxo-6-[(2-phenylacetyl)amino]-4-thia-1-azabicyclo[3.2.0]heptane-2-carboxylic acid'</span> <span class="hljs-comment">#Penicillin G</span>
+depictor = <span class="hljs-title class_">Depictor</span>.new
+name = <span class="hljs-string">&#x27;3,3-dimethyl-7-oxo-6-[(2-phenylacetyl)amino]-4-thia-1-azabicyclo[3.2.0]heptane-2-carboxylic acid&#x27;</span> <span class="hljs-comment">#Penicillin G</span>
 
-depictor.depict_png(name, <span class="hljs-string">'out.png'</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>)
+depictor.depict_png(name, <span class="hljs-string">&#x27;out.png&#x27;</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>)
 </code></pre>
 <p>Running this test produces a 300x300 PNG image of Penicillin G, named <strong>out.png</strong>, in your working directory:</p>
 <p><img src="/images/posts/20061017/out.png" alt="Out"></p>

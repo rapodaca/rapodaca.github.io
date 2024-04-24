@@ -47,33 +47,33 @@ $ jruby -S gem install rbtk-0.1.0.gem
 <h2 id="testingtheinstallation">Testing the Installation</h2>
 <p>Rubidium can be tested with the following code run in interactive JRuby (jirb):</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'rubygems'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;rubygems&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):002:0&gt; gem <span class="hljs-string">'rbtk'</span>
+irb(main):002:0&gt; gem <span class="hljs-string">&#x27;rbtk&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):003:0&gt; require <span class="hljs-string">'rubidium/lang'</span>
+irb(main):003:0&gt; require <span class="hljs-string">&#x27;rubidium/lang&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):004:0&gt; c=Rubidium::Converter.new
 =&gt; <span class="hljs-comment">#&amp;lt;Rubidium::Converter:0xbd4e3c ... &amp;gt;</span>
-irb(main):005:0&gt; c.set_formats <span class="hljs-string">'smi'</span>, <span class="hljs-string">'mol'</span>
+irb(main):005:0&gt; c.set_formats <span class="hljs-string">&#x27;smi&#x27;</span>, <span class="hljs-string">&#x27;mol&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):006:0&gt; c.convert <span class="hljs-string">'c1ccccc1'</span>
-=&gt; <span class="hljs-string">"\n  CDK    11/6/07,8:41\n\n  6  6  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  2  1  2  0  0  0  0 \n  3  2  1  0  0  0  0 \n  4  3  2  0  0  0  0 \n  5  4  1  0  0  0  0 \n  6  5  2  0  0  0  0 \n  6  1  1  0  0  0  0 \nM  END\n"</span>
+irb(main):006:0&gt; c.convert <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>
+=&gt; <span class="hljs-string">&quot;\n  CDK    11/6/07,8:41\n\n  6  6  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  2  1  2  0  0  0  0 \n  3  2  1  0  0  0  0 \n  4  3  2  0  0  0  0 \n  5  4  1  0  0  0  0 \n  6  5  2  0  0  0  0 \n  6  1  1  0  0  0  0 \nM  END\n&quot;</span>
 </code></pre>
 <h2 id="lowlevelinterface">Low-Level Interface</h2>
 <p>There's not much yet to Rubidium itself beyond molecular language interconversions offered by the <a href="http://cdk.sf.net">Chemistry Development Kit</a> (CDK). But the CDK offers a wide range of cheminformatics functionality that is immediately accessible in raw form via JRuby itself. For example, we can calculate the TPSA of oxazepam:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'rubygems'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;rubygems&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):002:0&gt; gem <span class="hljs-string">'rbtk'</span>
+irb(main):002:0&gt; gem <span class="hljs-string">&#x27;rbtk&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):003:0&gt; require <span class="hljs-string">'cdk/lang'</span>
+irb(main):003:0&gt; require <span class="hljs-string">&#x27;cdk/lang&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):004:0&gt; import <span class="hljs-string">'org.openscience.cdk.qsar.descriptors.molecular.TPSADescriptor'</span>
-=&gt; [<span class="hljs-string">"org.openscience.cdk.qsar.descriptors.molecular.TPSADescriptor"</span>]
+irb(main):004:0&gt; import <span class="hljs-string">&#x27;org.openscience.cdk.qsar.descriptors.molecular.TPSADescriptor&#x27;</span>
+=&gt; [<span class="hljs-string">&quot;org.openscience.cdk.qsar.descriptors.molecular.TPSADescriptor&quot;</span>]
 irb(main):005:0&gt; reader=CDK::SmilesReader.new
 =&gt; <span class="hljs-comment">#&amp;lt;CDK::SmilesReader:0x1088a1b ... &amp;gt; </span>
-irb(main):006:0&gt; mol=reader.read <span class="hljs-string">'O=C3Nc1ccc(Cl)cc1C(c2ccccc2)=NC3O'</span>
+irb(main):006:0&gt; mol=reader.read <span class="hljs-string">&#x27;O=C3Nc1ccc(Cl)cc1C(c2ccccc2)=NC3O&#x27;</span>
 =&gt; <span class="hljs-comment">#&amp;lt;Java::OrgOpenscienceCdk::Molecule:0x174f02c ... &amp;gt;</span>
 irb(main):007:0&gt; tpsa = TPSADescriptor.new
 =&gt; <span class="hljs-comment">#&amp;lt;Java::OrgOpenscienceCdkQsarDescriptorsMolecular::TPSADescriptor:0x14596d5 ...&amp;gt;</span>

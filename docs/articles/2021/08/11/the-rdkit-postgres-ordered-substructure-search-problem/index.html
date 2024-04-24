@@ -55,17 +55,17 @@
 </ul>
 <p>The table contained the following columns and indexes:</p>
 <pre><code class="hljs sql language-sql">\d molecules
-<span class="hljs-comment">--                              Table "public.molecules"</span>
+<span class="hljs-comment">--                              Table &quot;public.molecules&quot;</span>
 <span class="hljs-comment">--  Column |   Type    | Collation | Nullable |                Default                </span>
 <span class="hljs-comment">-- --------+-----------+-----------+----------+---------------------------------------</span>
-<span class="hljs-comment">--  id     | integer   |           | not null | nextval('molecules_id_seq'::regclass)</span>
+<span class="hljs-comment">--  id     | integer   |           | not null | nextval(&#x27;molecules_id_seq&#x27;::regclass)</span>
 <span class="hljs-comment">--  mol    | mol       |           | not null | </span>
 <span class="hljs-comment">--  mw     | numeric   |           | not null | </span>
 <span class="hljs-comment">--  fp     | bit(1024) |           |          | </span>
 <span class="hljs-comment">-- Indexes:</span>
-<span class="hljs-comment">--     "molecules_pkey" PRIMARY KEY, btree (id)</span>
-<span class="hljs-comment">--     "molecules_mol" gist (mol)</span>
-<span class="hljs-comment">--     "molecules_mw" btree (mw)</span>
+<span class="hljs-comment">--     &quot;molecules_pkey&quot; PRIMARY KEY, btree (id)</span>
+<span class="hljs-comment">--     &quot;molecules_mol&quot; gist (mol)</span>
+<span class="hljs-comment">--     &quot;molecules_mw&quot; btree (mw)</span>
 </code></pre>
 <p>Query timings were those reported Postgres:</p>
 <pre><code class="hljs sql language-sql">\timing
@@ -73,7 +73,7 @@
 </code></pre>
 <h2 id="orderedandunorderedsubstructuresearch">Ordered and Unordered Substructure Search</h2>
 <p>Substructure-only queries were uniformly fast, typically executing within 10 ms regardless of the SMILES used. Benzene was tested as a particularly tough case in that <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases/">fingerprint prescreening</a> is likely to filter few candidates.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">25</span>;
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@<span class="hljs-operator">&gt;</span><span class="hljs-string">&#x27;c1ccccc1&#x27;</span> LIMIT <span class="hljs-number">25</span>;
 <span class="hljs-comment">--                            mol                            |   mw    </span>
 <span class="hljs-comment">-- ----------------------------------------------------------+---------</span>
 <span class="hljs-comment">--  CCNC(=O)C1(Cc2cccc(-c3ccccc3)c2)CCN(C(=O)CC)CC1          | 378.516</span>
@@ -82,7 +82,7 @@
 <span class="hljs-comment">-- Time: 8.541 ms</span>
 </code></pre>
 <p>Surprisingly, the same query with an <code>ORDER BY</code> clause increased the time to completion by over 200-fold:</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@<span class="hljs-operator">&gt;</span><span class="hljs-string">&#x27;c1ccccc1&#x27;</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> mw limit <span class="hljs-number">25</span>;
 <span class="hljs-comment">--            mol           |   mw    </span>
 <span class="hljs-comment">-- -------------------------+---------</span>
 <span class="hljs-comment">--  C=C=Cc1ccccc1           | 116.163</span>
@@ -96,21 +96,21 @@
 <h2 id="diagnosisattempts">Diagnosis Attempts</h2>
 <p>Postgres comes with a suite of tools for diagnosing performance issues. In particular, <a href="https://www.postgresql.org/docs/12/sql-explain.html"><code>EXPLAIN ANALYZE</code></a> can give insights into specific steps used to execute a query, including the indexes and algorithms used.</p>
 <p>For example, running <code>EXPLAIN ANALYZE</code> on an unordered benzene substructure query revealed that Postgres used the RDKit index as expected:</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
-<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">25</span>;
+<pre><code class="hljs sql language-sql">EXPLAIN ANALYZE
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@<span class="hljs-operator">&gt;</span><span class="hljs-string">&#x27;c1ccccc1&#x27;</span> LIMIT <span class="hljs-number">25</span>;
 <span class="hljs-comment">--                                                               QUERY PLAN                                                              </span>
 <span class="hljs-comment">-- --------------------------------------------------------------------------------------------------------------------------------------</span>
 <span class="hljs-comment">--  Limit  (cost=0.28..106.72 rows=25 width=403) (actual time=0.608..1.551 rows=25 loops=1)</span>
 <span class="hljs-comment">--    -&gt;  Index Scan using molecules_mol on molecules  (cost=0.28..426.03 rows=100 width=403) (actual time=0.607..1.544 rows=25 loops=1)</span>
-<span class="hljs-comment">--          Index Cond: (mol @&gt; 'c1ccccc1'::mol)</span>
+<span class="hljs-comment">--          Index Cond: (mol @&gt; &#x27;c1ccccc1&#x27;::mol)</span>
 <span class="hljs-comment">--  Planning Time: 0.081 ms</span>
 <span class="hljs-comment">--  Execution Time: 1.698 ms</span>
 <span class="hljs-comment">-- (5 rows)</span>
 </code></pre>
 <p>The <a href="https://www.postgresql.org/docs/9.3/index-scanning.html">Index Scan</a> node tells us that that <code>molecules_mol</code> index is being used, as expected.</p>
 <p>A different kind of report resulted from running <code>EXPLAIN ANALYZE</code> on the same substructure query, but ordered by molecular weight:</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
-<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<pre><code class="hljs sql language-sql">EXPLAIN ANALYZE
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@<span class="hljs-operator">&gt;</span><span class="hljs-string">&#x27;c1ccccc1&#x27;</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> mw limit <span class="hljs-number">25</span>;
 <span class="hljs-comment">--                                                                 QUERY PLAN                                                                 </span>
 <span class="hljs-comment">-- -------------------------------------------------------------------------------------------------------------------------------------------</span>
 <span class="hljs-comment">--  Limit  (cost=388.74..388.80 rows=25 width=403) (actual time=1925.578..1925.582 rows=25 loops=1)</span>
@@ -118,11 +118,11 @@
 <span class="hljs-comment">--          Sort Key: mw</span>
 <span class="hljs-comment">--          Sort Method: top-N heapsort  Memory: 41kB</span>
 <span class="hljs-comment">--          -&gt;  Bitmap Heap Scan on molecules  (cost=25.05..385.92 rows=100 width=403) (actual time=48.888..1879.645 rows=66316 loops=1)</span>
-<span class="hljs-comment">--                Recheck Cond: (mol @&gt; 'c1ccccc1'::mol)</span>
+<span class="hljs-comment">--                Recheck Cond: (mol @&gt; &#x27;c1ccccc1&#x27;::mol)</span>
 <span class="hljs-comment">--                Rows Removed by Index Recheck: 3752</span>
 <span class="hljs-comment">--                Heap Blocks: exact=5366</span>
 <span class="hljs-comment">--                -&gt;  Bitmap Index Scan on molecules_mol  (cost=0.00..25.03 rows=100 width=0) (actual time=48.138..48.138 rows=70068 loops=1)</span>
-<span class="hljs-comment">--                      Index Cond: (mol @&gt; 'c1ccccc1'::mol)</span>
+<span class="hljs-comment">--                      Index Cond: (mol @&gt; &#x27;c1ccccc1&#x27;::mol)</span>
 <span class="hljs-comment">--  Planning Time: 0.109 ms</span>
 <span class="hljs-comment">--  Execution Time: 1925.723 ms</span>
 <span class="hljs-comment">-- (12 rows)</span>
@@ -139,8 +139,8 @@
 <li>The heapsort has to deal with 66,316 rows.</li>
 </ul>
 <p>We gain additional insights from the query plan for the substructure search on acyl chlorides (<code>C(=O)Cl</code>).</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
-<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'C(=O)Cl'</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<pre><code class="hljs sql language-sql">EXPLAIN ANALYZE
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@<span class="hljs-operator">&gt;</span><span class="hljs-string">&#x27;C(=O)Cl&#x27;</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> mw limit <span class="hljs-number">25</span>;
 <span class="hljs-comment">--                                                               QUERY PLAN                                                              </span>
 <span class="hljs-comment">-- --------------------------------------------------------------------------------------------------------------------------------------</span>
 <span class="hljs-comment">--  Limit  (cost=388.74..388.80 rows=25 width=403) (actual time=0.747..0.750 rows=17 loops=1)</span>
@@ -148,10 +148,10 @@
 <span class="hljs-comment">--          Sort Key: mw</span>
 <span class="hljs-comment">--          Sort Method: quicksort  Memory: 30kB</span>
 <span class="hljs-comment">--          -&gt;  Bitmap Heap Scan on molecules  (cost=25.05..385.92 rows=100 width=403) (actual time=0.261..0.722 rows=17 loops=1)</span>
-<span class="hljs-comment">--                Recheck Cond: (mol @&gt; 'O=CCl'::mol)</span>
+<span class="hljs-comment">--                Recheck Cond: (mol @&gt; &#x27;O=CCl&#x27;::mol)</span>
 <span class="hljs-comment">--                Heap Blocks: exact=14</span>
 <span class="hljs-comment">--                -&gt;  Bitmap Index Scan on molecules_mol  (cost=0.00..25.03 rows=100 width=0) (actual time=0.204..0.204 rows=17 loops=1)</span>
-<span class="hljs-comment">--                      Index Cond: (mol @&gt; 'O=CCl'::mol)</span>
+<span class="hljs-comment">--                      Index Cond: (mol @&gt; &#x27;O=CCl&#x27;::mol)</span>
 <span class="hljs-comment">--  Planning Time: 0.096 ms</span>
 <span class="hljs-comment">--  Execution Time: 0.841 ms</span>
 <span class="hljs-comment">-- (11 rows)</span>
@@ -165,7 +165,7 @@
 <li><code>shared_buffers</code>. As noted by <a href="https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server">the Wiki</a>, this setting "determines how much memory is dedicated to PostgreSQL to use for caching data."</li>
 </ul>
 <p>To explore the possibility that increasing <code>shared_buffers</code> might persuade Postgres to start using the <code>mw</code> index, <code>shared_buffers</code> was adjusted upward from the default of 128 MB to 2048 MB. This had no effect on the query plan or execution time.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> shared_buffers <span class="hljs-keyword">to</span> <span class="hljs-string">'2048MB'</span>;
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> shared_buffers <span class="hljs-keyword">to</span> <span class="hljs-string">&#x27;2048MB&#x27;</span>;
 <span class="hljs-comment">-- exit, then restart</span>
 </code></pre>
 <p>Perhaps the query planner needs a two-column index on <code>mw</code> and <code>mol</code>. Although the documentation makes it clear that this should not be necessary, various sources suggest that it could be. Regardless, setting a two column index did not lead to faster queries. Doing this was a little tricky because <code>mw</code> requires a b-tree index whereas <code>mol</code> requires a GIST index. The two types can't ordinarily be mixed in a multicolumn index. However, this can be corrected by installing the <a href="https://www.postgresql.org/docs/9.1/btree-gist.html">btree_gist extension</a>.</p>
@@ -176,10 +176,10 @@
 </blockquote>
 <p>This parameter defaults to "on". It can be turned off as follows:</p>
 <pre><code class="hljs sql language-sql"><span class="hljs-comment">-- https://stackoverflow.com/a/63796329/54426</span>
-<span class="hljs-keyword">set</span> enable_sort=<span class="hljs-keyword">off</span>;
+<span class="hljs-keyword">set</span> enable_sort<span class="hljs-operator">=</span>off;
 </code></pre>
 <p>The effect was dramatic, and similar response times were seen with or without the <code>ORDER BY</code> clause:</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@<span class="hljs-operator">&gt;</span><span class="hljs-string">&#x27;c1ccccc1&#x27;</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> mw limit <span class="hljs-number">25</span>;
 <span class="hljs-comment">--            mol           |   mw    </span>
 <span class="hljs-comment">-- -------------------------+---------</span>
 <span class="hljs-comment">--  C=C=Cc1ccccc1           | 116.163</span>
@@ -188,13 +188,13 @@
 <span class="hljs-comment">--  Time: 14.705 ms</span>
 </code></pre>
 <p>Instead of a sort, the planner now uses both indexes as expected:</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
-<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<pre><code class="hljs sql language-sql">EXPLAIN ANALYZE
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@<span class="hljs-operator">&gt;</span><span class="hljs-string">&#x27;c1ccccc1&#x27;</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> mw limit <span class="hljs-number">25</span>;
 <span class="hljs-comment">--                                                               QUERY PLAN                                                               </span>
 <span class="hljs-comment">-- ---------------------------------------------------------------------------------------------------------------------------------------</span>
 <span class="hljs-comment">--  Limit  (cost=0.42..6145.87 rows=25 width=403) (actual time=2.043..6.476 rows=25 loops=1)</span>
 <span class="hljs-comment">--    -&gt;  Index Scan using molecules_mw on molecules  (cost=0.42..24582.23 rows=100 width=403) (actual time=2.041..6.466 rows=25 loops=1)</span>
-<span class="hljs-comment">--          Filter: (mol @&gt; 'c1ccccc1'::mol)</span>
+<span class="hljs-comment">--          Filter: (mol @&gt; &#x27;c1ccccc1&#x27;::mol)</span>
 <span class="hljs-comment">--          Rows Removed by Filter: 355</span>
 <span class="hljs-comment">--  Planning Time: 0.092 ms</span>
 <span class="hljs-comment">--  Execution Time: 6.528 ms</span>
@@ -203,8 +203,8 @@
 <p>As an aside, the above query plan was also returned without adjusting <code>enable_sort</code> when the number of rows was 10,000 instead of the 100,000 used here. It's possible that adjusting some other, less-invasive Postgres operational parameter would address the ordered substructure query problem in a better way.</p>
 <p>Globally setting <code>enable_sort</code> is probably not a good idea, but fortunately, it can be set on a per-transaction basis. After completion of the transaction, <code>enable_sort</code> is restored to its default setting of "off".</p>
 <pre><code class="hljs sql language-sql"><span class="hljs-keyword">BEGIN</span>;
-<span class="hljs-keyword">SET</span> <span class="hljs-keyword">LOCAL</span> enable_sort = <span class="hljs-keyword">off</span>;
-<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@&gt;<span class="hljs-string">'c1ccccc1'</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> mw <span class="hljs-keyword">limit</span> <span class="hljs-number">25</span>;
+<span class="hljs-keyword">SET</span> <span class="hljs-keyword">LOCAL</span> enable_sort <span class="hljs-operator">=</span> off;
+<span class="hljs-keyword">SELECT</span> mol, mw <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> mol@<span class="hljs-operator">&gt;</span><span class="hljs-string">&#x27;c1ccccc1&#x27;</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> mw limit <span class="hljs-number">25</span>;
 <span class="hljs-keyword">COMMIT</span>;
 <span class="hljs-comment">-- BEGIN</span>
 <span class="hljs-comment">-- Time: 2.565 ms</span>
@@ -250,50 +250,50 @@
 </code></pre>
 <p>With an unmodified instance of the extension running on Postgres in a Docker container, create the database, extension, and raw data table. Then populate this table with the first 100,000 entries from the eMolecules set.</p>
 <pre><code class="hljs bash language-bash">createdb emolecules
-psql -c <span class="hljs-string">'create extension rdkit'</span> emolecules
-psql -c <span class="hljs-string">'create table raw_data(id SERIAL, smiles text, version_id integer, parent_id integer);'</span> emolecules
-zcat &lt; ./version.smi.gz | sed <span class="hljs-string">'1d; s/\\/\\\\/g'</span> | head -n 1000000 | psql -c <span class="hljs-string">"copy raw_data (smiles,version_id,parent_id) from stdin with delimiter ' '"</span> emolecules
+psql -c <span class="hljs-string">&#x27;create extension rdkit&#x27;</span> emolecules
+psql -c <span class="hljs-string">&#x27;create table raw_data(id SERIAL, smiles text, version_id integer, parent_id integer);&#x27;</span> emolecules
+zcat &lt; ./version.smi.gz | sed <span class="hljs-string">&#x27;1d; s/\\/\\\\/g&#x27;</span> | <span class="hljs-built_in">head</span> -n 1000000 | psql -c <span class="hljs-string">&quot;copy raw_data (smiles,version_id,parent_id) from stdin with delimiter &#x27; &#x27;&quot;</span> emolecules
 </code></pre>
 <p>Log into Postgres, then place the processed raw data into a new table, <code>molecules</code>.</p>
 <pre><code class="hljs">psql emolecules
-psql (13.3,<span class="hljs-built_in"> server </span>12.3 (Debian 12.3-1.pgdg100+1))<span class="hljs-built_in">
-Type </span><span class="hljs-string">"help"</span> <span class="hljs-keyword">for</span> help.
+psql (13.3, server 12.3 (Debian 12.3-1.pgdg100+1))
+Type &quot;help&quot; for help.
 
-<span class="hljs-attribute">emolecules</span>=# select count(*) <span class="hljs-keyword">from</span> raw_data;
-  count  
----------
- 1000000
+emolecules=# select count(*) from raw_data;
+<span class="hljs-section">  count  
+---------</span>
+<span class="hljs-code"> 1000000</span>
 (1 row)
 </code></pre>
 <p>Now create the <code>molecules</code> table.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> molecules (<span class="hljs-keyword">id</span> <span class="hljs-built_in">SERIAL</span> PRIMARY <span class="hljs-keyword">KEY</span>,
-                        mol mol <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
-                        mw <span class="hljs-built_in">NUMERIC</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
-                        fp <span class="hljs-built_in">bit</span>(<span class="hljs-number">1024</span>)
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> molecules (id SERIAL <span class="hljs-keyword">PRIMARY</span> KEY,
+                        mol mol <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,
+                        mw <span class="hljs-type">NUMERIC</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,
+                        fp bit(<span class="hljs-number">1024</span>)
                        );
 </code></pre>
 <p>Populate the <code>molecules</code> table with source data from the <code>raw_data</code> table.</p>
 <pre><code class="hljs sql language-sql"><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> molecules
-<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">nextval</span>(<span class="hljs-string">'molecules_id_seq'</span>),
+<span class="hljs-keyword">SELECT</span> nextval(<span class="hljs-string">&#x27;molecules_id_seq&#x27;</span>),
        mols.mol <span class="hljs-keyword">as</span> mol,
        mol_amw(mols.mol) <span class="hljs-keyword">as</span> mw,
-       <span class="hljs-keyword">right</span>(bfp_to_binary_text(rdkit_fp(mols.mol))::<span class="hljs-built_in">text</span>, <span class="hljs-number">-1</span>)::<span class="hljs-built_in">bit</span>(<span class="hljs-number">1024</span>) <span class="hljs-keyword">as</span> fp
+       <span class="hljs-keyword">right</span>(bfp_to_binary_text(rdkit_fp(mols.mol))::text, <span class="hljs-number">-1</span>)::bit(<span class="hljs-number">1024</span>) <span class="hljs-keyword">as</span> fp
   <span class="hljs-keyword">FROM</span> (<span class="hljs-keyword">SELECT</span> mol_from_smiles(smiles::cstring) <span class="hljs-keyword">as</span> mol
           <span class="hljs-keyword">FROM</span> raw_data
-         <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">100000</span>
+         LIMIT <span class="hljs-number">100000</span>
        ) <span class="hljs-keyword">as</span> mols
- <span class="hljs-keyword">WHERE</span> mol <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>;
+ <span class="hljs-keyword">WHERE</span> mol <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>;
 </code></pre>
 <p>This takes a few minutes. On completion, 100,000 records will be present in the <code>molecules</code> table.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">select</span> <span class="hljs-keyword">count</span>(*) <span class="hljs-keyword">from</span> molecules;
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> molecules;
 <span class="hljs-comment">--  count  </span>
 <span class="hljs-comment">-- --------</span>
 <span class="hljs-comment">--  100000</span>
 <span class="hljs-comment">-- (1 row)</span>
 </code></pre>
 <p>Finally, create indexes on the <code>mol</code> (molecule) and <code>mw</code> (molecular weight) columns.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">INDEX</span> molecules_mol <span class="hljs-keyword">ON</span> molecules <span class="hljs-keyword">USING</span> gist(mol);
-<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">INDEX</span> molecules_mw <span class="hljs-keyword">on</span> molecules <span class="hljs-keyword">USING</span> btree(mw);
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> INDEX molecules_mol <span class="hljs-keyword">ON</span> molecules <span class="hljs-keyword">USING</span> gist(mol);
+<span class="hljs-keyword">CREATE</span> INDEX molecules_mw <span class="hljs-keyword">on</span> molecules <span class="hljs-keyword">USING</span> btree(mw);
 </code></pre>
 <p>The procedure can be repeated with a higher <code>LIMIT</code> to insert more rows into the <code>molecules</code> table.</p>
 <h2 id="conclusion">Conclusion</h2>

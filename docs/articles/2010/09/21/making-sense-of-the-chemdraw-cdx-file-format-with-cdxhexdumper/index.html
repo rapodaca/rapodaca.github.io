@@ -129,7 +129,7 @@ Eof <span class="hljs-built_in">read</span>
 <p>The fourth line represents the first content specific to our file. 'Property 0x0204' represents a <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/properties/BoundingBox.htm">kCDXProp_BoundingBox</a>. This is the bounding box for the Page defined in this CDX file (see below). We can see from the documentation that the type of this property is a <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/DataType/CDXCoordinates.htm">CDXRectangle</a>, which itself is composed of four four-byte <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/DataType/CDXCoordinates.htm">CDXCoordinates</a> arranged in the order: top; left; bottom; and right. Each CDXCoordinate is further defined as an <a href="http://www.cambridgesoft.com/services/documentation/sdk/chemdraw/cdx/DataType/CDXNumeric.htm">INT32</a>, specified in little-endian order.</p>
 <p>In the case of the Dumper output, we see that the document's bounding box has a top value of '17 9c 67 01', or 23567383:</p>
 <pre><code class="hljs bash language-bash">irb
-&gt;&gt; <span class="hljs-string">'01679c17'</span>.hex
+&gt;&gt; <span class="hljs-string">&#x27;01679c17&#x27;</span>.hex
 =&gt; 23567383
 </code></pre>
 <p>Likewise, the bottom value for the bounding box is '6e 9c a3 01' or 27499630. Apparently, we have a coordinate system in which the y-axis increases in the downward direction.</p>

@@ -126,10 +126,10 @@
 <p>In other words, all that's needed is a hash function capable of generating identifiers evenly distributed over a sufficiently large range.</p>
 <p>A good candidate is one of the cyclic redundancy check (CRC) functions such as the widely-used <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">CRC-32</a>. This hash function was first explicitly <a href="https://cheminf20.org/2014/02/21/open-source-ecfpfcfp-circular-fingerprints-in-cdk/">documented by Alex Clark</a> for use in <a href="https://github.com/cdk/cdk/blob/master/descriptor/fingerprint/src/main/java/org/openscience/cdk/fingerprint/CircularFingerprinter.java">the Chemistry Development Kit's circular fingerprint implementation</a>.</p>
 <p>CRC-32 returns a signed 32-bit integer given an arbitrary byte array. Implementations are available for most languages. For example, the <a href="https://www.npmjs.com/package/crc-32">CRC-32 Node JS package works as follows</a>:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">import</span> hash <span class="hljs-keyword">from</span> <span class="hljs-string">'crc-32'</span>;
+<pre><code class="hljs js language-js"><span class="hljs-keyword">import</span> hash <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;crc-32&#x27;</span>;
 
 <span class="hljs-keyword">const</span> feature = [ <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span> ];
-<span class="hljs-keyword">const</span> identifier = hash.buf(feature); <span class="hljs-comment">// -1237517363</span>
+<span class="hljs-keyword">const</span> identifier = hash.<span class="hljs-title function_">buf</span>(feature); <span class="hljs-comment">// -1237517363</span>
 </code></pre>
 <h2 id="resonance">Resonance</h2>
 <p>Like any fingerprint implementation, ECFP requires special attention to resonance forms. In particular, it's essential to generate the same ECFP for all resonance forms of the same molecule. Two conceptual approaches are feasible:</p>

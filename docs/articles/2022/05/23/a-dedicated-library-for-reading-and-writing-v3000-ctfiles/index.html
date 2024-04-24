@@ -62,25 +62,25 @@
 </ol>
 <p>To the greatest practical extent, Vek replaces runtime validity checks with compile time checks. Rather than a "defensive programming" approach in which all data are suspect until proven otherwise, Vek makes it possible to use values safely without performing these checks. To be more specific, these checks are performed at compile time, not run time. This approach has been elegantly described by <a href="https://lexi-lambda.github.io/">Alexis King</a> in his essay <em><a href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/">Parse, don't validate</a></em>.</p>
 <p>Consider Vek's central abstraction, <code>ConnectionTable</code>. This type represents the concept of a "connection table" found in the specification.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ConnectionTable</span></span> {
-    <span class="hljs-keyword">pub</span> atoms: <span class="hljs-built_in">Vec</span>&lt;Atom&gt;,
-    <span class="hljs-keyword">pub</span> bonds: <span class="hljs-built_in">Vec</span>&lt;Bond&gt;,
-    <span class="hljs-comment">// Used by "enhanced stereochemistry" and extensions.</span>
-    <span class="hljs-keyword">pub</span> collections: <span class="hljs-built_in">Vec</span>&lt;Collection&gt;,
-    <span class="hljs-comment">// Shortcuts such as "Ph", "Et", etc.</span>
-    <span class="hljs-keyword">pub</span> substructures: <span class="hljs-built_in">Vec</span>&lt;Substructure&gt;,
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">ConnectionTable</span> {
+    <span class="hljs-keyword">pub</span> atoms: <span class="hljs-type">Vec</span>&lt;Atom&gt;,
+    <span class="hljs-keyword">pub</span> bonds: <span class="hljs-type">Vec</span>&lt;Bond&gt;,
+    <span class="hljs-comment">// Used by &quot;enhanced stereochemistry&quot; and extensions.</span>
+    <span class="hljs-keyword">pub</span> collections: <span class="hljs-type">Vec</span>&lt;Collection&gt;,
+    <span class="hljs-comment">// Shortcuts such as &quot;Ph&quot;, &quot;Et&quot;, etc.</span>
+    <span class="hljs-keyword">pub</span> substructures: <span class="hljs-type">Vec</span>&lt;Substructure&gt;,
 }
 </code></pre>
 <p><code>ConnectionTable</code> holds collections of other values. The first one listed, <code>atoms</code>, represents an ordered list of zero or more atoms. The <code>Atom</code> type is defined as follows.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Atom</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Atom</span> {
     <span class="hljs-keyword">pub</span> index: Index,
     <span class="hljs-keyword">pub</span> kind: AtomKind,
     <span class="hljs-keyword">pub</span> charge: Charge,
     <span class="hljs-keyword">pub</span> coordinate: Coordinate,
-    <span class="hljs-keyword">pub</span> atom_atom_mapping: <span class="hljs-built_in">Option</span>&lt;Index&gt;,
-    <span class="hljs-keyword">pub</span> valence: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt;,
-    <span class="hljs-keyword">pub</span> mass: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt;,
-    <span class="hljs-keyword">pub</span> attachment_point: <span class="hljs-built_in">Option</span>&lt;AttachmentPoint&gt;,
+    <span class="hljs-keyword">pub</span> atom_atom_mapping: <span class="hljs-type">Option</span>&lt;Index&gt;,
+    <span class="hljs-keyword">pub</span> valence: <span class="hljs-type">Option</span>&lt;<span class="hljs-type">usize</span>&gt;,
+    <span class="hljs-keyword">pub</span> mass: <span class="hljs-type">Option</span>&lt;<span class="hljs-type">usize</span>&gt;,
+    <span class="hljs-keyword">pub</span> attachment_point: <span class="hljs-type">Option</span>&lt;AttachmentPoint&gt;,
 }
 </code></pre>
 <p><code>Atom</code> is itself composed of multiple values. The topmost attribute is <code>index</code>, which is a unique numerical identifier. The V3K specification has the following to say about atomic identifiers:</p>
@@ -91,38 +91,38 @@
   </figcaption>
 </figure>
 <p>Here it's helpful to distinguish semantic from syntactic validity. The syntactic part of the description of <code>index</code> is "Integer &gt; 0." The semantic part is "unique to each atom." Data structures can guarantee syntactic, but not necessarily semantic validity. Similar considerations apply to the implicit semantic guarantee that bonds reference atomic indexes actually associated with atoms.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Index</span></span>(<span class="hljs-built_in">String</span>);
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Index</span>(<span class="hljs-type">String</span>);
 </code></pre>
 <p>To improve type safety <code>Index</code> uses Rust's <a href="https://doc.rust-lang.org/rust-by-example/generics/new_types.html"><code>newtype</code> idiom</a>, wrapping a private Rust <code>String</code> value. The use of a <code>String</code> makes it possible to support arbitrarily large values for <code>Index</code> as required by the specification.</p>
 <p>The <code>String</code> value associated with <code>Index</code> is private, meaning that <code>Index</code> can't be constructed using literal notation. Instead, associated functions transform other types into <code>Index</code>. Each function checks the values its given, reject those that can't be transformed into a valid <code>Index</code>. For example, a constructor transforms a <code>usize</code> argument, checking that its value is not zero. The return type is <code>Option&lt;Index&gt;</code>, forcing the caller to handle the possibility that a zero value was passed and the <code>None</code> variant was received. At no point is it possible to construct an <code>Index</code> representing the integer 0.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">impl</span> Index {
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(value: <span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Index&gt; {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">impl</span> <span class="hljs-title class_">Index</span> {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(value: <span class="hljs-type">usize</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Index&gt; {
         <span class="hljs-keyword">match</span> value {
             <span class="hljs-number">0</span> =&gt; <span class="hljs-literal">None</span>,
-            _ =&gt; <span class="hljs-literal">Some</span>(Index(value.to_string()))
+            _ =&gt; <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-title function_ invoke__">Index</span>(value.<span class="hljs-title function_ invoke__">to_string</span>()))
         }
     }
 }
 </code></pre>
 <p>A better illustration of the "parse, don't validate" approach is the <code>AtomKind</code> type, a member of <code>Atom</code>.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">AtomKind</span></span> {
-    Element(Element),         <span class="hljs-comment">// C, N, O, P, S, Pd, etc.</span>
-    Rgroup(IndexList),        <span class="hljs-comment">// References an Rgroup in an RGfile</span>
-    ElementList(ElementList), <span class="hljs-comment">// possibly negated list of elements</span>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">AtomKind</span> {
+    <span class="hljs-title function_ invoke__">Element</span>(Element),         <span class="hljs-comment">// C, N, O, P, S, Pd, etc.</span>
+    <span class="hljs-title function_ invoke__">Rgroup</span>(IndexList),        <span class="hljs-comment">// References an Rgroup in an RGfile</span>
+    <span class="hljs-title function_ invoke__">ElementList</span>(ElementList), <span class="hljs-comment">// possibly negated list of elements</span>
     PolymerBead,              <span class="hljs-comment">// usually depicted as shaded sphere</span>
     Any,                      <span class="hljs-comment">// no information available</span>
 }
 </code></pre>
 <p><code>AtomKind</code> is an enumeration. Although many languages have enumerations, Rust lavishes syntax and tooling on them that few languages can match. The variants of <code>AtomKind</code> can be divided into two categories: those with their own associated types (<code>Element</code>, <code>Rgroup</code>, and <code>ElementList</code>), and those without (<code>PolymerBead</code> and <code>Any</code>). The former group supports variants having unique, mutually exclusive data and behaviors. This idea goes by the general term <em><a href="https://doc.rust-lang.org/book/ch06-00-enums.html">algebraic data types</a></em>.</p>
 <p>Algebraic types make it easy to model mutually-exclusive data types. For example, the <code>AtomKind::Element</code> and <code>AtomKind::Rgroup</code> variants have little in common. The former is an enumeration of the chemical elements, whereas the latter is an ordered list of Rgroup indexes. Both cases are supported without cross-contamination of data.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Element</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">Element</span> {
     H,
     He,
     Li,
     <span class="hljs-comment">// etc.</span>
 }
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">IndexList</span></span>(<span class="hljs-built_in">Vec</span>&lt;Index&gt;);
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">IndexList</span>(<span class="hljs-type">Vec</span>&lt;Index&gt;);
 </code></pre>
 <p>Consider how difficult it would be to model this kind of relationship without algebraic data types. Every field supported by <code>Atom</code> would need to be present on <code>Atom</code> itself. An <code>Atom</code> would need to define both <code>element</code> and <code>index_list</code>, without any way to ensure their mutual exclusivity. The behavior of a function receiving an <code>Atom</code> in which both fields were set (or neither was) would need to be defined <em>outside</em> the scope of executable code. Rust solves this problem by providing the tools needed to make invalid states uncompilable in the first place.</p>
 <h2 id="datafirst">Data First</h2>

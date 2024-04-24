@@ -51,10 +51,10 @@
 <span class="hljs-keyword">import</span> net.sf.structure.cdk.util.ImageKit;
 ...
 
-<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">writePNG</span><span class="hljs-params">(String pathToMolfile, String pathToPNG)</span> <span class="hljs-keyword">throws</span> Exception
-</span>{
-  MDLReader mdlReader = <span class="hljs-keyword">new</span> MDLReader(<span class="hljs-keyword">new</span> FileReader(pathToMolfile));
-  IMolecule mol = (IMolecule) mdlReader.read(<span class="hljs-keyword">new</span> Molecule());
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">writePNG</span><span class="hljs-params">(String pathToMolfile, String pathToPNG)</span> <span class="hljs-keyword">throws</span> Exception
+{
+  <span class="hljs-type">MDLReader</span> <span class="hljs-variable">mdlReader</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MDLReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileReader</span>(pathToMolfile));
+  <span class="hljs-type">IMolecule</span> <span class="hljs-variable">mol</span> <span class="hljs-operator">=</span> (IMolecule) mdlReader.read(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Molecule</span>());
 
   ImageKit.writePNG(mol, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, pathToPNG);
 }

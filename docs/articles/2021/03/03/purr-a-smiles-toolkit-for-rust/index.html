@@ -51,13 +51,13 @@
 </code></pre>
 <p>Next, edit <code>Cargo.toml</code> to look like this:</p>
 <pre><code class="hljs toml language-toml"><span class="hljs-section">[package]</span>
-<span class="hljs-attr">name</span> = <span class="hljs-string">"hello_purr"</span>
-<span class="hljs-attr">version</span> = <span class="hljs-string">"0.1.0"</span>
-<span class="hljs-attr">authors</span> = [<span class="hljs-string">"me &lt;me@example.com&gt;"</span>]
-<span class="hljs-attr">edition</span> = <span class="hljs-string">"2018"</span>
+<span class="hljs-attr">name</span> = <span class="hljs-string">&quot;hello_purr&quot;</span>
+<span class="hljs-attr">version</span> = <span class="hljs-string">&quot;0.1.0&quot;</span>
+<span class="hljs-attr">authors</span> = [<span class="hljs-string">&quot;me &lt;me@example.com&gt;&quot;</span>]
+<span class="hljs-attr">edition</span> = <span class="hljs-string">&quot;2018&quot;</span>
 
 <span class="hljs-section">[dependencies]</span>
-<span class="hljs-attr">purr</span> = <span class="hljs-string">"0.9.0"</span>
+<span class="hljs-attr">purr</span> = <span class="hljs-string">&quot;0.9.0&quot;</span>
 </code></pre>
 <p>The template project contains the file <code>src/main.rs</code>. All of the examples in this article should be written into it.</p>
 <p>Let's start with an example of parsing methanol (<code>CO</code>).</p>
@@ -66,31 +66,31 @@
 <span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Aliphatic };
 <span class="hljs-keyword">use</span> purr::read::{ read, Error };
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = Builder::new();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">builder</span> = Builder::<span class="hljs-title function_ invoke__">new</span>();
 
-    read(<span class="hljs-string">"CO"</span>, &amp;<span class="hljs-keyword">mut</span> builder, <span class="hljs-literal">None</span>)?;
+    <span class="hljs-title function_ invoke__">read</span>(<span class="hljs-string">&quot;CO&quot;</span>, &amp;<span class="hljs-keyword">mut</span> builder, <span class="hljs-literal">None</span>)?;
 
-    <span class="hljs-built_in">assert_eq!</span>(builder.build(), <span class="hljs-literal">Ok</span>(<span class="hljs-built_in">vec!</span>[
+    <span class="hljs-built_in">assert_eq!</span>(builder.<span class="hljs-title function_ invoke__">build</span>(), <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-built_in">vec!</span>[
         Atom {
-            kind: AtomKind::Aliphatic(Aliphatic::C),
+            kind: AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::C),
             bonds: <span class="hljs-built_in">vec!</span>[
-                Bond::new(BondKind::Elided, <span class="hljs-number">1</span>)
+                Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">1</span>)
             ]
         },
         Atom {
-            kind: AtomKind::Aliphatic(Aliphatic::O),
+            kind: AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::O),
             bonds: <span class="hljs-built_in">vec!</span>[
-                Bond::new(BondKind::Elided, <span class="hljs-number">0</span>)
+                Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">0</span>)
             ]
         }
     ]));
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>Run the program with <code>cargo run</code>.</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> cargo run</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">cargo run</span>
    Compiling purr v0.9.0
    Compiling hello_purr v0.1.0 (/Users/rich/tmp/hello_purr)
     Finished dev [unoptimized + debuginfo] target(s) in 2.88s
@@ -108,12 +108,12 @@
 
 <span class="hljs-comment">/// The actions possible during a depth-first traversal of a SMILES</span>
 <span class="hljs-comment">/// representation.</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Follower</span></span> {
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">trait</span> <span class="hljs-title class_">Follower</span> {
     <span class="hljs-comment">/// A root atom has been found. This occurs at the first atom of every</span>
     <span class="hljs-comment">/// connected component. As such, every use of `Follower` must</span>
     <span class="hljs-comment">/// begin with at least one call to `root`. But `root` can also be called</span>
     <span class="hljs-comment">/// after the first atom has been found, as in methane hydrate (`C.O`).</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">root</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, root: AtomKind);
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">root</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, root: AtomKind);
 
     <span class="hljs-comment">/// A bond between the current head atom and the next head atom has</span>
     <span class="hljs-comment">/// been found. Using this method implies the existence of a head atom,</span>
@@ -122,7 +122,7 @@
     <span class="hljs-comment">/// # Panics</span>
     <span class="hljs-comment">/// </span>
     <span class="hljs-comment">/// Panics if headless.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">extend</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: BondKind, atom_kind: AtomKind);
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">extend</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: BondKind, atom_kind: AtomKind);
 
     <span class="hljs-comment">/// A bond between the current head atom and a ring closure digit has</span>
     <span class="hljs-comment">/// been found. Using this method implies the existence of a head atom,</span>
@@ -131,7 +131,7 @@
     <span class="hljs-comment">/// # Panics</span>
     <span class="hljs-comment">/// </span>
     <span class="hljs-comment">/// Panics if headless.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">join</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: BondKind, rnum: Rnum);
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">join</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: BondKind, rnum: Rnum);
 
     <span class="hljs-comment">/// Pop the stack by the indicated depth. As roots and extensions are</span>
     <span class="hljs-comment">/// encountered, `Follower` builds a working path. Branching removes</span>
@@ -141,7 +141,7 @@
     <span class="hljs-comment">/// # Panics</span>
     <span class="hljs-comment">/// </span>
     <span class="hljs-comment">/// Panics given depth exceeds the length of the current path.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pop</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, depth: <span class="hljs-built_in">usize</span>);
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">pop</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, depth: <span class="hljs-type">usize</span>);
 }
 </code></pre>
 <p>Think of <code>Follower</code> as a companion that tags along during the depth-first traversal of a SMILES representation. For example, we can simulate a traversal that would represent acetamide (<code>CC(=O)N</code>):</p>
@@ -149,12 +149,12 @@
 <span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Aliphatic };
 
 <span class="hljs-comment">// CC(=O)N</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">acetamide</span></span>&lt;F: Follower&gt;(follower: &amp;<span class="hljs-keyword">mut</span> F) {
-    follower.root(AtomKind::Aliphatic(Aliphatic::C));
-    follower.extend(BondKind::Elided, AtomKind::Aliphatic(Aliphatic::C));
-    follower.extend(BondKind::Double, AtomKind::Aliphatic(Aliphatic::O));
-    follower.pop(<span class="hljs-number">1</span>);
-    follower.extend(BondKind::Elided, AtomKind::Aliphatic(Aliphatic::N));
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">acetamide</span>&lt;F: Follower&gt;(follower: &amp;<span class="hljs-keyword">mut</span> F) {
+    follower.<span class="hljs-title function_ invoke__">root</span>(AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::C));
+    follower.<span class="hljs-title function_ invoke__">extend</span>(BondKind::Elided, AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::C));
+    follower.<span class="hljs-title function_ invoke__">extend</span>(BondKind::Double, AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::O));
+    follower.<span class="hljs-title function_ invoke__">pop</span>(<span class="hljs-number">1</span>);
+    follower.<span class="hljs-title function_ invoke__">extend</span>(BondKind::Elided, AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::N));
 }
 </code></pre>
 <p><code>Follower</code> decouples the traversal of a SMILES representation from the use of the features that are discovered along the way. This means that the same traversal function can yield a variety of different products, and these products can be chosen at runtime. This is how Purr makes good on its pay-as-you-go promise. An example of the flexibility of this approach can be seen when reading SMILES strings.</p>
@@ -165,36 +165,36 @@
 <span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Rnum };
 <span class="hljs-keyword">use</span> purr::read::{ read, Error };
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Counter</span></span> {
-    count: <span class="hljs-built_in">usize</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Counter</span> {
+    count: <span class="hljs-type">usize</span>
 }
 
-<span class="hljs-keyword">impl</span> Follower <span class="hljs-keyword">for</span> Counter {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">root</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: AtomKind) {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Follower</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Counter</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">root</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: AtomKind) {
       <span class="hljs-keyword">self</span>.count += <span class="hljs-number">1</span>
     }
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">extend</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: BondKind, _: AtomKind) {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">extend</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: BondKind, _: AtomKind) {
         <span class="hljs-keyword">self</span>.count += <span class="hljs-number">1</span>
     }
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">join</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: BondKind, _: Rnum) {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">join</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: BondKind, _: Rnum) {
         <span class="hljs-comment">// no-op</span>
     }
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pop</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: <span class="hljs-built_in">usize</span>) {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">pop</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, _: <span class="hljs-type">usize</span>) {
         <span class="hljs-comment">// no-op</span>
     }
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> counter = Counter { count: <span class="hljs-number">0</span> };
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">counter</span> = Counter { count: <span class="hljs-number">0</span> };
 
-    read(<span class="hljs-string">"c1cc([O-]ccc1"</span>, &amp;<span class="hljs-keyword">mut</span> counter, <span class="hljs-literal">None</span>)?;
+    <span class="hljs-title function_ invoke__">read</span>(<span class="hljs-string">&quot;c1cc([O-]ccc1&quot;</span>, &amp;<span class="hljs-keyword">mut</span> counter, <span class="hljs-literal">None</span>)?;
 
     <span class="hljs-built_in">assert_eq!</span>(counter.count, <span class="hljs-number">7</span>);
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>Notice that not all <code>Follower</code> methods need to be implemented, nor do they need to be implemented in any particular way. This makes it possible to create highly efficient SMILES analyses targeted to specific applications.</p>
@@ -208,14 +208,14 @@
 <span class="hljs-keyword">use</span> purr::read::{ read, Error };
 <span class="hljs-keyword">use</span> purr::write::Writer;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = Writer::new();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">writer</span> = Writer::<span class="hljs-title function_ invoke__">new</span>();
 
-    read(<span class="hljs-string">"[C@H](F)(Cl)Br"</span>, &amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-literal">None</span>)?;
+    <span class="hljs-title function_ invoke__">read</span>(<span class="hljs-string">&quot;[C@H](F)(Cl)Br&quot;</span>, &amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-literal">None</span>)?;
 
-    <span class="hljs-built_in">assert_eq!</span>(writer.write(), <span class="hljs-string">"[C@H](F)(Cl)Br"</span>);
+    <span class="hljs-built_in">assert_eq!</span>(writer.<span class="hljs-title function_ invoke__">write</span>(), <span class="hljs-string">&quot;[C@H](F)(Cl)Br&quot;</span>);
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>Likewise, combining <code>read</code> with <code>Builder</code> yields an adjacency list representation.</p>
@@ -227,48 +227,48 @@
 <span class="hljs-keyword">use</span> purr::read::{ read, Error };
 <span class="hljs-keyword">use</span> purr::graph::{ Builder, Atom, Bond };
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = Builder::new();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">builder</span> = Builder::<span class="hljs-title function_ invoke__">new</span>();
 
-    read(<span class="hljs-string">"[C@H](F)(Cl)Br"</span>, &amp;<span class="hljs-keyword">mut</span> builder, <span class="hljs-literal">None</span>)?;
+    <span class="hljs-title function_ invoke__">read</span>(<span class="hljs-string">&quot;[C@H](F)(Cl)Br&quot;</span>, &amp;<span class="hljs-keyword">mut</span> builder, <span class="hljs-literal">None</span>)?;
 
-    <span class="hljs-built_in">assert_eq!</span>(builder.build(), <span class="hljs-literal">Ok</span>(<span class="hljs-built_in">vec!</span>[
+    <span class="hljs-built_in">assert_eq!</span>(builder.<span class="hljs-title function_ invoke__">build</span>(), <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-built_in">vec!</span>[
         Atom {
             kind: AtomKind::Bracket {
                 isotope: <span class="hljs-literal">None</span>,
-                symbol: BracketSymbol::Element(Element::C),
-                configuration: <span class="hljs-literal">Some</span>(Configuration::TH1),
-                hcount: <span class="hljs-literal">Some</span>(VirtualHydrogen::H1),
+                symbol: BracketSymbol::<span class="hljs-title function_ invoke__">Element</span>(Element::C),
+                configuration: <span class="hljs-title function_ invoke__">Some</span>(Configuration::TH1),
+                hcount: <span class="hljs-title function_ invoke__">Some</span>(VirtualHydrogen::H1),
                 charge: <span class="hljs-literal">None</span>,
                 map: <span class="hljs-literal">None</span>
             },
             bonds: <span class="hljs-built_in">vec!</span>[
-                Bond::new(BondKind::Elided, <span class="hljs-number">1</span>),
-                Bond::new(BondKind::Elided, <span class="hljs-number">2</span>),
-                Bond::new(BondKind::Elided, <span class="hljs-number">3</span>)
+                Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">1</span>),
+                Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">2</span>),
+                Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">3</span>)
             ]
         },
         Atom {
-          kind: AtomKind::Aliphatic(Aliphatic::F),
+          kind: AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::F),
           bonds: <span class="hljs-built_in">vec!</span>[
-              Bond::new(BondKind::Elided, <span class="hljs-number">0</span>)
+              Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">0</span>)
           ]
         },
         Atom {
-            kind: AtomKind::Aliphatic(Aliphatic::Cl),
+            kind: AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::Cl),
             bonds: <span class="hljs-built_in">vec!</span>[
-                Bond::new(BondKind::Elided, <span class="hljs-number">0</span>)
+                Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">0</span>)
             ]
         },
         Atom {
-            kind: AtomKind::Aliphatic(Aliphatic::Br),
+            kind: AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::Br),
             bonds: <span class="hljs-built_in">vec!</span>[
-                Bond::new(BondKind::Elided, <span class="hljs-number">0</span>)
+                Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">0</span>)
             ]
         }
     ]));
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>Syntax errors detected by <code>read</code> come in one of two variants: <code>read::Error::Character</code> and <code>read::Error::EndOfLine</code>. The former is parameterized with a cursor position (as type <code>usize</code>), allowing the precise location of errors to be flagged for users.</p>
@@ -276,12 +276,12 @@
 <span class="hljs-keyword">use</span> purr::graph::Builder;
 <span class="hljs-keyword">use</span> purr::read::{ read, Error };
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder1 = Builder::new();
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder2 = Builder::new();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">builder1</span> = Builder::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">builder2</span> = Builder::<span class="hljs-title function_ invoke__">new</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(read(<span class="hljs-string">"CC?C"</span>, &amp;<span class="hljs-keyword">mut</span> builder1, <span class="hljs-literal">None</span>), <span class="hljs-literal">Err</span>(Error::Character(<span class="hljs-number">2</span>)));
-    <span class="hljs-built_in">assert_eq!</span>(read(<span class="hljs-string">"CCC[CH2"</span>, &amp;<span class="hljs-keyword">mut</span> builder2, <span class="hljs-literal">None</span>), <span class="hljs-literal">Err</span>(Error::EndOfLine))
+    <span class="hljs-built_in">assert_eq!</span>(<span class="hljs-title function_ invoke__">read</span>(<span class="hljs-string">&quot;CC?C&quot;</span>, &amp;<span class="hljs-keyword">mut</span> builder1, <span class="hljs-literal">None</span>), <span class="hljs-title function_ invoke__">Err</span>(Error::<span class="hljs-title function_ invoke__">Character</span>(<span class="hljs-number">2</span>)));
+    <span class="hljs-built_in">assert_eq!</span>(<span class="hljs-title function_ invoke__">read</span>(<span class="hljs-string">&quot;CCC[CH2&quot;</span>, &amp;<span class="hljs-keyword">mut</span> builder2, <span class="hljs-literal">None</span>), <span class="hljs-title function_ invoke__">Err</span>(Error::EndOfLine))
 }
 </code></pre>
 <p><code>read</code> also supports fine-grained semantic error reporting and feature linking with an optional <code>Trace</code> argument. The purpose of <code>Trace</code> is to associate SMILES features with cursor positions in the original string. Because it's optional, clients that don't need the functionality of <code>Trace</code> also don't need to pay for it.</p>
@@ -289,17 +289,17 @@
 <span class="hljs-keyword">use</span> purr::read::{ read, Error, Trace };
 <span class="hljs-keyword">use</span> purr::graph::Builder;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = Builder::new();
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> trace = Trace::new();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">builder</span> = Builder::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">trace</span> = Trace::<span class="hljs-title function_ invoke__">new</span>();
     <span class="hljs-comment">//    012345678901234567890123 4</span>
-    read(<span class="hljs-string">"C[NH-]c1ccccc1C/C=C(/C)\\C"</span>, &amp;<span class="hljs-keyword">mut</span> builder, <span class="hljs-literal">Some</span>(&amp;<span class="hljs-keyword">mut</span> trace))?;
+    <span class="hljs-title function_ invoke__">read</span>(<span class="hljs-string">&quot;C[NH-]c1ccccc1C/C=C(/C)\\C&quot;</span>, &amp;<span class="hljs-keyword">mut</span> builder, <span class="hljs-title function_ invoke__">Some</span>(&amp;<span class="hljs-keyword">mut</span> trace))?;
 
-    <span class="hljs-built_in">assert_eq!</span>(trace.atom(<span class="hljs-number">1</span>), <span class="hljs-literal">Some</span>(<span class="hljs-number">1</span>..<span class="hljs-number">6</span>));  <span class="hljs-comment">// [NH-]</span>
-    <span class="hljs-built_in">assert_eq!</span>(trace.bond(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), <span class="hljs-literal">Some</span>(<span class="hljs-number">1</span>));  <span class="hljs-comment">// elided bond between C and [HN-]</span>
-    <span class="hljs-built_in">assert_eq!</span>(trace.bond(<span class="hljs-number">8</span>, <span class="hljs-number">9</span>), <span class="hljs-literal">Some</span>(<span class="hljs-number">15</span>)); <span class="hljs-comment">// first up (/) bond</span>
+    <span class="hljs-built_in">assert_eq!</span>(trace.<span class="hljs-title function_ invoke__">atom</span>(<span class="hljs-number">1</span>), <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-number">1</span>..<span class="hljs-number">6</span>));  <span class="hljs-comment">// [NH-]</span>
+    <span class="hljs-built_in">assert_eq!</span>(trace.<span class="hljs-title function_ invoke__">bond</span>(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-number">1</span>));  <span class="hljs-comment">// elided bond between C and [HN-]</span>
+    <span class="hljs-built_in">assert_eq!</span>(trace.<span class="hljs-title function_ invoke__">bond</span>(<span class="hljs-number">8</span>, <span class="hljs-number">9</span>), <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-number">15</span>)); <span class="hljs-comment">// first up (/) bond</span>
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <h2 id="writingsmiles">Writing SMILES</h2>
@@ -316,20 +316,20 @@
 <span class="hljs-keyword">use</span> purr::feature::AtomKind;
 <span class="hljs-keyword">use</span> purr::write::Writer;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; <span class="hljs-built_in">Result</span>&lt;(), Error&gt; {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = Builder::new();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;(), Error&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">builder</span> = Builder::<span class="hljs-title function_ invoke__">new</span>();
 
-    builder.root(AtomKind::Star);
-    builder.root(AtomKind::Star);
+    builder.<span class="hljs-title function_ invoke__">root</span>(AtomKind::Star);
+    builder.<span class="hljs-title function_ invoke__">root</span>(AtomKind::Star);
 
-    <span class="hljs-keyword">let</span> adjacency = builder.build().expect(<span class="hljs-string">"adjacency"</span>);
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = Writer::new();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">adjacency</span> = builder.<span class="hljs-title function_ invoke__">build</span>().<span class="hljs-title function_ invoke__">expect</span>(<span class="hljs-string">&quot;adjacency&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">writer</span> = Writer::<span class="hljs-title function_ invoke__">new</span>();
 
-    walk(adjacency, &amp;<span class="hljs-keyword">mut</span> writer)?;
+    <span class="hljs-title function_ invoke__">walk</span>(adjacency, &amp;<span class="hljs-keyword">mut</span> writer)?;
 
-    <span class="hljs-built_in">assert_eq!</span>(writer.write(), <span class="hljs-string">"*.*"</span>);
+    <span class="hljs-built_in">assert_eq!</span>(writer.<span class="hljs-title function_ invoke__">write</span>(), <span class="hljs-string">&quot;*.*&quot;</span>);
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>Both <code>read</code> and <code>walk</code> accept a parameter of type <code>Follower</code>. This blurs the distinction between reading and writing a SMILES representation. Both processes are just transformations. For example, the <code>Counter</code> type from the previous section can be combined with <code>walk</code>. When <code>read</code> and <code>walk</code> are paired with the same <code>Follower</code>, string and adjacency SMILES representations become functionally equivalent.</p>
@@ -340,16 +340,16 @@
 <span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Aliphatic };
 <span class="hljs-keyword">use</span> purr::graph::{ Atom, Bond };
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> atom = Atom {
-        kind: AtomKind::Aliphatic(Aliphatic::C),
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">atom</span> = Atom {
+        kind: AtomKind::<span class="hljs-title function_ invoke__">Aliphatic</span>(Aliphatic::C),
         bonds: <span class="hljs-built_in">vec!</span>[
-            Bond::new(BondKind::Elided, <span class="hljs-number">1</span>),
-            Bond::new(BondKind::Double, <span class="hljs-number">2</span>)
+            Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">1</span>),
+            Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Double, <span class="hljs-number">2</span>)
         ]
     };
 
-    <span class="hljs-built_in">assert_eq!</span>(atom.suppressed_hydrogens(), <span class="hljs-number">1</span>)
+    <span class="hljs-built_in">assert_eq!</span>(atom.<span class="hljs-title function_ invoke__">suppressed_hydrogens</span>(), <span class="hljs-number">1</span>)
 }
 </code></pre>
 <p>The <code>subvalence</code> method of <code>Atom</code> makes it possible to prune a π-subgraph, a prerequisite for <a href="/articles/2020/02/10/a-comprehensive-treatment-of-aromaticity-in-the-smiles-language/">kekulization</a>.</p>
@@ -357,25 +357,25 @@
 <span class="hljs-keyword">use</span> purr::feature::{ AtomKind, BondKind, Aromatic };
 <span class="hljs-keyword">use</span> purr::graph::{ Atom, Bond };
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> oxygen = Atom {
-        kind: AtomKind::Aromatic(Aromatic::O),
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">oxygen</span> = Atom {
+        kind: AtomKind::<span class="hljs-title function_ invoke__">Aromatic</span>(Aromatic::O),
         bonds: <span class="hljs-built_in">vec!</span>[
-            Bond::new(BondKind::Elided, <span class="hljs-number">1</span>),
-            Bond::new(BondKind::Elided, <span class="hljs-number">2</span>)
+            Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">1</span>),
+            Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">2</span>)
         ]
     };
-    <span class="hljs-keyword">let</span> carbon = Atom {
-        kind: AtomKind::Aromatic(Aromatic::C),
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">carbon</span> = Atom {
+        kind: AtomKind::<span class="hljs-title function_ invoke__">Aromatic</span>(Aromatic::C),
         bonds: <span class="hljs-built_in">vec!</span>[
-            Bond::new(BondKind::Elided, <span class="hljs-number">1</span>),
-            Bond::new(BondKind::Elided, <span class="hljs-number">2</span>),
-            Bond::new(BondKind::Elided, <span class="hljs-number">3</span>)
+            Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">1</span>),
+            Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">2</span>),
+            Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Elided, <span class="hljs-number">3</span>)
         ]
     };
 
-    <span class="hljs-built_in">assert_eq!</span>(oxygen.subvalence(), <span class="hljs-number">0</span>); <span class="hljs-comment">// prune from π-subgraph</span>
-    <span class="hljs-built_in">assert_eq!</span>(carbon.subvalence(), <span class="hljs-number">1</span>)  <span class="hljs-comment">// don't prune</span>
+    <span class="hljs-built_in">assert_eq!</span>(oxygen.<span class="hljs-title function_ invoke__">subvalence</span>(), <span class="hljs-number">0</span>); <span class="hljs-comment">// prune from π-subgraph</span>
+    <span class="hljs-built_in">assert_eq!</span>(carbon.<span class="hljs-title function_ invoke__">subvalence</span>(), <span class="hljs-number">1</span>)  <span class="hljs-comment">// don&#x27;t prune</span>
 }
 </code></pre>
 <p><code>Bond</code> supports three convenience methods for querying a bond.</p>
@@ -383,12 +383,12 @@
 <span class="hljs-keyword">use</span> purr::feature::BondKind;
 <span class="hljs-keyword">use</span> purr::graph::Bond;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> bond = Bond::new(BondKind::Double, <span class="hljs-number">0</span>);
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">bond</span> = Bond::<span class="hljs-title function_ invoke__">new</span>(BondKind::Double, <span class="hljs-number">0</span>);
 
-    <span class="hljs-built_in">assert_eq!</span>(bond.order(), <span class="hljs-number">2</span>);
-    <span class="hljs-built_in">assert_eq!</span>(bond.is_aromatic(), <span class="hljs-literal">false</span>);
-    <span class="hljs-built_in">assert_eq!</span>(bond.is_directional(), <span class="hljs-literal">false</span>)
+    <span class="hljs-built_in">assert_eq!</span>(bond.<span class="hljs-title function_ invoke__">order</span>(), <span class="hljs-number">2</span>);
+    <span class="hljs-built_in">assert_eq!</span>(bond.<span class="hljs-title function_ invoke__">is_aromatic</span>(), <span class="hljs-literal">false</span>);
+    <span class="hljs-built_in">assert_eq!</span>(bond.<span class="hljs-title function_ invoke__">is_directional</span>(), <span class="hljs-literal">false</span>)
 }
 </code></pre>
 <h2 id="otherwork">Other Work</h2>

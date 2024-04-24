@@ -49,29 +49,29 @@
 <p>For example, a CommonJS module declares what to export by making assignments to its <code>module</code> object:</p>
 <pre><code class="hljs js language-js"><span class="hljs-comment">// name.js</span>
 
-<span class="hljs-keyword">var</span> name = <span class="hljs-string">'foo'</span>;
+<span class="hljs-keyword">var</span> name = <span class="hljs-string">&#x27;foo&#x27;</span>;
 
-<span class="hljs-built_in">module</span>.exports = name;
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = name;
 </code></pre>
 <p>And a module consumes another module's export by invoking its <code>require</code> function:</p>
 <pre><code class="hljs js language-js"><span class="hljs-comment">// greet.js</span>
 
-<span class="hljs-keyword">var</span> name = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./name.js'</span>);
+<span class="hljs-keyword">var</span> name = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./name.js&#x27;</span>);
 
-<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Hello, '</span> + name);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Hello, &#x27;</span> + name);
 </code></pre>
 <p>This system works well enough for code restricted to server environments, but quickly runs into trouble on the browser. The promise of code that runs unmodified in both environments never quite panned out because of all the ad hoc tooling needed to retrofit a module system onto the browser.</p>
 <p>The solution is the ES Module standard. ES Modules work a lot like node modules. For example, the name/greet example can be recast with the introduction of the <code>export</code> and <code>import</code> statements. An object is exported through declaration:</p>
 <pre><code class="hljs js language-js"><span class="hljs-comment">// name.js</span>
-<span class="hljs-keyword">var</span> name = <span class="hljs-string">'foo'</span>;
+<span class="hljs-keyword">var</span> name = <span class="hljs-string">&#x27;foo&#x27;</span>;
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> name
 </code></pre>
 <p>and imported with the <code>import</code> statement:</p>
 <pre><code class="hljs js language-js"><span class="hljs-comment">// greet.js</span>
-<span class="hljs-keyword">import</span> name <span class="hljs-keyword">from</span> <span class="hljs-string">'./name.js'</span>
+<span class="hljs-keyword">import</span> name <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./name.js&#x27;</span>
 
-<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Hello, '</span> + name);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Hello, &#x27;</span> + name);
 </code></pre>
 <p>ES Modules are now natively supported by all major browsers and Node.js. However, changes to the module system cut across a wide range of tools. This becomes most apparent when tools are forced to work together.</p>
 <h2 id="debugginginvscode">Debugging in VS Code</h2>
@@ -81,7 +81,7 @@
 <span class="hljs-keyword">const</span> foo = <span class="hljs-number">123</span>;
 <span class="hljs-keyword">const</span> bar = <span class="hljs-number">456</span>;
 
-<span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Sum: <span class="hljs-subst">${foo + bar}</span>`</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Sum: <span class="hljs-subst">${foo + bar}</span>`</span>);
 </code></pre>
 <p>Set a breakpoint by left clicking to the left of the line number 3. A filled red circle will appear indicating that the breakpoint has been set. Disable the breakpoint by left-clicking again. Add properties to it by right-clicking.</p>
 <p><img src="/images/posts/20190117/breakpoint.png" alt="Breakpoint" title="Breakpoint"></p>
@@ -90,34 +90,34 @@
 <h2 id="automatedtestingwithmocha">Automated Testing with Mocha</h2>
 <p><a href="https://mochajs.org">Mocha</a> is an automated testing framework for Node.js and the browser. It supports nested testing contexts, before/after hooks, and plain text descriptions.</p>
 <p>Mocha can be installed through <a href="https://www.npmjs.com">NPM</a>. To do so, create the file <code>package.json</code> at the top-level of your project. VS Code knows about the structure of this file, and so will attempt to guide you with hints and autocompletion.</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"devDependencies"</span>: {
-    <span class="hljs-attr">"mocha"</span>: <span class="hljs-string">"5.2.0"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;devDependencies&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;mocha&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;5.2.0&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>(Before creating <code>package.json</code>, it may be necessary to switch contexts by clicking on the document icon on the left tool palette. Right click under <code>test.js</code> and select "New File.")</p>
 <p>The shell command <code>npm install</code> installs the dependencies listed in the <code>package.json</code> file. You could use a separate terminal for this, but it's more convenient to use the one build into VS Code. Activate it by pressing ctrl‑` (control-tilde). After installation, your project contains two new items: the <code>node_modules</code> directory and the <code>package-lock.json</code> file. The terminal can be dismissed by again pressing ctrl‑` or clicking the "X" button.</p>
 <p><img src="/images/posts/20190117/npm-install.png" alt="NPM Install" title="NPM Install"></p>
 <p>By default Mocha looks for test files in the <code>test</code> directory of your project. Create that directory and add the file <code>mocha.spec.js</code> to it.</p>
 <pre><code class="hljs js language-js"><span class="hljs-comment">// mocha.spec.js</span>
-<span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'assert'</span>);
+<span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;assert&#x27;</span>);
 
-describe(<span class="hljs-string">'Math#sign'</span>, () =&gt; {
-  it(<span class="hljs-string">'returns -1 given -42'</span>, () =&gt; {
-    assert.strictEqual(<span class="hljs-built_in">Math</span>.sign(<span class="hljs-number">-42</span>), <span class="hljs-number">-1</span>);
+<span class="hljs-title function_">describe</span>(<span class="hljs-string">&#x27;Math#sign&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-title function_">it</span>(<span class="hljs-string">&#x27;returns -1 given -42&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+    assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sign</span>(-<span class="hljs-number">42</span>), -<span class="hljs-number">1</span>);
   });
 });
 </code></pre>
 <p>To run the test, create an NPM task for it. Open <code>package.json</code> and edit it to read as follows:</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"devDependencies"</span>: {
-    <span class="hljs-attr">"mocha"</span>: <span class="hljs-string">"5.2.0"</span>
-  },
-  <span class="hljs-attr">"scripts"</span>: {
-    <span class="hljs-attr">"test"</span>: <span class="hljs-string">"mocha"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;devDependencies&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;mocha&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;5.2.0&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;scripts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;test&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mocha&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>Run the test suite by issuing the command <code>npm test</code> from the terminal. This should produce some output ending with the text "1 passing".</p>
 <p><img src="/images/posts/20190117/test-success.png" alt="Test Success" title="Test Success"></p>
@@ -132,29 +132,29 @@ describe(<span class="hljs-string">'Math#sign'</span>, () =&gt; {
   <iframe src="https://www.youtube.com/embed/GvAzrC6-spQ" allowfullscreen=""></iframe>
 </div>
 <p>To debug from a Mocha test, VS Code needs some additional configuration. Activate the debug panel by clicking on the debug button from the leftmost palette. Next to the green triangular run button sits a dropdown that should read "No Configuration." Click it and select "Add configuration." A new file will appear called <code>launch.json</code>. Add a debug configuration by clicking the "Add Configuration…" button. Update <code>launch.json</code> as follows:</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"0.2.0"</span>,
-  <span class="hljs-attr">"configurations"</span>: [
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0.2.0&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;configurations&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
 
-    {
-      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"node"</span>,
-      <span class="hljs-attr">"request"</span>: <span class="hljs-string">"launch"</span>,
-      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Test"</span>,
-      <span class="hljs-attr">"program"</span>: <span class="hljs-string">"${workspaceFolder}/node_modules/mocha/bin/_mocha"</span>,
-      <span class="hljs-attr">"internalConsoleOptions"</span>: <span class="hljs-string">"openOnSessionStart"</span>
-    }
-  ]
-}
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;node&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;request&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;launch&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Test&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;program&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;${workspaceFolder}/node_modules/mocha/bin/_mocha&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;internalConsoleOptions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;openOnSessionStart&quot;</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>To debug a test, toggle back to the <code>mocha.spec.js</code> file. Add a breakpoint at the line with the <code>assert</code> call. Next, toggle to debug mode. This time, choose the "Test" option from the pulldown and click the run button. VS Code should pause at the breakpoint just as before. The code under test can now be debugged starting from a well-defined state.</p>
 <h2 id="refactoringtoesmodules">Refactoring to ES Modules</h2>
 <p><code>mocha.spec.js</code> runs fine in the default configuration because no ES modules were used. The test can be refactored to use ES Modules as follows:</p>
 <pre><code class="hljs js language-js"><span class="hljs-comment">// mocha.spec.js</span>
-<span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'assert'</span>;
+<span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;assert&#x27;</span>;
 
-describe(<span class="hljs-string">'Math#sign'</span>, () =&gt; {
-  it(<span class="hljs-string">'returns -1 given -42'</span>, () =&gt; {
-    assert.strictEqual(<span class="hljs-built_in">Math</span>.sign(<span class="hljs-number">-42</span>), <span class="hljs-number">-1</span>);
+<span class="hljs-title function_">describe</span>(<span class="hljs-string">&#x27;Math#sign&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-title function_">it</span>(<span class="hljs-string">&#x27;returns -1 given -42&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+    assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sign</span>(-<span class="hljs-number">42</span>), -<span class="hljs-number">1</span>);
   });
 });
 </code></pre>
@@ -175,33 +175,33 @@ describe(<span class="hljs-string">'Math#sign'</span>, () =&gt; {
 <p>In a nutshell, Reify is the simple solution that this simple problem demands. The trick is getting it to work with VS Code, Node, and Mocha.</p>
 <h2 id="debuggingwithreify">Debugging with Reify</h2>
 <p>One more bit of configuration is all it takes to allow the debugging of Mocha tests using ES Modules. Begin by adding the Reify dependency to <code>package.json</code>:</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"devDependencies"</span>: {
-    <span class="hljs-attr">"mocha"</span>: <span class="hljs-string">"5.2.0"</span>,
-    <span class="hljs-attr">"reify"</span>: <span class="hljs-string">"0.17.3"</span>
-  },
-  <span class="hljs-attr">"scripts"</span>: {
-    <span class="hljs-attr">"test"</span>: <span class="hljs-string">"mocha"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;devDependencies&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;mocha&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;5.2.0&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;reify&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0.17.3&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;scripts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;test&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mocha&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>Then install Reify with <code>npm install</code>.</p>
 <p>Finally, update <code>launch.json</code>, which is found in your project's <code>.vscode</code> directory by adding a directive to require Reify:</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"0.2.0"</span>,
-  <span class="hljs-attr">"configurations"</span>: [
-    {
-      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"node"</span>,
-      <span class="hljs-attr">"request"</span>: <span class="hljs-string">"launch"</span>,
-      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Test"</span>,
-      <span class="hljs-attr">"program"</span>: <span class="hljs-string">"${workspaceFolder}/node_modules/mocha/bin/_mocha"</span>,
-      <span class="hljs-attr">"args"</span>: [
-        <span class="hljs-string">"--require"</span>, <span class="hljs-string">"reify"</span>
-      ],
-      <span class="hljs-attr">"internalConsoleOptions"</span>: <span class="hljs-string">"openOnSessionStart"</span>
-    }
-  ]
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0.2.0&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;configurations&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;node&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;request&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;launch&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Test&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;program&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;${workspaceFolder}/node_modules/mocha/bin/_mocha&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;args&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+        <span class="hljs-string">&quot;--require&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;reify&quot;</span>
+      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;internalConsoleOptions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;openOnSessionStart&quot;</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>Launching the VS Code debugger "Test" task should now allow full debugging functionality.</p>
 <p><img src="/images/posts/20190117/es-module-mocha-debug.png" alt="ES Module Mocha Debug" title="ES Module Mocha Debug"></p>

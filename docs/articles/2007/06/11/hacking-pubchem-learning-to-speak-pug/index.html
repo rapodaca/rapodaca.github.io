@@ -38,8 +38,8 @@
 <p>One of the options on the <a href="http://pubchem.ncbi.nlm.nih.gov/search/search.cgi">PubChem search page</a> is "Save Query." As it turns out, PubChem saves queries in PUG XML (I'll just call it PUGML). In other words, preparing a query using the PubChem search page and saving it gives a simple method for creating PUGML queries. Let's try it.</p>
 <p><img src="/images/posts/20070611/screenshot.png" alt="Screenshot" title="Screenshot"></p>
 <p>Using the "Sketch" button, draw the structure of benzimidazole. Under "Search Type", select "Substructure." Now click "Save Query", and you'll download a substructure query for benzimidazole in PUGML:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&amp;gt;
-&lt;!DOCTYPE PCT-Data PUBLIC "-//NCBI//NCBI PCTools/EN" "http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd"&gt;
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span>?&amp;gt;
+&lt;!DOCTYPE PCT-Data PUBLIC <span class="hljs-string">&quot;-//NCBI//NCBI PCTools/EN&quot;</span> <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd&quot;</span>&gt;
 &lt;PCT-Data&gt;
   &lt;PCT-Data_input&gt;
     &lt;PCT-InputData&gt;
@@ -55,7 +55,7 @@
                   &lt;PCT-QueryCompoundCS_type&gt;
                     &lt;PCT-QueryCompoundCS_type_subss&gt;
                       &lt;PCT-CSStructure&gt;
-                        &lt;PCT-CSStructure_bonds value="true"/&gt;
+                        &lt;PCT-CSStructure_bonds value=<span class="hljs-string">&quot;true&quot;</span>/&gt;
                       &lt;/PCT-CSStructure&gt;
                     &lt;/PCT-QueryCompoundCS_type_subss&gt;
                   &lt;/PCT-QueryCompoundCS_type&gt;
@@ -73,18 +73,18 @@
 <p>The <code>PCT-QueryCompoundCS_type_subss</code> element will tell PUG to look for substructures.</p>
 <h2 id="usingthesavedquerywithpug">Using the Saved Query with PUG</h2>
 <p>Saving this file as <strong>benzimidazole_sss.xml</strong>, lets us feed it to PUG:</p>
-<pre><code class="hljs bash language-bash">curl -d @benzimidazole_sss.xml <span class="hljs-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi"</span>
+<pre><code class="hljs bash language-bash">curl -d @benzimidazole_sss.xml <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi&quot;</span>
 </code></pre>
 <p>and get the following PUGML response:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&gt;</span>
-<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">PCT-Data</span> <span class="hljs-meta-keyword">PUBLIC</span> <span class="hljs-meta-string">"-//NCBI//NCBI PCTools/EN"</span> <span class="hljs-meta-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd"</span>&gt;</span>
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span>?&gt;</span>
+<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">PCT-Data</span> <span class="hljs-keyword">PUBLIC</span> <span class="hljs-string">&quot;-//NCBI//NCBI PCTools/EN&quot;</span> <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd&quot;</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data_output</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
-            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"queued"</span>/&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;queued&quot;</span>/&gt;</span>
           <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
@@ -115,18 +115,18 @@
 </pct-data>
 </pre>
 <p>POSTing this to PUG:</p>
-<pre><code class="hljs bash language-bash">curl -d @status.xml <span class="hljs-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi"</span>
+<pre><code class="hljs bash language-bash">curl -d @status.xml <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi&quot;</span>
 </code></pre>
 <p>gives us the following PUGML:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&gt;</span>
-<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">PCT-Data</span> <span class="hljs-meta-keyword">PUBLIC</span> <span class="hljs-meta-string">"-//NCBI//NCBI PCTools/EN"</span> <span class="hljs-meta-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd"</span>&gt;</span>
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span>?&gt;</span>
+<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">PCT-Data</span> <span class="hljs-keyword">PUBLIC</span> <span class="hljs-string">&quot;-//NCBI//NCBI PCTools/EN&quot;</span> <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd&quot;</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data_output</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
-            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"success"</span>/&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;success&quot;</span>/&gt;</span>
           <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message_message</span>&gt;</span>Your search has already been completed successfully!.<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message_message</span>&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message</span>&gt;</span>

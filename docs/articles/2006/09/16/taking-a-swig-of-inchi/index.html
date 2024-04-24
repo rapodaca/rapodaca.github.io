@@ -45,28 +45,28 @@
 <h2 id="findthemainmethod">Find the Main Method</h2>
 <p>This tutorial will create an interface into the InChI <code>main()</code> function. This function is found on line 
 149 of the file <code>ichimain.c</code>. For reasons I won't get into here, rename this method <code>run</code> and change the second argument type to char&nbsp;**. Also, add a prototype for the <code>run</code> function directly above line 149:</p>
-<pre><code class="hljs c language-c"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">run</span><span class="hljs-params">( <span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> **argv )</span></span>; <span class="hljs-comment">// new line added</span>
-<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">run</span><span class="hljs-params">( <span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> **argv )</span> <span class="hljs-comment">// formerly line 149</span>
-</span></code></pre>
+<pre><code class="hljs c language-c"><span class="hljs-type">int</span> <span class="hljs-title function_">run</span><span class="hljs-params">( <span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv )</span>; <span class="hljs-comment">// new line added</span>
+<span class="hljs-type">int</span> <span class="hljs-title function_">run</span><span class="hljs-params">( <span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv )</span> <span class="hljs-comment">// formerly line 149</span>
+</code></pre>
 <h2 id="createtheinterfacefile">Create the Interface File</h2>
 <p>The focal point of SWIG is the interface file. This file specifies the C functions you want to link into and some items to help in doing so. Create a file called <code>libinchi.i</code> containing the following:</p>
 <pre><code class="hljs c language-c"><span class="hljs-comment">/* The name of this module. */</span>
-%<span class="hljs-keyword">module</span> libinchi
+%module libinchi
 
 <span class="hljs-comment">/*
  * Tells SWIG to treat char ** as a special case.
  */</span>
-%typemap(in) (<span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> **argv) {
+%typemap(in) (<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv) {
 
  <span class="hljs-comment">/* Get the length of the array */</span>
- <span class="hljs-keyword">int</span> <span class="hljs-built_in">size</span> = RARRAY($input)-&gt;len; 
- <span class="hljs-keyword">int</span> i;
- $<span class="hljs-number">1</span> = ($<span class="hljs-number">1</span>_ltype) <span class="hljs-built_in">size</span>;
- $<span class="hljs-number">2</span> = (<span class="hljs-keyword">char</span> **) <span class="hljs-built_in">malloc</span>((<span class="hljs-built_in">size</span>+<span class="hljs-number">1</span>)*<span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">char</span> *));
+ <span class="hljs-type">int</span> size = RARRAY($input)-&gt;len; 
+ <span class="hljs-type">int</span> i;
+ $<span class="hljs-number">1</span> = ($<span class="hljs-number">1</span>_ltype) size;
+ $<span class="hljs-number">2</span> = (<span class="hljs-type">char</span> **) <span class="hljs-built_in">malloc</span>((size+<span class="hljs-number">1</span>)*<span class="hljs-keyword">sizeof</span>(<span class="hljs-type">char</span> *));
 
  <span class="hljs-comment">/* Get the first element in memory */</span>
  VALUE *ptr = RARRAY($input)-&gt;ptr; 
- <span class="hljs-keyword">for</span> (i=<span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">size</span>; i++, ptr++)
+ <span class="hljs-keyword">for</span> (i=<span class="hljs-number">0</span>; i &lt; size; i++, ptr++)
 
  <span class="hljs-comment">/* Convert Ruby Object String to char* */</span>
  $<span class="hljs-number">2</span>[i]= STR2CSTR(*ptr); 
@@ -77,14 +77,14 @@
  * Cleans up the char ** array created before 
  * the function call.
  */</span>
-%typemap(freearg) <span class="hljs-keyword">char</span> ** {
- <span class="hljs-built_in">free</span>((<span class="hljs-keyword">char</span> *) $<span class="hljs-number">1</span>);
+%typemap(freearg) <span class="hljs-type">char</span> ** {
+ <span class="hljs-built_in">free</span>((<span class="hljs-type">char</span> *) $<span class="hljs-number">1</span>);
 }
 
 <span class="hljs-comment">/*
  * Function definition from ichimain.c.
  */</span>
-<span class="hljs-function"><span class="hljs-keyword">extern</span> <span class="hljs-keyword">int</span> <span class="hljs-title">run</span><span class="hljs-params">(<span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> **argv)</span></span>;
+<span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> <span class="hljs-title function_">run</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv)</span>;
 </code></pre>
 <p>The interface file has three main parts. The first part (line 2) names the module. The second part (lines 7-30) makes the necessary Ruby/C datatype conversions. The last part (line 35) tells SWIG the InChI functions we want to be able to access from Ruby.</p>
 <h2 id="takeaswig">Take a SWIG</h2>
@@ -94,9 +94,9 @@
 <p>This command should have created a new source file, <code>libinchi_wrap.c</code>, that contains all of the C glue code for our library. We'll have a look at the most important part of this file shortly.</p>
 <h2 id="createamakefile">Create a Makefile</h2>
 <p>We'll need a makefile with which to compile our library. Fortunately, Ruby makes this very easy. Create a file called <code>extconf.rb</code> containing the following Ruby code:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'mkmf'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;mkmf&#x27;</span>
 
-create_makefile(<span class="hljs-string">'libinchi'</span>)
+create_makefile(<span class="hljs-string">&#x27;libinchi&#x27;</span>)
 </code></pre>
 <p>A makefile can now be generated by:</p>
 <pre><code class="hljs bash language-bash">ruby extconf.rb
@@ -108,54 +108,54 @@ create_makefile(<span class="hljs-string">'libinchi'</span>)
 <h2 id="useinchifromruby">Use InChI from Ruby</h2>
 <p>We are now done with the basics. You can verify that the process worked through Interactive Ruby (irb):</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'libinchi'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;libinchi&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 </code></pre>
 <p>The return value of <code>true</code> shows that Ruby loaded and recognized the binary library we just built (<code>libinchi.so</code>). We are now able to use this library as if it were written in Ruby.</p>
 <h2 id="usethelibrary">Use the Library</h2>
 <p>To test the library, copy a molfile called <code>test.mol</code> into your <code>inchi</code> directory. Now run this code:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'libinchi'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;libinchi&#x27;</span>
 
-Libinchi.run([<span class="hljs-string">''</span>, <span class="hljs-string">'test.mol'</span>])
+<span class="hljs-title class_">Libinchi</span>.run([<span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&#x27;test.mol&#x27;</span>])
 </code></pre>
 <p>You should get a lot of output from the InChI libary. If you take a look at the <code>inchi</code> directory contents, a new file, <code>test.mol.txt</code>, has been created. It contains the InChI identifier of the molecule contained in your molfile. This software also created a log file (<code>test.mol.log</code>) and a problem file (<code>test.mol.prb</code>).</p>
 <p>You may be wondering why the first element in the <code>Array</code> passed to <code>Libinchi.run</code> is empty. The reason is that by convention a C <code>main</code> method expects its first argument to be the name of the program itself. The InChI <code>main</code> method takes this into account, and so the Array simply leaves its first element blank.</p>
 <h2 id="customizethelibrary">Customize the Library</h2>
 <p>Have a look at the <code>libinchi_wrap.c</code> file that SWIG created. At the bottom of this file should be a function called <code>Init_libinchi</code>:</p>
-<pre><code class="hljs c language-c">SWIGEXPORT(<span class="hljs-keyword">void</span>) Init_libinchi(<span class="hljs-keyword">void</span>) {
-  <span class="hljs-keyword">int</span> i;
+<pre><code class="hljs c language-c">SWIGEXPORT(<span class="hljs-type">void</span>) Init_libinchi(<span class="hljs-type">void</span>) {
+  <span class="hljs-type">int</span> i;
 
   SWIG_InitRuntime();
-  mLibinchi = rb_define_module(<span class="hljs-string">"Libinchi"</span>);
+  mLibinchi = rb_define_module(<span class="hljs-string">&quot;Libinchi&quot;</span>);
 
   <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; swig_types_initial[i]; i++) {
     swig_types[i] = SWIG_TypeRegister(swig_types_initial[i]);
     SWIG_define_class(swig_types[i]);
   }
 
-  rb_define_module_function(mLibinchi, <span class="hljs-string">"run"</span>, _wrap_run, <span class="hljs-number">-1</span>);
+  rb_define_module_function(mLibinchi, <span class="hljs-string">&quot;run&quot;</span>, _wrap_run, <span class="hljs-number">-1</span>);
 }  
 </code></pre>
 <p>This is what Ruby uses to map C functions to Ruby modules, classes, and methods. In this case, the C <code>run</code> method is being mapped to a module called <code>Libinchi</code> which has a <code>run</code> method.</p>
 <p>Let's say that you'd prefer a module name of <code>InChI</code> with a method called <code>write_inchi</code>. The following changes to <code>Init_libinchi</code> will accomplish this:</p>
-<pre><code class="hljs c language-c">SWIGEXPORT(<span class="hljs-keyword">void</span>) Init_libinchi(<span class="hljs-keyword">void</span>) {
-  <span class="hljs-keyword">int</span> i;
+<pre><code class="hljs c language-c">SWIGEXPORT(<span class="hljs-type">void</span>) Init_libinchi(<span class="hljs-type">void</span>) {
+  <span class="hljs-type">int</span> i;
 
   SWIG_InitRuntime();
-  mLibinchi = rb_define_module(<span class="hljs-string">"InChI"</span>);
+  mLibinchi = rb_define_module(<span class="hljs-string">&quot;InChI&quot;</span>);
 
   <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; swig_types_initial[i]; i++) {
     swig_types[i] = SWIG_TypeRegister(swig_types_initial[i]);
     SWIG_define_class(swig_types[i]);
   }
 
-  rb_define_module_function(mLibinchi, <span class="hljs-string">"write_inchi"</span>, _wrap_run, <span class="hljs-number">-1</span>);
+  rb_define_module_function(mLibinchi, <span class="hljs-string">&quot;write_inchi&quot;</span>, _wrap_run, <span class="hljs-number">-1</span>);
 }
 </code></pre>
 <p>Run <code>make</code> again. Now the following can be used to write the InChI information for <code>test.mol</code>:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'libinchi'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;libinchi&#x27;</span>
 
-InChI.write_inchi([<span class="hljs-string">''</span>, <span class="hljs-string">'test.mol'</span>])
+<span class="hljs-title class_">InCh</span>I.write_inchi([<span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-string">&#x27;test.mol&#x27;</span>])
 </code></pre>
 <h2 id="summingup">Summing Up</h2>
 <p>SWIG simplifies the job of connecting high-level languages like Ruby to C/C++ libraries. Although not illustrated in the simple example above, SWIG offers several advanced tools for creating rich library interfaces. Given the large amount of chemical informatics software written in C/C++, and the increasing interest by developers in scripting languages such as Ruby, the SWIG approach is likely to be broadly useful in several areas of chemical informatics integration.</p>

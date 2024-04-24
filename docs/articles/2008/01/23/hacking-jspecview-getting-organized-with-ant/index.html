@@ -54,64 +54,64 @@
 <p>The second library we'll need is <a href="http://velocity.apache.org/">Velocity</a>. Copy the <a href="http://apache.mirrors.redwire.net/velocity/engine/1.5/velocity-1.5.tar.gz">Velocity-1.5 jarfile</a> into your JSpecView <strong>lib</strong> directory.</p>
 <h2 id="createbuildxml">Create build.xml</h2>
 <p>All that remains is to create an Ant <strong>build.xml</strong> file. There are many ways to do this; the file presented below is but one of them:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&gt;</span>
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span>?&gt;</span>
 
-<span class="hljs-tag">&lt;<span class="hljs-name">project</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"JSpecView"</span> <span class="hljs-attr">default</span>=<span class="hljs-string">"compile"</span> <span class="hljs-attr">basedir</span>=<span class="hljs-string">"."</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">project</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;JSpecView&quot;</span> <span class="hljs-attr">default</span>=<span class="hljs-string">&quot;compile&quot;</span> <span class="hljs-attr">basedir</span>=<span class="hljs-string">&quot;.&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">description</span>&gt;</span>
     A JCamp-DX Viewer
   <span class="hljs-tag">&lt;/<span class="hljs-name">description</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"full-name"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"JSpecView"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"short-name"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"JSpecView"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"unix-name"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"jspecview"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"version"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"20080113"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"img"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"icons"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"src"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"src"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"lib"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"lib"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"build"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"build"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"build-classes"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"build/classes"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"build-lib"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"build/lib"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"doc"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"doc"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"dist"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"dist"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"bin-dist"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"${dist}/bin"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"src-dist"</span> <span class="hljs-attr">location</span>=<span class="hljs-string">"${dist}/src"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;full-name&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;JSpecView&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;short-name&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;JSpecView&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;unix-name&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;jspecview&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;version&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;20080113&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;img&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;icons&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;src&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;src&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;lib&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;lib&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;build&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;build&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;build-classes&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;build/classes&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;build-lib&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;build/lib&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;doc&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;doc&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;dist&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;dist&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;bin-dist&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;${dist}/bin&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;src-dist&quot;</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;${dist}/src&quot;</span> /&gt;</span>
 
-  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"compile"</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">"init"</span> <span class="hljs-attr">description</span>=<span class="hljs-string">"compile the source"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">javac</span> <span class="hljs-attr">srcdir</span>=<span class="hljs-string">"${src}"</span> <span class="hljs-attr">destdir</span>=<span class="hljs-string">"${build-classes}"</span> <span class="hljs-attr">debug</span>=<span class="hljs-string">"on"</span> <span class="hljs-attr">source</span>=<span class="hljs-string">"1.5"</span> <span class="hljs-attr">target</span>=<span class="hljs-string">"1.5"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;compile&quot;</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">&quot;init&quot;</span> <span class="hljs-attr">description</span>=<span class="hljs-string">&quot;compile the source&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">javac</span> <span class="hljs-attr">srcdir</span>=<span class="hljs-string">&quot;${src}&quot;</span> <span class="hljs-attr">destdir</span>=<span class="hljs-string">&quot;${build-classes}&quot;</span> <span class="hljs-attr">debug</span>=<span class="hljs-string">&quot;on&quot;</span> <span class="hljs-attr">source</span>=<span class="hljs-string">&quot;1.5&quot;</span> <span class="hljs-attr">target</span>=<span class="hljs-string">&quot;1.5&quot;</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">classpath</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">fileset</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${lib}"</span>&gt;</span>
-          <span class="hljs-tag">&lt;<span class="hljs-name">include</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"**/*.jar"</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">fileset</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${lib}&quot;</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">include</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;**/*.jar&quot;</span> /&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">fileset</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">classpath</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">javac</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
 
-  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"jar"</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">"compile"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">jar</span> <span class="hljs-attr">jarfile</span>=<span class="hljs-string">"${build-lib}/${unix-name}-${version}.jar"</span> <span class="hljs-attr">basedir</span>=<span class="hljs-string">"${build-classes}"</span> &gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;jar&quot;</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">&quot;compile&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">jar</span> <span class="hljs-attr">jarfile</span>=<span class="hljs-string">&quot;${build-lib}/${unix-name}-${version}.jar&quot;</span> <span class="hljs-attr">basedir</span>=<span class="hljs-string">&quot;${build-classes}&quot;</span> &gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">jar</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
 
-  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"init"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${build}"</span> /&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${build-classes}"</span> /&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${build-lib}"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;init&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${build}&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${build-classes}&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${build-lib}&quot;</span> /&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
 
-  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"doc"</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">"compile"</span> <span class="hljs-attr">description</span>=<span class="hljs-string">"create the full api documentation"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">javadoc</span> <span class="hljs-attr">sourcepath</span>=<span class="hljs-string">"${src}"</span> <span class="hljs-attr">packagenames</span>=<span class="hljs-string">"*"</span> <span class="hljs-attr">destdir</span>=<span class="hljs-string">"${doc}"</span> <span class="hljs-attr">windowtitle</span>=<span class="hljs-string">"${short-name} API"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;doc&quot;</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">&quot;compile&quot;</span> <span class="hljs-attr">description</span>=<span class="hljs-string">&quot;create the full api documentation&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">javadoc</span> <span class="hljs-attr">sourcepath</span>=<span class="hljs-string">&quot;${src}&quot;</span> <span class="hljs-attr">packagenames</span>=<span class="hljs-string">&quot;*&quot;</span> <span class="hljs-attr">destdir</span>=<span class="hljs-string">&quot;${doc}&quot;</span> <span class="hljs-attr">windowtitle</span>=<span class="hljs-string">&quot;${short-name} API&quot;</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">doctitle</span>&gt;</span>${full-name} v${version}<span class="hljs-tag">&lt;/<span class="hljs-name">doctitle</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">header</span>&gt;</span>${full-name} v${version}<span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">classpath</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">fileset</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${lib}"</span>&gt;</span>
-          <span class="hljs-tag">&lt;<span class="hljs-name">include</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"**/*.jar"</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">fileset</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${lib}&quot;</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">include</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;**/*.jar&quot;</span> /&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">fileset</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">classpath</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">javadoc</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
 
-  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"clean"</span> <span class="hljs-attr">description</span>=<span class="hljs-string">"remove dist, doc, and build directories"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">delete</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${build}"</span> /&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">delete</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${dist}"</span> /&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">delete</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${doc}"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;clean&quot;</span> <span class="hljs-attr">description</span>=<span class="hljs-string">&quot;remove dist, doc, and build directories&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">delete</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${build}&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">delete</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${dist}&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">delete</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${doc}&quot;</span> /&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">project</span>&gt;</span>
 </code></pre>
@@ -122,9 +122,9 @@
 Buildfile: build.xml
 
 init:
-    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build
-    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build/classes
-    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build/lib
+    [<span class="hljs-built_in">mkdir</span>] Created <span class="hljs-built_in">dir</span>: /home/rich/devel/proj/jspecview/build
+    [<span class="hljs-built_in">mkdir</span>] Created <span class="hljs-built_in">dir</span>: /home/rich/devel/proj/jspecview/build/classes
+    [<span class="hljs-built_in">mkdir</span>] Created <span class="hljs-built_in">dir</span>: /home/rich/devel/proj/jspecview/build/lib
 
 compile:
     [javac] Compiling 48 <span class="hljs-built_in">source</span> files to /home/rich/devel/proj/jspecview/build/classes
@@ -159,7 +159,7 @@ compile:
 doc:
   [javadoc] Generating Javadoc
   [javadoc] Javadoc execution
-  [javadoc] Creating destination directory: <span class="hljs-string">"/home/rich/devel/proj/jspecview/doc/"</span>
+  [javadoc] Creating destination directory: <span class="hljs-string">&quot;/home/rich/devel/proj/jspecview/doc/&quot;</span>
   [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package jspecview.applet...
   [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package jspecview.application...
   [javadoc] Loading <span class="hljs-built_in">source</span> files <span class="hljs-keyword">for</span> package jspecview.common...

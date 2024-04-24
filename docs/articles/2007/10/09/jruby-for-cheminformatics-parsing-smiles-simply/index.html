@@ -54,22 +54,22 @@
 <h2 id="testingcdkforjruby">Testing CDK for JRuby</h2>
 <p>You can verify that your new CDK for JRuby installation works with <code>jirb</code>:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'java'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;java&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):002:0&gt; include_class <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
-=&gt; [<span class="hljs-string">"org.openscience.cdk.smiles.SmilesParser"</span>]
+irb(main):002:0&gt; include_class <span class="hljs-string">&#x27;org.openscience.cdk.smiles.SmilesParser&#x27;</span>
+=&gt; [<span class="hljs-string">&quot;org.openscience.cdk.smiles.SmilesParser&quot;</span>]
 </code></pre>
 <p>You should notice that <code>jirb</code> takes a few seconds to initialize the JVM, whereas <code>irb</code> starts almost instantly.</p>
 <h2 id="alibrarytoreadsmiles">A Library to Read SMILES</h2>
 <p>We can write a short library to read SMILES strings using the CDK:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'java'</span>
-include_class <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;java&#x27;</span>
+include_class <span class="hljs-string">&#x27;org.openscience.cdk.smiles.SmilesParser&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">Daylight</span></span>
-  @@smiles_parser = SmilesParser.new
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">Daylight</span>
+  <span class="hljs-variable">@@smiles_parser</span> = <span class="hljs-title class_">SmilesParser</span>.new
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">read_smiles</span> <span class="hljs-title">smiles</span></span>
-    @@smiles_parser.parse_smiles smiles
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">read_smiles</span> smiles
+    <span class="hljs-variable">@@smiles_parser</span>.parse_smiles smiles
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -77,11 +77,11 @@ include_class <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser
 <h2 id="testingthelibrary">Testing the Library</h2>
 <p>Saving the library as a file called <strong>daylight.rb</strong> lets us test it using interactive JRuby:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'daylight'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;daylight&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include Daylight
 =&gt; Object
-irb(main):003:0&gt; mol = read_smiles <span class="hljs-string">'c1ccccc1'</span>
+irb(main):003:0&gt; mol = read_smiles <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>
 =&gt; <span class="hljs-comment">#&lt;Java::OrgOpenscienceCdk:: [truncated] ...&gt;</span>
 irb(main):004:0&gt; mol.atom_count
 =&gt; 6

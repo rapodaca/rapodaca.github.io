@@ -35,10 +35,10 @@
       </header>
       <p>One of the useful (and unnerving) things about running a blog is that you're forced to face what you don't know (usually very publicly). I've been looking for the simplest way to maintain an up-to-date local copy of PubChem. I previously posted an article describing one way to <a href="http://depth-first.com/articles/2010/02/08/big-data-in-chemistry-mirroring-pubchem-the-easy-way">mirror PubChem</a> through the use of rsync and curlftpfs.</p>
 <p>Although this method works, it turns out that there's an even simpler way to do this with wget. For Compounds:</p>
-<pre><code class="hljs bash language-bash">wget --mirror --accept <span class="hljs-string">"*.sdf.gz"</span> ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/
+<pre><code class="hljs bash language-bash">wget --mirror --accept <span class="hljs-string">&quot;*.sdf.gz&quot;</span> ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/
 </code></pre>
 <p>For Substances:</p>
-<pre><code class="hljs bash language-bash">wget --mirror --accept <span class="hljs-string">"*.sdf.gz"</span> ftp://ftp.ncbi.nlm.nih.gov/pubchem/Substance/CURRENT-Full/SDF/
+<pre><code class="hljs bash language-bash">wget --mirror --accept <span class="hljs-string">&quot;*.sdf.gz&quot;</span> ftp://ftp.ncbi.nlm.nih.gov/pubchem/Substance/CURRENT-Full/SDF/
 </code></pre>
 <p>The --mirror option bundles several options together relating to <a href="http://sunsite.ualberta.ca/Documentation/Gnu/wget-1.7/html_chapter/wget_5.html">timestamping</a>. This is how wget will be able to download only the updates to the PubChem archives directory, rather than downloading the entire PubChem archive every time.</p>
 <p>Without any options, the default behavior of wget is to not preserve timestamps and to force a complete download of all files every time.</p>

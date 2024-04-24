@@ -41,7 +41,7 @@
 <h2 id="step1createthewrappersmakefile">Step 1: Create the Wrapper's Makefile</h2>
 <p>After unpacking, compiling, and installing Open Babel, change into the <strong>scripts/ruby</strong> directory of your source distribution. Next, run the <strong>extconf.rb</strong> script:</p>
 <pre><code class="hljs bash language-bash">ruby extconf.rb
-checking <span class="hljs-keyword">for</span> main() <span class="hljs-keyword">in</span> -lopenbabel... yes
+checking <span class="hljs-keyword">for</span> main() <span class="hljs-keyword">in</span> -lopenbabel... <span class="hljs-built_in">yes</span>
 creating Makefile
 </code></pre>
 <p>As you've probably guessed, the purpose of this script is to generate a Makefile specific to your platform. This script uses the standard Ruby library <a href="http://www.ruby-doc.org/stdlib/libdoc/mkmf/rdoc/index.html">mkmf</a>.</p>
@@ -60,15 +60,15 @@ g++ -I. -I. -I/usr/lib/ruby/1.8/x86_64-linux-gnu -I. -I../../include  -fPIC -O2 
 <h2 id="hellobenzene">Hello, Benzene!</h2>
 <p>Congratulations, you've installed Ruby Open Babel! You can verify that your new library works with interactive Ruby (irb):</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'openbabel'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;openbabel&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; c=OpenBabel::OBConversion.new
 =&gt; <span class="hljs-comment">#&amp;lt;OpenBabel::OBConversion:0x2acedbadd020&amp;gt;</span>
-irb(main):003:0&gt; c.set_in_format <span class="hljs-string">'smi'</span>
+irb(main):003:0&gt; c.set_in_format <span class="hljs-string">&#x27;smi&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):004:0&gt; benzene=OpenBabel::OBMol.new
 =&gt; <span class="hljs-comment">#&amp;lt;OpenBabel::OBMol:0x2acedbacfa10&amp;gt;</span>
-irb(main):005:0&gt; c.read_string benzene, <span class="hljs-string">'c1ccccc1'</span>
+irb(main):005:0&gt; c.read_string benzene, <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):006:0&gt; benzene.num_atoms
 =&gt; 6

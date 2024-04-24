@@ -40,35 +40,35 @@
 <p><img src="/images/posts/20061115/screenshot.png" alt="Screenshot"></p>
 <h2 id="enumeratorasmallrubylibrary">Enumerator: A Small Ruby Library</h2>
 <p>We'll create a small Ruby class to do most of the work. Save the following in a file called <strong>enum.rb</strong>:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
 
-jrequire <span class="hljs-string">'org.openscience.cdk.structgen.deterministic.GENMDeterministicGenerator'</span>
-jrequire <span class="hljs-string">'net.sf.structure.cdk.util.ImageKit'</span>
+jrequire <span class="hljs-string">&#x27;org.openscience.cdk.structgen.deterministic.GENMDeterministicGenerator&#x27;</span>
+jrequire <span class="hljs-string">&#x27;net.sf.structure.cdk.util.ImageKit&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Enumerator</span></span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Enumerator</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span><span class="hljs-params">(formula)</span></span>
-    @generator = Org::Openscience::Cdk::Structgen::Deterministic::GENMDeterministicGenerator.new(formula, <span class="hljs-string">''</span>)
-    @width = <span class="hljs-number">150</span>
-    @height = <span class="hljs-number">150</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>(<span class="hljs-params">formula</span>)
+    <span class="hljs-variable">@generator</span> = <span class="hljs-title class_">Org::Openscience::Cdk::Structgen::Deterministic::GENMDeterministicGenerator</span>.new(formula, <span class="hljs-string">&#x27;&#x27;</span>)
+    <span class="hljs-variable">@width</span> = <span class="hljs-number">150</span>
+    <span class="hljs-variable">@height</span> = <span class="hljs-number">150</span>
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">set_size</span><span class="hljs-params">(width, height)</span></span>
-    @width = width
-    @height = height
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">set_size</span>(<span class="hljs-params">width, height</span>)
+    <span class="hljs-variable">@width</span> = width
+    <span class="hljs-variable">@height</span> = height
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">write_images</span></span>
-    mols = @generator.getStructures
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">write_images</span>
+    mols = <span class="hljs-variable">@generator</span>.getStructures
     iterator = mols.iterator
 
     <span class="hljs-keyword">while</span> (iterator.hasNext)
-      mol = RCDK::Util::XY.coordinate_molecule(iterator.<span class="hljs-keyword">next</span>)
-      smiles = RCDK::Util::Lang.get_smiles(mol)
+      mol = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:XY</span>.coordinate_molecule(iterator.<span class="hljs-keyword">next</span>)
+      smiles = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Lang</span>.get_smiles(mol)
 
-      Net::Sf::Structure::Cdk::Util::ImageKit.writePNG(mol, @width, @height, <span class="hljs-string">"<span class="hljs-subst">#{smiles}</span>.png"</span>)
+      <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Sf</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Structure</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:ImageKit</span>.writePNG(mol, <span class="hljs-variable">@width</span>, <span class="hljs-variable">@height</span>, <span class="hljs-string">&quot;<span class="hljs-subst">#{smiles}</span>.png&quot;</span>)
     <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
@@ -81,9 +81,9 @@ jrequire <span class="hljs-string">'net.sf.structure.cdk.util.ImageKit'</span>
 </ul>
 <h2 id="testingthelibrary">Testing the Library</h2>
 <p>To test the library, the following code can either be entered interactively via Interactive Ruby (irb) or saved to a file and run with the Ruby interpreter (ruby):</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'enum'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;enum&#x27;</span>
 
-e=Enumerator.new <span class="hljs-string">'C4H8ClNO'</span>
+e=<span class="hljs-title class_">Enumerator</span>.new <span class="hljs-string">&#x27;C4H8ClNO&#x27;</span>
 
 e.write_images
 </code></pre>

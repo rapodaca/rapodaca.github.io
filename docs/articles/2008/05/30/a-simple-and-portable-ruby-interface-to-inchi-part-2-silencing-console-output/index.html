@@ -35,11 +35,11 @@
       </header>
       <p>The previous article in this series described a <a href="http://depth-first.com/articles/2008/05/29/a-simple-and-portable-ruby-interface-to-inchi">simple and portable method</a> for interfacing Ruby to the cInChI-1 binary. One disadvantage was noisy console output. This article offers a minor modification to disable it.</p>
 <h2 id="thecode">The Code</h2>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">InChI</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">inchi_for</span> <span class="hljs-title">molfile</span></span>
-    output = <span class="hljs-string">%x[echo "<span class="hljs-subst">#{molfile}</span>" | cInChI-1 -STDIO 2&amp;gt;/dev/null]</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">module</span> <span class="hljs-title class_">InCh</span>I
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">inchi_for</span> molfile
+    output = <span class="hljs-string">%x[echo &quot;<span class="hljs-subst">#{molfile}</span>&quot; | cInChI-1 -STDIO 2&amp;gt;/dev/null]</span>
 
-    output.eql?(<span class="hljs-string">""</span>) ? <span class="hljs-string">""</span> : output.split(<span class="hljs-regexp">/\n/</span>)[<span class="hljs-number">1</span>]
+    output.eql?(<span class="hljs-string">&quot;&quot;</span>) ? <span class="hljs-string">&quot;&quot;</span> : output.split(<span class="hljs-regexp">/\n/</span>)[<span class="hljs-number">1</span>]
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -47,13 +47,13 @@
 <h4>Testing the Code</h4>
 <p>Saving the above in a file called <strong>inchi.rb</strong>, we can test it from IRB. To make things interesting, let's pull a molfile from <a href="http://chempedia.com">Chempedia</a>:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&amp;gt; require <span class="hljs-string">'open-uri'</span>
+irb(main):001:0&amp;gt; require <span class="hljs-string">&#x27;open-uri&#x27;</span>
 =&amp;gt; <span class="hljs-literal">true</span>
-irb(main):002:0&amp;gt; require <span class="hljs-string">'inchi'</span>
+irb(main):002:0&amp;gt; require <span class="hljs-string">&#x27;inchi&#x27;</span>
 =&amp;gt; <span class="hljs-literal">true</span>
 irb(main):003:0&amp;gt; include InChI
 =&amp;gt; Object
-irb(main):004:0&amp;gt; open <span class="hljs-string">'http://chempedia.com/compounds/83490.mol'</span> <span class="hljs-keyword">do</span> |f|
+irb(main):004:0&amp;gt; open <span class="hljs-string">&#x27;http://chempedia.com/compounds/83490.mol&#x27;</span> <span class="hljs-keyword">do</span> |f|
 irb(main):005:1*   puts inchi_for(f.read)
 irb(main):006:1&amp;gt; end
 InChI=1/C15H15NO3S/c17-14(16-18)11-20(19)15(12-7-3-1-4-8-12)13-9-5-2-6-10-13/h1-10,15,18H,11H2,(H,16,17)

@@ -60,78 +60,78 @@
 <p>The most broadly-useful graph implementation is <code>Graph</code>, which is backed by an adjacency list. Create a <code>Graph</code> like so:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(), ()&gt;::new(); <span class="hljs-comment">// directed and unlabeled</span>
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::&lt;(), ()&gt;::<span class="hljs-title function_ invoke__">new</span>(); <span class="hljs-comment">// directed and unlabeled</span>
 
-    graph.extend_with_edges(&amp;[ (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>) ]);
+    graph.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[ (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>) ]);
 
-    <span class="hljs-built_in">assert_eq!</span>(graph.node_count(), <span class="hljs-number">2</span>);
-    <span class="hljs-built_in">assert_eq!</span>(graph.edge_count(), <span class="hljs-number">1</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">node_count</span>(), <span class="hljs-number">2</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">edge_count</span>(), <span class="hljs-number">1</span>);
 }
 </code></pre>
 <p>This minimal <code>Graph</code> is unlabeled, meaning that both nodes and edges are of <code>Unit</code> type (<code>()</code>). Labels can be typed as follows.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::new();
-    <span class="hljs-keyword">let</span> origin = graph.add_node(<span class="hljs-string">"Denver"</span>);
-    <span class="hljs-keyword">let</span> destination_1 = graph.add_node(<span class="hljs-string">"San Diego"</span>);
-    <span class="hljs-keyword">let</span> destination_2 = graph.add_node(<span class="hljs-string">"New York"</span>);
-    <span class="hljs-keyword">let</span> cost_1 = graph.add_edge(origin, destination_1, <span class="hljs-number">250</span>);
-    <span class="hljs-keyword">let</span> cost_2 = graph.add_edge(origin, destination_2, <span class="hljs-number">1099</span>);
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">origin</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;Denver&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">destination_1</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;San Diego&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">destination_2</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;New York&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">cost_1</span> = graph.<span class="hljs-title function_ invoke__">add_edge</span>(origin, destination_1, <span class="hljs-number">250</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">cost_2</span> = graph.<span class="hljs-title function_ invoke__">add_edge</span>(origin, destination_2, <span class="hljs-number">1099</span>);
 
-    <span class="hljs-built_in">assert_eq!</span>(graph.node_weight(origin).unwrap(), &amp;<span class="hljs-string">"Denver"</span>);
-    <span class="hljs-built_in">assert_eq!</span>(graph[destination_1], <span class="hljs-string">"San Diego"</span>);
-    <span class="hljs-built_in">assert_eq!</span>(graph.edge_weight(cost_1).unwrap(), &amp;<span class="hljs-number">250</span>);
-    <span class="hljs-built_in">assert_eq!</span>(graph.edge_weight(cost_2).unwrap(), &amp;<span class="hljs-number">1099</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">node_weight</span>(origin).<span class="hljs-title function_ invoke__">unwrap</span>(), &amp;<span class="hljs-string">&quot;Denver&quot;</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph[destination_1], <span class="hljs-string">&quot;San Diego&quot;</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">edge_weight</span>(cost_1).<span class="hljs-title function_ invoke__">unwrap</span>(), &amp;<span class="hljs-number">250</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">edge_weight</span>(cost_2).<span class="hljs-title function_ invoke__">unwrap</span>(), &amp;<span class="hljs-number">1099</span>);
 }
 </code></pre>
 <p>The bracket notation <code>graph[handle]</code> returns an unwrapped, cloned node weight. It panics given an unknown node reference, which may not be desirable for production work.</p>
 <p>The value returned from <code>add_node</code> is of type <code>NodeIndex</code>. It can produce a numerical node index on request:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),()&gt;::new();
-    <span class="hljs-keyword">let</span> n0 = graph.add_node(());
-    <span class="hljs-keyword">let</span> n1 = graph.add_node(());
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::&lt;(),()&gt;::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n0</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(());
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n1</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(());
 
-    <span class="hljs-built_in">assert_eq!</span>(n0.index(), <span class="hljs-number">0</span>);
-    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>);
+    <span class="hljs-built_in">assert_eq!</span>(n0.<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">0</span>);
+    <span class="hljs-built_in">assert_eq!</span>(n1.<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">1</span>);
 }
 </code></pre>
 <p>However, this numerical index is not stable with respect to node deletion. If we rely on node indexing to store state external to the <code>Graph</code>, that system will fail the moment a preceding node is removed:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),()&gt;::new();
-    <span class="hljs-keyword">let</span> n0 = graph.add_node(());
-    <span class="hljs-keyword">let</span> n1 = graph.add_node(());
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::&lt;(),()&gt;::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n0</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(());
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n1</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(());
 
-    <span class="hljs-built_in">assert_eq!</span>(n0.index(), <span class="hljs-number">0</span>);
-    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>);
+    <span class="hljs-built_in">assert_eq!</span>(n0.<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">0</span>);
+    <span class="hljs-built_in">assert_eq!</span>(n1.<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">1</span>);
 
-    graph.remove_node(n0);
+    graph.<span class="hljs-title function_ invoke__">remove_node</span>(n0);
 
-    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>); <span class="hljs-comment">// watch out, not updated!</span>
+    <span class="hljs-built_in">assert_eq!</span>(n1.<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">1</span>); <span class="hljs-comment">// watch out, not updated!</span>
 
-    <span class="hljs-keyword">let</span> indexes = graph.node_indices().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">indexes</span> = graph.<span class="hljs-title function_ invoke__">node_indices</span>().collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;();
 
-    <span class="hljs-built_in">assert_eq!</span>(indexes[<span class="hljs-number">0</span>].index(), <span class="hljs-number">1</span>); <span class="hljs-comment">// FAIL!</span>
+    <span class="hljs-built_in">assert_eq!</span>(indexes[<span class="hljs-number">0</span>].<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">1</span>); <span class="hljs-comment">// FAIL!</span>
 }
 </code></pre>
 <p><code>Graph</code> is directed by default. An undirected <code>Graph</code> can be created with the <code>new_undirected</code> method, among others:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::new_undirected();
-    <span class="hljs-keyword">let</span> origin = graph.add_node(<span class="hljs-string">"Denver"</span>);
-    <span class="hljs-keyword">let</span> destination_1 = graph.add_node(<span class="hljs-string">"San Diego"</span>);
-    <span class="hljs-keyword">let</span> destination_2 = graph.add_node(<span class="hljs-string">"New York"</span>);
-    <span class="hljs-keyword">let</span> cost_1 = graph.add_edge(origin, destination_1, <span class="hljs-number">250</span>);
-    <span class="hljs-keyword">let</span> cost_2 = graph.add_edge(origin, destination_2, <span class="hljs-number">1099</span>);
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::<span class="hljs-title function_ invoke__">new_undirected</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">origin</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;Denver&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">destination_1</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;San Diego&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">destination_2</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;New York&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">cost_1</span> = graph.<span class="hljs-title function_ invoke__">add_edge</span>(origin, destination_1, <span class="hljs-number">250</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">cost_2</span> = graph.<span class="hljs-title function_ invoke__">add_edge</span>(origin, destination_2, <span class="hljs-number">1099</span>);
 
-    <span class="hljs-built_in">assert_eq!</span>(graph.edge_weight(cost_1).unwrap(), &amp;<span class="hljs-number">250</span>);
-    <span class="hljs-built_in">assert_eq!</span>(graph.edge_weight(cost_2).unwrap(), &amp;<span class="hljs-number">1099</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">edge_weight</span>(cost_1).<span class="hljs-title function_ invoke__">unwrap</span>(), &amp;<span class="hljs-number">250</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">edge_weight</span>(cost_2).<span class="hljs-title function_ invoke__">unwrap</span>(), &amp;<span class="hljs-number">1099</span>);
 }
 </code></pre>
 <p>It's often useful to depict a graph. Petgraph supports <a href="https://graphviz.gitlab.io/_pages/doc/info/lang.html">DOT</a>, a graph language specification used by many visualization tools including <a href="https://graphviz.orv">Graphviz</a>. An <a href="http://viz-js.com">online viewer (Vis.js)</a> is available. DOT is also a useful debugging format on its own.</p>
@@ -139,27 +139,27 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::prelude::Graph;
 <span class="hljs-keyword">use</span> petgraph::dot::Dot;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;&amp;<span class="hljs-built_in">str</span>, <span class="hljs-built_in">u32</span>&gt;::new();
-    <span class="hljs-keyword">let</span> origin = graph.add_node(<span class="hljs-string">"Denver"</span>);
-    <span class="hljs-keyword">let</span> destination_1 = graph.add_node(<span class="hljs-string">"San Diego"</span>);
-    <span class="hljs-keyword">let</span> destination_2 = graph.add_node(<span class="hljs-string">"New York"</span>);
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::&lt;&amp;<span class="hljs-type">str</span>, <span class="hljs-type">u32</span>&gt;::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">origin</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;Denver&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">destination_1</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;San Diego&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">destination_2</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;New York&quot;</span>);
 
-    graph.extend_with_edges(&amp;[
+    graph.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[
         (origin, destination_1, <span class="hljs-number">250</span>),
         (origin, destination_2, <span class="hljs-number">1099</span>)
     ]);
 
-    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"{}"</span>, Dot::new(&amp;graph));
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;{}&quot;</span>, Dot::<span class="hljs-title function_ invoke__">new</span>(&amp;graph));
 }
 </code></pre>
 <p>The output from this program can be copied into Vis.js:</p>
 <pre><code class="hljs console language-console">digraph {
-    0 [label="Denver"]
-    1 [label="San Diego"]
-    2 [label="New York"]
-    0 -&gt; 1 [label="250"]
-    0 -&gt; 2 [label="1099"]
+    0 [label=&quot;Denver&quot;]
+    1 [label=&quot;San Diego&quot;]
+    2 [label=&quot;New York&quot;]
+    0 -&gt; 1 [label=&quot;250&quot;]
+    0 -&gt; 2 [label=&quot;1099&quot;]
 }
 </code></pre>
 <p>This yields the image:</p>
@@ -171,51 +171,51 @@
 </figure>
 <p>An alternative, JSON-based debug format is available through the optional <a href="https://serde.rs">Serde</a> integration. Activate it by adding the following to your <code>Cargo.toml</code> file:</p>
 <pre><code class="hljs toml language-toml"><span class="hljs-section">[dependencies]</span>
-<span class="hljs-attr">serde_json</span> = <span class="hljs-string">"1.0.45"</span>
+<span class="hljs-attr">serde_json</span> = <span class="hljs-string">&quot;1.0.45&quot;</span>
 
 <span class="hljs-section">[dependencies.petgraph]</span>
-<span class="hljs-attr">version</span> = <span class="hljs-string">"0.5.0"</span>
-<span class="hljs-attr">features</span> = [<span class="hljs-string">"serde-1"</span>]
+<span class="hljs-attr">version</span> = <span class="hljs-string">&quot;0.5.0&quot;</span>
+<span class="hljs-attr">features</span> = [<span class="hljs-string">&quot;serde-1&quot;</span>]
 </code></pre>
 <p>Then use the <code>serde_json::to_string_pretty</code> function.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::graph::Graph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;&amp;<span class="hljs-built_in">str</span>, <span class="hljs-built_in">u32</span>&gt;::new();
-    <span class="hljs-keyword">let</span> origin = graph.add_node(<span class="hljs-string">"Denver"</span>);
-    <span class="hljs-keyword">let</span> destination_1 = graph.add_node(<span class="hljs-string">"San Diego"</span>);
-    <span class="hljs-keyword">let</span> destination_2 = graph.add_node(<span class="hljs-string">"New York"</span>);
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::&lt;&amp;<span class="hljs-type">str</span>, <span class="hljs-type">u32</span>&gt;::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">origin</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;Denver&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">destination_1</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;San Diego&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">destination_2</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;New York&quot;</span>);
 
-    graph.extend_with_edges(&amp;[
+    graph.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[
         (origin, destination_1, <span class="hljs-number">250</span>),
         (origin, destination_2, <span class="hljs-number">1099</span>)
     ]);
 
-    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"{}"</span>, serde_json::to_string_pretty(&amp;graph).unwrap());
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;{}&quot;</span>, serde_json::<span class="hljs-title function_ invoke__">to_string_pretty</span>(&amp;graph).<span class="hljs-title function_ invoke__">unwrap</span>());
 }
 </code></pre>
 <p>This program prints:</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"nodes"</span>: [
-    <span class="hljs-string">"Denver"</span>,
-    <span class="hljs-string">"San Diego"</span>,
-    <span class="hljs-string">"New York"</span>
-  ],
-  <span class="hljs-attr">"node_holes"</span>: [],
-  <span class="hljs-attr">"edge_property"</span>: <span class="hljs-string">"directed"</span>,
-  <span class="hljs-attr">"edges"</span>: [
-    [
-      <span class="hljs-number">0</span>,
-      <span class="hljs-number">1</span>,
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;nodes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-string">&quot;Denver&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-string">&quot;San Diego&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-string">&quot;New York&quot;</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;node_holes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;edge_property&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;directed&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;edges&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">[</span>
+      <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
       <span class="hljs-number">250</span>
-    ],
-    [
-      <span class="hljs-number">0</span>,
-      <span class="hljs-number">2</span>,
+    <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">[</span>
+      <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-number">2</span><span class="hljs-punctuation">,</span>
       <span class="hljs-number">1099</span>
-    ]
-  ]
-}
+    <span class="hljs-punctuation">]</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <h2 id="graphimplementations">Graph Implementations</h2>
 <p>Petgraph supports four graph implementations. Their main difference lies in the data structure backing the graph. This can lead to different memory and time performance depending on the situation. As discussed shortly, however, the APIs of these graphs are not necessarily compatible with all uses.</p>
@@ -223,21 +223,21 @@
 <p>Like <code>Graph</code>, <a href="https://docs.rs/petgraph/0.5.0/petgraph/stable_graph/struct.StableGraph.html">StableGraph</a> is backed with an adjacency list. Unlike <code>Graph</code>, removing nodes or edges from a <code>StableGraph</code> will not invalidate existing indexes.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::stable_graph::StableGraph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = StableGraph::&lt;(),()&gt;::new();
-    <span class="hljs-keyword">let</span> n0 = graph.add_node(());
-    <span class="hljs-keyword">let</span> n1 = graph.add_node(());
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = StableGraph::&lt;(),()&gt;::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n0</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(());
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n1</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(());
 
-    <span class="hljs-built_in">assert_eq!</span>(n0.index(), <span class="hljs-number">0</span>);
-    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>);
+    <span class="hljs-built_in">assert_eq!</span>(n0.<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">0</span>);
+    <span class="hljs-built_in">assert_eq!</span>(n1.<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">1</span>);
 
-    graph.remove_node(n0);
+    graph.<span class="hljs-title function_ invoke__">remove_node</span>(n0);
 
-    <span class="hljs-built_in">assert_eq!</span>(n1.index(), <span class="hljs-number">1</span>); <span class="hljs-comment">// not updated</span>
+    <span class="hljs-built_in">assert_eq!</span>(n1.<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">1</span>); <span class="hljs-comment">// not updated</span>
 
-    <span class="hljs-keyword">let</span> indexes = graph.node_indices().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">indexes</span> = graph.<span class="hljs-title function_ invoke__">node_indices</span>().collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;();
 
-    <span class="hljs-built_in">assert_eq!</span>(indexes[<span class="hljs-number">0</span>].index(), <span class="hljs-number">1</span>); <span class="hljs-comment">// PASS!</span>
+    <span class="hljs-built_in">assert_eq!</span>(indexes[<span class="hljs-number">0</span>].<span class="hljs-title function_ invoke__">index</span>(), <span class="hljs-number">1</span>); <span class="hljs-comment">// PASS!</span>
 }
 </code></pre>
 <p>The counterintuitively-named <a href="https://docs.rs/petgraph/0.5.0/petgraph/graphmap/struct.GraphMap.html"><code>GraphMap</code></a> is backed with a Map, using nodes as keys. Nodes must implement <code>Copy</code>, <code>Eq</code>, <code>Ord</code>, and <code>Hash</code>. Node membership tests, a feature missing from <code>Graph</code> but present in <code>StableGraph</code>, execute in constant time.</p>
@@ -246,37 +246,37 @@
 <span class="hljs-keyword">use</span> petgraph::graphmap::UnGraphMap;
 
 <span class="hljs-meta">#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]</span>
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">City</span></span> {
-    population: <span class="hljs-built_in">u32</span>,
-    cars: <span class="hljs-built_in">u32</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">City</span> {
+    population: <span class="hljs-type">u32</span>,
+    cars: <span class="hljs-type">u32</span>
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = UnGraphMap::&lt;_, ()&gt;::new();
-    <span class="hljs-keyword">let</span> bedford_falls = City { population: <span class="hljs-number">1023</span>, cars: <span class="hljs-number">24</span> };
-    <span class="hljs-keyword">let</span> tinsel_town = City { population: <span class="hljs-number">102479</span>, cars: <span class="hljs-number">1231441</span> };
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = UnGraphMap::&lt;_, ()&gt;::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">bedford_falls</span> = City { population: <span class="hljs-number">1023</span>, cars: <span class="hljs-number">24</span> };
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">tinsel_town</span> = City { population: <span class="hljs-number">102479</span>, cars: <span class="hljs-number">1231441</span> };
 
-    graph.add_node(&amp;bedford_falls);
-    graph.add_node(&amp;tinsel_town);
-    graph.add_edge(&amp;bedford_falls, &amp;tinsel_town, ());
+    graph.<span class="hljs-title function_ invoke__">add_node</span>(&amp;bedford_falls);
+    graph.<span class="hljs-title function_ invoke__">add_node</span>(&amp;tinsel_town);
+    graph.<span class="hljs-title function_ invoke__">add_edge</span>(&amp;bedford_falls, &amp;tinsel_town, ());
 
-    <span class="hljs-built_in">assert!</span>(graph.contains_node(&amp;bedford_falls));
-    <span class="hljs-built_in">assert!</span>(graph.contains_node(&amp;tinsel_town));
-    <span class="hljs-built_in">assert!</span>(graph.contains_edge(&amp;bedford_falls, &amp;tinsel_town));
-    <span class="hljs-built_in">assert!</span>(graph.contains_edge(&amp;tinsel_town, &amp;bedford_falls));
+    <span class="hljs-built_in">assert!</span>(graph.<span class="hljs-title function_ invoke__">contains_node</span>(&amp;bedford_falls));
+    <span class="hljs-built_in">assert!</span>(graph.<span class="hljs-title function_ invoke__">contains_node</span>(&amp;tinsel_town));
+    <span class="hljs-built_in">assert!</span>(graph.<span class="hljs-title function_ invoke__">contains_edge</span>(&amp;bedford_falls, &amp;tinsel_town));
+    <span class="hljs-built_in">assert!</span>(graph.<span class="hljs-title function_ invoke__">contains_edge</span>(&amp;tinsel_town, &amp;bedford_falls));
 }
 </code></pre>
 <p><a href="https://docs.rs/petgraph/0.5.0/petgraph/csr/struct.Csr.html">Csr</a>, is the fourth graph implementation supported by Petgraph. Short for <em>Compressed Sparse Row</em> (aka <a href="https://en.wikipedia.org/wiki/Sparse_matrix">sparse matrix</a>), CSR is an efficient method for representing sparse matrix data such as that used in most graphs. This results in reduced memory requirement with fast edge lookup. There are no restrictions on node or edge type. However, the API for <code>Csr</code> is the most restricted of all the graph types.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::csr::Csr;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Csr::&lt;_,_&gt;::new(); <span class="hljs-comment">// directed</span>
-    <span class="hljs-keyword">let</span> a = graph.add_node(<span class="hljs-string">"a"</span>);
-    <span class="hljs-keyword">let</span> b = graph.add_node(<span class="hljs-string">"b"</span>);
-    <span class="hljs-keyword">let</span> _ = graph.add_edge(a, b, ());
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Csr::&lt;_,_&gt;::<span class="hljs-title function_ invoke__">new</span>(); <span class="hljs-comment">// directed</span>
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;a&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">b</span> = graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-string">&quot;b&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">_</span> = graph.<span class="hljs-title function_ invoke__">add_edge</span>(a, b, ());
 
-    <span class="hljs-built_in">assert!</span>(graph.contains_edge(a, b));
-    <span class="hljs-built_in">assert!</span>(!graph.contains_edge(b, a));
+    <span class="hljs-built_in">assert!</span>(graph.<span class="hljs-title function_ invoke__">contains_edge</span>(a, b));
+    <span class="hljs-built_in">assert!</span>(!graph.<span class="hljs-title function_ invoke__">contains_edge</span>(b, a));
 }
 </code></pre>
 <h2 id="traversal">Traversal</h2>
@@ -285,21 +285,21 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
 <span class="hljs-keyword">use</span> petgraph::visit::Dfs;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::&lt;(),(), petgraph::Undirected&gt;::<span class="hljs-title function_ invoke__">new_undirected</span>();
 
     <span class="hljs-comment">// 0(1)(2)3</span>
-    graph.extend_with_edges(&amp;[
+    graph.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[
         (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>)
     ]);
 
-    <span class="hljs-keyword">for</span> start <span class="hljs-keyword">in</span> graph.node_indices() {
-        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> dfs = Dfs::new(&amp;graph, start);
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">start</span> <span class="hljs-keyword">in</span> graph.<span class="hljs-title function_ invoke__">node_indices</span>() {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">dfs</span> = Dfs::<span class="hljs-title function_ invoke__">new</span>(&amp;graph, start);
 
-        <span class="hljs-built_in">print!</span>(<span class="hljs-string">"[{}] "</span>, start.index());
+        <span class="hljs-built_in">print!</span>(<span class="hljs-string">&quot;[{}] &quot;</span>, start.<span class="hljs-title function_ invoke__">index</span>());
 
-        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(visited) = dfs.next(&amp;graph) {
-            <span class="hljs-built_in">print!</span>(<span class="hljs-string">" {}"</span>, visited.index());
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(visited) = dfs.<span class="hljs-title function_ invoke__">next</span>(&amp;graph) {
+            <span class="hljs-built_in">print!</span>(<span class="hljs-string">&quot; {}&quot;</span>, visited.<span class="hljs-title function_ invoke__">index</span>());
         }
 
         <span class="hljs-built_in">println!</span>();
@@ -316,21 +316,21 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
 <span class="hljs-keyword">use</span> petgraph::visit::DfsPostOrder;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::&lt;(),(), petgraph::Undirected&gt;::<span class="hljs-title function_ invoke__">new_undirected</span>();
 
     <span class="hljs-comment">// 0(1)(2)3</span>
-    graph.extend_with_edges(&amp;[
+    graph.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[
         (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>)
     ]);
 
-    <span class="hljs-keyword">for</span> start <span class="hljs-keyword">in</span> graph.node_indices() {
-        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> dfs = DfsPostOrder::new(&amp;graph, start);
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">start</span> <span class="hljs-keyword">in</span> graph.<span class="hljs-title function_ invoke__">node_indices</span>() {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">dfs</span> = DfsPostOrder::<span class="hljs-title function_ invoke__">new</span>(&amp;graph, start);
 
-        <span class="hljs-built_in">print!</span>(<span class="hljs-string">"[{}] "</span>, start.index());
+        <span class="hljs-built_in">print!</span>(<span class="hljs-string">&quot;[{}] &quot;</span>, start.<span class="hljs-title function_ invoke__">index</span>());
 
-        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(visited) = dfs.next(&amp;graph) {
-            <span class="hljs-built_in">print!</span>(<span class="hljs-string">" {}"</span>, visited.index());
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(visited) = dfs.<span class="hljs-title function_ invoke__">next</span>(&amp;graph) {
+            <span class="hljs-built_in">print!</span>(<span class="hljs-string">&quot; {}&quot;</span>, visited.<span class="hljs-title function_ invoke__">index</span>());
         }
 
         <span class="hljs-built_in">println!</span>();
@@ -347,21 +347,21 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
 <span class="hljs-keyword">use</span> petgraph::visit::Bfs;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::&lt;(),(), petgraph::Undirected&gt;::<span class="hljs-title function_ invoke__">new_undirected</span>();
 
     <span class="hljs-comment">// 0(1)(2)34</span>
-    graph.extend_with_edges(&amp;[
+    graph.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[
         (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)
     ]);
 
-    <span class="hljs-keyword">for</span> start <span class="hljs-keyword">in</span> graph.node_indices() {
-        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> bfs = Bfs::new(&amp;graph, start);
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">start</span> <span class="hljs-keyword">in</span> graph.<span class="hljs-title function_ invoke__">node_indices</span>() {
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">bfs</span> = Bfs::<span class="hljs-title function_ invoke__">new</span>(&amp;graph, start);
 
-        <span class="hljs-built_in">print!</span>(<span class="hljs-string">"[{}] "</span>, start.index());
+        <span class="hljs-built_in">print!</span>(<span class="hljs-string">&quot;[{}] &quot;</span>, start.<span class="hljs-title function_ invoke__">index</span>());
 
-        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(visited) = bfs.next(&amp;graph) {
-            <span class="hljs-built_in">print!</span>(<span class="hljs-string">" {}"</span>, visited.index());
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(visited) = bfs.<span class="hljs-title function_ invoke__">next</span>(&amp;graph) {
+            <span class="hljs-built_in">print!</span>(<span class="hljs-string">&quot; {}&quot;</span>, visited.<span class="hljs-title function_ invoke__">index</span>());
         }
 
         <span class="hljs-built_in">println!</span>();
@@ -384,25 +384,25 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
 <span class="hljs-keyword">use</span> petgraph::algo;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> g1 = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> g2 = Graph::&lt;(),(), petgraph::Undirected&gt;::new_undirected();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">g1</span> = Graph::&lt;(),(), petgraph::Undirected&gt;::<span class="hljs-title function_ invoke__">new_undirected</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">g2</span> = Graph::&lt;(),(), petgraph::Undirected&gt;::<span class="hljs-title function_ invoke__">new_undirected</span>();
 
-    g1.extend_with_edges(&amp;[
+    g1.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[
         (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>)
     ]);
 
-    g2.extend_with_edges(&amp;[
+    g2.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[
         (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>)
     ]);
 
-    <span class="hljs-built_in">assert_eq!</span>(algo::is_isomorphic(&amp;g1, &amp;g2), <span class="hljs-literal">true</span>);
+    <span class="hljs-built_in">assert_eq!</span>(algo::<span class="hljs-title function_ invoke__">is_isomorphic</span>(&amp;g1, &amp;g2), <span class="hljs-literal">true</span>);
 
-    g1.extend_with_edges(&amp;[
+    g1.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[
         (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)
     ]);
 
-    <span class="hljs-built_in">assert_eq!</span>(algo::is_isomorphic(&amp;g1, &amp;g2), <span class="hljs-literal">false</span>);
+    <span class="hljs-built_in">assert_eq!</span>(algo::<span class="hljs-title function_ invoke__">is_isomorphic</span>(&amp;g1, &amp;g2), <span class="hljs-literal">false</span>);
 }
 </code></pre>
 <p>It can be useful to perform isomorphism checks using customized node and edge equivalence conditions. This is available by passing closures to <code>is_isomorphic_matching</code>.</p>
@@ -410,29 +410,29 @@
 <span class="hljs-keyword">use</span> petgraph::algo;
 
 <span class="hljs-meta">#[derive(Default)]</span> <span class="hljs-comment">// required by Graph</span>
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node</span></span> {
-    value: <span class="hljs-built_in">u8</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Node</span> {
+    value: <span class="hljs-type">u8</span>
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> g1 = Graph::&lt;_,(), petgraph::Undirected&gt;::new_undirected();
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> g2 = Graph::&lt;_,(), petgraph::Undirected&gt;::new_undirected();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">g1</span> = Graph::&lt;_,(), petgraph::Undirected&gt;::<span class="hljs-title function_ invoke__">new_undirected</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">g2</span> = Graph::&lt;_,(), petgraph::Undirected&gt;::<span class="hljs-title function_ invoke__">new_undirected</span>();
 
-    <span class="hljs-keyword">let</span> n0 = g1.add_node(Node { value: <span class="hljs-number">43</span> });
-    <span class="hljs-keyword">let</span> n1 = g1.add_node(Node { value: <span class="hljs-number">44</span> });
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n0</span> = g1.<span class="hljs-title function_ invoke__">add_node</span>(Node { value: <span class="hljs-number">43</span> });
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n1</span> = g1.<span class="hljs-title function_ invoke__">add_node</span>(Node { value: <span class="hljs-number">44</span> });
 
-    g1.extend_with_edges(&amp;[ (n0, n1, ()) ]);
+    g1.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[ (n0, n1, ()) ]);
 
-    <span class="hljs-keyword">let</span> n2 = g2.add_node(Node { value: <span class="hljs-number">2</span> });
-    <span class="hljs-keyword">let</span> n3 = g2.add_node(Node { value: <span class="hljs-number">10</span> });
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n2</span> = g2.<span class="hljs-title function_ invoke__">add_node</span>(Node { value: <span class="hljs-number">2</span> });
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n3</span> = g2.<span class="hljs-title function_ invoke__">add_node</span>(Node { value: <span class="hljs-number">10</span> });
 
-    g2.extend_with_edges(&amp;[ (n2, n3, ()) ]);
+    g2.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[ (n2, n3, ()) ]);
 
-    <span class="hljs-keyword">let</span> test_nodes = |a: &amp;Node, b: &amp;Node| a.value &gt; <span class="hljs-number">42</span> &amp;&amp; b.value &gt; <span class="hljs-number">42</span>;
-    <span class="hljs-keyword">let</span> test_edges = |_: &amp;(), _: &amp;()| <span class="hljs-literal">true</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">test_nodes</span> = |a: &amp;Node, b: &amp;Node| a.value &gt; <span class="hljs-number">42</span> &amp;&amp; b.value &gt; <span class="hljs-number">42</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">test_edges</span> = |_: &amp;(), _: &amp;()| <span class="hljs-literal">true</span>;
 
-    <span class="hljs-built_in">assert!</span>(algo::is_isomorphic_matching(&amp;g1, &amp;g1, test_nodes, test_edges));
-    <span class="hljs-built_in">assert!</span>(!algo::is_isomorphic_matching(&amp;g1, &amp;g2, test_nodes, test_edges));
+    <span class="hljs-built_in">assert!</span>(algo::<span class="hljs-title function_ invoke__">is_isomorphic_matching</span>(&amp;g1, &amp;g1, test_nodes, test_edges));
+    <span class="hljs-built_in">assert!</span>(!algo::<span class="hljs-title function_ invoke__">is_isomorphic_matching</span>(&amp;g1, &amp;g2, test_nodes, test_edges));
 }
 </code></pre>
 <p>Here, the closure <code>test_nodes</code> passed to <code>is_isomorphic_matching</code> fails unless both nodes being compared have <code>value</code> properties greater than 42. The test succeeds for the <code>g1</code> to <code>g1</code> comparison, but fails when comparing <code>g1</code> to <code>g2</code> because only one node complies the the <code>value</code> requirement.</p>
@@ -441,16 +441,16 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> petgraph::Graph;
 <span class="hljs-keyword">use</span> petgraph::algo;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = Graph::&lt;(),()&gt;::new();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = Graph::&lt;(),()&gt;::<span class="hljs-title function_ invoke__">new</span>();
 
-    graph.extend_with_edges(&amp;[
+    graph.<span class="hljs-title function_ invoke__">extend_with_edges</span>(&amp;[
         (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)
     ]);
 
-    <span class="hljs-keyword">for</span> start <span class="hljs-keyword">in</span> graph.node_indices() {
-        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"--- {:?} ---"</span>, start.index());
-        <span class="hljs-built_in">println!</span>(<span class="hljs-string">"{:?}"</span>, algo::dijkstra(&amp;graph, start, <span class="hljs-literal">None</span>, |_| <span class="hljs-number">1</span>));
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">start</span> <span class="hljs-keyword">in</span> graph.<span class="hljs-title function_ invoke__">node_indices</span>() {
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;--- {:?} ---&quot;</span>, start.<span class="hljs-title function_ invoke__">index</span>());
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;{:?}&quot;</span>, algo::<span class="hljs-title function_ invoke__">dijkstra</span>(&amp;graph, start, <span class="hljs-literal">None</span>, |_| <span class="hljs-number">1</span>));
     }
 }
 </code></pre>

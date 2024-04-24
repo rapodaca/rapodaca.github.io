@@ -66,11 +66,11 @@
 <h2 id="jsdoc">JSDoc</h2>
 <p><a href="https://jsdoc.app">JSDoc</a> is JavaScript's documentation markup system. One of its most valuable uses is type annotation. A system of tags, preceded by the at symbol (<code>@</code>), makes it possible to describe the shape of data within a JavaScript program at high resolution. Consider the following simple example:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">i</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">j</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">i</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">j</span>
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
  */</span>
-<span class="hljs-keyword">const</span> add = <span class="hljs-function">(<span class="hljs-params">i, j</span>) =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">add</span> = (<span class="hljs-params">i, j</span>) =&gt; {
   <span class="hljs-keyword">return</span> i + <span class="hljs-built_in">parseFloat</span>(j);
 };
 </code></pre>
@@ -104,12 +104,12 @@
 <p>Wikipedia notes that a <a href="https://en.wikipedia.org/wiki/Software_design_pattern">"Design Pattern"</a> embodies a "reusable solution to a commonly occurring problem within a given context of software design." While working with Typed JavaScript, I've found it helpful to compile patterns of common use.</p>
 <p>The following examples stick with the convention I've found handy — use JSDoc annotations exclusively, rather than mixed JSDoc/JavaScript. By mixed JSDoc/JavaScript, I mean something like the following:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">// Mixed JS/JSDoc style is not recommended.</span>
-<span class="hljs-keyword">const</span> Product = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Product</span> = <span class="hljs-keyword">class</span> {
   <span class="hljs-comment">/**
-   * <span class="hljs-doctag">@param <span class="hljs-type">{Region}</span> <span class="hljs-variable">region</span></span>
-   * <span class="hljs-doctag">@returns <span class="hljs-type">{Currency}</span></span>
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Region</span>} <span class="hljs-variable">region</span>
+   * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Currency</span>}
    **/</span>
-  price (region) { <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'unimplemented'</span>); }
+  price (region) { <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;unimplemented&#x27;</span>); }
 };
 </code></pre>
 <p>For reasons I won't get into now, I find it cleaner and easier to avoid the above style and instead define complex types entirely within JSDoc.</p>
@@ -117,80 +117,80 @@
 <h3 id="optionalvalue">Optional Value</h3>
 <p>One of the most useful tag patterns is also the simplest. When a value may be of some type or <code>null</code>, a shortcut can be used.</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">first</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">last</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{string?}</span> <span class="hljs-variable">middle</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">first</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">last</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string?</span>} <span class="hljs-variable">middle</span>
  */</span>
-<span class="hljs-keyword">const</span> printName = <span class="hljs-function">(<span class="hljs-params">first, last, middle</span>) =&gt;</span> {
-  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${first}</span> <span class="hljs-subst">${middle === <span class="hljs-literal">null</span> ? <span class="hljs-string">''</span> : middle}</span> <span class="hljs-subst">${last}</span>`</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">printName</span> = (<span class="hljs-params">first, last, middle</span>) =&gt; {
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${first}</span> <span class="hljs-subst">${middle === <span class="hljs-literal">null</span> ? <span class="hljs-string">&#x27;&#x27;</span> : middle}</span> <span class="hljs-subst">${last}</span>`</span>;
 };
 </code></pre>
 <p>The question mark (<code>?</code>) after the <code>string</code> type means that the value of <code>middle</code> is "nullable." Attempting to pass anything other than a <code>string</code> or <code>null</code> results in an error.</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">// ERROR: Argument of type 'undefined' is not assignable to parameter of type 'string | null'.ts(2345)</span>
-printName(<span class="hljs-string">'John'</span>, <span class="hljs-string">'Public'</span>, <span class="hljs-literal">undefined</span>);
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">// ERROR: Argument of type &#x27;undefined&#x27; is not assignable to parameter of type &#x27;string | null&#x27;.ts(2345)</span>
+<span class="hljs-title function_">printName</span>(<span class="hljs-string">&#x27;John&#x27;</span>, <span class="hljs-string">&#x27;Public&#x27;</span>, <span class="hljs-literal">undefined</span>);
 </code></pre>
 <p>A different kind of type restriction may be desired. For example, to restrict a value to <code>string</code> or <code>undefined</code>, use the following syntax:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">first</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">last</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{string|undefined}</span> <span class="hljs-variable">middle</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">first</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">last</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string|undefined</span>} <span class="hljs-variable">middle</span>
  */</span>
-<span class="hljs-keyword">const</span> printName2 = <span class="hljs-function">(<span class="hljs-params">first, last, middle</span>) =&gt;</span> {
-  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${first}</span> <span class="hljs-subst">${middle === <span class="hljs-literal">null</span> ? <span class="hljs-string">''</span> : middle}</span> <span class="hljs-subst">${last}</span>`</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">printName2</span> = (<span class="hljs-params">first, last, middle</span>) =&gt; {
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${first}</span> <span class="hljs-subst">${middle === <span class="hljs-literal">null</span> ? <span class="hljs-string">&#x27;&#x27;</span> : middle}</span> <span class="hljs-subst">${last}</span>`</span>;
 };
 
 <span class="hljs-comment">// No error.</span>
-printName2(<span class="hljs-string">'John'</span>, <span class="hljs-string">'Public'</span>, <span class="hljs-literal">undefined</span>);
+<span class="hljs-title function_">printName2</span>(<span class="hljs-string">&#x27;John&#x27;</span>, <span class="hljs-string">&#x27;Public&#x27;</span>, <span class="hljs-literal">undefined</span>);
 </code></pre>
 <h3 id="struct">Struct</h3>
 <p>Many languages have the concept of a bag of values or "struct." JavaScript has object literals, but values can assume any type by default. To constrain values, use the <a href="https://jsdoc.app/tags-typedef.html"><code>@typedef</code></a> tag:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">User</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{string}</span> <span class="hljs-variable">first_name</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{string}</span> <span class="hljs-variable">last_name</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">User</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">first_name</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">last_name</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">id</span>
  */</span>
 </code></pre>
 <p>The following would assign a value of type <code>User</code>:</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> user = { <span class="hljs-attr">first_name</span>: <span class="hljs-string">'Alice'</span>, <span class="hljs-attr">last_name</span>: <span class="hljs-string">'Smith'</span>, <span class="hljs-attr">id</span>: <span class="hljs-number">123</span> };
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> user = { <span class="hljs-attr">first_name</span>: <span class="hljs-string">&#x27;Alice&#x27;</span>, <span class="hljs-attr">last_name</span>: <span class="hljs-string">&#x27;Smith&#x27;</span>, <span class="hljs-attr">id</span>: <span class="hljs-number">123</span> };
 </code></pre>
 <h3 id="uniontype">Union Type</h3>
 <p>It's sometimes helpful to designate a data structure as satisfying more than one type constraint. The idea is somewhat analogous to multiple inheritance. This can be accomplished through a union type:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Foo</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{string}</span> <span class="hljs-variable">name</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Foo</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">name</span>
  *
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Bar</span></span>
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{number}</span> <span class="hljs-variable">age</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Bar</span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">age</span>
  *
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{Foo &amp; Bar}</span> <span class="hljs-variable">FooBar</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">Foo &amp; Bar</span>} <span class="hljs-variable">FooBar</span>
  */</span>
 </code></pre>
 <p>Object literals like the one below would satisfy <code>Foo</code> type constraints, and would be usable wherever a <code>Foo</code> or a <code>Bar</code> is required:</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> foobar = { <span class="hljs-attr">name</span>: <span class="hljs-string">'John'</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">42</span> };
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> foobar = { <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;John&#x27;</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">42</span> };
 
 <span class="hljs-comment">/** 
- * @param {Foo} foo 
- * @returns {string}
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Foo</span>} foo 
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">string</span>}
  */</span>
-<span class="hljs-keyword">const</span> checkFoo = <span class="hljs-function">(<span class="hljs-params">foo</span>) =&gt;</span> foo.name;
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">checkFoo</span> = (<span class="hljs-params">foo</span>) =&gt; foo.<span class="hljs-property">name</span>;
 
 <span class="hljs-comment">/** 
- * @param {Bar} bar 
- * @returns {string}
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Bar</span>} bar 
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">string</span>}
  */</span>
-<span class="hljs-keyword">const</span> checkBar = <span class="hljs-function">(<span class="hljs-params">bar</span>) =&gt;</span> bar.name;
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">checkBar</span> = (<span class="hljs-params">bar</span>) =&gt; bar.<span class="hljs-property">name</span>;
 
-checkFoo(foobar);
-checkBar(foobar);
+<span class="hljs-title function_">checkFoo</span>(foobar);
+<span class="hljs-title function_">checkBar</span>(foobar);
 </code></pre>
 <h3 id="generics">Generics</h3>
 <p>In statically typed languages, we think of generics as broadening the range of possible types a value may assume. In JavaScript, however, it makes more sense to view generics as <em>constraining</em> the allowed types of a value. Consider a generic <code>Range</code> data structure, for example:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@template <span class="hljs-variable">T</span></span>
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Range</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{T}</span> <span class="hljs-variable">start</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{T}</span> <span class="hljs-variable">end</span></span>
+ * <span class="hljs-doctag">@template</span> <span class="hljs-variable">T</span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Range</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">T</span>} <span class="hljs-variable">start</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">T</span>} <span class="hljs-variable">end</span>
  */</span>
 </code></pre>
 <p>A range comprised of two different types makes little sense. So the type parameter <code>T</code> constrains the allowed values of <code>start</code> and <code>end</code>. Whatever type we use for one property must match the other. The following object literal satisfies the constraints of <code>Range</code> because <code>start</code> and <code>end</code> properties are of the same type (<code>number</code>):</p>
@@ -201,76 +201,76 @@ checkBar(foobar);
 </code></pre>
 <p>Passing type parameters narrows the range of types even further. For example, a function can restrict itself to only numerical ranges as follows:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{Range&lt;number&gt;}</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Range&lt;number&gt;</span>}
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
  */</span>
-<span class="hljs-keyword">const</span> distance = <span class="hljs-function"><span class="hljs-params">range</span> =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">distance</span> = range =&gt; {
   <span class="hljs-comment">// find distance implied by range</span>
-  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'not implemented'</span>);
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;not implemented&#x27;</span>);
 };
 </code></pre>
 <p>Later we may decide that <code>distance</code> should only work with types whose values conform to a <code>Comparable</code> interface. In that case, the range of allowed types can be restricted by a type parameter of type <code>Comparable</code>:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Comparable</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{function(Comparable): number}</span> <span class="hljs-variable">compare</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Comparable</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">function(Comparable): number</span>} <span class="hljs-variable">compare</span>
  */</span>
 
 <span class="hljs-comment">/**
- * <span class="hljs-doctag">@template <span class="hljs-type">{Comparable}</span> <span class="hljs-variable">T</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{Range&lt;T&gt;}</span> <span class="hljs-variable">first</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{Range&lt;T&gt;}</span> </span>second 
- * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ * <span class="hljs-doctag">@template</span> {<span class="hljs-type">Comparable</span>} <span class="hljs-variable">T</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Range&lt;T&gt;</span>} <span class="hljs-variable">first</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Range&lt;T&gt;</span>} second 
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
  */</span>
-<span class="hljs-keyword">const</span> distance2 = <span class="hljs-function">(<span class="hljs-params">first, second</span>) =&gt;</span> {
-  <span class="hljs-keyword">if</span> (first.start.compare(second.start) &gt; <span class="hljs-number">0</span>) {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">distance2</span> = (<span class="hljs-params">first, second</span>) =&gt; {
+  <span class="hljs-keyword">if</span> (first.<span class="hljs-property">start</span>.<span class="hljs-title function_">compare</span>(second.<span class="hljs-property">start</span>) &gt; <span class="hljs-number">0</span>) {
     <span class="hljs-comment">// first precedes second</span>
   } <span class="hljs-keyword">else</span> {
     <span class="hljs-comment">// second precedes first</span>
   }
 
-  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'not implemented'</span>);
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;not implemented&#x27;</span>);
 };
 </code></pre>
 <h3 id="function">Function</h3>
 <p>Because functions can be passed as parameters, it makes sense to restrict the parameters associated with them. This comes up, for example, in <a href="https://en.wikipedia.org/wiki/Higher-order_function">higher-order functions</a>. The types associated with a function can be constrained using the <a href="https://jsdoc.app/tags-callback.html"><code>@callback</code></a> tag. It might seem as if <a href="https://jsdoc.app/tags-function.html"><code>@function</code></a> would be a better choice, but it is currently not recognized by VS Code:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@callback <span class="hljs-variable">add</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">i</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">j</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ * <span class="hljs-doctag">@callback</span> <span class="hljs-variable">add</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">i</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">j</span>
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
  */</span>
 </code></pre>
 <p>The following would satisfy the restrictions for <code>add</code>:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@type <span class="hljs-type">{add}</span></span>
+ * <span class="hljs-doctag">@type</span> {<span class="hljs-type">add</span>}
  */</span>
-<span class="hljs-keyword">const</span> myAdd = <span class="hljs-function">(<span class="hljs-params">i, j</span>) =&gt;</span> i + <span class="hljs-built_in">parseFloat</span>(j);
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">myAdd</span> = (<span class="hljs-params">i, j</span>) =&gt; i + <span class="hljs-built_in">parseFloat</span>(j);
 </code></pre>
 <p>Alternatively, a function parameter or return type can be specified inline.</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">attenuation</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{function(number, number): number}</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">attenuation</span>
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">function(number, number): number</span>}
  */</span>
-<span class="hljs-keyword">const</span> createAdder = <span class="hljs-function"><span class="hljs-params">attenuation</span> =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">createAdder</span> = attenuation =&gt; {
   <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">i, j</span>) =&gt;</span> attenuation * (i + j);
 };
 </code></pre>
 <h3 id="enum">Enum</h3>
 <p>Sometimes we want to restrict the range of specific values a particular type may assume. This can be accomplished with enums.</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Car</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{'GM'|'Ford'|'Chrysler'|'Tesla'|'Toyota'}</span> <span class="hljs-variable">make</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Car</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">&#x27;GM&#x27;|&#x27;Ford&#x27;|&#x27;Chrysler&#x27;|&#x27;Tesla&#x27;|&#x27;Toyota&#x27;</span>} <span class="hljs-variable">make</span>
  */</span>
 </code></pre>
 <p>The following object literal would satisfy the <code>Car</code> type constraint:</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> car = { <span class="hljs-attr">make</span>: <span class="hljs-string">'Tesla'</span> };
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> car = { <span class="hljs-attr">make</span>: <span class="hljs-string">&#x27;Tesla&#x27;</span> };
 </code></pre>
 <h3 id="record">Record</h3>
 <p>Some situations call for a dictionary-like data structure with values of the same type. For example, a web application may extract query parameters from a URL. If all values of are the same type (e.g., <code>string</code>), a <code>Record</code> can be used.</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{Record&lt;'first_name'|'last_name', string?&gt;}</span> <span class="hljs-variable">query</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Record&lt;&#x27;first_name&#x27;|&#x27;last_name&#x27;, string?&gt;</span>} <span class="hljs-variable">query</span>
  */</span>
-<span class="hljs-keyword">const</span> handle = <span class="hljs-function"><span class="hljs-params">query</span> =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">handle</span> = query =&gt; {
   <span class="hljs-keyword">const</span> { first_name, last_name } = query;
 };
 </code></pre>
@@ -279,89 +279,89 @@ checkBar(foobar);
 <p>One of TypeScript's best features is utility types. As <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html">documented by Microsoft</a>, utility types "facilitate common type transformations."</p>
 <p>Consider a situation in which we want to ensure the immutability of a value passed to a function. This can be accomplished with the <code>Readonly</code> utility type:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Person</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> </span>experience (in years)
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Person</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">number</span>} experience (in years)
  * 
- * <span class="hljs-doctag">@param <span class="hljs-type">{Readonly&lt;Array&lt;Person&gt;&gt;}</span> <span class="hljs-variable">people</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Readonly&lt;Array&lt;Person&gt;&gt;</span>} <span class="hljs-variable">people</span>
  */</span>
-<span class="hljs-keyword">const</span> cumulativeExperience = <span class="hljs-function"><span class="hljs-params">people</span> =&gt;</span> {
-  people.pop(); <span class="hljs-comment">// ERROR: Property 'pop' does not exist on type 'readonly Person[]'.ts(2339)</span>
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">cumulativeExperience</span> = people =&gt; {
+  people.<span class="hljs-title function_">pop</span>(); <span class="hljs-comment">// ERROR: Property &#x27;pop&#x27; does not exist on type &#x27;readonly Person[]&#x27;.ts(2339)</span>
 
-  <span class="hljs-keyword">return</span> people.reduce(<span class="hljs-function">(<span class="hljs-params">total, person</span>) =&gt;</span> total + person.experience, <span class="hljs-number">0</span>);
+  <span class="hljs-keyword">return</span> people.<span class="hljs-title function_">reduce</span>(<span class="hljs-function">(<span class="hljs-params">total, person</span>) =&gt;</span> total + person.<span class="hljs-property">experience</span>, <span class="hljs-number">0</span>);
 };
 </code></pre>
 <p>Several other utility types are available.</p>
 <h3 id="interface">Interface</h3>
 <p>An interface is a collection of methods associated with the same value. Although JavaScript lacks the concept of interface, it can be simulated as a <code>typedef</code>.</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Animal</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{function(string): string}</span> <span class="hljs-variable">talk</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{function(): string}</span> <span class="hljs-variable">walk</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Animal</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">function(string): string</span>} <span class="hljs-variable">talk</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">function(): string</span>} <span class="hljs-variable">walk</span>
  */</span>
 
-<span class="hljs-comment">/** <span class="hljs-doctag">@type </span>Animal */</span>
+<span class="hljs-comment">/** <span class="hljs-doctag">@type</span> Animal */</span>
 <span class="hljs-keyword">const</span> duck = {
   <span class="hljs-attr">talk</span>: <span class="hljs-function"><span class="hljs-params">name</span> =&gt;</span> <span class="hljs-string">`Quack quack, <span class="hljs-subst">${name}</span>`</span>,
-  <span class="hljs-attr">walk</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-string">'Waddle, waddle.'</span>
+  <span class="hljs-attr">walk</span>: <span class="hljs-function">() =&gt;</span> <span class="hljs-string">&#x27;Waddle, waddle.&#x27;</span>
 };
 </code></pre>
 <h3 id="asyncawait">Async/Await</h3>
 <p>JavaScript implements async/await on top of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promises</a>. This legacy shows through in the type signature for async functions (<code>@returns {Promise&lt;T&gt;}</code>).</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Employee</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> <span class="hljs-variable">wage</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Employee</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">wage</span>
  * 
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Database</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{function(number): Employee}</span> <span class="hljs-variable">getEmployeeById</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Database</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">function(number): Employee</span>} <span class="hljs-variable">getEmployeeById</span>
  * 
- * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">id</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{Database}</span> <span class="hljs-variable">db</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{Promise&lt;number&gt;}</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">id</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Database</span>} <span class="hljs-variable">db</span>
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Promise&lt;number&gt;</span>}
  */</span>
-<span class="hljs-keyword">const</span> wage = <span class="hljs-keyword">async</span> (id, db) =&gt; {
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> db.getEmployeeById(id).wage
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">wage</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params">id, db</span>) =&gt; {
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> db.<span class="hljs-title function_">getEmployeeById</span>(id).<span class="hljs-property">wage</span>
 };
 </code></pre>
 <h2 id="imports">Imports</h2>
 <p>It's common practice to define a type in one JavaScript file and use it in another. Two procedures are available, both of which use the <code>import</code> directive.</p>
 <p>But before getting to the syntax, a crucial point must be understood. Types will be assigned to a global namespace unless they reside in a module. To add a type to a module, ensure that it is defined within a file that uses the <code>export</code> keyword. Every Typed JavaScript type definition should reside in a module.</p>
 <p>The following illustrates a minimal type definition and export:</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/** <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> </span>Foo */</span>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/** <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} Foo */</span>
 
 <span class="hljs-keyword">export</span> { }
 </code></pre>
 <p>Given that a type is defined within a module, it can be imported with:</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">// ./point.js</span>
 <span class="hljs-comment">/**
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Point</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> <span class="hljs-variable">x</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> <span class="hljs-variable">y</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Point</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">x</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">y</span>
  */</span>
 
 <span class="hljs-keyword">export</span> { }
 
 <span class="hljs-comment">// ./functions/x-distance.js</span>
 <span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{import('../point.js').Point}</span> <span class="hljs-variable">point</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">x</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">import(&#x27;../point.js&#x27;).Point</span>} <span class="hljs-variable">point</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">x</span>
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
  */</span>
-<span class="hljs-keyword">const</span> xDistance = <span class="hljs-function">(<span class="hljs-params">point, x</span>) =&gt;</span> {
-  <span class="hljs-keyword">return</span> x - point.x
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">xDistance</span> = (<span class="hljs-params">point, x</span>) =&gt; {
+  <span class="hljs-keyword">return</span> x - point.<span class="hljs-property">x</span>
 };
 
 <span class="hljs-keyword">export</span> { }
 </code></pre>
 <p>Alternatively, types can be imported using an ES6 module style as follows:</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/** <span class="hljs-doctag">@typedef <span class="hljs-type">{import('../point.js').Point}</span> </span>Point */</span>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/** <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">import(&#x27;../point.js&#x27;).Point</span>} Point */</span>
 
 <span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{Point}</span> <span class="hljs-variable">point</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">x</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Point</span>} <span class="hljs-variable">point</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">x</span>
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
  */</span>
-<span class="hljs-keyword">const</span> xDistance = <span class="hljs-function">(<span class="hljs-params">point, x</span>) =&gt;</span> {
-  <span class="hljs-keyword">return</span> x - point.x
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">xDistance</span> = (<span class="hljs-params">point, x</span>) =&gt; {
+  <span class="hljs-keyword">return</span> x - point.<span class="hljs-property">x</span>
 };
 
 <span class="hljs-keyword">export</span> { }
@@ -370,77 +370,77 @@ checkBar(foobar);
 <h2 id="usingtypescriptlibraries">Using TypeScript Libraries</h2>
 <p>JavaScript runtimes expose various objects that can be used without instantiation or explicit import. Out of the box, VS Code won't know which of these objects can be referenced safely. For example, the <code>console</code> object exists both in browsers and Node.js contexts.</p>
 <p>However, using <code>console</code> will generate a VS Code error by default:</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Wat?'</span>); <span class="hljs-comment">// ERROR: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.ts(2584)</span>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Wat?&#x27;</span>); <span class="hljs-comment">// ERROR: Cannot find name &#x27;console&#x27;. Do you need to change your target library? Try changing the &#x27;lib&#x27; compiler option to include &#x27;dom&#x27;.ts(2584)</span>
 </code></pre>
 <p>Unfortunately, the error message's suggestion is misleading. The way to resolve the error is to add "@types/node" to your NPM dev dependencies, followed by invocation of <code>npm i</code>:</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"module"</span>,
-  <span class="hljs-attr">"devDependencies"</span>: {
-    <span class="hljs-attr">"typescript"</span>: <span class="hljs-string">"4.4.4"</span>,
-    <span class="hljs-attr">"@types/node"</span>: <span class="hljs-string">"16.11.1"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;module&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;devDependencies&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;typescript&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;4.4.4&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;@types/node&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;16.11.1&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>The line containing "@types/node" points to the <a href="https://www.npmjs.com/package/@types/npm">Types NPM Package</a>. This is a suite of TypeScript type definitions that can be used from VS Code to silence errors and provide useful type information — not only for Node.js but many NPM packages.</p>
 <h2 id="vscode">VS Code</h2>
 <p>So far this article has mentioned VS Code as a context through which type errors will manifest themselves, without describing how to get this working in practice. Although the process is not complicated, it is also not well-documented. Here are the steps I used.</p>
 <p>First, create a blank VS Code project and open it. The project should be devoid of files.</p>
 <p>Next, add the following as <code>./package.json</code>:</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"module"</span>,
-  <span class="hljs-attr">"devDependencies"</span>: {
-    <span class="hljs-attr">"typescript"</span>: <span class="hljs-string">"4.4.4"</span>,
-    <span class="hljs-attr">"@types/node"</span>: <span class="hljs-string">"16.11.1"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;module&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;devDependencies&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;typescript&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;4.4.4&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;@types/node&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;16.11.1&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>Create the file <code>./.vscode/tasks.json</code> (notice the dot preceding "vscode") and add the following content to it:</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"2.0.0"</span>,
-  <span class="hljs-attr">"tasks"</span>: [
-    {
-      <span class="hljs-attr">"label"</span>: <span class="hljs-string">"tsc"</span>,
-      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"shell"</span>,
-      <span class="hljs-attr">"command"</span>: <span class="hljs-string">"./node_modules/typescript/bin/tsc"</span>,
-      <span class="hljs-attr">"presentation"</span>: {
-        <span class="hljs-attr">"echo"</span>: <span class="hljs-literal">true</span>,
-        <span class="hljs-attr">"reveal"</span>: <span class="hljs-string">"never"</span>,
-        <span class="hljs-attr">"focus"</span>: <span class="hljs-literal">false</span>,
-        <span class="hljs-attr">"panel"</span>: <span class="hljs-string">"shared"</span>,
-        <span class="hljs-attr">"showReuseMessage"</span>: <span class="hljs-literal">true</span>,
-        <span class="hljs-attr">"clear"</span>: <span class="hljs-literal">false</span>
-      },
-      <span class="hljs-attr">"args"</span>: [<span class="hljs-string">"--noEmit"</span>, <span class="hljs-string">"--watch"</span>],
-      <span class="hljs-attr">"problemMatcher"</span>: [
-        <span class="hljs-string">"$tsc-watch"</span>
-      ],
-      <span class="hljs-attr">"isBackground"</span>: <span class="hljs-literal">true</span>
-    }
-  ]
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;2.0.0&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;tasks&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;label&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tsc&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;shell&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;./node_modules/typescript/bin/tsc&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;presentation&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;echo&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;reveal&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;never&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;focus&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;panel&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;shared&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;showReuseMessage&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;clear&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span>
+      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;args&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;--noEmit&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;--watch&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;problemMatcher&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+        <span class="hljs-string">&quot;$tsc-watch&quot;</span>
+      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;isBackground&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>Finally, create the file <code>./tsconfig.json</code> with the following content:</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"compilerOptions"</span>: {
-    <span class="hljs-attr">"outDir"</span>: <span class="hljs-string">"./dummy"</span>,
-    <span class="hljs-attr">"target"</span>: <span class="hljs-string">"ES6"</span>,
-    <span class="hljs-attr">"lib"</span>: [<span class="hljs-string">"ES6"</span>],
-    <span class="hljs-attr">"checkJs"</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">"allowJs"</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">"skipLibCheck"</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">"moduleResolution"</span>: <span class="hljs-string">"node"</span>,
-    <span class="hljs-attr">"strictNullChecks"</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">"allowSyntheticDefaultImports"</span>: <span class="hljs-literal">true</span>
-  },
-  <span class="hljs-attr">"exclude"</span>: [
-      <span class="hljs-string">"node_modules"</span>
-  ],
-  <span class="hljs-attr">"include"</span>: [
-    <span class="hljs-string">"index.js"</span>,
-    <span class="hljs-string">"lib/**/*.js"</span>,
-    <span class="hljs-string">"test/**/*.js"</span>
-  ]
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;compilerOptions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;outDir&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;./dummy&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;target&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ES6&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;lib&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;ES6&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;checkJs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;allowJs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;skipLibCheck&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;moduleResolution&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;node&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;strictNullChecks&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;allowSyntheticDefaultImports&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;exclude&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+      <span class="hljs-string">&quot;node_modules&quot;</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;include&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-string">&quot;index.js&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-string">&quot;lib/**/*.js&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-string">&quot;test/**/*.js&quot;</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>The purposes of the three configuration files are as follows:</p>
 <ul>

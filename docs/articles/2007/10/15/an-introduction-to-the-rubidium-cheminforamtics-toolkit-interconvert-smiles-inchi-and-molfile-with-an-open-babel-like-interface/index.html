@@ -43,14 +43,14 @@
 <h2 id="testingthelibrary">Testing the Library</h2>
 <p>The library can be tested by saving it as a file called <strong>cdk.rb</strong> and invoking <code>jirb</code>. We can then convert a SMILES for benzene into the InChI for benzene:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'cdk'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;cdk&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; c=CDK::Conversion.new
 =&gt; <span class="hljs-comment">#&amp;lt;CDK::Conversion:0x4c6320 ... &amp;gt;</span>
-irb(main):003:0&gt; c.set_formats <span class="hljs-string">'smi'</span>, <span class="hljs-string">'inchi'</span>
-=&gt; <span class="hljs-string">"inchi"</span>
-irb(main):004:0&gt; c.convert <span class="hljs-string">'c1ccccc1'</span>
-=&gt; <span class="hljs-string">"InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H"</span>
+irb(main):003:0&gt; c.set_formats <span class="hljs-string">&#x27;smi&#x27;</span>, <span class="hljs-string">&#x27;inchi&#x27;</span>
+=&gt; <span class="hljs-string">&quot;inchi&quot;</span>
+irb(main):004:0&gt; c.convert <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>
+=&gt; <span class="hljs-string">&quot;InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H&quot;</span>
 </code></pre>
 <p>Upcoming articles will show more examples of interconversions using this library, and discuss some of its limitations.</p>
 <h2 id="anaside">An Aside</h2>

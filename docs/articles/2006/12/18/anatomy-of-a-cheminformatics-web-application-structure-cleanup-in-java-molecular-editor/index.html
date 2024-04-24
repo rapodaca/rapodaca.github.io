@@ -61,44 +61,44 @@ LD_PRELOAD=/usr/java/jdk1.5.0_09/jre/lib/amd64/libzip.so ruby script/server
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/*
 * Returns the client-specific version of XMLHttpRequest
 */</span>
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createXHR</span>(<span class="hljs-params"></span>) </span>{
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">createXHR</span>(<span class="hljs-params"></span>) {
   <span class="hljs-keyword">var</span> xhr;
 
   <span class="hljs-keyword">try</span> {
-    xhr = <span class="hljs-keyword">new</span> ActiveXObject(<span class="hljs-string">"Msxml2.XMLHTTP"</span>); <span class="hljs-comment">// IE 5.0+</span>
+    xhr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ActiveXObject</span>(<span class="hljs-string">&quot;Msxml2.XMLHTTP&quot;</span>); <span class="hljs-comment">// IE 5.0+</span>
   }
 
   <span class="hljs-keyword">catch</span> (e) {
     <span class="hljs-keyword">try</span>
     {
-      xhr = <span class="hljs-keyword">new</span> ActiveXObject(<span class="hljs-string">"Microsoft.XMLHTTP"</span>); <span class="hljs-comment">// IE 5.0-</span>
+      xhr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ActiveXObject</span>(<span class="hljs-string">&quot;Microsoft.XMLHTTP&quot;</span>); <span class="hljs-comment">// IE 5.0-</span>
     } <span class="hljs-keyword">catch</span> (E) {
       xhr = <span class="hljs-literal">false</span>;
     }
   }
 
-  <span class="hljs-keyword">if</span> (!xhr &amp;&amp; <span class="hljs-keyword">typeof</span> XMLHttpRequest != <span class="hljs-string">'undefined'</span>) {
-    xhr = <span class="hljs-keyword">new</span> XMLHttpRequest(); <span class="hljs-comment">// every other browser</span>
+  <span class="hljs-keyword">if</span> (!xhr &amp;&amp; <span class="hljs-keyword">typeof</span> <span class="hljs-title class_">XMLHttpRequest</span> != <span class="hljs-string">&#x27;undefined&#x27;</span>) {
+    xhr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">XMLHttpRequest</span>(); <span class="hljs-comment">// every other browser</span>
   }
 
   <span class="hljs-keyword">return</span> xhr;  
 }
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cleanStructure</span>(<span class="hljs-params"></span>) </span>{       
-  <span class="hljs-keyword">var</span> molfile = <span class="hljs-built_in">document</span>.jme.molFile();
-  <span class="hljs-keyword">var</span> xhr = createXHR();
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">cleanStructure</span>(<span class="hljs-params"></span>) {       
+  <span class="hljs-keyword">var</span> molfile = <span class="hljs-variable language_">document</span>.<span class="hljs-property">jme</span>.<span class="hljs-title function_">molFile</span>();
+  <span class="hljs-keyword">var</span> xhr = <span class="hljs-title function_">createXHR</span>();
 
-  xhr.open(<span class="hljs-string">"GET"</span>, <span class="hljs-string">"clean_structure?molfile="</span> + <span class="hljs-built_in">encodeURIComponent</span>(molfile));
+  xhr.<span class="hljs-title function_">open</span>(<span class="hljs-string">&quot;GET&quot;</span>, <span class="hljs-string">&quot;clean_structure?molfile=&quot;</span> + <span class="hljs-built_in">encodeURIComponent</span>(molfile));
 
-  xhr.onreadystatechange=<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-    <span class="hljs-keyword">if</span> (xhr.readyState != <span class="hljs-number">4</span>) <span class="hljs-keyword">return</span>;
+  xhr.<span class="hljs-property">onreadystatechange</span>=<span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">if</span> (xhr.<span class="hljs-property">readyState</span> != <span class="hljs-number">4</span>) <span class="hljs-keyword">return</span>;
 
-    cleanMolfile = xhr.responseText;
+    cleanMolfile = xhr.<span class="hljs-property">responseText</span>;
 
-    <span class="hljs-built_in">document</span>.jme.readMolFile(cleanMolfile);
+    <span class="hljs-variable language_">document</span>.<span class="hljs-property">jme</span>.<span class="hljs-title function_">readMolFile</span>(cleanMolfile);
   }
 
-  xhr.send(<span class="hljs-literal">null</span>);
+  xhr.<span class="hljs-title function_">send</span>(<span class="hljs-literal">null</span>);
 }
 </code></pre>
 <p>As you can see, the client side of Cleanup consists of two JavaScript functions, <code>createXHR</code> and <code>cleanStructure</code>.</p>

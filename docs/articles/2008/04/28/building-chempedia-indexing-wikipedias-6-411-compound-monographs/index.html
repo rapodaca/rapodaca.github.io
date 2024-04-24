@@ -60,11 +60,11 @@
 <p>To get started, we'll need a local copy of Wikipedia. The complete set of all Wikipedia articles, as of March 12, 2008 can be <a href="http://download.wikimedia.org/enwiki/20080312/enwiki-20080312-pages-articles.xml.bz2">downloaded here</a>. This data dump is updated periodically, so you may have access to a more recent version.</p>
 <p>The Wikipedia dump, which contains the full text of every article in Wikipedia, consists of a 3.5 GB file in <a href="http://www.bzip.org/">BZip2</a> format. Fortunately, we won't need to inflate it to index its chemical content.</p>
 <p>The following code will scan the raw Wikipedia dump and produce a list of all compound monograph titles:</p>
-<pre><code class="hljs ruby language-ruby">title = ""
-log = File.new 'monographs.txt', "w"
+<pre><code class="hljs ruby language-ruby">title = <span class="hljs-string">&quot;&quot;</span>
+log = <span class="hljs-title class_">File</span>.new <span class="hljs-string">&#x27;monographs.txt&#x27;</span>, <span class="hljs-string">&quot;w&quot;</span>
 
-while((line = STDIN.gets))
-  line.match /&amp;lt;title&amp;gt;(.*)&amp;lt;\/title&amp;gt;/
+<span class="hljs-keyword">while</span>((line = <span class="hljs-variable constant_">STDIN</span>.gets))
+  line.match /&amp;lt;title&amp;gt;(.*)&amp;lt;\/title&amp;gt;<span class="hljs-regexp">/
 
   if $1
     title = $1
@@ -72,16 +72,16 @@ while((line = STDIN.gets))
     next
   end
 
-  if line.match /\{\{(chembox|drugbox|explosivebox)/i
-    unless title == "" || title.match(/:/)
+  if line.match /</span>\{\{(chembox|<span class="hljs-params">drugbox</span>|explosivebox)/i
+    <span class="hljs-keyword">unless</span> title == <span class="hljs-string">&quot;&quot;</span> |<span class="hljs-params"></span>| title.match(<span class="hljs-regexp">/:/</span>)
       puts title
       log.puts title
       log.flush
 
-      title = ""
-    end
-  end
-end
+      title = <span class="hljs-string">&quot;&quot;</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
 
 log.close
 </code></pre>

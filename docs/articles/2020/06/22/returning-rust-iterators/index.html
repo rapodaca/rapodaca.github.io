@@ -44,24 +44,24 @@
       <p>Rust iterators are fundamental to the language and can be found in a variety of contexts. Consuming iterators returned from functions in the standard library and crates is straightforward. Eventually, however, you'll want to return iterators from your own functions. This article discusses the major approaches to this surprisingly complex problem. It's based in part on answers to <a href="https://stackoverflow.com/questions/27535289/what-is-the-correct-way-to-return-an-iterator-or-any-other-trait">this question</a>.</p>
 <h2 id="returninganiterator">Returning an Iterator</h2>
 <p>The simplest scenario is one in which an iterator is obtained and returned without further modification. Consider a container that owns a <code>Vec&lt;u8&gt;</code>. We'd like the container to implement a method <code>values</code> that returns an iterator over the members of the list.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u8</span>&gt;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Container</span> {
+    items: <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">u8</span>&gt;
 }
 
-<span class="hljs-keyword">impl</span> Container {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Container</span> {
     <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> add a #values method that returns an iterator over items</span>
 }
 </code></pre>
 <p><code>Vec</code> is perfectly capable of returning an iterator, so it seems logical to use it. But what's the type? <a href="https://doc.rust-lang.org/std/vec/struct.Vec.html#method.iter">The documentation</a> informs us that it's <a href="https://doc.rust-lang.org/std/slice/struct.Iter.html"><code>std::slice::Iter</code></a>.</p>
 <p>Here's an even easier way: ask the compiler. Begin by writing a method that declares the unit primitive (<code>()</code>) as the return type while actually returning the iterator.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u8</span>&gt;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Container</span> {
+    items: <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">u8</span>&gt;
 }
 
-<span class="hljs-keyword">impl</span> Container {
-  <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">values</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; () {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Container</span> {
+  <span class="hljs-keyword">fn</span> <span class="hljs-title function_">values</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> () {
       <span class="hljs-comment">// Use the error to find the return type that should be declared</span>
-      <span class="hljs-keyword">self</span>.items.iter()
+      <span class="hljs-keyword">self</span>.items.<span class="hljs-title function_ invoke__">iter</span>()
   }
 }
 </code></pre>
@@ -73,27 +73,27 @@
   </figcaption>
 </figure>
 <p>The type is contained within the error message, from which it can be copied. Replace the dummy unit primitive with the value on the clipboard. In this case, the type can be used as-is. Situations with declared lifetimes will, however, require some adjustments.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u8</span>&gt;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Container</span> {
+    items: <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">u8</span>&gt;
 }
 
-<span class="hljs-keyword">impl</span> Container {
-  <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">values</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; std::slice::Iter&lt;<span class="hljs-symbol">'_</span>, <span class="hljs-built_in">u8</span>&gt; {
-      <span class="hljs-keyword">self</span>.items.iter()
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Container</span> {
+  <span class="hljs-keyword">fn</span> <span class="hljs-title function_">values</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> std::slice::Iter&lt;<span class="hljs-symbol">&#x27;_</span>, <span class="hljs-type">u8</span>&gt; {
+      <span class="hljs-keyword">self</span>.items.<span class="hljs-title function_ invoke__">iter</span>()
   }
 }
 </code></pre>
 <h2 id="interceptinganiterator">Intercepting an Iterator</h2>
 <p>Things get more complicated if more processing is needed. Consider a container with an <code>items</code> list, but this time holding a struct. Our goal is to iterate, not the structs, but borrowed references to the values they contain.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Wrapper</span></span> {
-    value: <span class="hljs-built_in">u8</span>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Wrapper</span> {
+    value: <span class="hljs-type">u8</span>
 }
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;Wrapper&gt;
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Container</span> {
+    items: <span class="hljs-type">Vec</span>&lt;Wrapper&gt;
 }
 
-<span class="hljs-keyword">impl</span> Container {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Container</span> {
     <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> add a method that iterates over Wrapper.value</span>
 }
 </code></pre>
@@ -101,35 +101,35 @@
 <h2 id="mappinganiterator">Mapping an Iterator</h2>
 <p>It's tempting to bring out <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.map"><code>Iterator#map</code></a>. This method works like JavaScript's <code>Array#map</code> method, allowing a stream of input values to be transformed 1:1 into a stream of output values. Unlike JavaScript's <code>Array#map</code>, Rust's <code>Iterator#map</code> applies to an iterator and as such is more flexible.</p>
 <p>The first task is to obtain the return value by declaring a unit return type.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Wrapper</span></span> {
-    value: <span class="hljs-built_in">u8</span>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Wrapper</span> {
+    value: <span class="hljs-type">u8</span>
 }
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;Wrapper&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Container</span> {
+    items: <span class="hljs-type">Vec</span>&lt;Wrapper&gt;
 }
 
-<span class="hljs-keyword">impl</span> Container {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Container</span> {
     <span class="hljs-comment">// COMPILER ERROR</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">values</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; () {
-        <span class="hljs-keyword">self</span>.items.iter().map(|wrapper| wrapper.value)
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">values</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> () {
+        <span class="hljs-keyword">self</span>.items.<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">map</span>(|wrapper| wrapper.value)
     }
 }
 </code></pre>
 <p>As expected, the compiler issues a warning. Unexpectedly, the required return type looks odd: <code>std::iter::Map&lt;std::slice::Iter&lt;'_, Wrapper&gt;, [closure@src/lib.rs:11:31: 11:54]&gt;</code> (your error will vary depending on the exact source file). I haven't found much documentation on exactly what's going on. Even so, it <a href="https://stackoverflow.com/a/30641982">appears</a> to be impossible to use this technique directly. Fortunately, there's a workaround.</p>
 <h2 id="impltrait"><code>impl Trait</code></h2>
 <p>All of Rust's iterators implement the <code>Iterator</code> trait. Instead of declaring a concrete iterator type, can a trait be declared as the type of a return value? The answer is "yes," but with some caveats. The code below does the job.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Wrapper</span></span> {
-    value: <span class="hljs-built_in">u8</span>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Wrapper</span> {
+    value: <span class="hljs-type">u8</span>
 }
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;Wrapper&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Container</span> {
+    items: <span class="hljs-type">Vec</span>&lt;Wrapper&gt;
 }
 
-<span class="hljs-keyword">impl</span> Container {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">values</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-keyword">impl</span> <span class="hljs-built_in">Iterator</span>&lt;Item=<span class="hljs-built_in">u8</span>&gt; + <span class="hljs-symbol">'_</span> {
-        <span class="hljs-keyword">self</span>.items.iter().map(|wrapper| wrapper.value)
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Container</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">values</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">impl</span> <span class="hljs-title class_">Iterator</span>&lt;Item=<span class="hljs-type">u8</span>&gt; + <span class="hljs-symbol">&#x27;_</span> {
+        <span class="hljs-keyword">self</span>.items.<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">map</span>(|wrapper| wrapper.value)
     }
 }
 </code></pre>
@@ -141,69 +141,69 @@
 </blockquote>
 <p>The book goes on to note that <code>impl Trait</code> can only be used to return a single type. In other words, think of the construct as a convenient shorthand for an otherwise cumbersome or inaccessible type.</p>
 <p>A more important restriction in my experience is that <code>impl Trait</code> can't be returned from a method defined on a trait. Attempting to do so will yield the error "<code>impl Trait</code> not allowed outside of function and inherent method return types."</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">trait</span> <span class="hljs-title class_">Foo</span> {
     <span class="hljs-comment">// ERROR: `impl Trait` not allowed outside of function and inherent</span>
     <span class="hljs-comment">// method return types</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">foo</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-keyword">impl</span> <span class="hljs-built_in">Iterator</span>&lt;Item=<span class="hljs-built_in">u8</span>&gt; + <span class="hljs-symbol">'_</span>;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">foo</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">impl</span> <span class="hljs-title class_">Iterator</span>&lt;Item=<span class="hljs-type">u8</span>&gt; + <span class="hljs-symbol">&#x27;_</span>;
 }
 </code></pre>
 <h2 id="associatedtype">Associated Type</h2>
 <p>It's often useful to bundle behavior into traits. But as we've seen, returning iterators from traits with <code>impl Type</code> doesn't work. Fortunately, Rust offers a workaround in the form of <em><a href="https://doc.rust-lang.org/stable/rust-by-example/generics/assoc_items/types.html">associated types</a></em>.</p>
 <p>An associated type uses the keyword <code>type</code> within the body of a trait. Associated types can be identified through the notation <code>&lt;Name=type&gt;</code>. You may have noticed that the <code>Iterator</code> trait uses an associated type called <code>Item</code>.</p>
 <p>We can apply associated types to the problem of returning an iterator from a method on a trait.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Container</span></span>&lt;<span class="hljs-symbol">'a</span>&gt; {
-    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">ItemIterator</span></span>: <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">u8</span>&gt;;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">trait</span> <span class="hljs-title class_">Container</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; {
+    <span class="hljs-keyword">type</span> <span class="hljs-title class_">ItemIterator</span>: <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-type">u8</span>&gt;;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">items</span></span>(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-keyword">self</span>) -&gt; Self::ItemIterator;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">items</span>(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span>::ItemIterator;
 }
 </code></pre>
 <p>The <code>Container</code> method <code>items</code> requires a return type of <code>ItemIterator</code>. Concrete types can choose any <code>Iterator</code> implementation, provided that it produces a sequence of <code>u8</code> references. These criteria can be met with the following implementation:</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">VecContainer</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u8</span>&gt;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">VecContainer</span> {
+    items: <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">u8</span>&gt;
 }
 
-<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>&gt; Container&lt;<span class="hljs-symbol">'a</span>&gt; <span class="hljs-keyword">for</span> VecContainer {
-    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">ItemIterator</span></span> = std::slice::Iter&lt;<span class="hljs-symbol">'a</span>, <span class="hljs-built_in">u8</span>&gt;;
+<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; Container&lt;<span class="hljs-symbol">&#x27;a</span>&gt; <span class="hljs-keyword">for</span> <span class="hljs-title class_">VecContainer</span> {
+    <span class="hljs-keyword">type</span> <span class="hljs-title class_">ItemIterator</span> = std::slice::Iter&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-type">u8</span>&gt;;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">items</span></span>(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-keyword">self</span>) -&gt; Self::ItemIterator {
-        <span class="hljs-keyword">self</span>.items.iter()
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">items</span>(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span>::ItemIterator {
+        <span class="hljs-keyword">self</span>.items.<span class="hljs-title function_ invoke__">iter</span>()
     }
 }
 </code></pre>
 <p>Unlike previous examples, lifetimes require some attention here.</p>
 <p>Unfortunately, associated types won't do much good when an implementation tries to return a mapped iterator. The same old problem from before rears its head, namely that we can't specify the type of an iterator involving closures.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">VecContainer</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u8</span>&gt;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">VecContainer</span> {
+    items: <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">u8</span>&gt;
 }
 
-<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>&gt; Container&lt;<span class="hljs-symbol">'a</span>&gt; <span class="hljs-keyword">for</span> VecContainer {
-    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">ItemIterator</span></span> = ();
+<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; Container&lt;<span class="hljs-symbol">&#x27;a</span>&gt; <span class="hljs-keyword">for</span> <span class="hljs-title class_">VecContainer</span> {
+    <span class="hljs-keyword">type</span> <span class="hljs-title class_">ItemIterator</span> = ();
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">items</span></span>(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-keyword">self</span>) -&gt; Self::ItemIterator {
-        <span class="hljs-comment">// ERROR: expected std::iter::Map&lt;std::slice::Iter&lt;'_, u8&gt;,</span>
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">items</span>(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span>::ItemIterator {
+        <span class="hljs-comment">// ERROR: expected std::iter::Map&lt;std::slice::Iter&lt;&#x27;_, u8&gt;,</span>
         <span class="hljs-comment">// [closure@src/lib.rs:15:31: 15:47]</span>
-        <span class="hljs-keyword">self</span>.items.iter().map(|item| *item + <span class="hljs-number">1</span>)
+        <span class="hljs-keyword">self</span>.items.<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">map</span>(|item| *item + <span class="hljs-number">1</span>)
     }
 }
 </code></pre>
 <h2 id="traitobjects">Trait Objects</h2>
 <p>One way to break out of the restrictions imposed on return types from trait methods is a <em><a href="https://tratt.net/laurie/blog/entries/a_quick_look_at_trait_objects_in_rust.html">trait object</a></em>. According to the <a href="https://doc.rust-lang.org/reference/types/trait-object.html">Rust Book</a>, a trait object "is an opaque value of another type that implements a set of traits." A trait object can be identified through the use of the construct <code>dyn Trait</code>.</p>
 <p>We can solve the problem of mapped iterators being returned from trait methods as follows.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Wrapper</span></span> {
-    value: <span class="hljs-built_in">u8</span>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Wrapper</span> {
+    value: <span class="hljs-type">u8</span>
 }
 
-<span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Container</span></span> {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">items</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-built_in">u8</span>&gt; + <span class="hljs-symbol">'_</span>&gt;;
+<span class="hljs-keyword">trait</span> <span class="hljs-title class_">Container</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">items</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-type">u8</span>&gt; + <span class="hljs-symbol">&#x27;_</span>&gt;;
 }
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">VecContainer</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;Wrapper&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">VecContainer</span> {
+    items: <span class="hljs-type">Vec</span>&lt;Wrapper&gt;
 }
 
-<span class="hljs-keyword">impl</span> Container <span class="hljs-keyword">for</span> VecContainer {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">items</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-built_in">u8</span>&gt; + <span class="hljs-symbol">'_</span>&gt; {
-        <span class="hljs-built_in">Box</span>::new(<span class="hljs-keyword">self</span>.items.iter().map(|wrapper| &amp;wrapper.value))
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Container</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">VecContainer</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">items</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-type">u8</span>&gt; + <span class="hljs-symbol">&#x27;_</span>&gt; {
+        <span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-keyword">self</span>.items.<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">map</span>(|wrapper| &amp;wrapper.value))
     }
 }
 </code></pre>
@@ -223,54 +223,54 @@
 <h2 id="simpleiteratordelegation">Simple Iterator Delegation</h2>
 <p>Fortunately, we can have our cake and eat it, too. We can stay on the happy path of static dispatch and stack allocation while at the same time returning iterators that perform inline processing.</p>
 <p>We begin with an example using unproductive <code>Iterator</code> delegation.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;<span class="hljs-built_in">u8</span>&gt;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Container</span> {
+    items: <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">u8</span>&gt;
 }
 
-<span class="hljs-keyword">impl</span> Container {
-  <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">values</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; Repeater {
-      Repeater { iter: <span class="hljs-keyword">self</span>.items.iter() }
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Container</span> {
+  <span class="hljs-keyword">fn</span> <span class="hljs-title function_">values</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> Repeater {
+      Repeater { iter: <span class="hljs-keyword">self</span>.items.<span class="hljs-title function_ invoke__">iter</span>() }
   }
 }
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Repeater</span></span>&lt;<span class="hljs-symbol">'a</span>&gt; {
-    iter: std::slice::Iter&lt;<span class="hljs-symbol">'a</span>, <span class="hljs-built_in">u8</span>&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Repeater</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; {
+    iter: std::slice::Iter&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-type">u8</span>&gt;
 }
 
-<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>&gt; <span class="hljs-built_in">Iterator</span> <span class="hljs-keyword">for</span> Repeater&lt;<span class="hljs-symbol">'a</span>&gt; {
-    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Item</span></span> = &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">u8</span>;
+<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; <span class="hljs-built_in">Iterator</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Repeater</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; {
+    <span class="hljs-keyword">type</span> <span class="hljs-title class_">Item</span> = &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-type">u8</span>;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Self::Item&gt; {
-        <span class="hljs-keyword">self</span>.iter.next()
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">next</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;<span class="hljs-keyword">Self</span>::Item&gt; {
+        <span class="hljs-keyword">self</span>.iter.<span class="hljs-title function_ invoke__">next</span>()
     }
 }
 </code></pre>
 <p>In the above example, <code>values</code> returns the custom <code>Iterator</code> implementation <code>Repeater</code>. But rather than starting from scratch, that implementation delegates to the private field <code>iter</code>. Whatever it iterates is returned verbatim.</p>
 <h2 id="complexiteratordelegation">Complex Iterator Delegation</h2>
 <p>Delegation makes it possible to construct sophisticated iterators from simple primitives. Consider once again the problem of iterating over one or more fields borrowed from the members of a <code>Vec</code>. To solve it, <code>Repeater</code> can be tweaked to return a borrowed field from a wrapper struct.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Wrapper</span></span> {
-    value: <span class="hljs-built_in">u8</span>
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Wrapper</span> {
+    value: <span class="hljs-type">u8</span>
 }
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Container</span></span> {
-    items: <span class="hljs-built_in">Vec</span>&lt;Wrapper&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Container</span> {
+    items: <span class="hljs-type">Vec</span>&lt;Wrapper&gt;
 }
 
-<span class="hljs-keyword">impl</span> Container {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">values</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; Inspector {
-        Inspector { iter: <span class="hljs-keyword">self</span>.items.iter() }
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Container</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">values</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> Inspector {
+        Inspector { iter: <span class="hljs-keyword">self</span>.items.<span class="hljs-title function_ invoke__">iter</span>() }
     }
 }
 
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Inspector</span></span>&lt;<span class="hljs-symbol">'a</span>&gt; {
-    iter: std::slice::Iter&lt;<span class="hljs-symbol">'a</span>, Wrapper&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Inspector</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; {
+    iter: std::slice::Iter&lt;<span class="hljs-symbol">&#x27;a</span>, Wrapper&gt;
 }
 
-<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">'a</span>&gt; <span class="hljs-built_in">Iterator</span> <span class="hljs-keyword">for</span> Inspector&lt;<span class="hljs-symbol">'a</span>&gt; {
-    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Item</span></span> = &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">u8</span>;
+<span class="hljs-keyword">impl</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; <span class="hljs-built_in">Iterator</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Inspector</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; {
+    <span class="hljs-keyword">type</span> <span class="hljs-title class_">Item</span> = &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-type">u8</span>;
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">next</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Option</span>&lt;Self::Item&gt; {
-        <span class="hljs-keyword">self</span>.iter.next().map(|wrapper| &amp;wrapper.value)
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">next</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;<span class="hljs-keyword">Self</span>::Item&gt; {
+        <span class="hljs-keyword">self</span>.iter.<span class="hljs-title function_ invoke__">next</span>().<span class="hljs-title function_ invoke__">map</span>(|wrapper| &amp;wrapper.value)
     }
 }
 </code></pre>

@@ -41,37 +41,37 @@
 <p>Create a working directory called <code>nom</code>. From the <code>lib</code> directory of the Structure-CDK distribution, copy <code>cdk-20060714.jar</code> and <code>structure-cdk-0.1.2.jar</code> into your <code>depict</code> working directory.</p>
 <h2 id="code">Code</h2>
 <p>Create a file called <code>depict.rb</code> and copy the following code into it:</p>
-<pre><code class="hljs ruby language-ruby">ENV[<span class="hljs-string">'CLASSPATH'</span>] = <span class="hljs-string">'./cdk-20060714.jar:./structure-cdk-0.1.2.jar'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-variable constant_">ENV</span>[<span class="hljs-string">&#x27;CLASSPATH&#x27;</span>] = <span class="hljs-string">&#x27;./cdk-20060714.jar:./structure-cdk-0.1.2.jar&#x27;</span>
 
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rjb'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rjb'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rjb&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rjb&#x27;</span>
 
-NomParser = Rjb::import <span class="hljs-string">'org.openscience.cdk.iupac.parser.NomParser'</span>
-StructureDiagramGenerator = Rjb::import <span class="hljs-string">'org.openscience.cdk.layout.StructureDiagramGenerator'</span>
-ImageKit = Rjb::import <span class="hljs-string">'net.sf.structure.cdk.util.ImageKit'</span>
+<span class="hljs-title class_">NomParser</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;org.openscience.cdk.iupac.parser.NomParser&#x27;</span>
+<span class="hljs-title class_">StructureDiagramGenerator</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;org.openscience.cdk.layout.StructureDiagramGenerator&#x27;</span>
+<span class="hljs-title class_">ImageKit</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;net.sf.structure.cdk.util.ImageKit&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Depictor</span></span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Depictor</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @sdg = StructureDiagramGenerator.new
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@sdg</span> = <span class="hljs-title class_">StructureDiagramGenerator</span>.new
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict_png</span><span class="hljs-params">(nom, width, height, path_to_png)</span></span>
-    ImageKit::writePNG(nom_to_mol(nom), width, height, path_to_png)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">depict_png</span>(<span class="hljs-params">nom, width, height, path_to_png</span>)
+    <span class="hljs-title class_">ImageKit</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:writePNG</span>(nom_to_mol(nom), width, height, path_to_png)
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict_svg</span><span class="hljs-params">(nom, width, height, path_to_svg)</span></span>
-    ImageKit::writeSVG(nom_to_mol(nom), width, height, path_to_svg)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">depict_svg</span>(<span class="hljs-params">nom, width, height, path_to_svg</span>)
+    <span class="hljs-title class_">ImageKit</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:writeSVG</span>(nom_to_mol(nom), width, height, path_to_svg)
   <span class="hljs-keyword">end</span>
 
-private
+<span class="hljs-keyword">private</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">nom_to_mol</span><span class="hljs-params">(nom)</span></span>
-    @sdg.setMolecule(NomParser::generate(nom))
-    @sdg.generateCoordinates
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">nom_to_mol</span>(<span class="hljs-params">nom</span>)
+    <span class="hljs-variable">@sdg</span>.setMolecule(<span class="hljs-title class_">NomParser</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:generate</span>(nom))
+    <span class="hljs-variable">@sdg</span>.generateCoordinates
 
-    @sdg.getMolecule
+    <span class="hljs-variable">@sdg</span>.getMolecule
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -80,11 +80,11 @@ private
 </code></pre>
 <p>This tells RJB where to find Java's native libraries. Because of RJB's current design, <code>LD_LIBRARY_PATH</code> needs to be set from the command line, rather than from within a Ruby process.</p>
 <p>Using the Depictor class is as simple as creating an instance and invoking <code>depict_png</code> or <code>depict_svg</code> on it:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'nom'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;nom&#x27;</span>
 
-depictor = Depictor.new
+depictor = <span class="hljs-title class_">Depictor</span>.new
 
-depictor.depict_png(<span class="hljs-string">'2-phenylcyclohexan-1-ol'</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-string">'output.png'</span>)
+depictor.depict_png(<span class="hljs-string">&#x27;2-phenylcyclohexan-1-ol&#x27;</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-string">&#x27;output.png&#x27;</span>)
 </code></pre>
 <p>Executing the above code either through the Ruby interpreter (ruby) or via Interactive Ruby (irb) products a PNG image of the chiral auxiliary shown below:</p>
 <p>Other names correctly recognized by ChemNomParse include:</p>

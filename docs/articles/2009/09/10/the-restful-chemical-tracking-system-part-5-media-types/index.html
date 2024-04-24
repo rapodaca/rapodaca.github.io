@@ -49,9 +49,9 @@
 <h2 id="usingmediatypeswithhypertextdrivenapis">Using Media Types with Hypertext-driven APIs</h2>
 <p>As [previously described]](/articles/2009/08/28/%EF%BB%BFthe-restful-chemical-tracking-system-part-4-resources-representations-hypertext-and-json), media types for this chemical tracking system will be based on <a href="http://www.json.org/">JSON</a>. Because our API will be <a href="/articles/2009/07/31/restful-web-services-hypermedia-and-robot-scientists">hypertext-driven</a>, we'll need a mechanism for providing links for clients to follow. We'll do this by defining a JSON data structure called <strong>Link</strong>. A <strong>Link</strong> will communicate three things: (1) a URI; (2) a media type; (3) a human-readable name to aid in debugging and client development. The following is an example of a <strong>Link</strong> defined in JSON:</p>
 <pre><code class="hljs bash language-bash">{
-  <span class="hljs-string">"name"</span>:<span class="hljs-string">"human-readable description of this Link"</span>,
-  <span class="hljs-string">"uri"</span>:<span class="hljs-string">"http://example.com/transfers/123"</span>,
-  <span class="hljs-string">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Transfer+json"</span>
+  <span class="hljs-string">&quot;name&quot;</span>:<span class="hljs-string">&quot;human-readable description of this Link&quot;</span>,
+  <span class="hljs-string">&quot;uri&quot;</span>:<span class="hljs-string">&quot;http://example.com/transfers/123&quot;</span>,
+  <span class="hljs-string">&quot;media_type&quot;</span>:<span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Transfer+json&quot;</span>
 }
 </code></pre>
 <p>When a client receives a representation containing a <strong>Link</strong>, it won't need to guess the media type to send or request from the server - it uses the media type supplied in the Link. For its part, the server can define as many media types for a given URI as it cares to without breaking any client code.</p>
@@ -86,40 +86,40 @@
     </td><td> Previous page of Links.
   </td></tr>
 </tbody></table>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"create"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"create a new location"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
-  },
-  <span class="hljs-attr">"items"</span>: [
-    {
-      <span class="hljs-attr">"name"</span>:<span class="hljs-string">"a location"</span>,
-      <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/991"</span>,
-      <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
-    },
-    {
-      <span class="hljs-attr">"name"</span>:<span class="hljs-string">"a location"</span>,
-      <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/992"</span>,
-      <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
-    },
-    {
-      <span class="hljs-attr">"name"</span>:<span class="hljs-string">"a location"</span>,
-      <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/993"</span>,
-      <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
-    }
-  ],
-  <span class="hljs-attr">"next_page"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the next page of locations"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations?page=3"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
-  },
-  <span class="hljs-attr">"previous_page"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the previous page of locations"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations?page=1"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;create&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;create a new location&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Location+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;items&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;a location&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/991&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Location+json&quot;</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;a location&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/992&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Location+json&quot;</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;a location&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/993&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Location+json&quot;</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;next_page&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the next page of locations&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations?page=3&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Index+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;previous_page&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the previous page of locations&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations?page=1&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Index+json&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <h2 id="locationapplicationvndcommetamolecularctslocationjson">Location [application/vnd.com.metamolecular.cts.Location+json]</h2>
 <p>The place in which a Sample resides (or once resided). This simplistic definition may work for a small lab; we can accomodate <a href="/articles/2009/08/14/%EF%BB%BFthe-restful-chemical-tracking-system-part-2-resources#comments">more complex arrangements</a> by breaking <em>Location</em> into subordinate resources such as <em>Building</em>, <em>Room</em>, <em>Rack</em>, and so on.</p>
@@ -169,34 +169,34 @@
     </td><td> Destroy this Location.
   </td></tr>
 </tbody></table>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"location"</span>: {
-    <span class="hljs-attr">"building"</span>:<span class="hljs-string">"Chemistry"</span>,
-    <span class="hljs-attr">"room"</span>:<span class="hljs-number">104</span>,
-    <span class="hljs-attr">"station_type"</span>:<span class="hljs-string">"Fume Hood"</span>,
-    <span class="hljs-attr">"station"</span>:<span class="hljs-string">"27-A"</span>
-  }
-  <span class="hljs-string">"current_samples"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"samples currently stored at this location"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123/samples"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
-  },
-  <span class="hljs-attr">"transfers"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"transfers made to this location"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123/transfers"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
-  },
-  <span class="hljs-attr">"update"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"updates this location"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
-  },
-  <span class="hljs-attr">"destroy"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this location"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;location&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;building&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;Chemistry&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;room&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-number">104</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;station_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;Fume Hood&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;station&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;27-A&quot;</span>
+  <span class="hljs-punctuation">}</span>
+  <span class="hljs-attr">&quot;current_samples&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;samples currently stored at this location&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/123/samples&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Index+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;transfers&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;transfers made to this location&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/123/transfers&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Index+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;update&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;updates this location&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/123&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Location+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;destroy&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;destroy this location&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/123&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Location+json&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <h2 id="transferapplicationvndcommetamolecularctstransferjson">Transfer [application/vnd.com.metamolecular.cts.Transfer+json]</h2>
 <p>The act of a User moving a Sample from one Location to another. Notice that unlike other resources, a Transfer is not something we can physically interact with but instead something done to another resource. Note that the <em>sample_reference</em> and <em>location_reference</em> fields make use of URIs themselves as primary resource identifiers.</p>
@@ -240,33 +240,33 @@
     </td><td> Destroy this Transfer.
   </td></tr>
 </tbody></table>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"transfer"</span>: {
-    <span class="hljs-attr">"created_at"</span>:<span class="hljs-string">"Fri, 04 Sep 2009 18:44:44 +0000"</span>,
-    <span class="hljs-attr">"location_reference"</span>:<span class="hljs-string">"http://example.com/locations/123"</span>,
-    <span class="hljs-attr">"sample_reference"</span>:<span class="hljs-string">"http://example.com/samples/1234"</span>
-  },
-  <span class="hljs-attr">"user"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the user initiating this transfer"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/users/123"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.User+json"</span>
-  },
-  <span class="hljs-attr">"location"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the location to which the transfer was made"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/123"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
-  },
-  <span class="hljs-attr">"sample"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the sample being transferred"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/samples/1234"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Sample+json"</span>
-  },
-  <span class="hljs-attr">"destroy"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this transfer"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/transfers/1234"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Transfer+json"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;transfer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;created_at&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;Fri, 04 Sep 2009 18:44:44 +0000&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;location_reference&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/123&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;sample_reference&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/samples/1234&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the user initiating this transfer&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/users/123&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.User+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;location&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the location to which the transfer was made&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/123&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Location+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;sample&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the sample being transferred&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/samples/1234&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Sample+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;destroy&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;destroy this transfer&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/transfers/1234&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Transfer+json&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <h2 id="userapplicationvndcommetamolecularctsuserjson">User [application/vnd.com.metamolecular.cts.User+json]</h2>
 <p>Any entity capable of moving a Sample from one Location to another. Depending on the equipment available in a lab, a User may or may not be a person.</p>
@@ -301,27 +301,27 @@
     </td><td> Destroy this User.
   </td></tr>
 </tbody></table>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"user"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"Xanthus-1"</span>,
-    <span class="hljs-attr">"type"</span>:<span class="hljs-string">"Robot"</span>
-  },
-  <span class="hljs-attr">"transfers"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the transfers made by this user"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/users/123/transfers"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
-  },
-  <span class="hljs-attr">"update"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"update this user"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/users/123"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.User+json"</span>
-  },
-  <span class="hljs-attr">"destroy"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this user"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/users/123"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.User+json"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;Xanthus-1&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;Robot&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;transfers&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the transfers made by this user&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/users/123/transfers&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Index+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;update&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;update this user&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/users/123&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.User+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;destroy&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;destroy this user&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/users/123&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.User+json&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <h2 id="sampleapplicationvndcommetamolecularctssamplejson">#Sample [application/vnd.com.metamolecular.cts.Sample+json]</h2>
 <p>The physical object we want to keep track of. We'll start with something simple here. But like <em>Location</em>, <em>Sample</em> is a resource we can refine by breaking it down into smaller resources. For example, we might enable a <em>Sample</em> to be divided by defining a <em>Partition</em> resource.</p>
@@ -361,36 +361,36 @@
     </td><td> Destroy this Sample.
   </td></tr>
 </tbody></table>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"sample"</span>: {
-    <span class="hljs-attr">"mass"</span>:<span class="hljs-string">"275 mg"</span>
-  },
-  <span class="hljs-attr">"transfers"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the transfers involving this sample"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/samples/1143/transfers"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
-  }
-  <span class="hljs-string">"current_location"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the current location this sample"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/locations/42"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Location+json"</span>
-  },
-  <span class="hljs-attr">"substance"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the substance making up this sample"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/substances/1099"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Substance+json"</span>
-  },
-  <span class="hljs-attr">"update"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"updates this sample"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/samples/1234"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Sample+json"</span>
-  },
-  <span class="hljs-attr">"destroy"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this sample"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/samples/1234"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Sample+json"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;sample&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;mass&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;275 mg&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;transfers&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the transfers involving this sample&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/samples/1143/transfers&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Index+json&quot;</span>
+  <span class="hljs-punctuation">}</span>
+  <span class="hljs-attr">&quot;current_location&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the current location this sample&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/locations/42&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Location+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;substance&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the substance making up this sample&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/substances/1099&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Substance+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;update&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;updates this sample&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/samples/1234&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Sample+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;destroy&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;destroy this sample&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/samples/1234&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Sample+json&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <h2 id="substanceapplicationvndcommetamolecularctssubstancejson">Substance [application/vnd.com.metamolecular.cts.Substance+json]</h2>
 <p>The molecular entity (or entities) contained in a Sample. Here, we'll use a Substance ID assigned by another system (possibly by a company-wide substance registration app). If that system were RESTful (see <a href="http://chemcaster.com">Chemcaster</a>), we could link to it instead.</p>
@@ -420,26 +420,26 @@
     </td><td> Destroy this Substance.
   </td></tr>
 </tbody></table>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"substance"</span>: {
-    <span class="hljs-attr">"identifer"</span>:<span class="hljs-string">"CB-10779751"</span>
-  },
-  <span class="hljs-attr">"samples"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"the samples in which this substance appears"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/substances/815/samples"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Index+json"</span>
-  },
-  <span class="hljs-attr">"update"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"update this substance"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/substances/123"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Substance+json"</span>
-  },
-  <span class="hljs-attr">"destroy"</span>: {
-    <span class="hljs-attr">"name"</span>:<span class="hljs-string">"destroy this substance"</span>,
-    <span class="hljs-attr">"uri"</span>:<span class="hljs-string">"http://example.com/substances/123"</span>,
-    <span class="hljs-attr">"media_type"</span>:<span class="hljs-string">"application/vnd.com.metamolecular.cts.Substance+json"</span>
-  }
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;substance&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;identifer&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;CB-10779751&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;samples&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;the samples in which this substance appears&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/substances/815/samples&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Index+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;update&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;update this substance&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/substances/123&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Substance+json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;destroy&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;destroy this substance&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;uri&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;http://example.com/substances/123&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;media_type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;application/vnd.com.metamolecular.cts.Substance+json&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <h2 id="conclusions">Conclusions</h2>
 <p>We now have the blueprint for a RESTful chemical tracking system. Five resources with well-defined relationships can now be expressed in terms of simple media types. But how do we use these media types and resources to actually accomplish something useful? The next article in this series will offer some ideas.</p>

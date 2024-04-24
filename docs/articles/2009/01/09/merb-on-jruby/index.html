@@ -57,8 +57,8 @@ jruby -S gem install mongrel --no-ri --no-rdoc
 <p>The problem we need to solve is that trying to install the full Merb metagem itself will complain due to a dependency on DataMapper, which uses native extensions and is not yet available for JRuby, so you'll get something like this if you try:</p>
 <pre><code class="hljs bash language-bash">jruby -S gem install merb --no-ri --no-rdoc
 Building native extensions.  This could take a <span class="hljs-keyword">while</span>...
-/home/rich/<span class="hljs-built_in">local</span>/jruby-1.1.5/lib/ruby/1.8/mkmf.rb:7: JRuby does not support native extensions. Check wiki.jruby.org <span class="hljs-keyword">for</span> alternatives. (NotImplementedError)
-    from /home/rich/<span class="hljs-built_in">local</span>/jruby-1.1.5/lib/ruby/1.8/mkmf.rb:21:<span class="hljs-keyword">in</span> `require<span class="hljs-string">'
+/home/rich/local/jruby-1.1.5/lib/ruby/1.8/mkmf.rb:7: JRuby does not support native extensions. Check wiki.jruby.org <span class="hljs-keyword">for</span> alternatives. (NotImplementedError)
+    from /home/rich/local/jruby-1.1.5/lib/ruby/1.8/mkmf.rb:21:<span class="hljs-keyword">in</span> `require<span class="hljs-string">&#x27;
     from extconf.rb:21
 ERROR:  Error installing merb:
     ERROR: Failed to build gem native extension.
@@ -75,7 +75,7 @@ Results logged to /home/rich/local/jruby-1.1.5/lib/ruby/gems/1.8/gems/do_sqlite3
 <span class="hljs-built_in">cd</span> ws
 jruby -S rake db:create
 nano config/database.yml.sample ...
-mv config/database.yml.sample config/database.yml
+<span class="hljs-built_in">mv</span> config/database.yml.sample config/database.yml
 jruby -S merb
 </code></pre>
 <p>Pointing your browser at <a href="http://localhost:4000/">http://localhost:4000/</a> should render a page. It will complain about "No routes match the request: /", but that's to be expected since we haven't created any.</p>

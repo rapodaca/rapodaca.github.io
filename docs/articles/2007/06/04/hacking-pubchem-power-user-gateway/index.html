@@ -43,7 +43,7 @@
 <h2 id="seepugrun">See PUG Run</h2>
 <p>Let's perform a simple query using PUG. As the documentation states, all communication with PUG is done through HTTP POST. In contrast to other approaches to interfacing with PubChem, parameters and results are encoded in raw XML, the schema for which is available <a href="ftp://ftp.ncbi.nlm.nih.gov/pubchem/specifications/pug.xsd">here</a>. To use PUG your first step is to locate software capable of encoding this form of HTTP request.</p>
 <p><a href="http://curl.haxx.se/">cURL</a> is such a utility. Among many capabilities, cURL offers a quick and easy way to POST XML to a server and view the response. For example, to POST the file called <strong>foo.xml</strong> to PUG, the command would be: </p>
-<pre><code class="hljs bash language-bash">curl -d @foo.xml <span class="hljs-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi"</span>
+<pre><code class="hljs bash language-bash">curl -d @foo.xml <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi&quot;</span>
 </code></pre>
 <p>Our query will request PubChem's first fifty Compounds in <a href="http://depth-first.com/articles/2006/09/29/hacking-pubchem-direct-access-with-ftp">sdf.gz</a> format.</p>
 <pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data</span>&gt;</span>
@@ -64,8 +64,8 @@
               <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-QueryUids_ids</span>&gt;</span>
             <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-QueryUids</span>&gt;</span>
           <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Download_uids</span>&gt;</span>
-          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Download_format</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"sdf"</span>/&gt;</span>
-          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Download_compression</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"gzip"</span>/&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Download_format</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;sdf&quot;</span>/&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Download_compression</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;gzip&quot;</span>/&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Download</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-InputData_download</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-InputData</span>&gt;</span>
@@ -73,20 +73,20 @@
 <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Data</span>&gt;</span>
 </code></pre>
 <p>After saving this file as <code>pugtest.xml</code>, we can POST it to PUG using cURL:</p>
-<pre><code class="hljs bash language-bash">curl -d @pugtest.xml <span class="hljs-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi"</span>
+<pre><code class="hljs bash language-bash">curl -d @pugtest.xml <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/pug/pug.cgi&quot;</span>
 </code></pre>
 <h2 id="runpugrun">Run PUG, Run!</h2>
 <p>After POSTing our query, PUG gives one of two possible responses: we're informed of the status of our query, or we're given a URL to download our results.</p>
 <p>Here's an example of a status result:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&gt;</span>
-<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">PCT-Data</span> <span class="hljs-meta-keyword">PUBLIC</span> <span class="hljs-meta-string">"-//NCBI//NCBI PCTools/EN"</span> <span class="hljs-meta-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd"</span>&gt;</span>
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span>?&gt;</span>
+<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">PCT-Data</span> <span class="hljs-keyword">PUBLIC</span> <span class="hljs-string">&quot;-//NCBI//NCBI PCTools/EN&quot;</span> <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd&quot;</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data_output</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
-            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"success"</span>/&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;success&quot;</span>/&gt;</span>
           <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
@@ -108,7 +108,7 @@
       <span class="hljs-tag">&lt;<span class="hljs-name">PCT-InputData_request</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Request</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Request_reqid</span>&gt;</span>638302818484957496<span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Request_reqid</span>&gt;</span>
-          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Request_type</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"status"</span>/&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Request_type</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;status&quot;</span>/&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Request</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-InputData_request</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-InputData</span>&gt;</span>
@@ -116,15 +116,15 @@
 <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Data</span>&gt;</span>
 </code></pre>
 <p>Eventually, we'll get a response containing a <code>PCT-Download\_URL\_url</code> element. Inside this element is the URL through which we can download our results:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version="1.0"?&gt;</span>
-<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">PCT-Data</span> <span class="hljs-meta-keyword">PUBLIC</span> <span class="hljs-meta-string">"-//NCBI//NCBI PCTools/EN"</span> <span class="hljs-meta-string">"http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd"</span>&gt;</span>
+<pre><code class="hljs xml language-xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span>?&gt;</span>
+<span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">PCT-Data</span> <span class="hljs-keyword">PUBLIC</span> <span class="hljs-string">&quot;-//NCBI//NCBI PCTools/EN&quot;</span> <span class="hljs-string">&quot;http://pubchem.ncbi.nlm.nih.gov/pug/pug.dtd&quot;</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Data_output</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
-            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"success"</span>/&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">PCT-Status</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;success&quot;</span>/&gt;</span>
           <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message_status</span>&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-Status-Message</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">PCT-OutputData_status</span>&gt;</span>

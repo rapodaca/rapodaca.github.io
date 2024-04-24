@@ -51,18 +51,18 @@ scons
 </code></pre>
 <p>Once the sources are compiled, we'll want to configure our system a bit:</p>
 <pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> build
-ls
+<span class="hljs-built_in">ls</span>
 mmff94.prm  mmxconst.prm
 
-cp ../src/smi2sdf/smi2sdf .
-cp ../src/mengine/mengine .
+<span class="hljs-built_in">cp</span> ../src/smi2sdf/smi2sdf .
+<span class="hljs-built_in">cp</span> ../src/mengine/mengine .
 </code></pre>
 <p>The two files <strong>mmff94.prm</strong> and <strong>mmxconst.prm</strong> are parameter files needed by both <code>smi2sdf</code> and <code>mengine</code>.</p>
 <p>With <code>smi2sdf</code> and <code>mengine</code> both in the <strong>build</strong> directory, we can create a simple test with the SMILES for <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=132999">Ivabradine</a>:</p>
 <pre><code class="hljs bash language-bash">vi test.smi
 ...
 
-$ cat test.smi
+$ <span class="hljs-built_in">cat</span> test.smi
 CN(CCCN1CCC2=CC(=C(C=C2CC1=O)OC)OC)C[C@H]3CC4=CC(=C(C=C34)OC)OC
 </code></pre>
 <p>With everything ready to go, we can begin Stage one:</p>

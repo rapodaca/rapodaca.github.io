@@ -85,22 +85,22 @@
 <p>Next comes a function to construct a <code>HashSet</code> and return it to the caller - ultimately Python. Rust's most unusual (and powerful) feature is compile-time memory management in which values are allocated on the stack by default. We bypass this by moving the <code>HashSet</code> instance to the heap via <a href="https://doc.rust-lang.org/stable/rust-by-example/std/box.html"><code>Box</code></a>, then returning a raw pointer to it.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set_new</span></span>() -&gt; *<span class="hljs-keyword">mut</span> HashSet&lt;<span class="hljs-built_in">usize</span>&gt; {
-    <span class="hljs-keyword">let</span> result = HashSet::new();
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">hash_set_new</span>() <span class="hljs-punctuation">-&gt;</span> *<span class="hljs-keyword">mut</span> HashSet&lt;<span class="hljs-type">usize</span>&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">result</span> = HashSet::<span class="hljs-title function_ invoke__">new</span>();
 
-    <span class="hljs-built_in">Box</span>::into_raw(<span class="hljs-built_in">Box</span>::new(result))
+    <span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">into_raw</span>(<span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">new</span>(result))
 }
 </code></pre>
 <p>A <code>HashMap</code> instance allocated in this way will eventually need to be deallocated. The <code>hash_set_delete</code> function enables memory allocated by Rust to be cleanly reclaimed.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set_delete</span></span>(set: *<span class="hljs-keyword">mut</span> HashSet&lt;<span class="hljs-built_in">usize</span>&gt;) {
-    <span class="hljs-keyword">if</span> set.is_null() {
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">hash_set_delete</span>(set: *<span class="hljs-keyword">mut</span> HashSet&lt;<span class="hljs-type">usize</span>&gt;) {
+    <span class="hljs-keyword">if</span> set.<span class="hljs-title function_ invoke__">is_null</span>() {
         <span class="hljs-keyword">return</span>;
     }
 
     <span class="hljs-keyword">unsafe</span> {
-        <span class="hljs-built_in">Box</span>::from_raw(set);
+        <span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">from_raw</span>(set);
     }
 }
 <span class="hljs-comment">// ...</span>
@@ -117,19 +117,19 @@
 
 <span class="hljs-comment">// ...</span>
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set_contains</span></span>(
-    set: *<span class="hljs-keyword">const</span> HashSet&lt;<span class="hljs-built_in">usize</span>&gt;, item: size_t, result: *<span class="hljs-keyword">mut</span> <span class="hljs-built_in">bool</span>
-) -&gt; <span class="hljs-built_in">i8</span> {
-    <span class="hljs-keyword">let</span> set = <span class="hljs-keyword">match</span> <span class="hljs-keyword">unsafe</span> { set.as_ref() } {
-        <span class="hljs-literal">Some</span>(set) =&gt; set,
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">hash_set_contains</span>(
+    set: *<span class="hljs-keyword">const</span> HashSet&lt;<span class="hljs-type">usize</span>&gt;, item: size_t, result: *<span class="hljs-keyword">mut</span> <span class="hljs-type">bool</span>
+) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">i8</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">set</span> = <span class="hljs-keyword">match</span> <span class="hljs-keyword">unsafe</span> { set.<span class="hljs-title function_ invoke__">as_ref</span>() } {
+        <span class="hljs-title function_ invoke__">Some</span>(set) =&gt; set,
         <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>
     };
-    <span class="hljs-keyword">let</span> result = <span class="hljs-keyword">match</span> <span class="hljs-keyword">unsafe</span> { result.as_mut() } {
-        <span class="hljs-literal">Some</span>(result) =&gt; result,
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">result</span> = <span class="hljs-keyword">match</span> <span class="hljs-keyword">unsafe</span> { result.<span class="hljs-title function_ invoke__">as_mut</span>() } {
+        <span class="hljs-title function_ invoke__">Some</span>(result) =&gt; result,
         <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>
     };
 
-    std::mem::replace(result, set.contains(&amp;item));
+    std::mem::<span class="hljs-title function_ invoke__">replace</span>(result, set.<span class="hljs-title function_ invoke__">contains</span>(&amp;item));
 
     <span class="hljs-number">0</span>
 }
@@ -142,17 +142,17 @@
 
 <span class="hljs-comment">// ...</span>
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set_collect</span></span>(
-    set: *<span class="hljs-keyword">const</span> HashSet&lt;<span class="hljs-built_in">usize</span>&gt;, result: *<span class="hljs-keyword">mut</span> size_t
-) -&gt; <span class="hljs-built_in">i8</span> {
-    <span class="hljs-keyword">let</span> set = <span class="hljs-keyword">match</span> <span class="hljs-keyword">unsafe</span> { set.as_ref() } {
-        <span class="hljs-literal">Some</span>(set) =&gt; set,
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">hash_set_collect</span>(
+    set: *<span class="hljs-keyword">const</span> HashSet&lt;<span class="hljs-type">usize</span>&gt;, result: *<span class="hljs-keyword">mut</span> size_t
+) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">i8</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">set</span> = <span class="hljs-keyword">match</span> <span class="hljs-keyword">unsafe</span> { set.<span class="hljs-title function_ invoke__">as_ref</span>() } {
+        <span class="hljs-title function_ invoke__">Some</span>(set) =&gt; set,
         <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>
     };
-    <span class="hljs-keyword">let</span> items = set.iter().cloned().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">items</span> = set.<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">cloned</span>().collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;();
 
     <span class="hljs-keyword">unsafe</span> {
-        std::ptr::copy((&amp;items[<span class="hljs-number">0</span>..]).as_ptr(), result, items.len());
+        std::ptr::<span class="hljs-title function_ invoke__">copy</span>((&amp;items[<span class="hljs-number">0</span>..]).<span class="hljs-title function_ invoke__">as_ptr</span>(), result, items.<span class="hljs-title function_ invoke__">len</span>());
     }
 
     <span class="hljs-number">0</span>
@@ -175,10 +175,10 @@ touch hash_set/__init__.py
 </code></pre>
 <p>The <code>lib</code> object is built through a call to <code>config/load_lib</code>. This function begins by tracking down the Rust library, then defining the argument types (<code>argstype</code>) and return types (<code>restype</code>).</p>
 <pre><code class="hljs python language-python"><span class="hljs-comment"># hash_set/config.py</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load_lib</span><span class="hljs-params">()</span>:</span>
-    prefix = {<span class="hljs-string">'win32'</span>: <span class="hljs-string">''</span>}.get(sys.platform, <span class="hljs-string">'lib'</span>)
-    extension = {<span class="hljs-string">'darwin'</span>: <span class="hljs-string">'.dylib'</span>, <span class="hljs-string">'win32'</span>: <span class="hljs-string">'.dll'</span>}.get(sys.platform, <span class="hljs-string">'.so'</span>)
-    lib = ctypes.cdll.LoadLibrary(prefix + <span class="hljs-string">"hash_map"</span> + extension)
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">load_lib</span>():
+    prefix = {<span class="hljs-string">&#x27;win32&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>}.get(sys.platform, <span class="hljs-string">&#x27;lib&#x27;</span>)
+    extension = {<span class="hljs-string">&#x27;darwin&#x27;</span>: <span class="hljs-string">&#x27;.dylib&#x27;</span>, <span class="hljs-string">&#x27;win32&#x27;</span>: <span class="hljs-string">&#x27;.dll&#x27;</span>}.get(sys.platform, <span class="hljs-string">&#x27;.so&#x27;</span>)
+    lib = ctypes.cdll.LoadLibrary(prefix + <span class="hljs-string">&quot;hash_map&quot;</span> + extension)
 
     lib.hash_set_new.restype = POINTER(HashSetS)
 
@@ -202,11 +202,11 @@ touch hash_set/__init__.py
 <span class="hljs-keyword">from</span> ctypes <span class="hljs-keyword">import</span> c_size_t, c_bool, byref
 <span class="hljs-keyword">from</span> hash_set <span class="hljs-keyword">import</span> lib
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HashSet</span>:</span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">HashSet</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):
         self.obj = lib.hash_set_new()
 
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__del__</span><span class="hljs-params">(self)</span>:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__del__</span>(<span class="hljs-params">self</span>):
         lib.hash_set_delete(self.obj)
 
     <span class="hljs-comment"># ...</span>
@@ -222,9 +222,9 @@ touch hash_set/__init__.py
 <p>Take, for example, the <code>contains</code> method, which was was previously discussed from the Rust side.</p>
 <pre><code class="hljs python language-python"><span class="hljs-comment"># hash_set/hash_set.py</span>
 <span class="hljs-comment"># ...</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HashSet</span>:</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">HashSet</span>:
     <span class="hljs-comment"># ...</span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">contains</span><span class="hljs-params">(self, item)</span>:</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">contains</span>(<span class="hljs-params">self, item</span>):
         result = c_bool()
 
         <span class="hljs-keyword">if</span> lib.hash_set_contains(self.obj, item, byref(result)) &lt; <span class="hljs-number">0</span>:
@@ -236,15 +236,15 @@ touch hash_set/__init__.py
 <p>The remaining <code>HashSet</code> methods follow a similar pattern. In analogy with the Rust side, the <code>collect</code> method deserves special mention.</p>
 <pre><code class="hljs python language-python"><span class="hljs-comment"># hash_set/hash_set.py</span>
 <span class="hljs-comment"># ...</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HashSet</span>:</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">HashSet</span>:
     <span class="hljs-comment"># ...</span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">collect</span><span class="hljs-params">(self)</span>:</span>
-        result = (c_size_t * self.len())()
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">collect</span>(<span class="hljs-params">self</span>):
+        result = (c_size_t * self.<span class="hljs-built_in">len</span>())()
 
         <span class="hljs-keyword">if</span> lib.hash_set_collect(self.obj, byref(result)) &lt; <span class="hljs-number">0</span>:
             <span class="hljs-keyword">raise</span> ValueError
         <span class="hljs-keyword">else</span>:
-            <span class="hljs-keyword">return</span> list(result)
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">list</span>(result)
     <span class="hljs-comment"># ...</span>
 </code></pre>
 <p><code>HashSet#collect</code> passes a pointer to a Python ctype array. The Rust side uses this pointer as a starting point to fill the array. However, the Python <code>c_size_t</code> instance must be instantiated with a length equal to the number of items in the Rust collection. A call to <code>self.len</code> makes this possible.</p>

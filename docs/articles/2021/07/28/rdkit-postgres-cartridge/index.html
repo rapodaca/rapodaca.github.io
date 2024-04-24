@@ -44,9 +44,9 @@
       <p>Chemical structure databases have the odd distinction of being both ubiquitous and often non-trivial to implement. The defining characteristic of these systems is that records can be fetched based on exact- or substructure queries. Structure-searchable databases pops up in all kinds of contexts ranging from individual research projects to on-off data processing tasks to drug discovery efforts to analytical labs to small chemical businesses. The need for a proper chemical database can sneak up on you rather quickly. This article addresses the problem by demonstrating a simple, fast method to get up and running with a structure-searchable database.</p>
 <h2 id="preview">Preview</h2>
 <p>By the end of this article, you'll be able to quickly query a database of over one million records using SMILES queries like this:</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">select</span> <span class="hljs-keyword">id</span>, molecule
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">select</span> id, molecule
   <span class="hljs-keyword">from</span> molecules
- <span class="hljs-keyword">where</span> molecule @&gt; <span class="hljs-string">'c1ccccc1'</span>;
+ <span class="hljs-keyword">where</span> molecule @<span class="hljs-operator">&gt;</span> <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>;
 </code></pre>
 <h2 id="databasecartridges">Database Cartridges</h2>
 <p>The single most popular tool for building a chemical structure database at scale is the <em>database cartridge</em>. A database cartridge (aka "extension") is a piece of software that operates within a general-purpose database system, orchestrating inputs and outputs relating to chemical information. Examples of general-purpose database systems include: <a href="https://www.postgresql.org">Postgres</a>; <a href="https://www.mysql.com">MySQL</a>; <a href="https://mariadb.com">MariaDB</a>; Oracle; and <a href="https://www.mongodb.com">MongoDB</a>. All except the last of these are considered <a href="https://en.wikipedia.org/wiki/Relational_database">relational database management systems</a> (RDBMSs).</p>
@@ -94,22 +94,22 @@
 <pre><code class="hljs bash language-bash">psql -h localhost -U postgres -p 5432
 </code></pre>
 <p>When prompted, use the same password used to run the container, "mypassword". You should see a Postgres prompt.</p>
-<pre><code class="hljs">psql -h localhost -U postgres
-Password <span class="hljs-keyword">for</span><span class="hljs-built_in"> user </span>postgres: 
-psql (13.3,<span class="hljs-built_in"> server </span>12.3 (Debian 12.3-1.pgdg100+1))<span class="hljs-built_in">
-Type </span><span class="hljs-string">"help"</span> <span class="hljs-keyword">for</span> help.
+<pre><code class="hljs"><span class="hljs-attribute">psql</span> -h localhost -U postgres
+<span class="hljs-attribute">Password</span> for user postgres: 
+<span class="hljs-attribute">psql</span> (<span class="hljs-number">13</span>.<span class="hljs-number">3</span>, server <span class="hljs-number">12</span>.<span class="hljs-number">3</span> (Debian <span class="hljs-number">12</span>.<span class="hljs-number">3</span>-<span class="hljs-number">1</span>.pgdg100+<span class="hljs-number">1</span>))
+<span class="hljs-attribute">Type</span> <span class="hljs-string">&quot;help&quot;</span> for help.
 
 <span class="hljs-attribute">postgres</span>=#
 </code></pre>
 <p>The Postgres session can be exited by pressing <code>ctrl-d</code>.</p>
 <p>The RDkit cartridge container can be run even if Postgres is currently installed. However, if a Postgres server is already running, you'll see an error message. There are two ways to proceed: (1) stop the Postgres server on your system; or (2) use a port other than the default Postgres port of 5432.</p>
 <p>You can stop the Postgres cartridge Docker container at any time with the following:</p>
-<pre><code class="hljs bash language-bash">docker container stop &lt;id&gt;
+<pre><code class="hljs bash language-bash">docker container stop &lt;<span class="hljs-built_in">id</span>&gt;
 </code></pre>
 <p>where <code>&lt;id&gt;</code> is the identifier of the running container. To get it, use <code>docker ps</code>. For example, here's the output on my system:</p>
 <pre><code class="hljs bash language-bash"> docker ps
 CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                                       NAMES
-fe320ea9182f   mcs07/postgres-rdkit   <span class="hljs-string">"docker-entrypoint.s…"</span>   10 minutes ago   Up 10 minutes   0.0.0.0:5432-&gt;5432/tcp, :::5432-&gt;5432/tcp   mypostgres
+fe320ea9182f   mcs07/postgres-rdkit   <span class="hljs-string">&quot;docker-entrypoint.s…&quot;</span>   10 minutes ago   Up 10 minutes   0.0.0.0:5432-&gt;5432/tcp, :::5432-&gt;5432/tcp   mypostgres
 </code></pre>
 <p>To stop the container I started 10 minutes ago, I can use the value under <code>CONTAINER ID</code>, or the first few digits:</p>
 <pre><code class="hljs bash language-bash">docker container stop fe3
@@ -117,14 +117,14 @@ fe320ea9182f   mcs07/postgres-rdkit   <span class="hljs-string">"docker-entrypoi
 <p>Everything possible in Docker can be accomplished through the command line. However, things can get complicated very quickly, especially when multiple containers need to be managed and work together. Enter <a href="https://docs.docker.com/compose/">Docker Compose</a>, an orchestration utility that uses simple configuration files to "compose" containers. I point this out only because the RDKit Postgres container documentation mentions it. For now, Docker Compose is overkill so let's continue to use the command line.</p>
 <h2 id="asimplification">A Simplification</h2>
 <p>In the following section, we'll be issuing a number of commands to the Postgres server running on the container. The server will require the entry of a password for each one, which can get tiring very fast. Other information will need to be passed on the command line. We can avoid this inconvenience by setting the following environment variables:</p>
-<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> PGPASSWORD=<span class="hljs-string">"mypassword"</span>
-<span class="hljs-built_in">export</span> PGHOST=<span class="hljs-string">"localhost"</span>
-<span class="hljs-built_in">export</span> PGUSER=<span class="hljs-string">"postgres"</span>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> PGPASSWORD=<span class="hljs-string">&quot;mypassword&quot;</span>
+<span class="hljs-built_in">export</span> PGHOST=<span class="hljs-string">&quot;localhost&quot;</span>
+<span class="hljs-built_in">export</span> PGUSER=<span class="hljs-string">&quot;postgres&quot;</span>
 </code></pre>
 <p>Now we can connect to the server with the much simpler command:</p>
 <pre><code class="hljs console language-console">psql
 psql (13.3, server 12.3 (Debian 12.3-1.pgdg100+1))
-Type "help" for help.
+Type &quot;help&quot; for help.
 
 postgres=#
 </code></pre>
@@ -133,8 +133,8 @@ postgres=#
 <p>As a test of Postgres and its cartridge, let's add a million molecules to a database and then perform a substructure search. The <a href="https://www.rdkit.org/docs/Cartridge.html">RDKit Cartridge documentation</a> shows one way to do this that will be adapted here.</p>
 <p>The process starts by creating a database using the <code>createdb</code> utility that comes with the Postgres client. Postgres won't install the cartridge on new databases by default, so we'll create one in a bash session.</p>
 <pre><code class="hljs bash language-bash">createdb emolecules
-psql -c <span class="hljs-string">'create extension rdkit'</span> emolecules
-psql -c <span class="hljs-string">'create table raw_data (id SERIAL, smiles text, version_id integer, parent_id integer)'</span> emolecules
+psql -c <span class="hljs-string">&#x27;create extension rdkit&#x27;</span> emolecules
+psql -c <span class="hljs-string">&#x27;create table raw_data (id SERIAL, smiles text, version_id integer, parent_id integer)&#x27;</span> emolecules
 </code></pre>
 <p>The <code>-c</code> option tells Postgres to issue the commands that follow in quotes. Alternatively, the commands could be issued from within a <code>psql</code> session. However, it's convenient work this way because of what comes next.</p>
 <p><a href="https://www.emolecules.com">eMolecules</a> provides <a href="https://downloads.emolecules.com/free/2021-07-01/">downloads</a> of its public database in several formats. For the purposes of this demonstration, the most convenient format is a SMILES file containing records whose fields include a SMILES structure and two corresponding identifiers ("VERSION_ID" and "PARENT_ID"). Download and expand as follows.</p>
@@ -142,16 +142,16 @@ psql -c <span class="hljs-string">'create table raw_data (id SERIAL, smiles text
 gunzip version.smi.gz
 </code></pre>
 <p>This generates the file <code>version.smi</code>, which contains many millions of records. We want only the first million, which can be done with:</p>
-<pre><code class="hljs bash language-bash">head -n 1000001 version.smi &gt;&gt; emolecules-1m.smi
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">head</span> -n 1000001 version.smi &gt;&gt; emolecules-1m.smi
 </code></pre>
 <p>The resulting file, <code>emolecules-1m.smi</code> contains the first million records. We take the first 1,000,001 of them because the first row is a header. The new file can be imported into the <code>emolecules</code> Postgres database as follows.</p>
-<pre><code class="hljs bash language-bash">cat &lt; ./emolecules-1m.smi | sed <span class="hljs-string">'1d; s/\\/\\\\/g'</span> | psql -c <span class="hljs-string">"copy raw_data (smiles,version_id,parent_id) from stdin with delimiter ' '"</span> emolecules
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cat</span> &lt; ./emolecules-1m.smi | sed <span class="hljs-string">&#x27;1d; s/\\/\\\\/g&#x27;</span> | psql -c <span class="hljs-string">&quot;copy raw_data (smiles,version_id,parent_id) from stdin with delimiter &#x27; &#x27;&quot;</span> emolecules
 </code></pre>
 <p>Here we're reading the <code>emolecules-1m.smi</code>, replacing input inline, and piping the result into the Postgres <code>emolecules</code> database. The <code>sed</code> parameter <code>1d'</code> strips the first line of input, which is a header. The remaining <code>sed</code> input (<code>s/\\/\\\\/g</code>) replaces backslash characters in the SMILES strings with escaped backslash characters so that Postgres can process them. The command takes a few seconds to execute on my system.</p>
 <p>Confirm that the <code>raw_data</code> table has been created with:</p>
 <pre><code class="hljs console language-console">psql emolecules
 psql (13.3, server 12.3 (Debian 12.3-1.pgdg100+1))
-Type "help" for help.
+Type &quot;help&quot; for help.
 
 emolecules=# select count(*) from raw_data;
   count  
@@ -160,20 +160,20 @@ emolecules=# select count(*) from raw_data;
 (1 row)
 </code></pre>
 <p>To keep things efficient, we're using a two-step strategy. The purpose of the first step is to replicate the data found in the <code>emolecules-1m.smi</code> file within the Postgres table <code>raw_data</code>. Having moved the data into Postgres, we then process it with the RDKit cartridge. We're going to be moving a lot of data around, so it helps to first move the raw data into Postgres, from where it can be dispatched efficiently. We can always drop the <code>raw_data</code> table later. The following query, executed within a Postgres session (<code>psql emolecules</code>) will create a new table <code>molecules</code> with searchable structures.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> *
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span>
   <span class="hljs-keyword">INTO</span> molecules
-  <span class="hljs-keyword">FROM</span> (<span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">id</span>, mol_from_smiles(smiles::cstring) structure <span class="hljs-keyword">FROM</span> raw_data) tmp
- <span class="hljs-keyword">WHERE</span> structure <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>;
+  <span class="hljs-keyword">FROM</span> (<span class="hljs-keyword">SELECT</span> id, mol_from_smiles(smiles::cstring) structure <span class="hljs-keyword">FROM</span> raw_data) tmp
+ <span class="hljs-keyword">WHERE</span> structure <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>;
 </code></pre>
 <p>This step, which creates RDKit binary molecular representations, will take several minutes. You should see some output similar to:</p>
-<pre><code class="hljs console language-console">WARNING:  could not create molecule from SMILES 'Br[Br]Br.c1ccncc1'
-WARNING:  could not create molecule from SMILES 'Br[Br-]Br.C[N+](C)(C)c1ccccc1'
+<pre><code class="hljs console language-console">WARNING:  could not create molecule from SMILES &#x27;Br[Br]Br.c1ccncc1&#x27;
+WARNING:  could not create molecule from SMILES &#x27;Br[Br-]Br.C[N+](C)(C)c1ccccc1&#x27;
 ... and so on
 </code></pre>
 <p>Here the cartridge is informing us that RDKit was not able to read the indicated SMILES.</p>
 <p>After the command returns, a new table, <code>molecules</code>, will have been created. It contains two columns (<code>id</code>, <code>structure</code>), which can be confirmed with:</p>
 <pre><code class="hljs console language-console">\d+ molecules;
-                                   Table "public.molecules"
+                                   Table &quot;public.molecules&quot;
   Column   |  Type   | Collation | Nullable | Default | Storage  | Stats target | Description 
 -----------+---------+-----------+----------+---------+----------+--------------+-------------
  id        | integer |           |          |         | plain    |              | 
@@ -182,10 +182,10 @@ Access method: heap
 </code></pre>
 <p>Notice the type of the <code>structure</code> field: <code>mol</code>. This is a custom data type that the cartridge can read, write, and process.</p>
 <p>Searching this table by structure is going to be slow (something that's worth confirming for yourself). To speed things up, we can create an index. This index is created with help from the cartridge, which knows about the <code>mol</code> data type and can use it in various ways.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">INDEX</span> molecules_structure <span class="hljs-keyword">ON</span> molecules <span class="hljs-keyword">USING</span> gist(structure);
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> INDEX molecules_structure <span class="hljs-keyword">ON</span> molecules <span class="hljs-keyword">USING</span> gist(structure);
 </code></pre>
 <p>This step again takes about ten minutes on my system. Finally, we can search by structure:</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">id</span>, structure <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> structure@&gt;<span class="hljs-string">'c1cccnc1'</span> <span class="hljs-keyword">LIMIT</span> <span class="hljs-number">100</span>;
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">SELECT</span> id, structure <span class="hljs-keyword">FROM</span> molecules <span class="hljs-keyword">WHERE</span> structure@<span class="hljs-operator">&gt;</span><span class="hljs-string">&#x27;c1cccnc1&#x27;</span> LIMIT <span class="hljs-number">100</span>;
 <span class="hljs-comment">-- returns results like the following</span>
 <span class="hljs-comment">--    id   |                           structure                            </span>
 <span class="hljs-comment">-- --------+----------------------------------------------------------------</span>

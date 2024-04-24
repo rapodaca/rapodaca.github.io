@@ -40,12 +40,12 @@
 <p>Our goal for this session is to create an Ant task that will assemble a directory of HTML pages for testing the JSpecView applet. To do this, we'll add a new <code>demo</code> task and some supporting files.</p>
 <h2 id="editingthebuildxmlfile">Editing the build.xml File</h2>
 <p>The main change we'll make is to add the <code>demo</code> task itself:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"demo"</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">"jar"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${demo}"</span> /&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">copy</span> <span class="hljs-attr">todir</span>=<span class="hljs-string">"${demo}"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">fileset</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">"${resources-html}"</span> /&gt;</span>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">target</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;demo&quot;</span> <span class="hljs-attr">depends</span>=<span class="hljs-string">&quot;jar&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">mkdir</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${demo}&quot;</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">copy</span> <span class="hljs-attr">todir</span>=<span class="hljs-string">&quot;${demo}&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">fileset</span> <span class="hljs-attr">dir</span>=<span class="hljs-string">&quot;${resources-html}&quot;</span> /&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">copy</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">copy</span> <span class="hljs-attr">file</span>=<span class="hljs-string">"${build-lib}/${unix-name}-${version}.jar"</span> <span class="hljs-attr">tofile</span>=<span class="hljs-string">"${demo}/lib/${unix-name}.jar"</span> /&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">copy</span> <span class="hljs-attr">file</span>=<span class="hljs-string">&quot;${build-lib}/${unix-name}-${version}.jar&quot;</span> <span class="hljs-attr">tofile</span>=<span class="hljs-string">&quot;${demo}/lib/${unix-name}.jar&quot;</span> /&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">target</span>&gt;</span>
 </code></pre>
 <p>This task creates a <strong>demo</strong> directory and copies into it the contents of a new <strong>resources/html</strong> directory, along with the jarfile built with the <code>jar</code> task.</p>
@@ -58,9 +58,9 @@
 Buildfile: build.xml
 
 init:
-    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build
-    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build/classes
-    [mkdir] Created dir: /home/rich/devel/proj/jspecview/build/lib
+    [<span class="hljs-built_in">mkdir</span>] Created <span class="hljs-built_in">dir</span>: /home/rich/devel/proj/jspecview/build
+    [<span class="hljs-built_in">mkdir</span>] Created <span class="hljs-built_in">dir</span>: /home/rich/devel/proj/jspecview/build/classes
+    [<span class="hljs-built_in">mkdir</span>] Created <span class="hljs-built_in">dir</span>: /home/rich/devel/proj/jspecview/build/lib
 
 compile:
     [javac] Compiling 48 <span class="hljs-built_in">source</span> files to /home/rich/devel/proj/jspecview/build/classes
@@ -69,7 +69,7 @@ jar:
       [jar] Building jar: /home/rich/devel/proj/jspecview/build/lib/jspecview-20080128.jar
 
 demo:
-    [mkdir] Created dir: /home/rich/devel/proj/jspecview/demo
+    [<span class="hljs-built_in">mkdir</span>] Created <span class="hljs-built_in">dir</span>: /home/rich/devel/proj/jspecview/demo
      [copy] Copying 3 files to /home/rich/devel/proj/jspecview/demo
      [copy] Copying 1 file to /home/rich/devel/proj/jspecview/demo/lib
 

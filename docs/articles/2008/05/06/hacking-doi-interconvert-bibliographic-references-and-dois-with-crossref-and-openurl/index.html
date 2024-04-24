@@ -40,30 +40,30 @@
 <p><a href="http://www.crossref.org/">CrossRef</a> is the official <a href="http://www.doi.org/">DOI</a> link registration agency for scholarly and professional publications. One of the less well-known services offered by CrossRef is a free, Web-based <a href="http://www.crossref.org/openurl_info.html">bidirectional DOI/bibliographic reference converter</a> based on <a href="http://en.wikipedia.org/wiki/OpenURL">OpenURL</a>.</p>
 <h2 id="asimplerubylibrary">A Simple Ruby Library</h2>
 <p>The following Ruby library is all we need to begin using CrossRef and OpenURL:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'hpricot'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'open-uri'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;hpricot&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;open-uri&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">DOI</span></span>
+<span class="hljs-keyword">module</span> <span class="hljs-variable constant_">DOI</span>
   <span class="hljs-comment"># Convert a doi into a bibliographic reference.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">biblio_for</span> <span class="hljs-title">doi</span></span>
-    doc = Hpricot(open(<span class="hljs-string">"http://www.crossref.org/openurl/?id=doi:<span class="hljs-subst">#{doi}</span>&amp;noredirect=true&amp;pid=ourl_sample:sample&amp;format=unixref"</span>))
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">biblio_for</span> doi
+    doc = <span class="hljs-title class_">Hpricot</span>(open(<span class="hljs-string">&quot;http://www.crossref.org/openurl/?id=doi:<span class="hljs-subst">#{doi}</span>&amp;noredirect=true&amp;pid=ourl_sample:sample&amp;format=unixref&quot;</span>))
 
-    journal = (doc/<span class="hljs-string">"abbrev_title"</span>).inner_html
-    year = (doc/<span class="hljs-string">"journal_issue/publication_date/year"</span>).inner_html
-    volume = (doc/<span class="hljs-string">"journal_issue/journal_volume/volume"</span>).inner_html
-    number = (doc/<span class="hljs-string">"journal_issue/issue"</span>).inner_html
-    first_page = (doc/<span class="hljs-string">"pages/first_page"</span>).inner_html
-    last_page = (doc/<span class="hljs-string">"pages/last_page"</span>).inner_html
+    journal = (doc/<span class="hljs-string">&quot;abbrev_title&quot;</span>).inner_html
+    year = (doc/<span class="hljs-string">&quot;journal_issue/publication_date/year&quot;</span>).inner_html
+    volume = (doc/<span class="hljs-string">&quot;journal_issue/journal_volume/volume&quot;</span>).inner_html
+    number = (doc/<span class="hljs-string">&quot;journal_issue/issue&quot;</span>).inner_html
+    first_page = (doc/<span class="hljs-string">&quot;pages/first_page&quot;</span>).inner_html
+    last_page = (doc/<span class="hljs-string">&quot;pages/last_page&quot;</span>).inner_html
 
-    <span class="hljs-string">"<span class="hljs-subst">#{journal}</span> <span class="hljs-subst">#{year}</span>, <span class="hljs-subst">#{volume}</span>(<span class="hljs-subst">#{number}</span>) <span class="hljs-subst">#{first_page}</span>-<span class="hljs-subst">#{last_page}</span>"</span>
+    <span class="hljs-string">&quot;<span class="hljs-subst">#{journal}</span> <span class="hljs-subst">#{year}</span>, <span class="hljs-subst">#{volume}</span>(<span class="hljs-subst">#{number}</span>) <span class="hljs-subst">#{first_page}</span>-<span class="hljs-subst">#{last_page}</span>&quot;</span>
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Convert a bibliographic reference into a DOI.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">doi_for</span> <span class="hljs-title">journal</span>, <span class="hljs-title">year</span>, <span class="hljs-title">volume</span>, <span class="hljs-title">issue</span>, <span class="hljs-title">page</span></span>
-    doc = Hpricot(open(<span class="hljs-string">"http://www.crossref.org/openurl/?title=<span class="hljs-subst">#{journal.gsub(<span class="hljs-regexp">/ /</span>, <span class="hljs-string">'%20'</span>)}</span>&amp;volume=<span class="hljs-subst">#{volume}</span>&amp;issue=<span class="hljs-subst">#{issue}</span>&amp;spage=<span class="hljs-subst">#{page}</span>&amp;date=<span class="hljs-subst">#{year}</span>&amp;pid=ourl_sample:sample&amp;redirect=false&amp;format=unixref"</span>))
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">doi_for</span> journal, year, volume, issue, page
+    doc = <span class="hljs-title class_">Hpricot</span>(open(<span class="hljs-string">&quot;http://www.crossref.org/openurl/?title=<span class="hljs-subst">#{journal.gsub(<span class="hljs-regexp">/ /</span>, <span class="hljs-string">&#x27;%20&#x27;</span>)}</span>&amp;volume=<span class="hljs-subst">#{volume}</span>&amp;issue=<span class="hljs-subst">#{issue}</span>&amp;spage=<span class="hljs-subst">#{page}</span>&amp;date=<span class="hljs-subst">#{year}</span>&amp;pid=ourl_sample:sample&amp;redirect=false&amp;format=unixref&quot;</span>))
 
-   (doc/<span class="hljs-string">"doi"</span>).inner_html
+   (doc/<span class="hljs-string">&quot;doi&quot;</span>).inner_html
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -71,14 +71,14 @@
 <h4>Testing the Library</h4>
 <p>Saving the Ruby code to a file named <strong>doi.rb</strong>, we can test it using the interactive Ruby shell:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'doi'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;doi&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include DOI
 =&gt; Object
-irb(main):003:0&gt; biblio_for <span class="hljs-string">"10.1021/cr00032a009"</span>
-=&gt; <span class="hljs-string">"Chem. Rev. 1994, 94(8) 2483-2547"</span>
-irb(main):004:0&gt; doi_for <span class="hljs-string">"Chem. Rev."</span>, 1994, 94, 8, 2483
-=&gt; <span class="hljs-string">"10.1021/cr00032a009"</span>
+irb(main):003:0&gt; biblio_for <span class="hljs-string">&quot;10.1021/cr00032a009&quot;</span>
+=&gt; <span class="hljs-string">&quot;Chem. Rev. 1994, 94(8) 2483-2547&quot;</span>
+irb(main):004:0&gt; doi_for <span class="hljs-string">&quot;Chem. Rev.&quot;</span>, 1994, 94, 8, 2483
+=&gt; <span class="hljs-string">&quot;10.1021/cr00032a009&quot;</span>
 </code></pre>
 <p>Notice how the journal abbreviation <em>Chem. Rev.</em> was used; we'd get the same result if we used <em>Chemical Reviews</em>.</p>
 <p>Of course, the implementation described here could be refined a lot. With a DOI, it's trivial to <a href="http://dx.doi.org/10.1021/cr00032a009">construct a URL to the example paper</a>. But we could take it further than that. With some carefully crafted regular expressions, our <code>doi_for</code> method could accept a freeform bibliographical citation rather than separately identified fragments. From there we might start to think about creating living HTML and/or Wikis from old PDFs and Word documents.</p>

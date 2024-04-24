@@ -45,19 +45,19 @@
 <h2 id="inanutshell">In a Nutshell</h2>
 <p>Typed Javascript is a system of tools and practices that expose type errors <em>before</em> run time. Unlike other options, Typed JavaScript runs without modification wherever JavaScript runs. Typed JavaScript offers static type checking, without compilers or unusual tooling. You can use as much or as little Typed JavaScript as you like. If things don't work out, changes are easy to revert.</p>
 <p>To get an idea for how Typed JavaScript works, consider a function that adds two numbers.</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> add = <span class="hljs-function">(<span class="hljs-params">i, j</span>) =&gt;</span> {
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> <span class="hljs-title function_">add</span> = (<span class="hljs-params">i, j</span>) =&gt; {
   <span class="hljs-keyword">return</span> i + j;
 };
 </code></pre>
 <p>Although the intent of <code>add</code> is numerical addition, JavaScript will unconditionally accept arguments of any type for the parameters <code>i</code> and <code>j</code>. What happens if the first argument is a <code>string</code> instead of a <code>number</code>? We won't get an error, but we probably won't get what we're after, either.</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-built_in">console</span>.log(add(<span class="hljs-number">4</span>, <span class="hljs-number">2</span>)) <span class="hljs-comment">// =&gt; 6</span>
-<span class="hljs-built_in">console</span>.log(add(<span class="hljs-string">'4'</span>, <span class="hljs-number">2</span>)) <span class="hljs-comment">// =&gt; '42'</span>
+<pre><code class="hljs javascript language-javascript"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">add</span>(<span class="hljs-number">4</span>, <span class="hljs-number">2</span>)) <span class="hljs-comment">// =&gt; 6</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">add</span>(<span class="hljs-string">&#x27;4&#x27;</span>, <span class="hljs-number">2</span>)) <span class="hljs-comment">// =&gt; &#x27;42&#x27;</span>
 </code></pre>
 <p>It's easy to catch the error by inspection in this simple example because both arguments are literals and the implementation of <code>add</code> is a single line. But in complex JavaScript projects, arguments and return value may be separated by several function calls. This distance in time and space can make debugging very difficult.</p>
 <p>Even if a type error can be traced, preventing its recurrence is hardly straightforward. To stamp out all possible type errors, we could add guard code as in the following example. Even so, the best we'd get is run time notification of an error. The user would still face the full consequences of that error.</p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> addWithCheck = <span class="hljs-function">(<span class="hljs-params">i, j</span>) =&gt;</span> {
-  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> i !== <span class="hljs-string">'number'</span> || <span class="hljs-keyword">typeof</span> j !== <span class="hljs-string">'number'</span>) {
-    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'arguments must be numbers'</span>);
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">const</span> <span class="hljs-title function_">addWithCheck</span> = (<span class="hljs-params">i, j</span>) =&gt; {
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> i !== <span class="hljs-string">&#x27;number&#x27;</span> || <span class="hljs-keyword">typeof</span> j !== <span class="hljs-string">&#x27;number&#x27;</span>) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;arguments must be numbers&#x27;</span>);
   }
 
   <span class="hljs-keyword">return</span> i + j;
@@ -65,11 +65,11 @@
 </code></pre>
 <p>Typed JavaScript solves this problem through <em>type annotations</em> (aka "type hints"). A type annotation constrains the range of types a given value may assume. Typed JavaScript's annotations are implemented through tagged <a href="https://jsdoc.app">JSDoc</a> comments. For example, The range of allowed inputs and outputs for the <code>add</code> function can be constrained like so.</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">i</span></span>
- * <span class="hljs-doctag">@param <span class="hljs-type">{number}</span> <span class="hljs-variable">j</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">i</span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">j</span>
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
  */</span>
-<span class="hljs-keyword">const</span> addSafely = <span class="hljs-function">(<span class="hljs-params">i, j</span>) =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">addSafely</span> = (<span class="hljs-params">i, j</span>) =&gt; {
   <span class="hljs-keyword">return</span> i + j;
 };
 </code></pre>
@@ -102,10 +102,10 @@
 <p>A future article will discuss the syntax and semantics of the Typed JavaScript type system in detail. For a preview, see the preceding article in this series, <a href="/articles/2021/10/20/types-without-typescript/"><em>Types without TypeScript</em></a>. For now, just a few illustrative examples will be given.</p>
 <p>As noted previously, type definitions are encoded into JDoc comments using tags beginning with the at (<code>@</code>) character. The types of function parameters, return values, and variables can all be constrained using these tags.</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">a</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{number?}</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">a</span>
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number?</span>}
  */</span>
-<span class="hljs-keyword">const</span> convert = <span class="hljs-function">(<span class="hljs-params">a</span>) =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">convert</span> = (<span class="hljs-params">a</span>) =&gt; {
   <span class="hljs-keyword">const</span> result = <span class="hljs-built_in">parseFloat</span>(a);
 
   <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isNaN</span>(a)) {
@@ -116,9 +116,9 @@
 };
 
 <span class="hljs-comment">// ERROR</span>
-convert(<span class="hljs-number">42</span>);
+<span class="hljs-title function_">convert</span>(<span class="hljs-number">42</span>);
 
-<span class="hljs-comment">/** @type {string|undefined} */</span>
+<span class="hljs-comment">/** <span class="hljs-doctag">@type</span> {<span class="hljs-type">string|undefined</span>} */</span>
 <span class="hljs-keyword">let</span> foo = <span class="hljs-literal">undefined</span>;
 
 <span class="hljs-comment">// ERROR</span>
@@ -127,19 +127,19 @@ foo = <span class="hljs-number">42</span>;
 <p>In the first example above, <code>convert</code> indicates that it will return either a <code>number</code> or <code>null</code> with the trailing question mark (<code>?</code>) character. Treating the return value as any other type results in an error, just like passing a value of any type other than <code>string</code> results in an error. The second example uses the same convention to constrain the type of a variable to <code>string</code> or <code>undefined</code>. Assigning a value of type <code>number</code> yields an error.</p>
 <p>Typed JavaScript is especially useful for function functions accepting complex parameters types. In the example below, a type error will be generated if an object lacking a <code>grade</code> property of type <code>number</code> is passed to <code>averageGrade</code>.</p>
 <pre><code class="hljs javascript language-javascript"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@typedef <span class="hljs-type">{object}</span> <span class="hljs-variable">Student</span></span>
- * <span class="hljs-doctag">@property <span class="hljs-type">{number}</span> <span class="hljs-variable">grade</span></span>
+ * <span class="hljs-doctag">@typedef</span> {<span class="hljs-type">object</span>} <span class="hljs-variable">Student</span>
+ * <span class="hljs-doctag">@property</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">grade</span>
  * 
- * <span class="hljs-doctag">@param <span class="hljs-type">{Array&lt;Student&gt;}</span> <span class="hljs-variable">students</span></span>
- * <span class="hljs-doctag">@returns <span class="hljs-type">{number}</span></span>
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Array&lt;Student&gt;</span>} <span class="hljs-variable">students</span>
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>}
  */</span>
-<span class="hljs-keyword">const</span> averageGrade = <span class="hljs-function"><span class="hljs-params">students</span> =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">averageGrade</span> = students =&gt; {
   <span class="hljs-keyword">return</span> students
-    .reduce(<span class="hljs-function">(<span class="hljs-params">total, student</span>) =&gt;</span> total + student.grade, <span class="hljs-number">0</span>) / students.length;
+    .<span class="hljs-title function_">reduce</span>(<span class="hljs-function">(<span class="hljs-params">total, student</span>) =&gt;</span> total + student.<span class="hljs-property">grade</span>, <span class="hljs-number">0</span>) / students.<span class="hljs-property">length</span>;
 };
 
 <span class="hljs-comment">// ERROR</span>
-averageGrade([ { } ]);
+<span class="hljs-title function_">averageGrade</span>([ { } ]);
 </code></pre>
 <h2 id="usingtypedjavascript">Using Typed JavaScript</h2>
 <p>As mentioned previously, VS Code supports Typed JavaScript out of the box. The easiest way to get started with Typed JavaScript and VS Code is to place a single line of text at the top of a JavaScript file, like so:</p>
@@ -148,51 +148,51 @@ averageGrade([ { } ]);
 <span class="hljs-comment">// VS Code now reports Typed Javascript types and type errors</span>
 </code></pre>
 <p>Although adding a comment to every JavaScript source file might not seem like a problem, it does add clutter and doesn't allow for much customization. A better approach is to add a <a href="https://www.typescriptlang.org/docs/handbook/tsconfig-json.html"><code>tsconfig.json</code></a> file to the top-level of a JavaScript project. <code>tsconfig.json</code> is a file typically used with a TypeScript project. However, adding the compiler options <code>compileJs</code> and <code>checkJs</code> activates type checking for JavaScript projects as well. The following <code>tsconfig.json</code> will check types in the <code>lib</code> directory of a Node.js project while excluding the <code>node_modules</code> directory.</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"compilerOptions"</span>: {
-    <span class="hljs-attr">"outDir"</span>: <span class="hljs-string">"./dummy"</span>,
-    <span class="hljs-attr">"target"</span>: <span class="hljs-string">"ES6"</span>,
-    <span class="hljs-attr">"lib"</span>: [<span class="hljs-string">"ES6"</span>],
-    <span class="hljs-attr">"checkJs"</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">"allowJs"</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">"skipLibCheck"</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">"moduleResolution"</span>: <span class="hljs-string">"node"</span>,
-    <span class="hljs-attr">"strictNullChecks"</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">"allowSyntheticDefaultImports"</span>: <span class="hljs-literal">true</span>
-  },
-  <span class="hljs-attr">"exclude"</span>: [
-      <span class="hljs-string">"node_modules"</span>
-  ],
-  <span class="hljs-attr">"include"</span>: [
-    <span class="hljs-string">"lib/**/*.js"</span>
-  ]
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;compilerOptions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;outDir&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;./dummy&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;target&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ES6&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;lib&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;ES6&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;checkJs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;allowJs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;skipLibCheck&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;moduleResolution&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;node&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;strictNullChecks&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;allowSyntheticDefaultImports&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;exclude&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+      <span class="hljs-string">&quot;node_modules&quot;</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;include&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-string">&quot;lib/**/*.js&quot;</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>Just adding a <code>tsconfig.json</code> file will be a step forward, but you may be alarmed to discover that VS Code only checks types for open files. If your edits to an opened file introduce errors into closed files, these errors will only be seen when the closed files are opened. This renders many of the benefits of Typed JavaScript moot. This problem arises from a <a href="https://github.com/microsoft/vscode/issues/47386">longstanding issue</a> in VS Code and does not appear to be any closer to resolution now than it was in 2018.</p>
 <p>Fortunately, the following workaround solves the problem. Create a <code>tsc</code> <a href="https://code.visualstudio.com/docs/editor/tasks">task</a> by adding a file with the following content to <code>.vscode/tasks.json</code>.</p>
-<pre><code class="hljs json language-json">{
-  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"2.0.0"</span>,
-  <span class="hljs-attr">"tasks"</span>: [
-    {
-      <span class="hljs-attr">"label"</span>: <span class="hljs-string">"tsc"</span>,
-      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"shell"</span>,
-      <span class="hljs-attr">"command"</span>: <span class="hljs-string">"./node_modules/typescript/bin/tsc"</span>,
-      <span class="hljs-attr">"presentation"</span>: {
-        <span class="hljs-attr">"echo"</span>: <span class="hljs-literal">true</span>,
-        <span class="hljs-attr">"reveal"</span>: <span class="hljs-string">"never"</span>,
-        <span class="hljs-attr">"focus"</span>: <span class="hljs-literal">false</span>,
-        <span class="hljs-attr">"panel"</span>: <span class="hljs-string">"shared"</span>,
-        <span class="hljs-attr">"showReuseMessage"</span>: <span class="hljs-literal">true</span>,
-        <span class="hljs-attr">"clear"</span>: <span class="hljs-literal">false</span>
-      },
-      <span class="hljs-attr">"args"</span>: [<span class="hljs-string">"--noEmit"</span>, <span class="hljs-string">"--watch"</span>],
-      <span class="hljs-attr">"problemMatcher"</span>: [
-        <span class="hljs-string">"$tsc-watch"</span>
-      ],
-      <span class="hljs-attr">"isBackground"</span>: <span class="hljs-literal">true</span>
-    }
-  ]
-}
+<pre><code class="hljs json language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;2.0.0&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;tasks&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;label&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tsc&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;shell&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;./node_modules/typescript/bin/tsc&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;presentation&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;echo&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;reveal&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;never&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;focus&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;panel&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;shared&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;showReuseMessage&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;clear&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span>
+      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;args&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;--noEmit&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;--watch&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;problemMatcher&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+        <span class="hljs-string">&quot;$tsc-watch&quot;</span>
+      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;isBackground&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>This task will run, but will not work correctly. To get it working, install the <code>typescript</code> package:</p>
 <pre><code class="hljs bash language-bash">npm i typescript -D

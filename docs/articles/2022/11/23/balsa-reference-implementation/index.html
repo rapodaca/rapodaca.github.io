@@ -73,36 +73,36 @@
 <p>For convenience, the software's data structures are named after the terms used in the working paper.</p>
 <h2 id="moleculartree">Molecular Tree</h2>
 <p>The types comprising Balsa's molecular tree data structure can be found in the <code>tree</code> submodule. Perhaps surprisingly, no data structure representing an actual tree is defined. Instead, the top-level data structure <code>tree::Atom</code> is defined. Its presence alone fully defines a molecular tree.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Atom</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Atom</span> {
     <span class="hljs-keyword">pub</span> kind: AtomKind,
-    <span class="hljs-keyword">pub</span> edges: <span class="hljs-built_in">Vec</span>&lt;Edge&gt;,
+    <span class="hljs-keyword">pub</span> edges: <span class="hljs-type">Vec</span>&lt;Edge&gt;,
 }
 </code></pre>
 <p>Just two attributes, <code>kind</code> and <code>edges</code> suffice. <code>AtomKind</code> is an enumeration of the kinds of atoms supported by the Balsa language. Just four variants are possible: <code>Star</code>, <code>Shortcut</code>, <code>Selection</code>, and <code>Bracket</code>. The last three of these contain data themselves, an example of Rust's support for <a href="https://jrsinclair.com/articles/2019/algebraic-data-types-what-i-wish-someone-had-explained-about-functional-programming/">sum types</a>. The names of each variant track the names used in the Balsa working paper. <code>edges</code> is an ordered list of edges defining connectivity and bonding.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">AtomKind</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">AtomKind</span> {
     Star,
-    Shortcut(Shortcut),
-    Selection(Selection),
-    Bracket(Bracket),
+    <span class="hljs-title function_ invoke__">Shortcut</span>(Shortcut),
+    <span class="hljs-title function_ invoke__">Selection</span>(Selection),
+    <span class="hljs-title function_ invoke__">Bracket</span>(Bracket),
 }
 </code></pre>
 <p>The variants of <code>AtomKind</code> are mutually exclusive, meaning that the Rust compiler will prevent the construction of most invalid atomic states. Compare this to a "bag-of-attributes" approach in which <code>Atom</code> were a <code>struct</code> having the attributes <code>element</code>, <code>charge</code>, and so on. Such a representation would make it possible to encode, for example, a selected titanium atom. <code>AtomKind</code> makes this impossible, and the Rust compiler enforces this prohibition.</p>
 <p>One of the main advantages of the tree data structure is memory efficiency. Whereas a graph requires edges to reference source and target atoms by index, a tree allows edges to "own" child nodes directly. This relationship is captured by the <code>Atom.edges</code> attribute.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Edge</span></span> {
-    Bond(Bond),
-    Gap(Atom),
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">Edge</span> {
+    <span class="hljs-title function_ invoke__">Bond</span>(Bond),
+    <span class="hljs-title function_ invoke__">Gap</span>(Atom),
 }
 </code></pre>
 <p>A <code>tree::Edge</code> is an enumeration with two variants, <code>Bond</code> and <code>Gap</code>. The names of these variants match the terms used in the working paper. <code>Bond</code> designates connectivity with bonding, whereas <code>Gap</code> designates connectivity without bonding. The variants of <code>Edge</code> are mutually exclusive, meaning that invalid states can not be encoded. For example, a <code>Bond</code> can connect an <code>Atom</code> to another <code>Atom</code> or a bridge node. However, a <code>Gap</code> can only connect two <code>Atoms</code>.</p>
 <p><code>tree::Atom</code> and <code>tree::Edge</code> implement convenience methods to aid construction. For example, a "star" atom having a single child connected through an elided bond ("**") would be represented like so:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-built_in">assert_eq!</span>(
-    tree::Atom::star(<span class="hljs-built_in">vec!</span>[tree::Edge::elided_star(<span class="hljs-built_in">vec!</span>[])])
+    tree::Atom::<span class="hljs-title function_ invoke__">star</span>(<span class="hljs-built_in">vec!</span>[tree::Edge::<span class="hljs-title function_ invoke__">elided_star</span>(<span class="hljs-built_in">vec!</span>[])])
     Atom {
         kind: AtomKind::Star,
         edges: <span class="hljs-built_in">vec!</span>[
-            Edge::Bond(Bond {
+            Edge::<span class="hljs-title function_ invoke__">Bond</span>(Bond {
                 kind: BondKind::Elided,
-                target: Target::Atom(Atom {
+                target: Target::<span class="hljs-title function_ invoke__">Atom</span>(Atom {
                   kind: AtomKind::Star,
                   edges: <span class="hljs-built_in">vec!</span>[]
                 })
@@ -114,9 +114,9 @@
 <h2 id="moleculargraph">Molecular Graph</h2>
 <p>A graph representation is useful when converting to and from graph-based formats. For example, <a href="/articles/2022/11/16/direct-molecular-translation/">direct translation</a> of molfile into Balsa might work better with a graph representation rather than a tree. The <code>graph</code> submodule contains data structures helpful for such translation.</p>
 <p>Perhaps surprisingly, the <code>graph</code> submodule does not contain a top-level data structure representing a molecular graph. Instead, a molecular graph is encoded as an ordered list of <code>graph::Atom</code> values (<code>Vec&lt;graph::Atom&gt;</code>).</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Atom</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Atom</span> {
     <span class="hljs-keyword">pub</span> kind: AtomKind,
-    <span class="hljs-keyword">pub</span> bonds: <span class="hljs-built_in">Vec</span>&lt;Bond&gt;,
+    <span class="hljs-keyword">pub</span> bonds: <span class="hljs-type">Vec</span>&lt;Bond&gt;,
 }
 </code></pre>
 <p>The two attributes, <code>kind</code> and <code>bonds</code> serve similar roles as in <code>tree::Atom</code>. </p>
@@ -125,21 +125,21 @@
 <p>A depth-first traversal will be suitable in many contexts. Although the underlying algorithm is not complex, it isn't easy to implement, either. Ideally, depth-first traversal would be implemented once, allowing the same traversal to be used in many contexts. In this way traversal can be decoupled from analysis.</p>
 <p>The key to this design is <code>Follower</code>. <code>Follower</code> is a trait that can be implemented by any Rust type. Doing so allows instances of the type to perform an analysis on the depth-first traversal of either a molecular tree or graph.</p>
 <p><code>Follower</code> defines just five methods:</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Follower</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">trait</span> <span class="hljs-title class_">Follower</span> {
     <span class="hljs-comment">/// An Atom disconnected from the previous atom was encountered.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">root</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, root: &amp;AtomKind);
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">root</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, root: &amp;AtomKind);
 
     <span class="hljs-comment">/// An Atom bonded to the previous atom was encountered.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">extend</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: &amp;BondKind, atom_kind: &amp;AtomKind);
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">extend</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: &amp;BondKind, atom_kind: &amp;AtomKind);
 
     <span class="hljs-comment">/// An Atom closing a cycle was encountered. </span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">bridge</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: &amp;BondKind, cut: &amp;Bridge);
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">bridge</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, bond_kind: &amp;BondKind, cut: &amp;Bridge);
 
     <span class="hljs-comment">/// A branch was encountered.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">push</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>);
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">push</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>);
 
     <span class="hljs-comment">// The end of a branch was encountered.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">pop</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>);
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">pop</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>);
 }
 </code></pre>
 <p><code>Follower</code> is extremely flexible. Its methods can be called via an actual depth-first traversal, or through a procedure that simulates one. And of course, the work that gets done for each method invocation is entirely up to the implementing type.</p>
@@ -147,38 +147,38 @@
 <h2 id="readingstrings">Reading Strings</h2>
 <p>Reading a Balsa string requires just a string value and a mutable <code>Follower</code> instance. Passing references for both to the <code>read::read</code> function exercises the <code>Follower</code> API. What happens as those method are called depends, of course, on the implementation.</p>
 <p>For example, a tree can be built from a Balsa string by using the <code>Follower</code> implementation defined by <code>tree::Builder</code>.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> string = <span class="hljs-string">"**"</span>;
-<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = tree::Builder::new();
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&quot;**&quot;</span>;
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">builder</span> = tree::Builder::<span class="hljs-title function_ invoke__">new</span>();
 
-read(string, &amp;<span class="hljs-keyword">mut</span> builder);
+<span class="hljs-title function_ invoke__">read</span>(string, &amp;<span class="hljs-keyword">mut</span> builder);
 
 <span class="hljs-built_in">assert_eq!</span>(
-    builder.build(),
-    Atom::star(<span class="hljs-built_in">vec!</span>[Edge::elided_star(<span class="hljs-built_in">vec!</span>[])]),
+    builder.<span class="hljs-title function_ invoke__">build</span>(),
+    Atom::<span class="hljs-title function_ invoke__">star</span>(<span class="hljs-built_in">vec!</span>[Edge::<span class="hljs-title function_ invoke__">elided_star</span>(<span class="hljs-built_in">vec!</span>[])]),
 )
 </code></pre>
 <p>Replacing <code>tree::Builder</code> with <code>graph::Builder</code> allows construction of the graph representation instead.</p>
 <h2 id="writingstrings">Writing Strings</h2>
 <p>Writing a Balsa string requires a tree or graph representation and a <code>Writer</code> instance. <code>Writer</code> implements the <code>Follower</code> trait, allowing use wherever a <code>Follower</code> works. For example, the following uses the <code>tree::walk</code> function to write a tree representation as a string.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> root = tree::Atom::star(<span class="hljs-built_in">vec!</span>[tree::Edge::elided_star(<span class="hljs-built_in">vec!</span>[])]);
-<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = follow::Writer::new();
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">root</span> = tree::Atom::<span class="hljs-title function_ invoke__">star</span>(<span class="hljs-built_in">vec!</span>[tree::Edge::<span class="hljs-title function_ invoke__">elided_star</span>(<span class="hljs-built_in">vec!</span>[])]);
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">writer</span> = follow::Writer::<span class="hljs-title function_ invoke__">new</span>();
 
-tree::walk(&amp;root, *<span class="hljs-keyword">mut</span> writer);
+tree::<span class="hljs-title function_ invoke__">walk</span>(&amp;root, *<span class="hljs-keyword">mut</span> writer);
 
-<span class="hljs-built_in">assert_eq!</span>(writer.write(), <span class="hljs-string">"**"</span>)
+<span class="hljs-built_in">assert_eq!</span>(writer.<span class="hljs-title function_ invoke__">write</span>(), <span class="hljs-string">&quot;**&quot;</span>)
 </code></pre>
 <h2 id="walkingtreesandgraphs">Walking Trees and Graphs</h2>
 <p>Tree and graph representations can be traversed in depth-first order using the <code>tree::walk</code> and <code>graph::walk</code> functions, respectively. Each function takes a reference to a representation and a <code>Follower</code>. On completion, the <code>Follower</code> is interrogated to reveal the analysis. As noted in the previous section, writing strings can be accomplished by pairing a <code>Writer</code> with <code>walk</code>. As another example, consider the transformation of a tree into a graph ( recall that <code>Builder</code> implements <code>Follower</code>):</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> root = tree::Atom::star(<span class="hljs-built_in">vec!</span>[tree::Edge::elided_star(<span class="hljs-built_in">vec!</span>[])]);
-<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> builder = graph::Builder::new();
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">root</span> = tree::Atom::<span class="hljs-title function_ invoke__">star</span>(<span class="hljs-built_in">vec!</span>[tree::Edge::<span class="hljs-title function_ invoke__">elided_star</span>(<span class="hljs-built_in">vec!</span>[])]);
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">builder</span> = graph::Builder::<span class="hljs-title function_ invoke__">new</span>();
 
-tree::walk(&amp;root, &amp;<span class="hljs-keyword">mut</span> builder);
+tree::<span class="hljs-title function_ invoke__">walk</span>(&amp;root, &amp;<span class="hljs-keyword">mut</span> builder);
 
 <span class="hljs-built_in">assert_eq!</span>(
-    builder.build(),
+    builder.<span class="hljs-title function_ invoke__">build</span>(),
     <span class="hljs-built_in">vec!</span>[
-        graph::Atom::star(<span class="hljs-built_in">vec!</span>[graph::Bond::elided(<span class="hljs-number">1</span>)]),
-        graph::Atom::star(<span class="hljs-built_in">vec!</span>[graph::Bond::elided(<span class="hljs-number">0</span>)])
+        graph::Atom::<span class="hljs-title function_ invoke__">star</span>(<span class="hljs-built_in">vec!</span>[graph::Bond::<span class="hljs-title function_ invoke__">elided</span>(<span class="hljs-number">1</span>)]),
+        graph::Atom::<span class="hljs-title function_ invoke__">star</span>(<span class="hljs-built_in">vec!</span>[graph::Bond::<span class="hljs-title function_ invoke__">elided</span>(<span class="hljs-number">0</span>)])
     ]
 )
 </code></pre>

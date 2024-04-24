@@ -37,25 +37,25 @@
 <p>By way of <a href="http://www.chemspider.com/blog">Antony Williams' blog</a>, I came across <a href="http://www.chemspider.com/blog/?p=135">the announcement</a> for the <a href="http://www.chemspider.com/inchi.asmx">ChemSpider Web API</a>. What can this API do for Web developers? To find out, let's write a small Ruby library.</p>
 <h2 id="thelibrary">The Library</h2>
 <p>Our library will accept a SMILES string or InChI identifier and returns a URL pointing to the corresponding ChemSpider compound summary page. Like <a href="http://depth-first.com/articles/2007/09/13/hacking-pubchem-convert-cas-numbers-into-pubchem-cids-with-ruby">previous Web API demos</a>, this one uses the powerful Ruby library <a href="http://mechanize.rubyforge.org/">Mechanize</a>, leading to very concise code:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'mechanize'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'hpricot'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;mechanize&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;hpricot&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">ChemSpider</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">url_for_inchi</span> <span class="hljs-title">inchi</span></span>
-    agent = WWW::Mechanize.new
-    page= agent.get <span class="hljs-string">"http://www.chemspider.com/inchi.asmx/InChIToCSID?inchi=<span class="hljs-subst">#{inchi}</span>"</span>
-    csid = (Hpricot(page.body)/<span class="hljs-string">"string"</span>).innerHTML
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">ChemSpider</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">url_for_inchi</span> inchi
+    agent = <span class="hljs-variable constant_">WWW</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Mechanize</span>.new
+    page= agent.get <span class="hljs-string">&quot;http://www.chemspider.com/inchi.asmx/InChIToCSID?inchi=<span class="hljs-subst">#{inchi}</span>&quot;</span>
+    csid = (<span class="hljs-title class_">Hpricot</span>(page.body)/<span class="hljs-string">&quot;string&quot;</span>).innerHTML
 
-    csid == <span class="hljs-string">""</span> ? <span class="hljs-literal">nil</span> : <span class="hljs-string">"http://www.chemspider.com/RecordView.aspx?id=<span class="hljs-subst">#{csid}</span>"</span>
+    csid == <span class="hljs-string">&quot;&quot;</span> ? <span class="hljs-literal">nil</span> : <span class="hljs-string">&quot;http://www.chemspider.com/RecordView.aspx?id=<span class="hljs-subst">#{csid}</span>&quot;</span>
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">url_for_smiles</span> <span class="hljs-title">smiles</span></span>
-    agent = WWW::Mechanize.new
-    page= agent.get <span class="hljs-string">"http://www.chemspider.com/inchi.asmx/SMILESToInChI?smiles=<span class="hljs-subst">#{smiles}</span>"</span>
-    inchi = (Hpricot(page.body)/<span class="hljs-string">"string"</span>).innerHTML
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">url_for_smiles</span> smiles
+    agent = <span class="hljs-variable constant_">WWW</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Mechanize</span>.new
+    page= agent.get <span class="hljs-string">&quot;http://www.chemspider.com/inchi.asmx/SMILESToInChI?smiles=<span class="hljs-subst">#{smiles}</span>&quot;</span>
+    inchi = (<span class="hljs-title class_">Hpricot</span>(page.body)/<span class="hljs-string">&quot;string&quot;</span>).innerHTML
 
-    raise <span class="hljs-string">"Invalid SMILES: <span class="hljs-subst">#{smiles}</span>"</span> <span class="hljs-keyword">if</span> inchi == <span class="hljs-string">""</span>
+    <span class="hljs-keyword">raise</span> <span class="hljs-string">&quot;Invalid SMILES: <span class="hljs-subst">#{smiles}</span>&quot;</span> <span class="hljs-keyword">if</span> inchi == <span class="hljs-string">&quot;&quot;</span>
 
     url_for_inchi inchi
   <span class="hljs-keyword">end</span>
@@ -66,21 +66,21 @@
 <h2 id="testing">Testing</h2>
 <p>Saving the above code to a file called <strong>chemspider.rb</strong>, we can get the URL to ChemSpider's benzene page from its InChI identifier via interactive Ruby (irb):</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'chemspider'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;chemspider&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include ChemSpider
 =&gt; Object
-irb(main):003:0&gt; url_for_inchi <span class="hljs-string">"InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H"</span>
-=&gt; <span class="hljs-string">"http://www.chemspider.com/RecordView.aspx?id=236"</span>
+irb(main):003:0&gt; url_for_inchi <span class="hljs-string">&quot;InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H&quot;</span>
+=&gt; <span class="hljs-string">&quot;http://www.chemspider.com/RecordView.aspx?id=236&quot;</span>
 </code></pre>
 <p>We can work with SMILES strings just as easily as with InChIs:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'chemspider'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;chemspider&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include ChemSpider
 =&gt; Object
-irb(main):003:0&gt; url_for_smiles <span class="hljs-string">'c1ccccc1'</span>
-=&gt; <span class="hljs-string">"http://www.chemspider.com/RecordView.aspx?id=236"</span>
+irb(main):003:0&gt; url_for_smiles <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>
+=&gt; <span class="hljs-string">&quot;http://www.chemspider.com/RecordView.aspx?id=236&quot;</span>
 </code></pre>
 <p>Both the InChI and the SMILES string yield a URL pointing to the <a href="http://www.chemspider.com/RecordView.aspx?id=236">same Chemspider page for benzene</a>.</p>
 <h2 id="conclusions">Conclusions</h2>

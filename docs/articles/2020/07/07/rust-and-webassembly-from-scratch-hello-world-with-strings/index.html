@@ -57,16 +57,16 @@
 <p>The file <a href="http://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/cargo/reference/manifest.html"><code>Cargo.toml</code></a> (aka "manifest") contains the project's configuration. Leave everything, but append a new block called <code>[lib]</code>. The result should look something this:</p>
 <pre><code class="hljs toml language-toml"><span class="hljs-comment"># Cargo.toml</span>
 <span class="hljs-section">[package]</span>
-<span class="hljs-attr">name</span> = <span class="hljs-string">"hello"</span>
-<span class="hljs-attr">version</span> = <span class="hljs-string">"0.1.0"</span>
-<span class="hljs-attr">authors</span> = [<span class="hljs-string">"Richard Apodaca &lt;rich.apodaca@gmail.com&gt;"</span>]
-<span class="hljs-attr">edition</span> = <span class="hljs-string">"2018"</span>
+<span class="hljs-attr">name</span> = <span class="hljs-string">&quot;hello&quot;</span>
+<span class="hljs-attr">version</span> = <span class="hljs-string">&quot;0.1.0&quot;</span>
+<span class="hljs-attr">authors</span> = [<span class="hljs-string">&quot;Richard Apodaca &lt;rich.apodaca@gmail.com&gt;&quot;</span>]
+<span class="hljs-attr">edition</span> = <span class="hljs-string">&quot;2018&quot;</span>
 
 <span class="hljs-section">[dependencies]</span>
 
 <span class="hljs-comment"># new material</span>
 <span class="hljs-section">[lib]</span>
-<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">"cdylib"</span>]
+<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">&quot;cdylib&quot;</span>]
 </code></pre>
 <h2 id="alittleaboutlinearmemory">A Little About Linear Memory</h2>
 <p>JavaScript and WebAssembly work together using a feature called <a href="http://webassembly.org/docs/semantics/#linear-memory">linear memory</a>. On the JavaScript side, linear memory is usually represented as a regular <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays">typed array</a> such as <code>Uint8Array</code>. On the WebAssembly/Rust side, linear memory looks like regular memory. Both sides can write to linear memory, but they do so in different ways.</p>
@@ -84,9 +84,9 @@
 <span class="hljs-keyword">use</span> std::os::raw::c_void;
 
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">alloc</span></span>() -&gt; *<span class="hljs-keyword">mut</span> c_void {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> buf = <span class="hljs-built_in">Vec</span>::with_capacity(<span class="hljs-number">1024</span>);
-    <span class="hljs-keyword">let</span> ptr = buf.as_mut_ptr();
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">alloc</span>() <span class="hljs-punctuation">-&gt;</span> *<span class="hljs-keyword">mut</span> c_void {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">buf</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">with_capacity</span>(<span class="hljs-number">1024</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">ptr</span> = buf.<span class="hljs-title function_ invoke__">as_mut_ptr</span>();
 
     mem::forget(buf);
 
@@ -94,24 +94,24 @@
 }
 
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">dealloc</span></span>(ptr: *<span class="hljs-keyword">mut</span> c_void) {
-    <span class="hljs-keyword">let</span> _ = <span class="hljs-built_in">Vec</span>::from_raw_parts(ptr, <span class="hljs-number">0</span>, <span class="hljs-number">1024</span>);
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">dealloc</span>(ptr: *<span class="hljs-keyword">mut</span> c_void) {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">_</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">from_raw_parts</span>(ptr, <span class="hljs-number">0</span>, <span class="hljs-number">1024</span>);
 }
 
 <span class="hljs-meta">#[no_mangle]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">"C"</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">greet</span></span>(ptr: *<span class="hljs-keyword">mut</span> <span class="hljs-built_in">u8</span>) {
-    <span class="hljs-keyword">let</span> str_content = CStr::from_ptr(ptr <span class="hljs-keyword">as</span> *<span class="hljs-keyword">const</span> <span class="hljs-built_in">i8</span>).to_str().unwrap();
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> string_content = <span class="hljs-built_in">String</span>::from(<span class="hljs-string">"Hello, "</span>);
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">greet</span>(ptr: *<span class="hljs-keyword">mut</span> <span class="hljs-type">u8</span>) {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">str_content</span> = CStr::<span class="hljs-title function_ invoke__">from_ptr</span>(ptr <span class="hljs-keyword">as</span> *<span class="hljs-keyword">const</span> <span class="hljs-type">i8</span>).<span class="hljs-title function_ invoke__">to_str</span>().<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">string_content</span> = <span class="hljs-type">String</span>::<span class="hljs-title function_ invoke__">from</span>(<span class="hljs-string">&quot;Hello, &quot;</span>);
 
-    string_content.push_str(str_content);
-    string_content.push_str(<span class="hljs-string">"!"</span>);
+    string_content.<span class="hljs-title function_ invoke__">push_str</span>(str_content);
+    string_content.<span class="hljs-title function_ invoke__">push_str</span>(<span class="hljs-string">&quot;!&quot;</span>);
 
-    <span class="hljs-keyword">let</span> c_headers = CString::new(string_content).unwrap();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">c_headers</span> = CString::<span class="hljs-title function_ invoke__">new</span>(string_content).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-keyword">let</span> bytes = c_headers.as_bytes_with_nul();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">bytes</span> = c_headers.<span class="hljs-title function_ invoke__">as_bytes_with_nul</span>();
 
-    <span class="hljs-keyword">let</span> header_bytes = std::slice::from_raw_parts_mut(ptr, <span class="hljs-number">1024</span>);
-    header_bytes[..bytes.len()].copy_from_slice(bytes);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">header_bytes</span> = std::slice::<span class="hljs-title function_ invoke__">from_raw_parts_mut</span>(ptr, <span class="hljs-number">1024</span>);
+    header_bytes[..bytes.<span class="hljs-title function_ invoke__">len</span>()].<span class="hljs-title function_ invoke__">copy_from_slice</span>(bytes);
 }
 </code></pre>
 <p>Nothing in the Rust code couples it to the environment in which it will run. All that's needed is the <a href="https://doc.rust-lang.org/std/ffi/index.html">FFI</a> module built into the standard library. As such, the same code could be used to create C or Python bindings. Coupling to WebAssembly occurs at compile time.</p>
@@ -127,46 +127,46 @@
 </ul>
 <p>An anonymous IIFE function orchestrates the action, creating a Wasm instance, writing a name to linearm memory, executing the Wasm function <code>greet</code>, then reading the result from linear memory.</p>
 <p>Here's a complete listing, including the wrapping HTML boilerplate, which should be saved as <code>index.html</code> in your project:</p>
-<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;utf-8&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>title<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
-      <span class="hljs-keyword">const</span> createInstance = <span class="hljs-keyword">async</span> () =&gt; {
-        <span class="hljs-keyword">const</span> path = <span class="hljs-string">'target/wasm32-unknown-unknown/release/hello.wasm'</span>;
-        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(path);
-        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
-        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, { });
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">createInstance</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"></span>) =&gt; {
+        <span class="hljs-keyword">const</span> path = <span class="hljs-string">&#x27;target/wasm32-unknown-unknown/release/hello.wasm&#x27;</span>;
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(path);
+        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">arrayBuffer</span>();
+        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(bytes, { });
 
         <span class="hljs-keyword">return</span> instance;
       };
 
-      <span class="hljs-keyword">const</span> write = <span class="hljs-function">(<span class="hljs-params">string, buffer, pointer</span>) =&gt;</span> {
-        <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(buffer, pointer, <span class="hljs-number">1024</span>);
-        <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> TextEncoder();
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">write</span> = (<span class="hljs-params">string, buffer, pointer</span>) =&gt; {
+        <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(buffer, pointer, <span class="hljs-number">1024</span>);
+        <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextEncoder</span>();
 
-        view.set(encoder.encode(string));
+        view.<span class="hljs-title function_">set</span>(encoder.<span class="hljs-title function_">encode</span>(string));
       }
 
-      <span class="hljs-keyword">const</span> read = <span class="hljs-function">(<span class="hljs-params">buffer, pointer</span>) =&gt;</span> {
-        <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(buffer, pointer, <span class="hljs-number">1024</span>);
-        <span class="hljs-keyword">const</span> length = view.findIndex(<span class="hljs-function"><span class="hljs-params">byte</span> =&gt;</span> byte === <span class="hljs-number">0</span>);
-        <span class="hljs-keyword">const</span> decoder = <span class="hljs-keyword">new</span> TextDecoder();
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">read</span> = (<span class="hljs-params">buffer, pointer</span>) =&gt; {
+        <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(buffer, pointer, <span class="hljs-number">1024</span>);
+        <span class="hljs-keyword">const</span> length = view.<span class="hljs-title function_">findIndex</span>(<span class="hljs-function"><span class="hljs-params">byte</span> =&gt;</span> byte === <span class="hljs-number">0</span>);
+        <span class="hljs-keyword">const</span> decoder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextDecoder</span>();
 
-        <span class="hljs-keyword">return</span> decoder.decode(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(buffer, pointer, length));
+        <span class="hljs-keyword">return</span> decoder.<span class="hljs-title function_">decode</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(buffer, pointer, length));
       };
 
-      <span class="hljs-function">(<span class="hljs-params"><span class="hljs-keyword">async</span>(</span>) =&gt;</span> {
-        <span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">await</span> createInstance();
-        <span class="hljs-keyword">const</span> memory = instance.exports.memory;
-        <span class="hljs-keyword">const</span> pointer = instance.exports.alloc();
+      (<span class="hljs-title function_">async</span>() =&gt; {
+        <span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">await</span> <span class="hljs-title function_">createInstance</span>();
+        <span class="hljs-keyword">const</span> memory = instance.<span class="hljs-property">exports</span>.<span class="hljs-property">memory</span>;
+        <span class="hljs-keyword">const</span> pointer = instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">alloc</span>();
 
-        write(<span class="hljs-string">'Satoshi'</span>, memory.buffer, pointer);
-        instance.exports.greet(pointer);
+        <span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;Satoshi&#x27;</span>, memory.<span class="hljs-property">buffer</span>, pointer);
+        instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">greet</span>(pointer);
 
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'greeting'</span>, read(memory.buffer, pointer));
-        instance.exports.dealloc(pointer);
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;greeting&#x27;</span>, <span class="hljs-title function_">read</span>(memory.<span class="hljs-property">buffer</span>, pointer));
+        instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">dealloc</span>(pointer);
       })();
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>

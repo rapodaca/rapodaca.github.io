@@ -45,12 +45,12 @@
 <p>You can get a feel for how this process works by using the cInChI command-line program. Create a file called <code>test.txt</code> containing the following InChI (for benzene):</p>
 <p><code>InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H</code></p>
 <p>Now, run cInChI:</p>
-<pre><code class="hljs bash language-bash">touch temp.txt
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">touch</span> temp.txt
 ./cInChI-1 test.txt temp.txt -InChI2Struct
 </code></pre>
 <p>The first line creates an empty temporary file, <code>temp.txt</code>. Into this file is written the full InChI as output. The <code>-InChI2Struct</code> parameter tells InChI to generate an InChI with Auxiliary Information.</p>
 <p>Now, create an empty file, <code>benzene.mol</code> and run cInChI with the <code>-OutputSDF</code> option:</p>
-<pre><code class="hljs bash language-bash">touch benzene.mol
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">touch</span> benzene.mol
 ./cInChI-1 temp.txt benzene.mol -OutputSDF
 </code></pre>
 <p>If everything worked, you should now have a molfile called <code>benzene.mol</code>, describing benzene, in your working directory. All atom coordinates will be zero, because coordinate generation is outside the scope of the InChI project. This has important implications or stereochemistry (see below). Of course, <a href="http://depth-first.com/articles/2006/09/02/humanizing-line-notations">other free libraries</a> can generate aesthetically-pleasing 2-D molecular coordinates.</p>
@@ -66,23 +66,23 @@
 <p>You should get a menu of Rino version to uninstall.</p>
 <h2 id="arubydemo">A Ruby Demo</h2>
 <p>The following Ruby code demonstrates the use of Rino to translate an InChI identifier into a molfile:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rino'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rino&#x27;</span>
 
-inchi = <span class="hljs-string">'InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H'</span> <span class="hljs-comment"># benzene</span>
-reader = Rino::InChIReader.new
+inchi = <span class="hljs-string">&#x27;InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H&#x27;</span> <span class="hljs-comment"># benzene</span>
+reader = <span class="hljs-title class_">Rino</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:InChIReader</span>.new
 molfile = reader.read(inchi)
 
 p molfile <span class="hljs-comment"># =&gt; prints the molfile for benzene</span>
 </code></pre>
 <p>If you'd like even more control, you can directly access the InChI <code>run</code> method, which provides all of the capabilities of running cInChI from the command line:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rino'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rino&#x27;</span>
 
-input = <span class="hljs-string">'input.txt'</span>   <span class="hljs-comment"># a valid file in your working dir</span>
-output = <span class="hljs-string">'output.txt'</span> <span class="hljs-comment"># also a valid file</span>
+input = <span class="hljs-string">&#x27;input.txt&#x27;</span>   <span class="hljs-comment"># a valid file in your working dir</span>
+output = <span class="hljs-string">&#x27;output.txt&#x27;</span> <span class="hljs-comment"># also a valid file</span>
 
-Rino::InChI.run([<span class="hljs-string">''</span>, input, output])
+<span class="hljs-title class_">Rino</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:InChI</span>.run([<span class="hljs-string">&#x27;&#x27;</span>, input, output])
 </code></pre>
 <h2 id="limitations">Limitations</h2>
 <p>The InChI-&gt;molfile implementation in the InChI-API toolkit does not reproduce stereochemical information. For example, passing an InChI of a molecule containing a single tetrahedral stereocenter results in a molfile lacking stereo parities. Further, an explicit hydrogen atom is added to the sterogenic atom in the molfile output. Being based entirely on the InChI-API, Rino inherits these behaviors.</p>

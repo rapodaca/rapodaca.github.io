@@ -45,17 +45,17 @@
 </blockquote>
 <p>We might call our substructure search resource "Query." Using four HTTP verbs, we could create (POST), read (GET), update (PUT), and destroy (DELETE) queries:</p>
 <pre><code class="hljs bash language-bash">POST   /queries      <span class="hljs-comment"># create a new Query</span>
-GET    /queries/{id} <span class="hljs-comment"># read the results of a Query</span>
-PUT    /queries/{id} <span class="hljs-comment"># edit a previously-created Query</span>
-DELETE /queries/{id} <span class="hljs-comment"># delete a Query </span>
+GET    /queries/{<span class="hljs-built_in">id</span>} <span class="hljs-comment"># read the results of a Query</span>
+PUT    /queries/{<span class="hljs-built_in">id</span>} <span class="hljs-comment"># edit a previously-created Query</span>
+DELETE /queries/{<span class="hljs-built_in">id</span>} <span class="hljs-comment"># delete a Query </span>
 </code></pre>
 <p>Notice that all four basic HTTP verbs are used. Also notice that specific parameters of a new query are encoded in a formatted payload within the body of a POST request - not in the URL itself.</p>
 <p>A POST request against /queries returns a response body containing the Query {id} that would be the key to future use of the results. It may also contain the full content of the Query results, depending on our goals for the system.</p>
 <p>A Query results set would consist of an array of Structure identifiers. Because Structures are also resources, we operate on them the same way we operate on Queries:</p>
 <pre><code class="hljs bash language-bash">POST   /structures      <span class="hljs-comment"># create a new Structure</span>
-GET    /structures/{id} <span class="hljs-comment"># display a Structure</span>
-PUT    /structures/{id} <span class="hljs-comment"># edit a previously-created Structure</span>
-DELETE /structures/{id} <span class="hljs-comment"># delete a Structure </span>
+GET    /structures/{<span class="hljs-built_in">id</span>} <span class="hljs-comment"># display a Structure</span>
+PUT    /structures/{<span class="hljs-built_in">id</span>} <span class="hljs-comment"># edit a previously-created Structure</span>
+DELETE /structures/{<span class="hljs-built_in">id</span>} <span class="hljs-comment"># delete a Structure </span>
 </code></pre>
 <p>Workflows in such a system become quite easy to understand and implement. For example, how would we delete all Structures containing a naphthalene ring? The answer should be apparent even with the limited discussion presented here.</p>
 <p>Building our Web API entirely out of resources and the four verbs that act on them results in a system that's easier to maintain, document, understand, and use.</p>

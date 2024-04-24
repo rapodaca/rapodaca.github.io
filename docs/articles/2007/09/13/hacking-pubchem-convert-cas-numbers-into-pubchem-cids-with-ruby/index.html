@@ -37,15 +37,15 @@
 <h2 id="thelibrary">The Library</h2>
 <p>Our library needs to accept a CAS number and return an array of PubChem CIDs in response. To do this, we'll make use of the <a href="http://eutils.ncbi.nlm.nih.gov/entrez/query/static/eutils_help.html">Entrez eUtils system</a>. Although Entrez is incredibly complex, the only two things that matter now are that the NIH requires automated scripts to access most of its databases through Entrez, and that Entrez can be used to perform PubChem keyword queries.</p>
 <p>The library is simplicity itself:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'mechanize'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;mechanize&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">PubChemTerms</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_cids</span> <span class="hljs-title">term</span></span>
-    agent = WWW::Mechanize.new
-    page = agent.get <span class="hljs-string">"http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pccompound&amp;retmax=100&amp;term=<span class="hljs-subst">#{term}</span>"</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">PubChemTerms</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_cids</span> term
+    agent = <span class="hljs-variable constant_">WWW</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Mechanize</span>.new
+    page = agent.get <span class="hljs-string">&quot;http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pccompound&amp;retmax=100&amp;term=<span class="hljs-subst">#{term}</span>&quot;</span>
 
-    (page.parser/<span class="hljs-string">"id"</span>).collect {<span class="hljs-params">|id|</span> id.innerHTML}
+    (page.parser/<span class="hljs-string">&quot;id&quot;</span>).collect {|<span class="hljs-params">id</span>| id.innerHTML}
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -53,29 +53,29 @@
 <h2 id="atest">A Test</h2>
 <p>We can test the library by saving it in a file called <strong>entrez.rb</strong> and starting an interactive Ruby (irb) session. Opening up my copy of the Merck index to a random page and selecting an entry gives a CAS number to try (64318-79-2 - gemeprost). Plugging this CAS number into our irb session gives:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'entrez'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;entrez&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include PubChemTerms
 =&gt; Object
-irb(main):003:0&gt; get_cids <span class="hljs-string">'64318-79-2'</span>
-=&gt; [<span class="hljs-string">"5282237"</span>, <span class="hljs-string">"6434870"</span>]
+irb(main):003:0&gt; get_cids <span class="hljs-string">&#x27;64318-79-2&#x27;</span>
+=&gt; [<span class="hljs-string">&quot;5282237&quot;</span>, <span class="hljs-string">&quot;6434870&quot;</span>]
 </code></pre>
 <p>Our library has returned a Ruby array containing two compound identifiers. We can use PubChem to view their records <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=5282237">here</a> and <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=6434870">here</a>. Visual inspection reveals these two compounds to be isomers of each other, with the first member of the array containing the direct hit.</p>
 <p>Let's try another CAS number selected from another random Merck index entry:</p>
-<pre><code class="hljs bash language-bash">irb(main):004:0&gt; get_cids <span class="hljs-string">'66981-73-5'</span>
-=&gt; [<span class="hljs-string">"68870"</span>, <span class="hljs-string">"169125"</span>]
+<pre><code class="hljs bash language-bash">irb(main):004:0&gt; get_cids <span class="hljs-string">&#x27;66981-73-5&#x27;</span>
+=&gt; [<span class="hljs-string">&quot;68870&quot;</span>, <span class="hljs-string">&quot;169125&quot;</span>]
 </code></pre>
 <p>Again we've obtained two CIDs, with the <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=68870">first one</a> being the neutral form and the second one being the <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=169125">sodium salt</a> of the antidepressant tianeptine.</p>
 <h2 id="applications">Applications</h2>
 <p>Now, instead of converting one or two CAS numbers, imagine we've got a few thousand. Our library could be easily adapted to this purpose. The only caveat is that we'd need to <a href="http://eutils.ncbi.nlm.nih.gov/entrez/query/static/eutils_help.html#UserSystemRequirements">observe the Entrez use policy</a> and not overload the server with too many requests. We could build in a delay with Ruby's <code>sleep</code> method.</p>
 <p>Notice that the library can be used to search for any keyword - not just CAS numbers. For example:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'entrez'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;entrez&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include PubChemTerms
 =&gt; Object
-irb(main):003:0&gt; get_cids <span class="hljs-string">'anandamide'</span>
-=&gt; [<span class="hljs-string">"5281969"</span>, <span class="hljs-string">"5283455"</span>, <span class="hljs-string">"5283388"</span>, <span class="hljs-string">"4671"</span>, <span class="hljs-string">"5353407"</span>, <span class="hljs-string">"5283452"</span>, <span class="hljs-string">"5283456"</span>, <span class="hljs-string">"5283451"</span>, <span class="hljs-string">"5283450"</span>, <span class="hljs-string">"5283449"</span>, <span class="hljs-string">"5283448"</span>, <span class="hljs-string">"5283447"</span>, <span class="hljs-string">"5283445"</span>, <span class="hljs-string">"5283444"</span>]
+irb(main):003:0&gt; get_cids <span class="hljs-string">&#x27;anandamide&#x27;</span>
+=&gt; [<span class="hljs-string">&quot;5281969&quot;</span>, <span class="hljs-string">&quot;5283455&quot;</span>, <span class="hljs-string">&quot;5283388&quot;</span>, <span class="hljs-string">&quot;4671&quot;</span>, <span class="hljs-string">&quot;5353407&quot;</span>, <span class="hljs-string">&quot;5283452&quot;</span>, <span class="hljs-string">&quot;5283456&quot;</span>, <span class="hljs-string">&quot;5283451&quot;</span>, <span class="hljs-string">&quot;5283450&quot;</span>, <span class="hljs-string">&quot;5283449&quot;</span>, <span class="hljs-string">&quot;5283448&quot;</span>, <span class="hljs-string">&quot;5283447&quot;</span>, <span class="hljs-string">&quot;5283445&quot;</span>, <span class="hljs-string">&quot;5283444&quot;</span>]
 </code></pre>
 <p>Like our previous queries, we've obtained multiple CIDs associated with the term 'anandamide', with the first one being the direct hit.</p>
 <h2 id="conclusions">Conclusions</h2>

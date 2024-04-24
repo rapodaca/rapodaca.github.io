@@ -82,23 +82,23 @@ git submodule update --init
 <pre><code class="hljs console language-console">2235c2235
 &lt; # 2234 Bad_valence
 ---
-<span class="hljs-meta">&gt;</span><span class="bash"> 2234 1 1 0 0 1 0 3</span>
+<span class="hljs-meta prompt_">&gt; </span><span class="language-bash">2234 1 1 0 0 1 0 3</span>
 6441c6441
 &lt; # 6440 Bad_valence
 ---
-<span class="hljs-meta">&gt;</span><span class="bash"> 6440 1 1 1 0 0 1 0 1 1</span>
+<span class="hljs-meta prompt_">&gt; </span><span class="language-bash">6440 1 1 1 0 0 1 0 1 1</span>
 8288c8288
 &lt; # 8287 Bad_valence
 ---
-<span class="hljs-meta">&gt;</span><span class="bash"> 8287 1 0 1 1 0 0 1 1 1</span>
+<span class="hljs-meta prompt_">&gt; </span><span class="language-bash">8287 1 0 1 1 0 0 1 1 1</span>
 19611c19611
 &lt; # 19610 Bad_valence
 ---
-<span class="hljs-meta">&gt;</span><span class="bash"> 19610 1 1 2 2 2 0 2 2 1 1 2 2 1 1 2 2 2</span>
+<span class="hljs-meta prompt_">&gt; </span><span class="language-bash">19610 1 1 2 2 2 0 2 2 1 1 2 2 1 1 2 2 2</span>
 42337c42337
 &lt; # 42336 Bad_valence
 ---
-<span class="hljs-meta">&gt;</span><span class="bash"> 42336 0 0 0 0 0 1 1 1 1 0 0 0 0 0 0 0 0 1 1 1 1</span>
+<span class="hljs-meta prompt_">&gt; </span><span class="language-bash">42336 0 0 0 0 0 1 1 1 1 0 0 0 0 0 0 0 0 1 1 1 1</span>
 </code></pre>
 <p>Out of over 47,000 tests, only five differences were found between ChemCore's interpretation and that of Open Babel. All of the differences result from ChemCore <em>rejecting</em> SMILES that were accepted by Open Babel. What are these SMILES and what causes the difference in behavior?</p>
 <p>The relevant identifiers are 2234, 6440, 8287, 19610, and 42336. The corresponding SMILES can be obtained by opening the applicable source benchmark file:</p>
@@ -135,70 +135,70 @@ git submodule update --init
 <h2 id="rustimplementation">Rust Implementation</h2>
 <p>To the best of my knowledge, the ChemCore SMILES validation project adheres to widely-practiced Rust coding standards. As such, it can be used as template for other projects that read text file data and write one or more reports to disk.</p>
 <p>The <code>main</code> function kicks things off by setting up read and write directories, then iterating over each entry in the read directory.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
-    <span class="hljs-keyword">let</span> write_root = <span class="hljs-string">"./results/"</span>;
-    <span class="hljs-keyword">let</span> _ = fs::create_dir(write_root);
-    <span class="hljs-keyword">let</span> read_root = <span class="hljs-string">"./smilesreading/2-aromaticsmiles/chembl"</span>;
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() <span class="hljs-punctuation">-&gt;</span> io::<span class="hljs-type">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">write_root</span> = <span class="hljs-string">&quot;./results/&quot;</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">_</span> = fs::<span class="hljs-title function_ invoke__">create_dir</span>(write_root);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">read_root</span> = <span class="hljs-string">&quot;./smilesreading/2-aromaticsmiles/chembl&quot;</span>;
 
-    <span class="hljs-keyword">for</span> result <span class="hljs-keyword">in</span> fs::read_dir(read_root)? {
-        <span class="hljs-keyword">let</span> entry = result?;
-        <span class="hljs-keyword">let</span> writer = create_writer(&amp;entry, write_root)?;
-        <span class="hljs-keyword">let</span> reader = create_reader(&amp;entry)?;
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">result</span> <span class="hljs-keyword">in</span> fs::<span class="hljs-title function_ invoke__">read_dir</span>(read_root)? {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">entry</span> = result?;
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">writer</span> = <span class="hljs-title function_ invoke__">create_writer</span>(&amp;entry, write_root)?;
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">reader</span> = <span class="hljs-title function_ invoke__">create_reader</span>(&amp;entry)?;
 
-        process_file(reader, writer)?;
+        <span class="hljs-title function_ invoke__">process_file</span>(reader, writer)?;
     }
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>For each entry, <code>process_file</code> is called. Taking a reader and mutable writer as arguments, its job is to deflate a gzipped source file, extract its id and SMILES, then pass this information to <code>write_line</code>.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">process_file</span></span>(
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">process_file</span>(
     reader: io::BufReader&lt;GzDecoder&lt;std::fs::File&gt;&gt;,
     <span class="hljs-keyword">mut</span> writer: io::LineWriter&lt;std::fs::File&gt;
-) -&gt; io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
-    <span class="hljs-keyword">for</span> result <span class="hljs-keyword">in</span> reader.lines() {
-        <span class="hljs-keyword">let</span> line = result?;
-        <span class="hljs-keyword">let</span> parts = line.split_whitespace().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
-        <span class="hljs-keyword">let</span> id = parts.last().expect(<span class="hljs-string">"no parts"</span>);
+) <span class="hljs-punctuation">-&gt;</span> io::<span class="hljs-type">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">result</span> <span class="hljs-keyword">in</span> reader.<span class="hljs-title function_ invoke__">lines</span>() {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">line</span> = result?;
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">parts</span> = line.<span class="hljs-title function_ invoke__">split_whitespace</span>().collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;();
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">id</span> = parts.<span class="hljs-title function_ invoke__">last</span>().<span class="hljs-title function_ invoke__">expect</span>(<span class="hljs-string">&quot;no parts&quot;</span>);
 
-        <span class="hljs-keyword">if</span> parts.len() == <span class="hljs-number">1</span> {
-            <span class="hljs-built_in">writeln!</span>(&amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-string">"# {} No_input"</span>, id)?;
+        <span class="hljs-keyword">if</span> parts.<span class="hljs-title function_ invoke__">len</span>() == <span class="hljs-number">1</span> {
+            <span class="hljs-built_in">writeln!</span>(&amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-string">&quot;# {} No_input&quot;</span>, id)?;
 
             <span class="hljs-keyword">continue</span>;
         }
 
-        write_line(id, parts.first().expect(<span class="hljs-string">"no smiles"</span>), &amp;<span class="hljs-keyword">mut</span> writer)?;
+        <span class="hljs-title function_ invoke__">write_line</span>(id, parts.<span class="hljs-title function_ invoke__">first</span>().<span class="hljs-title function_ invoke__">expect</span>(<span class="hljs-string">&quot;no smiles&quot;</span>), &amp;<span class="hljs-keyword">mut</span> writer)?;
     }
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p><code>write_line</code> accepts an id, SMILES, and <code>LineWriter</code>, using the writer to write one line reporting the status of the SMILES analysis. The analysis consists of counting the hydrogens on each atom when SMILES parsing through ChemCore is successful. Otherwise, one of three error lines is reported.</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">write_line</span></span>(
-    id: &amp;<span class="hljs-built_in">str</span>,
-    smiles: &amp;<span class="hljs-built_in">str</span>,
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">write_line</span>(
+    id: &amp;<span class="hljs-type">str</span>,
+    smiles: &amp;<span class="hljs-type">str</span>,
     writer: &amp;<span class="hljs-keyword">mut</span> io::LineWriter&lt;std::fs::File&gt;
-) -&gt;io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
-    <span class="hljs-keyword">match</span> daylight::read(smiles) {
-        <span class="hljs-literal">Ok</span>(molecule) =&gt; {
-            <span class="hljs-keyword">let</span> hcounts = molecule.nodes().iter().map(|id| {
-                molecule.hydrogens(*id).unwrap().to_string()
-            }).collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+) <span class="hljs-punctuation">-&gt;</span>io::<span class="hljs-type">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">match</span> daylight::<span class="hljs-title function_ invoke__">read</span>(smiles) {
+        <span class="hljs-title function_ invoke__">Ok</span>(molecule) =&gt; {
+            <span class="hljs-keyword">let</span> <span class="hljs-variable">hcounts</span> = molecule.<span class="hljs-title function_ invoke__">nodes</span>().<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">map</span>(|id| {
+                molecule.<span class="hljs-title function_ invoke__">hydrogens</span>(*id).<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">to_string</span>()
+            }).collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;();
 
-            <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"{} {}"</span>, id, hcounts.join(<span class="hljs-string">" "</span>))?;
+            <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">&quot;{} {}&quot;</span>, id, hcounts.<span class="hljs-title function_ invoke__">join</span>(<span class="hljs-string">&quot; &quot;</span>))?;
         },
-        <span class="hljs-literal">Err</span>(Error::CanNotKekulize) =&gt; {
-            <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"# {} Kekulization_failure"</span>, id)?;
+        <span class="hljs-title function_ invoke__">Err</span>(Error::CanNotKekulize) =&gt; {
+            <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">&quot;# {} Kekulization_failure&quot;</span>, id)?;
         },
-        <span class="hljs-literal">Err</span>(Error::Hypervalent(_)) =&gt; {
-            <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"# {} Bad_valence"</span>, id)?;
+        <span class="hljs-title function_ invoke__">Err</span>(Error::<span class="hljs-title function_ invoke__">Hypervalent</span>(_)) =&gt; {
+            <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">&quot;# {} Bad_valence&quot;</span>, id)?;
         },
-        <span class="hljs-literal">Err</span>(error) =&gt; {
-            <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"# {} ERROR: {:?}"</span>, id, error)?;
+        <span class="hljs-title function_ invoke__">Err</span>(error) =&gt; {
+            <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">&quot;# {} ERROR: {:?}&quot;</span>, id, error)?;
         }
     }
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <h2 id="conclusion">Conclusion</h2>

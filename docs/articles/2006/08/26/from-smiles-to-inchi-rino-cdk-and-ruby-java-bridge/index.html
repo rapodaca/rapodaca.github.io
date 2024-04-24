@@ -42,52 +42,52 @@ sudo gem install rino
 <p>Next, create a working directory, <strong>smi2inchi</strong>. Into this directory, move a copy of the full <a href="http://prdownloads.sourceforge.net/cdk/cdk-20060714.jar?download">CDK-2006714 jarfile</a>. That's it for libraries, so let's move onto the translator itself.</p>
 <h2 id="thetranslator">The Translator</h2>
 <p>The Translator class consists of a small piece of Ruby code gluing CDK's SmilesParser and MDLWriter with the Ruby InChI library <a href="http://depth-first.com/articles/2006/08/17/ruby-and-inchi-the-rino-library">Rino</a>. Rino is a thin Ruby wrapper around the <a href="http://inchi.sourceforge.net/">IUPAC InChI library</a>, which is in turn written in C.</p>
-<pre><code class="hljs ruby language-ruby">ENV[<span class="hljs-string">'CLASSPATH'</span>] = <span class="hljs-string">'./cdk-20060714.jar'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-variable constant_">ENV</span>[<span class="hljs-string">&#x27;CLASSPATH&#x27;</span>] = <span class="hljs-string">&#x27;./cdk-20060714.jar&#x27;</span>
 
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rjb'</span>
-require_gem <span class="hljs-string">'rino'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rjb'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rjb&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rino&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rjb&#x27;</span>
 
-StringWriter = Rjb::import <span class="hljs-string">'java.io.StringWriter'</span>
+<span class="hljs-title class_">StringWriter</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;java.io.StringWriter&#x27;</span>
 
-SmilesParser = Rjb::import <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
-MDLWriter = Rjb::import <span class="hljs-string">'org.openscience.cdk.io.MDLWriter'</span>
+<span class="hljs-title class_">SmilesParser</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;org.openscience.cdk.smiles.SmilesParser&#x27;</span>
+<span class="hljs-title class_">MDLWriter</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;org.openscience.cdk.io.MDLWriter&#x27;</span>
 
 <span class="hljs-comment"># Converts a SMILES string into an InChI identifier using</span>
 <span class="hljs-comment"># the CDK Library (Java) and the Rino Library (Ruby/C).</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Translator</span></span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Translator</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @smiles_parser = SmilesParser.new
-    @mdl_writer = MDLWriter.new
-    @mol2inchi = Rino::MolfileReader.new
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@smiles_parser</span> = <span class="hljs-title class_">SmilesParser</span>.new
+    <span class="hljs-variable">@mdl_writer</span> = <span class="hljs-title class_">MDLWriter</span>.new
+    <span class="hljs-variable">@mol2inchi</span> = <span class="hljs-title class_">Rino</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:MolfileReader</span>.new
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Returns an InChI identifier from the specified SMILES string.</span>
   <span class="hljs-comment"># Uses the CDK classes SmilesParser and MDLWriter to generate</span>
   <span class="hljs-comment"># a molfile from a SMILES string. Then this molfile is</span>
   <span class="hljs-comment"># parsed by Rino::MolfileReader.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">translate</span><span class="hljs-params">(smiles)</span></span>
-    mol = @smiles_parser.parseSmiles(smiles)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">translate</span>(<span class="hljs-params">smiles</span>)
+    mol = <span class="hljs-variable">@smiles_parser</span>.parseSmiles(smiles)
 
-    sw = StringWriter.new
+    sw = <span class="hljs-title class_">StringWriter</span>.new
 
-    @mdl_writer.setWriter(sw)
-    @mdl_writer.write(mol)
+    <span class="hljs-variable">@mdl_writer</span>.setWriter(sw)
+    <span class="hljs-variable">@mdl_writer</span>.write(mol)
 
-    @mol2inchi.read(sw.toString)
+    <span class="hljs-variable">@mol2inchi</span>.read(sw.toString)
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <p>Add the above code to a file called <strong>smi2inchi.rb</strong>. The first line points the CLASSPATH environment variable, which is needed by RJB, to the CDK library. Lines 3-6 include the RJB and Rino RubyGems. Lines 8-11 import the built-in Java class StringWriter and the CDK Java classes SmilesParser and MDLWriter using RJB's syntax. The core of the class consists of the <code>translate</code> method, which simply coordinates the pieces.</p>
 <p>Using the Translator class consists of creating an instance, and invoking its <code>translate</code> method on a SMILES string:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'smi2inchi'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;smi2inchi&#x27;</span>
 
-translator = Translator.new
-inchi = translator.translate <span class="hljs-string">'c1ccccc1'</span>
+translator = <span class="hljs-title class_">Translator</span>.new
+inchi = translator.translate <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>
 
-p inchi <span class="hljs-comment"># =&gt; "InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H"</span>
+p inchi <span class="hljs-comment"># =&gt; &quot;InChI=1/C6H6/c1-2-4-6-5-3-1/h1-6H&quot;</span>
 </code></pre>
 <p>The above code fragment can be saved to a text file (e.g. <strong>test.rb</strong>) and invoked with the Ruby interpreter:</p>
 <pre><code class="hljs bash language-bash">ruby test.rb

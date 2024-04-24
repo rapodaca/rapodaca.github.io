@@ -45,30 +45,30 @@
 <h2 id="findingallpathsfromagivenatom">Finding All Paths From a Given Atom</h2>
 <p>A fundamental graph operation in cheminformatics is finding all paths through a molecule from a starting atom. MX makes this easy with the <code>com.metamolecular.mx.path.PathFinder</code> class. Depth-first traversal is used in creating <a href="/articles/2008/10/02/fast-substructure-search-using-open-source-tools-part-1-fingerprints-and-databases">molecular fingerprints</a>. Another use is in creating <a href="http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html">SMILES strings</a>, although a limited form of depth-first traversal is used in which each atom in a molecule is traversed only once.</p>
 <p>We can create a short library to print out all of the paths through a molecule in JRuby:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'mx-0.104.0.jar'</span>
-import <span class="hljs-string">'com.metamolecular.mx.path.PathFinder'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;mx-0.104.0.jar&#x27;</span>
+import <span class="hljs-string">&#x27;com.metamolecular.mx.path.PathFinder&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PathPrinter</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @finder = PathFinder.new
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">PathPrinter</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@finder</span> = <span class="hljs-title class_">PathFinder</span>.new
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">print_paths</span> <span class="hljs-title">atom</span></span>
-    paths = @finder.find_all_paths atom
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">print_paths</span> atom
+    paths = <span class="hljs-variable">@finder</span>.find_all_paths atom
 
-    puts <span class="hljs-string">"printing all paths through the molecule"</span>
+    puts <span class="hljs-string">&quot;printing all paths through the molecule&quot;</span>
 
-    paths.each <span class="hljs-keyword">do</span> <span class="hljs-params">|path|</span>
+    paths.each <span class="hljs-keyword">do</span> |<span class="hljs-params">path</span>|
       print_path path
     <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">end</span>
 
-  private
+  <span class="hljs-keyword">private</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">print_path</span> <span class="hljs-title">path</span></span>
-    path.each <span class="hljs-keyword">do</span> <span class="hljs-params">|atom|</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">print_path</span> path
+    path.each <span class="hljs-keyword">do</span> |<span class="hljs-params">atom</span>|
       print atom.get_index
-      print <span class="hljs-string">'-'</span> <span class="hljs-keyword">unless</span> path.get(path.length - <span class="hljs-number">1</span>).equals(atom)
+      print <span class="hljs-string">&#x27;-&#x27;</span> <span class="hljs-keyword">unless</span> path.get(path.length - <span class="hljs-number">1</span>).equals(atom)
     <span class="hljs-keyword">end</span>
 
     puts
@@ -77,7 +77,7 @@ import <span class="hljs-string">'com.metamolecular.mx.path.PathFinder'</span>
 </code></pre>
 <p>Saving the above code in a file called <code>pathprinter.rb</code>, we can test it from interactive JRuby:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'pathprinter'</span>                   
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;pathprinter&#x27;</span>                   
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; import com.metamolecular.mx.io.Molecules
 =&gt; Java::ComMetamolecularMxIo::Molecules
@@ -94,8 +94,8 @@ printing all paths through the molecule
 <h2 id="howitworks">How It Works</h2>
 <p>Two classes collaborate in this traversal: <a href="http://github.com/rapodaca/mx/tree/master/src%2Fcom%2Fmetamolecular%2Fmx%2Fpath%2FPathFinder.java"><code>com.metamolecular.mx.path.PathFinder</code></a> and <a href="http://github.com/rapodaca/mx/tree/master/src%2Fcom%2Fmetamolecular%2Fmx%2Fpath%2FDefaultStep.java"><code>com.metamolecular.mx.path.DefaultStep</code></a>.</p>
 <p>Creating a depth-first traversal of your own is as simple as creating a <code>DefaultStep</code> from an <code>Atom</code> and implementing a <code>walk</code> method similar to the one shown below:</p>
-<pre><code class="hljs java language-java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">walk</span><span class="hljs-params">(Step step)</span>
-</span>{
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">walk</span><span class="hljs-params">(Step step)</span>
+{
   <span class="hljs-keyword">if</span> (!step.hasNextBranch())
   {
     <span class="hljs-comment">// do something with the completed branch</span>
@@ -105,7 +105,7 @@ printing all paths through the molecule
 
   <span class="hljs-keyword">while</span>(step.hasNextBranch())
   {
-    Atom next = step.nextBranch();
+    <span class="hljs-type">Atom</span> <span class="hljs-variable">next</span> <span class="hljs-operator">=</span> step.nextBranch();
 
     <span class="hljs-keyword">if</span> (step.isBranchFeasible(next))
     {

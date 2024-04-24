@@ -50,10 +50,10 @@
 <p>Another option for Java is to use <a href="http://jni-inchi.sourceforge.net/">Java Native Interface InChI Wrapper</a>. This library, written by Sam Adams and <a href="http://wwmm.ch.cam.ac.uk/blogs/downing/">Jim Downing</a> is distributed with precompiled InChI binaries, which makes integration a little easier.</p>
 <p>But for one small example of the kinds of limitations even this seemingly good solution brings, and the kind of valuable time that gets wasted on the C InChI dependency, consider this JRuby console output:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'jniinchi-0.5-jar-with-dependencies.jar'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;jniinchi-0.5-jar-with-dependencies.jar&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):002:0&gt; import <span class="hljs-string">'net.sf.jniinchi.JniInchiWrapper'</span>        
-=&gt; [<span class="hljs-string">"net.sf.jniinchi.JniInchiWrapper"</span>]
+irb(main):002:0&gt; import <span class="hljs-string">&#x27;net.sf.jniinchi.JniInchiWrapper&#x27;</span>        
+=&gt; [<span class="hljs-string">&quot;net.sf.jniinchi.JniInchiWrapper&quot;</span>]
 irb(main):003:0&gt; JniInchiWrapper.loadLibrary                     
 ERROR net.sf.jnati.deploy.NativeLibraryLoader - Error loading native library: /home/rich/.jnati/repo/jniinchi/1.6/LINUX-X86/libJniInchi-1.6-LINUX-X86.so
 java.lang.UnsatisfiedLinkError: /home/rich/.jnati/repo/jniinchi/1.6/LINUX-X86/libJniInchi-1.6-LINUX-X86.so: libstdc++.so.5: cannot open shared object file: No such file or directory

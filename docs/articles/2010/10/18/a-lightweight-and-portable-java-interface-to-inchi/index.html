@@ -44,42 +44,42 @@
 <span class="hljs-keyword">import</span> java.io.FileReader;
 <span class="hljs-keyword">import</span> java.io.IOException;
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">InChI</span> </span>{
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> BufferedReader <span class="hljs-title">runInChI</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">InChI</span> {
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> BufferedReader <span class="hljs-title function_">runInChI</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException {
     String[] command = {
-      <span class="hljs-string">"/bin/sh"</span>,
-      <span class="hljs-string">"-c"</span>,
-      <span class="hljs-string">"echo \""</span> + molfile + <span class="hljs-string">"\" | inchi -STDIO -AuxNone -NoLabels -Key 2&gt;/dev/null"</span>
+      <span class="hljs-string">&quot;/bin/sh&quot;</span>,
+      <span class="hljs-string">&quot;-c&quot;</span>,
+      <span class="hljs-string">&quot;echo \&quot;&quot;</span> + molfile + <span class="hljs-string">&quot;\&quot; | inchi -STDIO -AuxNone -NoLabels -Key 2&gt;/dev/null&quot;</span>
     };
-    Process inchi = Runtime.getRuntime().exec(command);
+    <span class="hljs-type">Process</span> <span class="hljs-variable">inchi</span> <span class="hljs-operator">=</span> Runtime.getRuntime().exec(command);
 
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BufferedReader(<span class="hljs-keyword">new</span> InputStreamReader(inchi.getInputStream()));
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(inchi.getInputStream()));
   }
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">getInChIFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
-    BufferedReader input = runInChI(molfile);
-    String result = input.readLine();      
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">getInChIFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException {
+    <span class="hljs-type">BufferedReader</span> <span class="hljs-variable">input</span> <span class="hljs-operator">=</span> runInChI(molfile);
+    <span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> input.readLine();      
     input.close();
 
-    <span class="hljs-keyword">return</span> result == <span class="hljs-keyword">null</span> ? <span class="hljs-string">""</span> : result;
+    <span class="hljs-keyword">return</span> result == <span class="hljs-literal">null</span> ? <span class="hljs-string">&quot;&quot;</span> : result;
   }
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">getInChIKeyFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
-    BufferedReader input = runInChI(molfile);
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">getInChIKeyFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException {
+    <span class="hljs-type">BufferedReader</span> <span class="hljs-variable">input</span> <span class="hljs-operator">=</span> runInChI(molfile);
     input.readLine();
-    String result = input.readLine();
+    <span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> input.readLine();
     input.close();
 
-    <span class="hljs-keyword">return</span> result == <span class="hljs-keyword">null</span> ? <span class="hljs-string">""</span> : result.substring(<span class="hljs-number">9</span>);
+    <span class="hljs-keyword">return</span> result == <span class="hljs-literal">null</span> ? <span class="hljs-string">&quot;&quot;</span> : result.substring(<span class="hljs-number">9</span>);
   }
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title">readFile</span><span class="hljs-params">(String filename)</span> <span class="hljs-keyword">throws</span> IOException </span>{
-    BufferedReader in = <span class="hljs-keyword">new</span> BufferedReader(<span class="hljs-keyword">new</span> FileReader(filename));
-    String str = <span class="hljs-string">""</span>;
-    String molfile = <span class="hljs-string">""</span>;
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">readFile</span><span class="hljs-params">(String filename)</span> <span class="hljs-keyword">throws</span> IOException {
+    <span class="hljs-type">BufferedReader</span> <span class="hljs-variable">in</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileReader</span>(filename));
+    <span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;
+    <span class="hljs-type">String</span> <span class="hljs-variable">molfile</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;
 
-    <span class="hljs-keyword">while</span> ((str = in.readLine()) != <span class="hljs-keyword">null</span>) {
-      molfile = molfile + str + <span class="hljs-string">"\n"</span>;
+    <span class="hljs-keyword">while</span> ((str = in.readLine()) != <span class="hljs-literal">null</span>) {
+      molfile = molfile + str + <span class="hljs-string">&quot;\n&quot;</span>;
     }
 
     in.close();
@@ -87,9 +87,9 @@
     <span class="hljs-keyword">return</span> molfile;
   }
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>{
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
     <span class="hljs-keyword">try</span> {
-      String molfile = readFile(args[<span class="hljs-number">0</span>]);
+      <span class="hljs-type">String</span> <span class="hljs-variable">molfile</span> <span class="hljs-operator">=</span> readFile(args[<span class="hljs-number">0</span>]);
 
       System.out.println(getInChIFromMolfile(molfile));
       System.out.println(getInChIKeyFromMolfile(molfile));

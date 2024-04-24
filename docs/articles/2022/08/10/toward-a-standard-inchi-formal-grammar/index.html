@@ -63,31 +63,31 @@
 <p>InChI syntax is not trivial. To limit the scope of this effort in its first iteration, I set the goal of parsing just the first four <a href="/articles/2021/05/19/standard-inchi/">standard InChI</a> layers: prefix; formula; connections; and h_atoms. The resulting grammar should be suitable for parsers that recognize strings representing many neutral, natural isotopic abundance, non-metallic, stereocenter- and conformer-free molecules.</p>
 <h2 id="thegrammar">The Grammar</h2>
 <p>Using the approach outlined above, a partial InChI grammar was constructed. If you're interested in following this work in progress, consider setting up a notification on the <a href="https://github.com/metamolecular/inchi-grammar">GitHub repository</a>. Portions of the grammar will be discussed below to give a feel for how it works.</p>
-<pre><code class="hljs">String ::=<span class="hljs-built_in"> prefix </span>formula? connections? h_atoms?
+<pre><code class="hljs"><span class="hljs-type">String</span> ::= prefix formula? connections? h_atoms?
 </code></pre>
 <p>The topmost production rule, <code>String</code> sets the stage by defining four layers — the first mandatory and the remaining three optional. The name of the production rule appears to the left of the assignment operator (<code>::=</code>), with the rule itself appearing to the right. The right hand side is expressed in terms of terminals (character literals) and non-terminals (the name of a production rule). This first rule for <code>String</code> uses only non-terminals. Their definitions follow.</p>
-<pre><code class="hljs">formula     ::= <span class="hljs-string">"/"</span> elemental ( <span class="hljs-string">"."</span> elemental )*
-connections ::= <span class="hljs-string">"/c"</span> graph? ( <span class="hljs-string">";"</span> graph? )*
-h_atoms     ::= <span class="hljs-string">"/h"</span> hydrogens? ( <span class="hljs-string">";"</span> hydrogens? )*
+<pre><code class="hljs">formula     ::= <span class="hljs-string">&quot;/&quot;</span> elemental ( <span class="hljs-string">&quot;.&quot;</span> elemental )*
+connections ::= <span class="hljs-string">&quot;/c&quot;</span> graph? ( <span class="hljs-string">&quot;;&quot;</span> graph? )*
+h_atoms     ::= <span class="hljs-string">&quot;/h&quot;</span> hydrogens? ( <span class="hljs-string">&quot;;&quot;</span> hydrogens? )*
 </code></pre>
 <p>These rules are defined in terms of terminals and non-terminals. All three support disconnection via dot or semicolon characters (<code>.</code> or <code>;</code>, respectively). The <code>h_atoms</code> production rule supports both <a href="/articles/2019/11/06/virtual-hydrogens/">virtual hydrogens</a> and InChI's concept of "mobile hydrogens." All of these nonterminals are defined later.</p>
 <p>Perhaps surprisingly, most of this grammar's rules are dedicated to the definition of the <code>elemental</code> production rule. </p>
 <pre><code class="hljs">elemental           ::= count? ( c h? b? br? cl? f? rest_elements )
                       | ( b? br? cl? f? h? rest_elements )
 rest_elements       ::= i? mg? n? o? p? s?
-b                   ::= <span class="hljs-string">"B"</span> count?
-c                   ::= <span class="hljs-string">"C"</span> count?
-h                   ::= <span class="hljs-string">"H"</span> count?
-br                  ::= <span class="hljs-string">"Br"</span> count?
-cl                  ::= <span class="hljs-string">"Cl"</span> count?
-f                   ::= <span class="hljs-string">"F"</span> count?
-i                   ::= <span class="hljs-string">"I"</span> count?
-mg                  ::= <span class="hljs-string">"Mg"</span> count?
-n                   ::= <span class="hljs-string">"N"</span> count?
-o                   ::= <span class="hljs-string">"O"</span> count?
-p                   ::= <span class="hljs-string">"P"</span> count?
-s                   ::= <span class="hljs-string">"S"</span> count?
-/* and so on... */
+b                   ::= <span class="hljs-string">&quot;B&quot;</span> count?
+c                   ::= <span class="hljs-string">&quot;C&quot;</span> count?
+h                   ::= <span class="hljs-string">&quot;H&quot;</span> count?
+br                  ::= <span class="hljs-string">&quot;Br&quot;</span> count?
+cl                  ::= <span class="hljs-string">&quot;Cl&quot;</span> count?
+f                   ::= <span class="hljs-string">&quot;F&quot;</span> count?
+i                   ::= <span class="hljs-string">&quot;I&quot;</span> count?
+mg                  ::= <span class="hljs-string">&quot;Mg&quot;</span> count?
+n                   ::= <span class="hljs-string">&quot;N&quot;</span> count?
+o                   ::= <span class="hljs-string">&quot;O&quot;</span> count?
+p                   ::= <span class="hljs-string">&quot;P&quot;</span> count?
+s                   ::= <span class="hljs-string">&quot;S&quot;</span> count?
+<span class="hljs-comment">/* and so on... */</span>
 </code></pre>
 <p>This elaborate setup is unfortunately the only way to both ensure that the <code>elemental</code> non-terminal contains only chemical element symbols and that these elements and their counts appear in <a href="https://en.wikipedia.org/wiki/Chemical_formula#Hill_system">Hill order</a>.</p>
 <p>The remainder of the grammar follows a similar pattern. Any non-terminals introduced by one rule are defined in subsequent rules. By the last line of the grammar, all production rules have been defined in terms of terminals. The result is suitable for use when reading and writing InChI strings.</p>

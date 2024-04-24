@@ -51,39 +51,39 @@
 <p>Using EVCXR, both modes of interactive programming are now possible using Rust.</p>
 <h2 id="repl">REPL</h2>
 <p>The EVCXR REPL can be installed with the following command:</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> cargo install evcxr_repl</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">cargo install evcxr_repl</span>
 </code></pre>
 <p>Installation provides the <code>evcxr</code> command,. As a demonstration, consider a simple "Hello, World" program, written interactively.</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> evcxr</span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; <span class="hljs-built_in">let</span> mut s = String::from(<span class="hljs-string">"Hello, "</span>);</span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; s.push_str(<span class="hljs-string">"World!"</span>);</span>
-<span class="hljs-meta">&gt;</span><span class="bash"> s</span>
-"Hello, World!"
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">evcxr</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; <span class="hljs-built_in">let</span> mut s = String::from(<span class="hljs-string">&quot;Hello, &quot;</span>);</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; s.push_str(<span class="hljs-string">&quot;World!&quot;</span>);</span>
+<span class="hljs-meta prompt_">&gt; </span><span class="language-bash">s</span>
+&quot;Hello, World!&quot;
 </code></pre>
 <p>EVCXR supports the inclusion of private and public crates through the <code>:dep</code> command. For example, the following snippet adds <a href="https://github.com/rapodaca/chemcore">ChemCore</a>, a cheminformatics toolkit written in Rust. Once added, the dependency works as expected.</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> evcxr</span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; :dep chemcore = <span class="hljs-string">"0.2.1"</span></span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; :dep gamma = <span class="hljs-string">"0.6.1"</span></span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; extern crate chemcore;</span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; use chemcore::molecule::Molecule;</span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; use gamma::graph::Graph;</span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; <span class="hljs-built_in">let</span> m = chemcore::daylight::<span class="hljs-built_in">read</span>(&amp;<span class="hljs-string">"[13c]1ccccc1"</span>).unwrap();</span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; m.degree(0)</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">evcxr</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; :dep chemcore = <span class="hljs-string">&quot;0.2.1&quot;</span></span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; :dep gamma = <span class="hljs-string">&quot;0.6.1&quot;</span></span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; extern crate chemcore;</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; use chemcore::molecule::Molecule;</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; use gamma::graph::Graph;</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; <span class="hljs-built_in">let</span> m = chemcore::daylight::<span class="hljs-built_in">read</span>(&amp;<span class="hljs-string">&quot;[13c]1ccccc1&quot;</span>).unwrap();</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; m.degree(0)</span>
 Ok(2)
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; m.neighbors(0)</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; m.neighbors(0)</span>
 Ok([5, 1])
-<span class="hljs-meta">&gt;</span><span class="bash">&gt; m.edges()</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt; m.edges()</span>
 [(0, 5), (0, 1), (1, 2), (2, 3), (3, 4), (4, 5)]
 </code></pre>
 <p>The additional dependency <a href="https://github.com/metamolecular/gamma"><code>gamma</code></a> (the graph library on which ChemCore is based) brings the <code>Graph</code> methods of <code>Molecule</code> into scope.</p>
 <h2 id="jupyterkernel">Jupyter Kernel</h2>
 <p>Extensions to Jupyter are called "kernels," EVCXR offers a Jupyter kernel capable of allowing Rust to be used within a notebook. Installation is a straightforward adaption of <a href="/articles/2020/08/17/getting-started-rdkit-and-jupyter/">a procedure recently published here</a>.</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda create --name evcxr</span>
-<span class="hljs-meta">$</span><span class="bash"> conda activate evcxr</span>
-<span class="hljs-meta">$</span><span class="bash"> conda install -y -c conda-forge nb_conda_kernels</span>
-<span class="hljs-meta">$</span><span class="bash"> cargo install evcxr_jupyter</span>
-<span class="hljs-meta">$</span><span class="bash"> evcxr_jupyter --install</span>
-<span class="hljs-meta">$</span><span class="bash"> jupyter notebook</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">conda create --name evcxr</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">conda activate evcxr</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">conda install -y -c conda-forge nb_conda_kernels</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">cargo install evcxr_jupyter</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">evcxr_jupyter --install</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">jupyter notebook</span>
 </code></pre>
 <p>The EVCXR project maintains a <a href="https://github.com/google/evcxr/blob/master/evcxr_jupyter/samples/evcxr_jupyter_tour.ipynb">Jupyter tour</a> showcasing the capabilities of the kernel. The REPL examples from the previous section should run unmodified within Jupyter.</p>
 <p>A very handy feature of of the EVCXR Jupyter kernel is custom HTML-based display. To access it, implement a <code>Debug</code> trait on the type of interest. Anything that can be rendered in HTML can then be displayed in a cell's output field. This is a particularly attractive feature in cheminformatics, where many data types have a preferred graphical representation.</p>

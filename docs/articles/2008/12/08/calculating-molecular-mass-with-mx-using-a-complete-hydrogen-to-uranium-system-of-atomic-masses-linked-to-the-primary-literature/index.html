@@ -40,11 +40,11 @@
 Jython 2.5b0 (trunk:5540, Oct 31 2008, 13:55:41) 
 [Java HotSpot(TM) Client VM (Sun Microsystems Inc.)] on java1.5.0_16
 &gt;&gt;&gt; import sys
-&gt;&gt;&gt; sys.path.append(<span class="hljs-string">"mx-0.106.0.jar"</span>)
+&gt;&gt;&gt; sys.path.append(<span class="hljs-string">&quot;mx-0.106.0.jar&quot;</span>)
 &gt;&gt;&gt; from com.metamolecular.mx.io.daylight import SMILESReader
 &gt;&gt;&gt; from com.metamolecular.mx.calc import MassCalculator
 &gt;&gt;&gt; c=MassCalculator()
-&gt;&gt;&gt; c.findAveragedMass(SMILESReader.read(<span class="hljs-string">"C12C3C4C1C5C4C3C25"</span>))
+&gt;&gt;&gt; c.findAveragedMass(SMILESReader.<span class="hljs-built_in">read</span>(<span class="hljs-string">&quot;C12C3C4C1C5C4C3C25&quot;</span>))
 104.14912000000001
 </code></pre>
 <p>Using this new calculator is quite easy. One minor detail is the "1" at the end of result, which appears to be a Java floating point issue unrelated to the system of atomic masses.</p>

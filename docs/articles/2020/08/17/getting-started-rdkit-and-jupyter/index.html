@@ -53,7 +53,7 @@
 <p>Ultimately, using Anaconda worked. What follows are some notes on my process for setting up RDKit together with Jupyter on a macOS system running Mojave. Many of the points addressed here should apply to other operating systems.</p>
 <h2 id="installanaconda">Install Anaconda</h2>
 <p>After downloading the <a href="https://docs.anaconda.com/anaconda/install/mac-os/">graphical installer</a>, I verified its SHA-256 hash (note the <strong>two spaces</strong> between the hash value and filename):</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">"e095c487d2837e4c984d0fcd2217be42c615504a2d7d6651095d34c2fa9807a0  Anaconda3-2020.07-MacOSX-x86_64.pkg"</span> | shasum -a 256 -c -</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;e095c487d2837e4c984d0fcd2217be42c615504a2d7d6651095d34c2fa9807a0  Anaconda3-2020.07-MacOSX-x86_64.pkg&quot;</span> | shasum -a 256 -c -</span>
 Anaconda3-2020.07-MacOSX-x86_64.pkg: OK
 </code></pre>
 <p>Expected hashes for all Anaconda installers are available <a href="https://docs.anaconda.com/anaconda/install/hashes/all/">here</a>.</p>
@@ -84,23 +84,23 @@ source ~/.bash_profile
 <li><code>rdkit</code>: The identifier for the package(s) to install</li>
 </ul>
 <p>After some console output, verify the availability of the new environment:</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda env list</span>
-<span class="hljs-meta">#</span><span class="bash"> conda environments:</span>
-<span class="hljs-meta">#</span>
-base                  *  /opt/anaconda3
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">conda <span class="hljs-built_in">env</span> list</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash">conda environments:</span>
+<span class="hljs-meta prompt_">#</span><span class="language-bash">
+base                  *  /opt/anaconda3</span>
 my-rdkit-env             /opt/anaconda3/envs/my-rdkit-env
 </code></pre>
 <p>The asterisk indicates the current environment.</p>
 <h2 id="activaterdkitenvironment">Activate RDKit Environment</h2>
 <p>The new environment, which should contain RDKit, can be tested with the following (replace <code>my-rdkit-env</code> with the name of your environment):</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda activate my-rdkit-env</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">conda activate my-rdkit-env</span>
 (my-rdikit-env) $
 </code></pre>
 <p>Doing this should update your command prompt. You're now running an environment into which RDKit has been installed. Test this with the following:</p>
 <pre><code class="hljs console language-console">python
-<span class="hljs-meta">&gt;</span><span class="bash">&gt;&gt; from rdkit import rdBase</span>
-<span class="hljs-meta">&gt;</span><span class="bash">&gt;&gt; rdBase.rdkitVersion</span>
-'2020.03.3'
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt;&gt; from rdkit import rdBase</span>
+<span class="hljs-meta prompt_">&gt;</span><span class="language-bash">&gt;&gt; rdBase.rdkitVersion</span>
+&#x27;2020.03.3&#x27;
 </code></pre>
 <p>When you're done, deactivate the environment with</p>
 <pre><code class="hljs console language-console">conda deactivate
@@ -108,10 +108,10 @@ my-rdkit-env             /opt/anaconda3/envs/my-rdkit-env
 <h2 id="installjupyter">Install Jupyter</h2>
 <p><a href="https://jupyter.org">Jupyter Notebook</a> is a browser-based environment in which documents containing live code and output can be created and shared. Its many features make Jupyter a popular alternative or addition to the Python REPL. See the next section to get an idea of how this works.</p>
 <p>Jupyter is not accessible by default from new Anaconda environments. It can be made accessible with the <a href="https://github.com/Anaconda-Platform/nb_conda_kernels">nb_conda_kernels extension</a>, which can be installed into an existing environment:</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda install -n my-rdkit-env nb_conda_kernels</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">conda install -n my-rdkit-env nb_conda_kernels</span>
 </code></pre>
 <p>Now activate the environment and run Jupyter Notebook with:</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> conda activate my-rdkit-env</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">conda activate my-rdkit-env</span>
 (my-rdkit-env) $ jupyter notebook
 </code></pre>
 <p>This should produce output indicating that a web server is running. It should also launch your default web browser and direct it to a directory listing page.</p>

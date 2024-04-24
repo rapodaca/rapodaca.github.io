@@ -42,41 +42,41 @@
 <p>To begin with, it must be pointed out that working isomorphism code is valuable and hard-won.</p>
 <p>Having said that, many Java implementations are written in a way that makes optimization difficult at best. Some start out as C code that then gets ported, mostly verbatim. Other are written with an understandable emphasis on speed over readability. For developers used to working with classes, objects, shallow loops, and short methods with expressive names, the impedance mismatch can be jarring to say the least.</p>
 <p>Here's an example, taken from the CDK, that while functional, would take a great deal of time to understand well enough to change:</p>
-<pre><code class="hljs java language-java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> List <span class="hljs-title">makeAtomsMapOfBondsMap</span><span class="hljs-params">(List l, IAtomContainer g1, IAtomContainer g2)</span> </span>{
-  <span class="hljs-keyword">if</span>(l==<span class="hljs-keyword">null</span>)
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> List <span class="hljs-title function_">makeAtomsMapOfBondsMap</span><span class="hljs-params">(List l, IAtomContainer g1, IAtomContainer g2)</span> {
+  <span class="hljs-keyword">if</span>(l==<span class="hljs-literal">null</span>)
     <span class="hljs-keyword">return</span>(l);
-  List result = <span class="hljs-keyword">new</span> ArrayList();
-  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &amp;lt; l.size(); i++) {
-    IBond bond1 = g1.getBond(((RMap) l.get(i)).getId1());
-    IBond bond2 = g2.getBond(((RMap) l.get(i)).getId2());
+  <span class="hljs-type">List</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>();
+  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &amp;lt; l.size(); i++) {
+    <span class="hljs-type">IBond</span> <span class="hljs-variable">bond1</span> <span class="hljs-operator">=</span> g1.getBond(((RMap) l.get(i)).getId1());
+    <span class="hljs-type">IBond</span> <span class="hljs-variable">bond2</span> <span class="hljs-operator">=</span> g2.getBond(((RMap) l.get(i)).getId2());
     IAtom[] atom1 = BondManipulator.getAtomArray(bond1);
     IAtom[] atom2 = BondManipulator.getAtomArray(bond2);
-    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> j = <span class="hljs-number">0</span>; j &amp;lt; <span class="hljs-number">2</span>; j++) {
-      List bondsConnectedToAtom1j = g1.getConnectedBondsList(atom1[j]);
-      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> k = <span class="hljs-number">0</span>; k &amp;lt; bondsConnectedToAtom1j.size(); k++) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; j &amp;lt; <span class="hljs-number">2</span>; j++) {
+      <span class="hljs-type">List</span> <span class="hljs-variable">bondsConnectedToAtom1j</span> <span class="hljs-operator">=</span> g1.getConnectedBondsList(atom1[j]);
+      <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">k</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; k &amp;lt; bondsConnectedToAtom1j.size(); k++) {
         <span class="hljs-keyword">if</span> (bondsConnectedToAtom1j.get(k) != bond1) {
-          IBond testBond = (IBond)bondsConnectedToAtom1j.get(k);
-            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> m = <span class="hljs-number">0</span>; m &amp;lt; l.size(); m++) {
+          <span class="hljs-type">IBond</span> <span class="hljs-variable">testBond</span> <span class="hljs-operator">=</span> (IBond)bondsConnectedToAtom1j.get(k);
+            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">m</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; m &amp;lt; l.size(); m++) {
               IBond testBond2;
               <span class="hljs-keyword">if</span> (((RMap) l.get(m)).getId1() == g1.getBondNumber(testBond)) {
                 testBond2 = g2.getBond(((RMap) l.get(m)).getId2());
-                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> n = <span class="hljs-number">0</span>; n &amp;lt; <span class="hljs-number">2</span>; n++) {
-                  List bondsToTest = g2.getConnectedBondsList(atom2[n]);
+                <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; n &amp;lt; <span class="hljs-number">2</span>; n++) {
+                  <span class="hljs-type">List</span> <span class="hljs-variable">bondsToTest</span> <span class="hljs-operator">=</span> g2.getConnectedBondsList(atom2[n]);
                   <span class="hljs-keyword">if</span> (bondsToTest.contains(testBond2)) {
                     RMap map;
                     <span class="hljs-keyword">if</span> (j == n) {
-                      map = <span class="hljs-keyword">new</span> RMap(g1.getAtomNumber(atom1[<span class="hljs-number">0</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">0</span>]));
+                      map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">RMap</span>(g1.getAtomNumber(atom1[<span class="hljs-number">0</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">0</span>]));
                     } <span class="hljs-keyword">else</span> {
-                      map = <span class="hljs-keyword">new</span> RMap(g1.getAtomNumber(atom1[<span class="hljs-number">1</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">0</span>]));
+                      map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">RMap</span>(g1.getAtomNumber(atom1[<span class="hljs-number">1</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">0</span>]));
                     }
                     <span class="hljs-keyword">if</span> (!result.contains(map)) {
                       result.add(map);
                     }
                     RMap map2;
                     <span class="hljs-keyword">if</span> (j == n) {
-                      map2 = <span class="hljs-keyword">new</span> RMap(g1.getAtomNumber(atom1[<span class="hljs-number">1</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">1</span>]));
+                      map2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">RMap</span>(g1.getAtomNumber(atom1[<span class="hljs-number">1</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">1</span>]));
                     } <span class="hljs-keyword">else</span> {
-                      map2 = <span class="hljs-keyword">new</span> RMap(g1.getAtomNumber(atom1[<span class="hljs-number">0</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">1</span>]));
+                      map2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">RMap</span>(g1.getAtomNumber(atom1[<span class="hljs-number">0</span>]), g2.getAtomNumber(atom2[<span class="hljs-number">1</span>]));
                     }
                     <span class="hljs-keyword">if</span> (!result.contains(map2)) {
                       result.add(map2);
@@ -116,8 +116,8 @@
     Compute the <span class="hljs-built_in">set</span> P(s) of the pairs candidate <span class="hljs-keyword">for</span> inclusion <span class="hljs-keyword">in</span> M(s)
     FOREACH (n, m)∈ P(s)
       IF F(s, n, m) THEN
-        Compute the state s<span class="hljs-string">' obtained by adding (n, m) to M(s)
-        CALL Match(s'</span>)
+        Compute the state s<span class="hljs-string">&#x27; obtained by adding (n, m) to M(s)
+        CALL Match(s&#x27;</span>)
       END IF
     END FOREACH
      Restore data structures

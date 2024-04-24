@@ -101,14 +101,14 @@ Query OK, 1 row affected (0.02 sec)
 mysql&gt; use compounds;
 
 Database changed
-mysql&gt; create table fingerprints(id int not null auto_increment, primary key(id), fp0 bigint(64), fp1 bigint(64), fp2 bigint(64), fp3 bigint(64), fp4 bigint(64), fp5 bigint(64), fp6 bigint(64), fp7 bigint(64), fp8 bigint(64), fp9 bigint(64), fp10 bigint(64), fp11 bigint(64), fp12 bigint(64), fp13 bigint(64), fp14 bigint(64), fp15 bigint(64));
+mysql&gt; create table fingerprints(<span class="hljs-built_in">id</span> int not null auto_increment, primary key(<span class="hljs-built_in">id</span>), fp0 bigint(64), fp1 bigint(64), fp2 bigint(64), fp3 bigint(64), fp4 bigint(64), fp5 bigint(64), fp6 bigint(64), fp7 bigint(64), fp8 bigint(64), fp9 bigint(64), fp10 bigint(64), fp11 bigint(64), fp12 bigint(64), fp13 bigint(64), fp14 bigint(64), fp15 bigint(64));
 Query OK, 0 rows affected (0.01 sec)
 
 mysql&gt; describe fingerprints;
 +-------+------------+------+-----+---------+----------------+
 | Field | Type       | Null | Key | Default | Extra          |
 +-------+------------+------+-----+---------+----------------+
-| id    | int(11)    | NO   | PRI | NULL    | auto_increment | 
+| <span class="hljs-built_in">id</span>    | int(11)    | NO   | PRI | NULL    | auto_increment | 
 | fp0   | bigint(64) | YES  |     | NULL    |                | 
 | fp1   | bigint(64) | YES  |     | NULL    |                | 
 | fp2   | bigint(64) | YES  |     | NULL    |                | 

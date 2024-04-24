@@ -40,26 +40,26 @@
 <p>Create a working directory called <code>nmr</code>. Into this directory, copy <code>cdk-20060714.jar</code>, which can be <a href="http://prdownloads.sourceforge.net/cdk/cdk-20060714.jar?download">downloaded here</a>.</p>
 <h2 id="code">Code</h2>
 <p>Create a file called <code>nmr.rb</code> containing the following Ruby code:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'net/http'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'smi2inchi'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;net/http&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;smi2inchi&#x27;</span>
 
 <span class="hljs-comment"># A very simple NMRShiftDB Web API.</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NMRFetcher</span></span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">NMRFetcher</span>
 
   <span class="hljs-comment"># Creates a `Translator` instance.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @translator = Translator.new
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@translator</span> = <span class="hljs-title class_">Translator</span>.new
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Returns an XML record, as a string, for the molecule</span>
   <span class="hljs-comment"># with SMILES matching `smiles` and spectrum type</span>
   <span class="hljs-comment"># matching `spectrumtype` (13C, 1H, 15N and 31P).</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_record</span><span class="hljs-params">(smiles, spectrumtype)</span></span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_record</span>(<span class="hljs-params">smiles, spectrumtype</span>)
     body = <span class="hljs-literal">nil</span>
-    inchi = (smi2inchi(smiles)).gsub(<span class="hljs-string">'InChI='</span>, <span class="hljs-string">'inchi='</span>)
-    path = <span class="hljs-string">'/NmrshiftdbServlet?nmrshiftdbaction=exportcmlbyinchi&amp;'</span> + inchi + <span class="hljs-string">'&amp;spectrumtype='</span> + spectrumtype
+    inchi = (smi2inchi(smiles)).gsub(<span class="hljs-string">&#x27;InChI=&#x27;</span>, <span class="hljs-string">&#x27;inchi=&#x27;</span>)
+    path = <span class="hljs-string">&#x27;/NmrshiftdbServlet?nmrshiftdbaction=exportcmlbyinchi&amp;&#x27;</span> + inchi + <span class="hljs-string">&#x27;&amp;spectrumtype=&#x27;</span> + spectrumtype
 
-    Net::HTTP.start(<span class="hljs-string">'nmrshiftdb.ice.mpg.de'</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|http|</span>
+    <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:HTTP</span>.start(<span class="hljs-string">&#x27;nmrshiftdb.ice.mpg.de&#x27;</span>) <span class="hljs-keyword">do</span> |<span class="hljs-params">http</span>|
       response = http.get(path)
       body = response.body
     <span class="hljs-keyword">end</span>
@@ -71,53 +71,53 @@
     body
   <span class="hljs-keyword">end</span>
 
-private
+<span class="hljs-keyword">private</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">valid_record?</span><span class="hljs-params">(body)</span></span>
-    !body.eql?(<span class="hljs-string">'No such molecule or spectrum'</span>)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">valid_record?</span>(<span class="hljs-params">body</span>)
+    !body.eql?(<span class="hljs-string">&#x27;No such molecule or spectrum&#x27;</span>)
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">smi2inchi</span><span class="hljs-params">(smiles)</span></span>
-    @translator.translate(smiles)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">smi2inchi</span>(<span class="hljs-params">smiles</span>)
+    <span class="hljs-variable">@translator</span>.translate(smiles)
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <p>The magic in the above code is nothing more than a simple HTTP request sent to <code>nmrshiftdb.ice.mpg.de</code>, contained in the <code>get_record</code> method. This request encodes an InChI identifier, which is generated from the SMILES string passed as an argument. We also specify a spectrum type.</p>
 <p>Now create a file called <code>smi2inchi.rb</code>, containing the following Ruby code:</p>
-<pre><code class="hljs rb language-rb">ENV[<span class="hljs-string">'CLASSPATH'</span>] = <span class="hljs-string">'./cdk-20060714.jar'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rjb'</span>
-require_gem <span class="hljs-string">'rino'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rjb'</span>
+<pre><code class="hljs rb language-rb"><span class="hljs-variable constant_">ENV</span>[<span class="hljs-string">&#x27;CLASSPATH&#x27;</span>] = <span class="hljs-string">&#x27;./cdk-20060714.jar&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rjb&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rino&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rjb&#x27;</span>
 
-StringWriter = Rjb::import <span class="hljs-string">'java.io.StringWriter'</span>
+<span class="hljs-title class_">StringWriter</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;java.io.StringWriter&#x27;</span>
 
-SmilesParser = Rjb::import <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
-MDLWriter = Rjb::import <span class="hljs-string">'org.openscience.cdk.io.MDLWriter'</span>
+<span class="hljs-title class_">SmilesParser</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;org.openscience.cdk.smiles.SmilesParser&#x27;</span>
+<span class="hljs-title class_">MDLWriter</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;org.openscience.cdk.io.MDLWriter&#x27;</span>
 
 <span class="hljs-comment"># Converts a SMILES string into an InChI identifier using</span>
 <span class="hljs-comment"># the CDK Library (Java) and the Rino Library (Ruby/C).</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Translator</span></span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Translator</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @smiles_parser = SmilesParser.new
-    @mdl_writer = MDLWriter.new
-    @mol2inchi = Rino::MolfileReader.new
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@smiles_parser</span> = <span class="hljs-title class_">SmilesParser</span>.new
+    <span class="hljs-variable">@mdl_writer</span> = <span class="hljs-title class_">MDLWriter</span>.new
+    <span class="hljs-variable">@mol2inchi</span> = <span class="hljs-title class_">Rino</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:MolfileReader</span>.new
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Returns an InChI identifier from the specified SMILES string.</span>
   <span class="hljs-comment"># Uses the CDK classes SmilesParser and MDLWriter to generate</span>
   <span class="hljs-comment"># a molfile from a SMILES string. Then this molfile is</span>
   <span class="hljs-comment"># parsed by Rino::MolfileReader.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">translate</span><span class="hljs-params">(smiles)</span></span>
-    mol = @smiles_parser.parseSmiles(smiles)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">translate</span>(<span class="hljs-params">smiles</span>)
+    mol = <span class="hljs-variable">@smiles_parser</span>.parseSmiles(smiles)
 
-    sw = StringWriter.new
+    sw = <span class="hljs-title class_">StringWriter</span>.new
 
-    @mdl_writer.setWriter(sw)
-    @mdl_writer.write(mol)
+    <span class="hljs-variable">@mdl_writer</span>.setWriter(sw)
+    <span class="hljs-variable">@mdl_writer</span>.write(mol)
 
-    @mol2inchi.read(sw.toString)
+    <span class="hljs-variable">@mol2inchi</span>.read(sw.toString)
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -126,23 +126,23 @@ MDLWriter = Rjb::import <span class="hljs-string">'org.openscience.cdk.io.MDLWri
 <pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> LD_LIBRARY_PATH=<span class="hljs-variable">$JAVA_HOME</span>/jre/lib/i386:<span class="hljs-variable">$LD_LIBRARY_PATH</span>
 </code></pre>
 <p>Using the <code>NMRFetcher</code> class is just a matter of creating an instance, and invoking <code>get_record</code> with the desired SMILES string and spectrum type (1H, 13C). Doing so returns a CML document containing the structure of the compound and its spectrum. If no record matches, the method returns <code>nil</code>. The code below give an example in which the CML output is pretty-printed using the wonderful Ruby API for XML, <a href="http://www.germane-software.com/software/rexml/">REXML</a>:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">"rexml/document"</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'nmr'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&quot;rexml/document&quot;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;nmr&#x27;</span>
 
-nmr = NMRFetcher.new
-smiles = <span class="hljs-string">'c1ccccc1'</span> <span class="hljs-comment">#benzene, to keep things simple</span>
-type = <span class="hljs-string">'13C'</span>
+nmr = <span class="hljs-title class_">NMRFetcher</span>.new
+smiles = <span class="hljs-string">&#x27;c1ccccc1&#x27;</span> <span class="hljs-comment">#benzene, to keep things simple</span>
+type = <span class="hljs-string">&#x27;13C&#x27;</span>
 record = nmr.get_record(smiles, type)
 
 <span class="hljs-keyword">if</span> record <span class="hljs-comment">#pretty-print the CML record using REXML</span>
-  file = File.new(<span class="hljs-string">'result.xml'</span>, <span class="hljs-string">'w'</span>)
+  file = <span class="hljs-title class_">File</span>.new(<span class="hljs-string">&#x27;result.xml&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>)
 
-  (REXML::Document.new(record)).write(file, <span class="hljs-number">0</span>)
+  (<span class="hljs-variable constant_">REXML</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Document</span>.new(record)).write(file, <span class="hljs-number">0</span>)
 
   file.close
 <span class="hljs-keyword">else</span> <span class="hljs-comment">#write an error</span>
-  File.open(<span class="hljs-string">'result.error'</span>, <span class="hljs-string">'w'</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|file|</span>
-    file &lt;&lt; <span class="hljs-string">'No record of SMILES: '</span> + smiles
+  <span class="hljs-title class_">File</span>.open(<span class="hljs-string">&#x27;result.error&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>) <span class="hljs-keyword">do</span> |<span class="hljs-params">file</span>|
+    file &lt;&lt; <span class="hljs-string">&#x27;No record of SMILES: &#x27;</span> + smiles
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -156,34 +156,34 @@ irb(main):001:0&gt;
 <h2 id="output">Output</h2>
 <p>The program produces the following <a href="http://www.xml-cml.org/">Chemical Markup Language</a> output in a file called <code>result.xml</code>:</p>
 <pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">cml</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">molecule</span> <span class="hljs-attr">title</span>=<span class="hljs-string">'Benzene'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'nmrshiftdb7901'</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">'http://www.xml-cml.org/schema/cml2/core'</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">atomArray</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">'http://www.xml-cml.org/schema'</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">'C'</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">'0.7625'</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">'-1.4063'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'a1'</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">'0'</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">'0'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">'C'</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">'0.35'</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">'-2.1207'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'a2'</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">'0'</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">'0'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">'C'</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">'-0.475'</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">'-2.1207'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'a3'</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">'0'</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">'0'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">'C'</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">'-0.8875'</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">'-1.4063'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'a4'</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">'0'</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">'0'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">'C'</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">'-0.475'</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">'-0.6918'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'a5'</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">'0'</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">'0'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">'C'</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">'0.35'</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">'-0.6918'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'a6'</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">'0'</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">'0'</span>/&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">molecule</span> <span class="hljs-attr">title</span>=<span class="hljs-string">&#x27;Benzene&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;nmrshiftdb7901&#x27;</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/schema/cml2/core&#x27;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">atomArray</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/schema&#x27;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&#x27;C&#x27;</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">&#x27;0.7625&#x27;</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">&#x27;-1.4063&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;a1&#x27;</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">&#x27;0&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&#x27;C&#x27;</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">&#x27;0.35&#x27;</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">&#x27;-2.1207&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;a2&#x27;</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">&#x27;0&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&#x27;C&#x27;</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">&#x27;-0.475&#x27;</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">&#x27;-2.1207&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;a3&#x27;</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">&#x27;0&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&#x27;C&#x27;</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">&#x27;-0.8875&#x27;</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">&#x27;-1.4063&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;a4&#x27;</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">&#x27;0&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&#x27;C&#x27;</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">&#x27;-0.475&#x27;</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">&#x27;-0.6918&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;a5&#x27;</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">&#x27;0&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&#x27;C&#x27;</span> <span class="hljs-attr">y2</span>=<span class="hljs-string">&#x27;0.35&#x27;</span> <span class="hljs-attr">x2</span>=<span class="hljs-string">&#x27;-0.6918&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;a6&#x27;</span> <span class="hljs-attr">formalCharge</span>=<span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-attr">hydrogenCount</span>=<span class="hljs-string">&#x27;0&#x27;</span>/&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">atomArray</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">bondArray</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">'http://www.xml-cml.org/schema'</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">'a1 a2'</span> <span class="hljs-attr">order</span>=<span class="hljs-string">'S'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'b1'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">'a2 a3'</span> <span class="hljs-attr">order</span>=<span class="hljs-string">'D'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'b2'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">'a3 a4'</span> <span class="hljs-attr">order</span>=<span class="hljs-string">'S'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'b3'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">'a4 a5'</span> <span class="hljs-attr">order</span>=<span class="hljs-string">'D'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'b4'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">'a5 a6'</span> <span class="hljs-attr">order</span>=<span class="hljs-string">'S'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'b5'</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">'a1 a6'</span> <span class="hljs-attr">order</span>=<span class="hljs-string">'D'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'b6'</span>/&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">bondArray</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/schema&#x27;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&#x27;a1 a2&#x27;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&#x27;S&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;b1&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&#x27;a2 a3&#x27;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&#x27;D&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;b2&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&#x27;a3 a4&#x27;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&#x27;S&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;b3&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&#x27;a4 a5&#x27;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&#x27;D&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;b4&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&#x27;a5 a6&#x27;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&#x27;S&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;b5&#x27;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&#x27;a1 a6&#x27;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&#x27;D&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;b6&#x27;</span>/&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">bondArray</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">molecule</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">spectrum</span> <span class="hljs-attr">moleculeRef</span>=<span class="hljs-string">'nmrshiftdb7901'</span> <span class="hljs-attr">xmlns:cml</span>=<span class="hljs-string">'http://www.xml-cml.org/dict/cml'</span> <span class="hljs-attr">xmlns:cmlDict</span>=<span class="hljs-string">'http://www.xml-cml.org/dict/cmlDict'</span> <span class="hljs-attr">xmlns:siUnits</span>=<span class="hljs-string">'http://www.xml-cml.org/units/siUnits'</span> <span class="hljs-attr">type</span>=<span class="hljs-string">'NMR'</span> <span class="hljs-attr">xmlns:macie</span>=<span class="hljs-string">'http://www.xml-cml.org/dict/macie'</span> <span class="hljs-attr">xmlns:units</span>=<span class="hljs-string">'http://www.xml-cml.org/units/units'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'nmrshiftdb15502'</span> <span class="hljs-attr">xmlns:subst</span>=<span class="hljs-string">'http://www.xml-cml.org/dict/substDict'</span> <span class="hljs-attr">xmlns:nmr</span>=<span class="hljs-string">'http://www.nmrshiftdb.org/dict'</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">'http://www.xml-cml.org/schema/cml2/spect'</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">conditionList</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">'http://www.xml-cml.org/schema'</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">scalar</span> <span class="hljs-attr">dataType</span>=<span class="hljs-string">'xsd:string'</span> <span class="hljs-attr">units</span>=<span class="hljs-string">'siUnits:k'</span> <span class="hljs-attr">dictRef</span>=<span class="hljs-string">'cml:temp'</span>&gt;</span>298<span class="hljs-tag">&lt;/<span class="hljs-name">scalar</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">scalar</span> <span class="hljs-attr">dataType</span>=<span class="hljs-string">'xsd:string'</span> <span class="hljs-attr">units</span>=<span class="hljs-string">'siUnits:hertz'</span> <span class="hljs-attr">dictRef</span>=<span class="hljs-string">'cml:field'</span>&gt;</span>Unreported<span class="hljs-tag">&lt;/<span class="hljs-name">scalar</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">spectrum</span> <span class="hljs-attr">moleculeRef</span>=<span class="hljs-string">&#x27;nmrshiftdb7901&#x27;</span> <span class="hljs-attr">xmlns:cml</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/dict/cml&#x27;</span> <span class="hljs-attr">xmlns:cmlDict</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/dict/cmlDict&#x27;</span> <span class="hljs-attr">xmlns:siUnits</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/units/siUnits&#x27;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&#x27;NMR&#x27;</span> <span class="hljs-attr">xmlns:macie</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/dict/macie&#x27;</span> <span class="hljs-attr">xmlns:units</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/units/units&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;nmrshiftdb15502&#x27;</span> <span class="hljs-attr">xmlns:subst</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/dict/substDict&#x27;</span> <span class="hljs-attr">xmlns:nmr</span>=<span class="hljs-string">&#x27;http://www.nmrshiftdb.org/dict&#x27;</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/schema/cml2/spect&#x27;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">conditionList</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/schema&#x27;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">scalar</span> <span class="hljs-attr">dataType</span>=<span class="hljs-string">&#x27;xsd:string&#x27;</span> <span class="hljs-attr">units</span>=<span class="hljs-string">&#x27;siUnits:k&#x27;</span> <span class="hljs-attr">dictRef</span>=<span class="hljs-string">&#x27;cml:temp&#x27;</span>&gt;</span>298<span class="hljs-tag">&lt;/<span class="hljs-name">scalar</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">scalar</span> <span class="hljs-attr">dataType</span>=<span class="hljs-string">&#x27;xsd:string&#x27;</span> <span class="hljs-attr">units</span>=<span class="hljs-string">&#x27;siUnits:hertz&#x27;</span> <span class="hljs-attr">dictRef</span>=<span class="hljs-string">&#x27;cml:field&#x27;</span>&gt;</span>Unreported<span class="hljs-tag">&lt;/<span class="hljs-name">scalar</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">conditionList</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">metadataList</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">'http://www.xml-cml.org/schema'</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">metadata</span> <span class="hljs-attr">name</span>=<span class="hljs-string">'nmr:OBSERVENUCLEUS'</span> <span class="hljs-attr">content</span>=<span class="hljs-string">'13C'</span>/&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">metadataList</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/schema&#x27;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">metadata</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&#x27;nmr:OBSERVENUCLEUS&#x27;</span> <span class="hljs-attr">content</span>=<span class="hljs-string">&#x27;13C&#x27;</span>/&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">metadataList</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">peakList</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">'http://www.xml-cml.org/schema'</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">peak</span> <span class="hljs-attr">xUnits</span>=<span class="hljs-string">'units:ppm'</span> <span class="hljs-attr">peakShape</span>=<span class="hljs-string">'sharp'</span> <span class="hljs-attr">xValue</span>=<span class="hljs-string">'128.5'</span> <span class="hljs-attr">id</span>=<span class="hljs-string">'p0'</span> <span class="hljs-attr">atomRefs</span>=<span class="hljs-string">'a1 a2 a3 a4 a5 a6'</span>/&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">peakList</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.xml-cml.org/schema&#x27;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">peak</span> <span class="hljs-attr">xUnits</span>=<span class="hljs-string">&#x27;units:ppm&#x27;</span> <span class="hljs-attr">peakShape</span>=<span class="hljs-string">&#x27;sharp&#x27;</span> <span class="hljs-attr">xValue</span>=<span class="hljs-string">&#x27;128.5&#x27;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&#x27;p0&#x27;</span> <span class="hljs-attr">atomRefs</span>=<span class="hljs-string">&#x27;a1 a2 a3 a4 a5 a6&#x27;</span>/&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">peakList</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">spectrum</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">cml</span>&gt;</span>

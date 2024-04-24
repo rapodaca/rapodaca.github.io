@@ -41,15 +41,15 @@
 <pre><code class="hljs bash language-bash">ruby setup.rb
 </code></pre>
 <p>Using YAJB was straightforward. A Java <code>Vector</code> instance could be instantiated and manipulated using familiar syntax:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'yajb/jbridge'</span>
-<span class="hljs-keyword">include</span> JavaBridge
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;yajb/jbridge&#x27;</span>
+<span class="hljs-keyword">include</span> <span class="hljs-title class_">JavaBridge</span>
 
-v = jnew <span class="hljs-string">"java.util.Vector"</span>
+v = jnew <span class="hljs-string">&quot;java.util.Vector&quot;</span>
 
-v.add(<span class="hljs-string">"one"</span>)
-v.add(<span class="hljs-string">"two"</span>)
+v.add(<span class="hljs-string">&quot;one&quot;</span>)
+v.add(<span class="hljs-string">&quot;two&quot;</span>)
 v.size <span class="hljs-comment"># =&gt; 2</span>
-v.elementAt(<span class="hljs-number">1</span>) <span class="hljs-comment"># =&gt; "two"</span>
+v.elementAt(<span class="hljs-number">1</span>) <span class="hljs-comment"># =&gt; &quot;two&quot;</span>
 </code></pre>
 <p>Good integration tools can make the difference between actually using new technologies and simply observing them. Java developers interested in using Ruby now have at least three good options to choose from: JRuby; RJB; and YAJB.</p>
     </article>

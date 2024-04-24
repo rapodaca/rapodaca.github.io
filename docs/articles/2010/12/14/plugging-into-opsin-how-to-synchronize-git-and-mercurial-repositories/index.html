@@ -49,7 +49,7 @@
 <p>With these prerequisites out of the way, I needed to set up two public forks to host OPSIN code. The first is <a href="http://github.com/metamolecular/opsin">Metamolecular's OPSIN fork on GitHub</a>, running Git. The second is <a href="http://bitbucket.org/metamolecular/opsin/">Metamolecular's OPSIN fork on Bitbucket</a> running Mercurial. OPSIN developers can pull changes from our Bitbucket repository directly using Mercurial, and we can work exclusively with Git.</p>
 <p>That's it for the public-facing side. Now, on to how this coordination works behind the scenes. We need a local hybrid Git/Mercurial repository ('opsin-hg') that can push/pull changes to/from either Git or Mercurial remote repositories. From <a href="http://hg-git.github.com/">the documentation</a>.</p>
 <pre><code class="hljs bash language-bash">hg <span class="hljs-built_in">clone</span> https://metamolecular@bitbucket.org/dan2097/opsin
-mv opsin opsin-hg
+<span class="hljs-built_in">mv</span> opsin opsin-hg
 <span class="hljs-built_in">cd</span> opsin-hg
 hg bookmark -r
 </code></pre>

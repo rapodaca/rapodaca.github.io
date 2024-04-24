@@ -55,7 +55,7 @@
 <pre><code class="hljs bash language-bash">brew install llvm
 </code></pre>
 <p>Activate the installation with:</p>
-<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> PATH=/usr/<span class="hljs-built_in">local</span>/opt/llvm/bin:<span class="hljs-variable">$PATH</span>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> PATH=/usr/local/opt/llvm/bin:<span class="hljs-variable">$PATH</span>
 </code></pre>
 <p>Finally, verify the activation with:</p>
 <pre><code class="hljs bash language-bash">llc --version
@@ -69,13 +69,13 @@
 <h2 id="compilingasmalllibrary">Compiling a Small Library</h2>
 <p>As a test of what's now possible, consider the following function that returns the sum of two arguments:</p>
 <pre><code class="hljs c language-c"><span class="hljs-comment">// add.c</span>
-<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">add</span> <span class="hljs-params">(<span class="hljs-keyword">int</span> first, <span class="hljs-keyword">int</span> second)</span>
-</span>{
+<span class="hljs-type">int</span> <span class="hljs-title function_">add</span> <span class="hljs-params">(<span class="hljs-type">int</span> first, <span class="hljs-type">int</span> second)</span>
+{
   <span class="hljs-keyword">return</span> first + second;
 }
 </code></pre>
 <p>When saved in a file called <code>add.c</code>, this function is compiled to WebAssembly using the command:</p>
-<pre><code class="hljs bash language-bash">clang --target=wasm32 --no-standard-libraries -Wl,--<span class="hljs-built_in">export</span>-all -Wl,--no-entry -o add.wasm add.c
+<pre><code class="hljs bash language-bash">clang --target=wasm32 --no-standard-libraries -Wl,--export-all -Wl,--no-entry -o add.wasm add.c
 </code></pre>
 <p>The options passed to <code>clang</code> are:</p>
 <ul>
@@ -87,18 +87,18 @@
 </ul>
 <p>Options preceded by <code>-Wl,</code> are passed from the LLVM compiler to the linker.</p>
 <p>Running the <code>clang</code> command should produce the 334-byte file <code>add.wasm</code> in your working directory. It can be run with the HTML file shown below. Save it into your working directory as <code>add.html</code>.</p>
-<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
 <span class="hljs-comment">&lt;!-- add.html --&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
-      (<span class="hljs-keyword">async</span>() =&gt; {
-        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'add.wasm'</span>);
-        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
-        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes);
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;module&quot;</span>&gt;</span><span class="language-javascript">
+      (<span class="hljs-title function_">async</span>() =&gt; {
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&#x27;add.wasm&#x27;</span>);
+        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">arrayBuffer</span>();
+        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(bytes);
 
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'The answer is: '</span> + instance.exports.add(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>));
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;The answer is: &#x27;</span> + instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">add</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>));
       })();
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
@@ -123,11 +123,11 @@
 <h2 id="wasilibc">wasi-libc</h2>
 <p>As a demonstration of what's now possible, consider the following C function <code>copy</code>. It accepts two buffers as arguments, an input and an output, returning the length of the string that was copied from input to output. Two libc functions are used: <code>strncpy</code> and <code>strlen</code>.</p>
 <pre><code class="hljs c language-c"><span class="hljs-comment">// copy.c</span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span>
 
-<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">copy</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *input, <span class="hljs-keyword">char</span> *output)</span>
-</span>{
-    <span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> length = <span class="hljs-built_in">strlen</span>(input);
+<span class="hljs-type">int</span> <span class="hljs-title function_">copy</span><span class="hljs-params">(<span class="hljs-type">char</span> *input, <span class="hljs-type">char</span> *output)</span>
+{
+    <span class="hljs-type">const</span> <span class="hljs-type">int</span> length = <span class="hljs-built_in">strlen</span>(input);
 
     <span class="hljs-built_in">strncpy</span>(output, input, length);
 
@@ -135,8 +135,8 @@
 }
 </code></pre>
 <p>Attempting to compile this source file like we did before will result in an error:</p>
-<pre><code class="hljs bash language-bash">clang --target=wasm32 --no-standard-libraries -Wl,--<span class="hljs-built_in">export</span>-all -Wl,--no-entry -o copy.wasm copy.c
-src/copy.c:2:10: fatal error: <span class="hljs-string">'string.h'</span> file not found
+<pre><code class="hljs bash language-bash">clang --target=wasm32 --no-standard-libraries -Wl,--export-all -Wl,--no-entry -o copy.wasm copy.c
+src/copy.c:2:10: fatal error: <span class="hljs-string">&#x27;string.h&#x27;</span> file not found
 <span class="hljs-comment">#include &lt;string.h&gt;</span>
          ^~~~~~~~~~
 1 error generated.
@@ -148,13 +148,13 @@ src/copy.c:2:10: fatal error: <span class="hljs-string">'string.h'</span> file n
 make install INSTALL_DIR=/tmp/wasi-libc
 </code></pre>
 <p>The install directory can be set to any convenient location. On macOS, ensure the correct version of <code>clang</code> has been activated prior to using make:</p>
-<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> PATH=/usr/<span class="hljs-built_in">local</span>/opt/llvm/bin:<span class="hljs-variable">$PATH</span>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> PATH=/usr/local/opt/llvm/bin:<span class="hljs-variable">$PATH</span>
 </code></pre>
 <p>We can now try to compile <code>copy.c</code> with a slightly modified invocation of clang:</p>
-<pre><code class="hljs bash language-bash">clang --target=wasm32-unknown-wasi --sysroot /tmp/wasi-libc -nostartfiles -Wl,--import-memory -Wl,--no-entry -Wl,--<span class="hljs-built_in">export</span>-all -o copy.wasm copy.c
+<pre><code class="hljs bash language-bash">clang --target=wasm32-unknown-wasi --sysroot /tmp/wasi-libc -nostartfiles -Wl,--import-memory -Wl,--no-entry -Wl,--export-all -o copy.wasm copy.c
 </code></pre>
 <p>Unfortunately, this will probably fail with an error similar to:</p>
-<pre><code class="hljs bash language-bash">wasm-ld: error: cannot open /usr/<span class="hljs-built_in">local</span>/Cellar/llvm/9.0.0/lib/clang/9.0.0/lib/wasi/libclang_rt.builtins-wasm32.a: No such file or directory
+<pre><code class="hljs bash language-bash">wasm-ld: error: cannot open /usr/local/Cellar/llvm/9.0.0/lib/clang/9.0.0/lib/wasi/libclang_rt.builtins-wasm32.a: No such file or directory
 clang-9: error: linker <span class="hljs-built_in">command</span> failed with <span class="hljs-built_in">exit</span> code 1 (use -v to see invocation)
 </code></pre>
 <p>The problem can be resolved by adding the missing file to the path indicated by the error. It may be necessary to create missing directories. Conveniently, the precompiled WebAssembly binary <a href="https://github.com/jedisct1/libclang_rt.builtins-wasm32.a">libclang_rt.builtins-wasm32.a</a> can be directly downloaded. This file is itself compiled from the <a href="https://github.com/CraneStation/wasi-sdk">WASI SDK</a> source.</p>
@@ -166,7 +166,7 @@ clang-9: error: linker <span class="hljs-built_in">command</span> failed with <s
 -nostartfiles \
 -Wl,--import-memory \
 -Wl,--no-entry \
--Wl,--<span class="hljs-built_in">export</span>-all \
+-Wl,--export-all \
 -o copy.wasm \
 copy.c
 </code></pre>
@@ -179,55 +179,55 @@ copy.c
 <p>After issuing the command, a new 1,409-byte file, <code>copy.wasm</code>, should have been created in your working directory.</p>
 <h2 id="webassemblyjavascriptandmemory">WebAssembly, JavaScript, and Memory</h2>
 <p>The newly-compiled <code>copy</code> function can be tested with the following HTML:</p>
-<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
 <span class="hljs-comment">&lt;!-- copy.html --&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;module&quot;</span>&gt;</span><span class="language-javascript">
       <span class="hljs-comment">// allow use of async/await</span>
       (<span class="hljs-keyword">async</span> () =&gt; {
         <span class="hljs-comment">// Build the WebAssembly instance.</span>
-        <span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> WebAssembly.Memory({ <span class="hljs-attr">initial</span>: <span class="hljs-number">2</span> });
-        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'./copy.wasm'</span>);
-        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
-        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, {
+        <span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title class_">Memory</span>({ <span class="hljs-attr">initial</span>: <span class="hljs-number">2</span> });
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&#x27;./copy.wasm&#x27;</span>);
+        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">arrayBuffer</span>();
+        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(bytes, {
           <span class="hljs-attr">env</span>: { memory }
         });
 
         <span class="hljs-comment">// Text to copy.</span>
-        <span class="hljs-keyword">const</span> text = <span class="hljs-string">'Hello from JavaScript!'</span>;
+        <span class="hljs-keyword">const</span> text = <span class="hljs-string">&#x27;Hello from JavaScript!&#x27;</span>;
 
         <span class="hljs-comment">// Configure shared memory.</span>
-        <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
-        <span class="hljs-keyword">const</span> pInput = instance.exports.__heap_base;
+        <span class="hljs-keyword">const</span> view = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(memory.<span class="hljs-property">buffer</span>);
+        <span class="hljs-keyword">const</span> pInput = instance.<span class="hljs-property">exports</span>.<span class="hljs-property">__heap_base</span>;
         <span class="hljs-keyword">const</span> pOutput = pInput + <span class="hljs-number">1024</span>;
 
-        encode(view, pInput, text);
+        <span class="hljs-title function_">encode</span>(view, pInput, text);
 
         <span class="hljs-comment">// Read the result.</span>
-        <span class="hljs-keyword">const</span> bytesCopied = instance.exports.copy(pInput, pOutput, text.length);
+        <span class="hljs-keyword">const</span> bytesCopied = instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">copy</span>(pInput, pOutput, text.<span class="hljs-property">length</span>);
 
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'copy length'</span>, bytesCopied);
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'copy'</span>, decode(view, pOutput));
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;copy length&#x27;</span>, bytesCopied);
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;copy&#x27;</span>, <span class="hljs-title function_">decode</span>(view, pOutput));
       })();
 
       <span class="hljs-comment">// Encode string into memory starting at address base.</span>
-      <span class="hljs-keyword">const</span> encode = <span class="hljs-function">(<span class="hljs-params">memory, base, string</span>) =&gt;</span> {
-        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; string.length; i++) {
-          memory[base + i] = string.charCodeAt(i);
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">encode</span> = (<span class="hljs-params">memory, base, string</span>) =&gt; {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; string.<span class="hljs-property">length</span>; i++) {
+          memory[base + i] = string.<span class="hljs-title function_">charCodeAt</span>(i);
         }
 
-        memory[base + string.length] = <span class="hljs-number">0</span>;
+        memory[base + string.<span class="hljs-property">length</span>] = <span class="hljs-number">0</span>;
       };
 
       <span class="hljs-comment">// Decode a string from memory starting at address base.</span>
-      <span class="hljs-keyword">const</span> decode = <span class="hljs-function">(<span class="hljs-params">memory, base</span>) =&gt;</span> {
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">decode</span> = (<span class="hljs-params">memory, base</span>) =&gt; {
         <span class="hljs-keyword">let</span> cursor = base;
-        <span class="hljs-keyword">let</span> result = <span class="hljs-string">''</span>;
+        <span class="hljs-keyword">let</span> result = <span class="hljs-string">&#x27;&#x27;</span>;
 
         <span class="hljs-keyword">while</span> (memory[cursor] !== <span class="hljs-number">0</span>) {
-          result += <span class="hljs-built_in">String</span>.fromCharCode(memory[cursor++]);
+          result += <span class="hljs-title class_">String</span>.<span class="hljs-title function_">fromCharCode</span>(memory[cursor++]);
         }
 
         <span class="hljs-keyword">return</span> result;
@@ -243,12 +243,12 @@ copy.c
 <p>Fortunately, a WebAssembly module compiled from C that manages memory with <code>malloc</code> and/or <code>free</code> will expose these function to the JavaScript environment. Your JavaScript code can then use <code>malloc</code> to obtain a safe pointer to WebAssembly shared memory, and <code>free</code> to release it.</p>
 <p>The following code allows this idea to be tested. It accepts a pointer to a character array as input and returns a pointer to an internally-allocated character array as output.</p>
 <pre><code class="hljs c language-c"><span class="hljs-comment">// malloc_copy.c</span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span>
 
-<span class="hljs-function"><span class="hljs-keyword">char</span>* <span class="hljs-title">malloc_copy</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *input)</span>
-</span>{
-    <span class="hljs-keyword">char</span> *result = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">1024</span>);
+<span class="hljs-type">char</span>* <span class="hljs-title function_">malloc_copy</span><span class="hljs-params">(<span class="hljs-type">char</span> *input)</span>
+{
+    <span class="hljs-type">char</span> *result = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">1024</span>);
 
     <span class="hljs-built_in">strncpy</span>(result, input, <span class="hljs-built_in">strlen</span>(input));
 
@@ -262,61 +262,61 @@ copy.c
 -nostartfiles \
 -Wl,--import-memory \
 -Wl,--no-entry \
--Wl,--<span class="hljs-built_in">export</span>-all \
+-Wl,--export-all \
 -o malloc_copy.wasm \
 malloc_copy.c
 </code></pre>
 <p>This should produce a 16 kB wasm file, <code>malloc_copy.wasm</code>, which can be executed with the following HTML:</p>
-<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
 <span class="hljs-comment">&lt;!-- malloc_copy.html --&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;module&quot;</span>&gt;</span><span class="language-javascript">
       <span class="hljs-comment">// allow use of async/await</span>
       (<span class="hljs-keyword">async</span> () =&gt; {
         <span class="hljs-comment">// Build the WebAssembly instance.</span>
-        <span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> WebAssembly.Memory({ <span class="hljs-attr">initial</span>: <span class="hljs-number">2</span> });
-        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'./malloc_copy.wasm'</span>);
-        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
-        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, {
+        <span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title class_">Memory</span>({ <span class="hljs-attr">initial</span>: <span class="hljs-number">2</span> });
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&#x27;./malloc_copy.wasm&#x27;</span>);
+        <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">arrayBuffer</span>();
+        <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(bytes, {
           <span class="hljs-attr">env</span>: { memory }
         });
 
         <span class="hljs-comment">// Text to copy.</span>
-        <span class="hljs-keyword">const</span> text = <span class="hljs-string">'Hello from JavaScript!'</span>;
+        <span class="hljs-keyword">const</span> text = <span class="hljs-string">&#x27;Hello from JavaScript!&#x27;</span>;
 
         <span class="hljs-comment">// Configure shared memory.</span>
-        <span class="hljs-keyword">const</span> view1 = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
-        <span class="hljs-keyword">const</span> pInput = instance.exports.malloc(<span class="hljs-number">1024</span>);
+        <span class="hljs-keyword">const</span> view1 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(memory.<span class="hljs-property">buffer</span>);
+        <span class="hljs-keyword">const</span> pInput = instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">malloc</span>(<span class="hljs-number">1024</span>);
         <span class="hljs-comment">// malloc causes memory to grow, invalidating old view</span>
-        <span class="hljs-keyword">const</span> view2 = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
+        <span class="hljs-keyword">const</span> view2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(memory.<span class="hljs-property">buffer</span>);
 
-        encode(view2, pInput, text);
+        <span class="hljs-title function_">encode</span>(view2, pInput, text);
 
-        <span class="hljs-keyword">const</span> pOutput = instance.exports.malloc_copy(pInput, text.length);
+        <span class="hljs-keyword">const</span> pOutput = instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">malloc_copy</span>(pInput, text.<span class="hljs-property">length</span>);
 
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'copy'</span>, decode(view2, pOutput));
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;copy&#x27;</span>, <span class="hljs-title function_">decode</span>(view2, pOutput));
 
         <span class="hljs-comment">// Should free pOutput and pInput</span>
       })();
 
       <span class="hljs-comment">// Encode string into memory starting at address base.</span>
-      <span class="hljs-keyword">const</span> encode = <span class="hljs-function">(<span class="hljs-params">memory, base, string</span>) =&gt;</span> {
-        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; string.length; i++) {
-          memory[base + i] = string.charCodeAt(i);
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">encode</span> = (<span class="hljs-params">memory, base, string</span>) =&gt; {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; string.<span class="hljs-property">length</span>; i++) {
+          memory[base + i] = string.<span class="hljs-title function_">charCodeAt</span>(i);
         }
 
-        memory[base + string.length] = <span class="hljs-number">0</span>;
+        memory[base + string.<span class="hljs-property">length</span>] = <span class="hljs-number">0</span>;
       };
 
       <span class="hljs-comment">// Decode a string from memory starting at address base.</span>
-      <span class="hljs-keyword">const</span> decode = <span class="hljs-function">(<span class="hljs-params">memory, base</span>) =&gt;</span> {
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">decode</span> = (<span class="hljs-params">memory, base</span>) =&gt; {
         <span class="hljs-keyword">let</span> cursor = base;
-        <span class="hljs-keyword">let</span> result = <span class="hljs-string">''</span>;
+        <span class="hljs-keyword">let</span> result = <span class="hljs-string">&#x27;&#x27;</span>;
 
         <span class="hljs-keyword">while</span> (memory[cursor] !== <span class="hljs-number">0</span>) {
-          result += <span class="hljs-built_in">String</span>.fromCharCode(memory[cursor++]);
+          result += <span class="hljs-title class_">String</span>.<span class="hljs-title function_">fromCharCode</span>(memory[cursor++]);
         }
 
         <span class="hljs-keyword">return</span> result;

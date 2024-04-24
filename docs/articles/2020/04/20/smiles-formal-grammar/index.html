@@ -72,13 +72,13 @@
 <p>A non-terminal is the name of a rule. These names appear on the left-hand side of the assignment operator for a given production. In other words, a non-terminal appearing on the right-hand side of the assignment operator can always be found as the name of some production rule elsewhere in the grammar.</p>
 <p>A terminal is an irreducible element of the language. In the case of SMILES, terminals include characters such as open parentheses (<code>(</code>), close parentheses (<code>)</code>), letters, and numbers.</p>
 <p>For example, consider a production rule for an explicit bond in SMILES. It can be expressed as follows:</p>
-<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;bond&gt;</span> ::= <span class="hljs-string">"-"</span> | <span class="hljs-string">"="</span> | <span class="hljs-string">"#"</span> | <span class="hljs-string">"$"</span> | <span class="hljs-string">"/"</span> | <span class="hljs-string">"\\"</span>
+<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;bond&gt;</span> ::= <span class="hljs-string">&quot;-&quot;</span> | <span class="hljs-string">&quot;=&quot;</span> | <span class="hljs-string">&quot;#&quot;</span> | <span class="hljs-string">&quot;$&quot;</span> | <span class="hljs-string">&quot;/&quot;</span> | <span class="hljs-string">&quot;\\&quot;</span>
 </code></pre>
 <p>Similar to regular expressions, the items in a list of alternatives are separated by the pipe symbol (<code>|</code>). The production rule called <code>&lt;bond&gt;</code> is satisfied by any of the six enumerated characters. Notice that <code>&lt;bond&gt;</code> does not include the dot (<code>.</code>) operator. The reason is that dot is not a bond at all. Rather, dot indicates the absence of a bond. Our grammar will include it as a separate production.</p>
 <p>As a more advanced example, consider the production for atomic charge in SMILES. We'd like to allow atoms to assume any integer charge from -15 to -1, inclusive, and from +1 to +15, inclusive. Additionally, we'd like to support the shorthand forms <code>+</code> (+1), <code>++</code> (+2), <code>-</code> (-1) and <code>--</code> (-2). All other charges, including nonsensical forms such as <code>+0</code>, <code>-0</code>, should be disallowed. The following production satisfies the requirements.</p>
-<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;charge&gt;</span>  ::= <span class="hljs-string">"+"</span> ( <span class="hljs-string">"+"</span> | &lt;fifteen&gt; )? | <span class="hljs-string">"-"</span> ( <span class="hljs-string">"-"</span> | &lt;fifteen&gt; )?
-<span class="hljs-attribute">&lt;fifteen&gt;</span> ::= <span class="hljs-string">"1"</span> (<span class="hljs-string">"0"</span> | <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> | <span class="hljs-string">"4"</span> | <span class="hljs-string">"5"</span>)?
-            | ( "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" )
+<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;charge&gt;</span>  ::= <span class="hljs-string">&quot;+&quot;</span> ( <span class="hljs-string">&quot;+&quot;</span> | &lt;fifteen&gt; )? | <span class="hljs-string">&quot;-&quot;</span> ( <span class="hljs-string">&quot;-&quot;</span> | &lt;fifteen&gt; )?
+<span class="hljs-attribute">&lt;fifteen&gt;</span> ::= <span class="hljs-string">&quot;1&quot;</span> (<span class="hljs-string">&quot;0&quot;</span> | <span class="hljs-string">&quot;1&quot;</span> | <span class="hljs-string">&quot;2&quot;</span> | <span class="hljs-string">&quot;3&quot;</span> | <span class="hljs-string">&quot;4&quot;</span> | <span class="hljs-string">&quot;5&quot;</span>)?
+            | ( &quot;2&quot; | &quot;3&quot; | &quot;4&quot; | &quot;5&quot; | &quot;6&quot; | &quot;7&quot; | &quot;8&quot; | &quot;9&quot; )
 </code></pre>
 <p>The <code>&lt;charge&gt;</code> rule is defined in terms of a second rule, <code>&lt;fifteen&gt;</code>. Both rules acting together yield the desired behavior. Optionally, the <code>&lt;fifteen&gt;</code> production could be inlined into <code>&lt;charge&gt;</code>. However, the result would be unwieldy and hard to understand.</p>
 <p>Like computer programs, grammars can (and should be) refactored for clarity and performance.</p>
@@ -105,12 +105,12 @@
 <p>We can think of a SMILES as a single line of text encoding at least one atom with possibly more following the first. These atoms can grouped into branches or chains of atoms optionally connected by a bond or dot (<code>.</code>). Additionally, cycles can be encoded with cuts represented as numerical indexes ("rnum"). These ideas are captured in the toy grammar shown below.</p>
 <pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;line&gt;</span>   ::= &lt;atom&gt; ( &lt;chain&gt; | &lt;branch&gt; )*
 <span class="hljs-attribute">&lt;chain&gt;</span>  ::= ( &lt;dot&gt; &lt;atom&gt; | &lt;bond&gt;? ( &lt;atom&gt; | &lt;rnum&gt;) )+
-<span class="hljs-attribute">&lt;branch&gt;</span> ::= <span class="hljs-string">"("</span> ( ( &lt;bond&gt; | &lt;dot&gt; )? &lt;line&gt; )+ <span class="hljs-string">")"</span>
-<span class="hljs-attribute">&lt;rnum&gt;</span>   ::= &lt;digit&gt; | <span class="hljs-string">"%"</span> &lt;digit&gt; &lt;digit&gt;
-<span class="hljs-attribute">&lt;atom&gt;</span>   ::= <span class="hljs-string">"X"</span>
-<span class="hljs-attribute">&lt;bond&gt;</span>   ::= <span class="hljs-string">"-"</span> | <span class="hljs-string">"="</span> | <span class="hljs-string">"#"</span> | <span class="hljs-string">"$"</span> | <span class="hljs-string">"/"</span> | <span class="hljs-string">"\\"</span>
-<span class="hljs-attribute">&lt;dot&gt;</span>    ::= <span class="hljs-string">"."</span>
-<span class="hljs-attribute">&lt;digit&gt;</span>  ::= <span class="hljs-string">"0"</span> | <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> | <span class="hljs-string">"4"</span> | <span class="hljs-string">"5"</span> | <span class="hljs-string">"6"</span> | <span class="hljs-string">"7"</span> | <span class="hljs-string">"8"</span> | <span class="hljs-string">"9"</span>
+<span class="hljs-attribute">&lt;branch&gt;</span> ::= <span class="hljs-string">&quot;(&quot;</span> ( ( &lt;bond&gt; | &lt;dot&gt; )? &lt;line&gt; )+ <span class="hljs-string">&quot;)&quot;</span>
+<span class="hljs-attribute">&lt;rnum&gt;</span>   ::= &lt;digit&gt; | <span class="hljs-string">&quot;%&quot;</span> &lt;digit&gt; &lt;digit&gt;
+<span class="hljs-attribute">&lt;atom&gt;</span>   ::= <span class="hljs-string">&quot;X&quot;</span>
+<span class="hljs-attribute">&lt;bond&gt;</span>   ::= <span class="hljs-string">&quot;-&quot;</span> | <span class="hljs-string">&quot;=&quot;</span> | <span class="hljs-string">&quot;#&quot;</span> | <span class="hljs-string">&quot;$&quot;</span> | <span class="hljs-string">&quot;/&quot;</span> | <span class="hljs-string">&quot;\\&quot;</span>
+<span class="hljs-attribute">&lt;dot&gt;</span>    ::= <span class="hljs-string">&quot;.&quot;</span>
+<span class="hljs-attribute">&lt;digit&gt;</span>  ::= <span class="hljs-string">&quot;0&quot;</span> | <span class="hljs-string">&quot;1&quot;</span> | <span class="hljs-string">&quot;2&quot;</span> | <span class="hljs-string">&quot;3&quot;</span> | <span class="hljs-string">&quot;4&quot;</span> | <span class="hljs-string">&quot;5&quot;</span> | <span class="hljs-string">&quot;6&quot;</span> | <span class="hljs-string">&quot;7&quot;</span> | <span class="hljs-string">&quot;8&quot;</span> | <span class="hljs-string">&quot;9&quot;</span>
 </code></pre>
 <p>In this language, the only allowed atomic representation is "X".  In every other respect, this language is identical to the complete SMILES grammar.</p>
 <p>We can test this grammar by adding it to the <a href="https://mdkrajnak.github.io/ebnftest/">BNF Test</a> website. The following strings are valid, as expected:</p>
@@ -125,25 +125,25 @@ X.XX(=X)X
 <p>One noteworthy limitation of this approach is rnum matching. The grammar can't detect unbalanced rnums; this kind of validation transcends syntax and must be handled at the level of semantics. The same limitations apply to any SMILES grammar, and more generally will apply to any one-character lookahead grammar.</p>
 <h2 id="atoms">Atoms</h2>
 <p>Looking past the basic structure of the SMILES grammar, the most notable feature is the many options for representing atoms. The previous toy grammar defined the following <code>&lt;atom&gt;</code> production rule:</p>
-<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;atom&gt;</span> ::= <span class="hljs-string">"X"</span>
+<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;atom&gt;</span> ::= <span class="hljs-string">&quot;X&quot;</span>
 </code></pre>
 <p>SMILES supports two forms of atoms: <em>organic symbol</em> and <em>bracket atom</em>.</p>
 <p>An organic symbol must be a member of the so-called "organic subset". The organic subset consists of the following elements: "B"; "C"; "N"; "O"; "P"; "S"; and the halogens. Additionally, the following <a href="/articles/2020/02/10/a-comprehensive-treatment-of-aromaticity-in-the-smiles-language/">aromatic symbols</a> may appear as organic symbols: "b"; "c"; "n"; "o"; "p"; "s". The set of all possible organic symbols can be formulated as:</p>
-<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;organic_symbol&gt;</span> ::= <span class="hljs-string">"B"</span> <span class="hljs-string">"r"</span>? | <span class="hljs-string">"C"</span> <span class="hljs-string">"l"</span>? | <span class="hljs-string">"N"</span> | <span class="hljs-string">"O"</span> | <span class="hljs-string">"P"</span> | <span class="hljs-string">"S"</span>
-                   | "F" | "I" | "At" | "Ts"
-                   | "b" | "c" | "n" | "o" | "p" | "s"
+<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;organic_symbol&gt;</span> ::= <span class="hljs-string">&quot;B&quot;</span> <span class="hljs-string">&quot;r&quot;</span>? | <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-string">&quot;l&quot;</span>? | <span class="hljs-string">&quot;N&quot;</span> | <span class="hljs-string">&quot;O&quot;</span> | <span class="hljs-string">&quot;P&quot;</span> | <span class="hljs-string">&quot;S&quot;</span>
+                   | &quot;F&quot; | &quot;I&quot; | &quot;At&quot; | &quot;Ts&quot;
+                   | &quot;b&quot; | &quot;c&quot; | &quot;n&quot; | &quot;o&quot; | &quot;p&quot; | &quot;s&quot;
 </code></pre>
 <p>A bracket atom is an atomic symbol with optional properties surrounded by left and right brackets (<code>[</code> and <code>]</code>). Available properties include: isotope; hydrogen count; charge; stereo flag; and map. The latter is a user-definable three-digit numerical identifier.</p>
-<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;bracket_atom&gt;</span> ::= <span class="hljs-string">"["</span> &lt;isotope&gt;? &lt;symbol&gt; &lt;chiral&gt;? &lt;hcount&gt;? &lt;charge&gt;
-                 | <span class="hljs-attribute">&lt;map&gt;</span>? "]"
-<span class="hljs-attribute">&lt;symbol&gt;</span>       ::= <span class="hljs-string">"C"</span>
-<span class="hljs-attribute">&lt;hcount&gt;</span>       ::= <span class="hljs-string">"H"</span> &lt;digit&gt;?
-<span class="hljs-attribute">&lt;charge&gt;</span>         ::= <span class="hljs-string">"+"</span> ( <span class="hljs-string">"+"</span> | &lt;fifteen&gt; )? ) | ( <span class="hljs-string">"-"</span> ( <span class="hljs-string">"-"</span> | &lt;fifteen&gt; )?
+<pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;bracket_atom&gt;</span> ::= <span class="hljs-string">&quot;[&quot;</span> &lt;isotope&gt;? &lt;symbol&gt; &lt;chiral&gt;? &lt;hcount&gt;? &lt;charge&gt;
+                 | <span class="hljs-attribute">&lt;map&gt;</span>? &quot;]&quot;
+<span class="hljs-attribute">&lt;symbol&gt;</span>       ::= <span class="hljs-string">&quot;C&quot;</span>
+<span class="hljs-attribute">&lt;hcount&gt;</span>       ::= <span class="hljs-string">&quot;H&quot;</span> &lt;digit&gt;?
+<span class="hljs-attribute">&lt;charge&gt;</span>         ::= <span class="hljs-string">&quot;+&quot;</span> ( <span class="hljs-string">&quot;+&quot;</span> | &lt;fifteen&gt; )? ) | ( <span class="hljs-string">&quot;-&quot;</span> ( <span class="hljs-string">&quot;-&quot;</span> | &lt;fifteen&gt; )?
 <span class="hljs-attribute">&lt;isotope&gt;</span>      ::= &lt;digit&gt;? &lt;digit&gt;? &lt;digit&gt;
-<span class="hljs-attribute">&lt;digit&gt;</span>        ::= <span class="hljs-string">"0"</span> | <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> | <span class="hljs-string">"4"</span> | <span class="hljs-string">"5"</span> | <span class="hljs-string">"6"</span> | <span class="hljs-string">"7"</span> | <span class="hljs-string">"8"</span> | <span class="hljs-string">"9"</span>
-<span class="hljs-attribute">&lt;fifteen&gt;</span>      ::= <span class="hljs-string">"1"</span> (<span class="hljs-string">"0"</span> | <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> | <span class="hljs-string">"4"</span> | <span class="hljs-string">"5"</span>)?
-                 | ( "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" )
-<span class="hljs-attribute">&lt;map&gt;</span>        ::= <span class="hljs-string">":"</span> &lt;digit&gt;? &lt;digit&gt;? &lt;digit&gt;
+<span class="hljs-attribute">&lt;digit&gt;</span>        ::= <span class="hljs-string">&quot;0&quot;</span> | <span class="hljs-string">&quot;1&quot;</span> | <span class="hljs-string">&quot;2&quot;</span> | <span class="hljs-string">&quot;3&quot;</span> | <span class="hljs-string">&quot;4&quot;</span> | <span class="hljs-string">&quot;5&quot;</span> | <span class="hljs-string">&quot;6&quot;</span> | <span class="hljs-string">&quot;7&quot;</span> | <span class="hljs-string">&quot;8&quot;</span> | <span class="hljs-string">&quot;9&quot;</span>
+<span class="hljs-attribute">&lt;fifteen&gt;</span>      ::= <span class="hljs-string">&quot;1&quot;</span> (<span class="hljs-string">&quot;0&quot;</span> | <span class="hljs-string">&quot;1&quot;</span> | <span class="hljs-string">&quot;2&quot;</span> | <span class="hljs-string">&quot;3&quot;</span> | <span class="hljs-string">&quot;4&quot;</span> | <span class="hljs-string">&quot;5&quot;</span>)?
+                 | ( &quot;2&quot; | &quot;3&quot; | &quot;4&quot; | &quot;5&quot; | &quot;6&quot; | &quot;7&quot; | &quot;8&quot; | &quot;9&quot; )
+<span class="hljs-attribute">&lt;map&gt;</span>        ::= <span class="hljs-string">&quot;:&quot;</span> &lt;digit&gt;? &lt;digit&gt;? &lt;digit&gt;
 </code></pre>
 <p>For simplicity, the <code>&lt;symbol&gt;</code> production is truncated here and only contains an entry for carbon ("C"). The full grammar at the end of this article contains the complete set of IUPAC-defined atomic symbols.</p>
 <h2 id="puttingitalltogether">Putting It All Together</h2>
@@ -153,47 +153,47 @@ X.XX(=X)X
 <p>Replacing the old rule for <code>&lt;atom&gt;</code> in the toy grammar with this new one yields a complete LL(1) SMILES grammar:</p>
 <pre><code class="hljs bnf language-bnf"><span class="hljs-attribute">&lt;line&gt;</span>           ::= &lt;atom&gt; ( &lt;chain&gt; | &lt;branch&gt; )*
 <span class="hljs-attribute">&lt;chain&gt;</span>          ::= ( &lt;dot&gt; &lt;atom&gt; | &lt;bond&gt;? ( &lt;atom&gt; | &lt;rnum&gt;) )+
-<span class="hljs-attribute">&lt;branch&gt;</span>         ::= <span class="hljs-string">"("</span> ( ( &lt;bond&gt; | &lt;dot&gt; )? &lt;line&gt; )+ <span class="hljs-string">")"</span>
+<span class="hljs-attribute">&lt;branch&gt;</span>         ::= <span class="hljs-string">&quot;(&quot;</span> ( ( &lt;bond&gt; | &lt;dot&gt; )? &lt;line&gt; )+ <span class="hljs-string">&quot;)&quot;</span>
 <span class="hljs-attribute">&lt;atom&gt;</span>           ::= &lt;organic_symbol&gt; | &lt;bracket_atom&gt;
-<span class="hljs-attribute">&lt;bracket_atom&gt;</span>   ::= <span class="hljs-string">"["</span> &lt;isotope&gt;? &lt;symbol&gt; &lt;chiral&gt;? &lt;hcount&gt;? &lt;charge&gt;?
-                   | <span class="hljs-attribute">&lt;map&gt;</span>? "]"
-<span class="hljs-attribute">&lt;rnum&gt;</span>           ::= &lt;digit&gt; | <span class="hljs-string">"%"</span> &lt;digit&gt; &lt;digit&gt;
+<span class="hljs-attribute">&lt;bracket_atom&gt;</span>   ::= <span class="hljs-string">&quot;[&quot;</span> &lt;isotope&gt;? &lt;symbol&gt; &lt;chiral&gt;? &lt;hcount&gt;? &lt;charge&gt;?
+                   | <span class="hljs-attribute">&lt;map&gt;</span>? &quot;]&quot;
+<span class="hljs-attribute">&lt;rnum&gt;</span>           ::= &lt;digit&gt; | <span class="hljs-string">&quot;%&quot;</span> &lt;digit&gt; &lt;digit&gt;
 <span class="hljs-attribute">&lt;isotope&gt;</span>        ::= &lt;digit&gt;? &lt;digit&gt;? &lt;digit&gt;
-<span class="hljs-attribute">&lt;hcount&gt;</span>         ::= <span class="hljs-string">"H"</span> &lt;digit&gt;?
-<span class="hljs-attribute">&lt;charge&gt;</span>         ::= <span class="hljs-string">"+"</span> ( <span class="hljs-string">"+"</span> | &lt;fifteen&gt; )? | <span class="hljs-string">"-"</span> ( <span class="hljs-string">"-"</span> | &lt;fifteen&gt; )?
-<span class="hljs-attribute">&lt;map&gt;</span>            ::= <span class="hljs-string">":"</span> &lt;digit&gt;? &lt;digit&gt;? &lt;digit&gt;
-<span class="hljs-attribute">&lt;symbol&gt;</span>         ::= <span class="hljs-string">"A"</span> ( <span class="hljs-string">"c"</span> | <span class="hljs-string">"g"</span> | <span class="hljs-string">"l"</span> | <span class="hljs-string">"m"</span> | <span class="hljs-string">"r"</span> | <span class="hljs-string">"s"</span> | <span class="hljs-string">"t"</span> | <span class="hljs-string">"u"</span> )
-                   | "B" ( "a" | "e" | "h" | "i" | "k" | "r" )?
-                   | "C" ( "a" | "d" | "e" | "f" | "l" | "m" | "n" | "o"
-                   | "r" | "s" | "u" )?
-                   | "D" ( "b" | "s" | "y" )
-                   | "E" ( "r" | "s" | "u" )
-                   | "F" ( "e" | "l" | "m" | "r" )?
-                   | "G" ( "a" | "d" | "e" )
-                   | "H" ( "e" | "f" | "g" | "o" | "s" )?
-                   | "I" ( "n" | "r" )?
-                   | "K" "r"?
-                   | "L" ( "a" | "i" | "r" | "u" | "v" )
-                   | "M" ( "c" | "g" | "n" | "o" | "t" )
-                   | "N" ( "a" | "b" | "d" | "e" | "h" | "i" | "o" | "p" )?
-                   | "O" ( "g" | "s" )?
-                   | "P" ( "a" | "b" | "d" | "m" | "o" | "r" | "t" | "u" )?
-                   | "R" ( "a" | "b" | "e" | "f" | "g" | "h" | "n" | "u" )
-                   | "S" ( "b" | "c" | "e" | "g" | "i" | "m" | "n" | "r" )?
-                   | "T" ( "a" | "b" | "c" | "e" | "h" | "i" | "l" | "m"
-                   | "s" )
-                   | "U" | "V" | "W" | "Xe" | "Y" "b"?
-                   | "Z" ( "n" | "r" )
-                   | "b" | "c" | "n" | "o" | "p" | "s" "e"? | "as"
-<span class="hljs-attribute">&lt;organic_symbol&gt;</span> ::= <span class="hljs-string">"B"</span> <span class="hljs-string">"r"</span>? | <span class="hljs-string">"C"</span> <span class="hljs-string">"l"</span>? | <span class="hljs-string">"N"</span> | <span class="hljs-string">"O"</span> | <span class="hljs-string">"P"</span> | <span class="hljs-string">"S"</span>
-                   | "F" | "I" | "At" | "Ts"
-                   | "b" | "c" | "n" | "o" | "p" | "s"
-<span class="hljs-attribute">&lt;bond&gt;</span>           ::= <span class="hljs-string">"-"</span> | <span class="hljs-string">"="</span> | <span class="hljs-string">"#"</span> | <span class="hljs-string">"$"</span> | <span class="hljs-string">"/"</span> | <span class="hljs-string">"\\"</span>
-<span class="hljs-attribute">&lt;dot&gt;</span>            ::= <span class="hljs-string">"."</span>
-<span class="hljs-attribute">&lt;chiral&gt;</span>         ::= <span class="hljs-string">"@"</span>? <span class="hljs-string">"@"</span>
-<span class="hljs-attribute">&lt;digit&gt;</span>          ::= <span class="hljs-string">"0"</span> | <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> | <span class="hljs-string">"4"</span> | <span class="hljs-string">"5"</span> | <span class="hljs-string">"6"</span> | <span class="hljs-string">"7"</span> | <span class="hljs-string">"8"</span> | <span class="hljs-string">"9"</span>
-<span class="hljs-attribute">&lt;fifteen&gt;</span>        ::= <span class="hljs-string">"1"</span> (<span class="hljs-string">"0"</span> | <span class="hljs-string">"1"</span> | <span class="hljs-string">"2"</span> | <span class="hljs-string">"3"</span> | <span class="hljs-string">"4"</span> | <span class="hljs-string">"5"</span>)?
-                   | ( "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" )
+<span class="hljs-attribute">&lt;hcount&gt;</span>         ::= <span class="hljs-string">&quot;H&quot;</span> &lt;digit&gt;?
+<span class="hljs-attribute">&lt;charge&gt;</span>         ::= <span class="hljs-string">&quot;+&quot;</span> ( <span class="hljs-string">&quot;+&quot;</span> | &lt;fifteen&gt; )? | <span class="hljs-string">&quot;-&quot;</span> ( <span class="hljs-string">&quot;-&quot;</span> | &lt;fifteen&gt; )?
+<span class="hljs-attribute">&lt;map&gt;</span>            ::= <span class="hljs-string">&quot;:&quot;</span> &lt;digit&gt;? &lt;digit&gt;? &lt;digit&gt;
+<span class="hljs-attribute">&lt;symbol&gt;</span>         ::= <span class="hljs-string">&quot;A&quot;</span> ( <span class="hljs-string">&quot;c&quot;</span> | <span class="hljs-string">&quot;g&quot;</span> | <span class="hljs-string">&quot;l&quot;</span> | <span class="hljs-string">&quot;m&quot;</span> | <span class="hljs-string">&quot;r&quot;</span> | <span class="hljs-string">&quot;s&quot;</span> | <span class="hljs-string">&quot;t&quot;</span> | <span class="hljs-string">&quot;u&quot;</span> )
+                   | &quot;B&quot; ( &quot;a&quot; | &quot;e&quot; | &quot;h&quot; | &quot;i&quot; | &quot;k&quot; | &quot;r&quot; )?
+                   | &quot;C&quot; ( &quot;a&quot; | &quot;d&quot; | &quot;e&quot; | &quot;f&quot; | &quot;l&quot; | &quot;m&quot; | &quot;n&quot; | &quot;o&quot;
+                   | &quot;r&quot; | &quot;s&quot; | &quot;u&quot; )?
+                   | &quot;D&quot; ( &quot;b&quot; | &quot;s&quot; | &quot;y&quot; )
+                   | &quot;E&quot; ( &quot;r&quot; | &quot;s&quot; | &quot;u&quot; )
+                   | &quot;F&quot; ( &quot;e&quot; | &quot;l&quot; | &quot;m&quot; | &quot;r&quot; )?
+                   | &quot;G&quot; ( &quot;a&quot; | &quot;d&quot; | &quot;e&quot; )
+                   | &quot;H&quot; ( &quot;e&quot; | &quot;f&quot; | &quot;g&quot; | &quot;o&quot; | &quot;s&quot; )?
+                   | &quot;I&quot; ( &quot;n&quot; | &quot;r&quot; )?
+                   | &quot;K&quot; &quot;r&quot;?
+                   | &quot;L&quot; ( &quot;a&quot; | &quot;i&quot; | &quot;r&quot; | &quot;u&quot; | &quot;v&quot; )
+                   | &quot;M&quot; ( &quot;c&quot; | &quot;g&quot; | &quot;n&quot; | &quot;o&quot; | &quot;t&quot; )
+                   | &quot;N&quot; ( &quot;a&quot; | &quot;b&quot; | &quot;d&quot; | &quot;e&quot; | &quot;h&quot; | &quot;i&quot; | &quot;o&quot; | &quot;p&quot; )?
+                   | &quot;O&quot; ( &quot;g&quot; | &quot;s&quot; )?
+                   | &quot;P&quot; ( &quot;a&quot; | &quot;b&quot; | &quot;d&quot; | &quot;m&quot; | &quot;o&quot; | &quot;r&quot; | &quot;t&quot; | &quot;u&quot; )?
+                   | &quot;R&quot; ( &quot;a&quot; | &quot;b&quot; | &quot;e&quot; | &quot;f&quot; | &quot;g&quot; | &quot;h&quot; | &quot;n&quot; | &quot;u&quot; )
+                   | &quot;S&quot; ( &quot;b&quot; | &quot;c&quot; | &quot;e&quot; | &quot;g&quot; | &quot;i&quot; | &quot;m&quot; | &quot;n&quot; | &quot;r&quot; )?
+                   | &quot;T&quot; ( &quot;a&quot; | &quot;b&quot; | &quot;c&quot; | &quot;e&quot; | &quot;h&quot; | &quot;i&quot; | &quot;l&quot; | &quot;m&quot;
+                   | &quot;s&quot; )
+                   | &quot;U&quot; | &quot;V&quot; | &quot;W&quot; | &quot;Xe&quot; | &quot;Y&quot; &quot;b&quot;?
+                   | &quot;Z&quot; ( &quot;n&quot; | &quot;r&quot; )
+                   | &quot;b&quot; | &quot;c&quot; | &quot;n&quot; | &quot;o&quot; | &quot;p&quot; | &quot;s&quot; &quot;e&quot;? | &quot;as&quot;
+<span class="hljs-attribute">&lt;organic_symbol&gt;</span> ::= <span class="hljs-string">&quot;B&quot;</span> <span class="hljs-string">&quot;r&quot;</span>? | <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-string">&quot;l&quot;</span>? | <span class="hljs-string">&quot;N&quot;</span> | <span class="hljs-string">&quot;O&quot;</span> | <span class="hljs-string">&quot;P&quot;</span> | <span class="hljs-string">&quot;S&quot;</span>
+                   | &quot;F&quot; | &quot;I&quot; | &quot;At&quot; | &quot;Ts&quot;
+                   | &quot;b&quot; | &quot;c&quot; | &quot;n&quot; | &quot;o&quot; | &quot;p&quot; | &quot;s&quot;
+<span class="hljs-attribute">&lt;bond&gt;</span>           ::= <span class="hljs-string">&quot;-&quot;</span> | <span class="hljs-string">&quot;=&quot;</span> | <span class="hljs-string">&quot;#&quot;</span> | <span class="hljs-string">&quot;$&quot;</span> | <span class="hljs-string">&quot;/&quot;</span> | <span class="hljs-string">&quot;\\&quot;</span>
+<span class="hljs-attribute">&lt;dot&gt;</span>            ::= <span class="hljs-string">&quot;.&quot;</span>
+<span class="hljs-attribute">&lt;chiral&gt;</span>         ::= <span class="hljs-string">&quot;@&quot;</span>? <span class="hljs-string">&quot;@&quot;</span>
+<span class="hljs-attribute">&lt;digit&gt;</span>          ::= <span class="hljs-string">&quot;0&quot;</span> | <span class="hljs-string">&quot;1&quot;</span> | <span class="hljs-string">&quot;2&quot;</span> | <span class="hljs-string">&quot;3&quot;</span> | <span class="hljs-string">&quot;4&quot;</span> | <span class="hljs-string">&quot;5&quot;</span> | <span class="hljs-string">&quot;6&quot;</span> | <span class="hljs-string">&quot;7&quot;</span> | <span class="hljs-string">&quot;8&quot;</span> | <span class="hljs-string">&quot;9&quot;</span>
+<span class="hljs-attribute">&lt;fifteen&gt;</span>        ::= <span class="hljs-string">&quot;1&quot;</span> (<span class="hljs-string">&quot;0&quot;</span> | <span class="hljs-string">&quot;1&quot;</span> | <span class="hljs-string">&quot;2&quot;</span> | <span class="hljs-string">&quot;3&quot;</span> | <span class="hljs-string">&quot;4&quot;</span> | <span class="hljs-string">&quot;5&quot;</span>)?
+                   | ( &quot;2&quot; | &quot;3&quot; | &quot;4&quot; | &quot;5&quot; | &quot;6&quot; | &quot;7&quot; | &quot;8&quot; | &quot;9&quot; )
 </code></pre>
 <p>The vast majority of space in this grammar is somewhat misleadingly dedicated to the 100+ elemental symbols. Stripping them out leads to the simpler toy grammar presented earlier.</p>
 <p>Plugging the full grammar into <a href="https://mdkrajnak.github.io/ebnftest/">EBNF Test</a> yields a parser that can validate the syntax of any SMILES string given the parameters in this article.</p>

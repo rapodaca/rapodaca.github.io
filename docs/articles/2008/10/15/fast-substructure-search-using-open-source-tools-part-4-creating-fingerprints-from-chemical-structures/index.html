@@ -45,14 +45,14 @@
 </ul>
 <h2 id="arubyfingerprinterineightlines">A Ruby Fingerprinter in Eight Lines</h2>
 <p>Let's create a <code>Fingerprinter</code> class that's capable of converting a SMILES string into a <code>Fingerprint</code> that can be stored and queried. The Ruby code below makes use of Open Babel's <a href="http://openbabel.org/wiki/Babel"><code>babel</code></a> command-line utility:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'fingerprint'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;fingerprint&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Fingerprinter</span>  </span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fingerprint_smiles</span> <span class="hljs-title">smiles</span></span>
-    raw = <span class="hljs-string">%x[echo '<span class="hljs-subst">#{smiles}</span>' | babel -ismi -ofpt 2&gt;;/dev/null]</span>
-    bytes = raw.gsub(<span class="hljs-regexp">/&gt;;.*?\n/</span>, <span class="hljs-string">''</span>).gsub(<span class="hljs-regexp">/\n/</span>, <span class="hljs-string">''</span>).split
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Fingerprinter</span>  
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">fingerprint_smiles</span> smiles
+    raw = <span class="hljs-string">%x[echo &#x27;<span class="hljs-subst">#{smiles}</span>&#x27; | babel -ismi -ofpt 2&gt;;/dev/null]</span>
+    bytes = raw.gsub(<span class="hljs-regexp">/&gt;;.*?\n/</span>, <span class="hljs-string">&#x27;&#x27;</span>).gsub(<span class="hljs-regexp">/\n/</span>, <span class="hljs-string">&#x27;&#x27;</span>).split
 
-    Fingerprint.new.fill_bytes{<span class="hljs-params">|i|</span> <span class="hljs-string">"<span class="hljs-subst">#{bytes[<span class="hljs-number">2</span>*i]}</span><span class="hljs-subst">#{bytes[<span class="hljs-number">2</span>*i+<span class="hljs-number">1</span>]}</span>"</span>.hex}
+    <span class="hljs-title class_">Fingerprint</span>.new.fill_bytes{|<span class="hljs-params">i</span>| <span class="hljs-string">&quot;<span class="hljs-subst">#{bytes[<span class="hljs-number">2</span>*i]}</span><span class="hljs-subst">#{bytes[<span class="hljs-number">2</span>*i+<span class="hljs-number">1</span>]}</span>&quot;</span>.hex}
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -61,27 +61,27 @@
 <h2 id="testingthefingerprinter">Testing the Fingerprinter</h2>
 <p>We can test the Fingerprinter through interactive Ruby (irb):</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt;; require <span class="hljs-string">'lib/fingerprinter'</span>
+irb(main):001:0&gt;; require <span class="hljs-string">&#x27;lib/fingerprinter&#x27;</span>
 =&gt;; <span class="hljs-literal">true</span>
 irb(main):002:0&gt;; fp=Fingerprinter.new
 =&gt;; <span class="hljs-comment">#&amp;lt;Fingerprinter:0xb7498038&gt;;</span>
-irb(main):003:0&gt;; f=fp.fingerprint_smiles <span class="hljs-string">'c1ccccc1'</span>
+irb(main):003:0&gt;; f=fp.fingerprint_smiles <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>
 =&gt;; <span class="hljs-comment">#&amp;lt;Fingerprint id: nil, byte0: 0, byte1: 512, byte2: 0, byte3: 0, byte4: 2112, byte5: 32768, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 134217728, byte11: 0, byte12: 0, byte13: 0, byte14: 131072, byte15: 0, hex: nil&gt;;</span>
 irb(main):004:0&gt;; f.cardinality
 =&gt;; 6
 irb(main):005:0&gt;; f.bitstring
-=&gt;; <span class="hljs-string">"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000100000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000"</span>
+=&gt;; <span class="hljs-string">&quot;0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000100000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000&quot;</span>
 </code></pre>
 <p>As we previously saw, any <code>Fingerprint</code> we create can be stored and later retrieved from a MySQL database. If we've already stored the fingerprint for benzene it can be found with the following:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt;; require <span class="hljs-string">'lib/fingerprinter'</span>
+irb(main):001:0&gt;; require <span class="hljs-string">&#x27;lib/fingerprinter&#x27;</span>
 =&gt;; <span class="hljs-literal">true</span>
 irb(main):002:0&gt;; fp=Fingerprinter.new
 =&gt;; <span class="hljs-comment">#&amp;lt;Fingerprinter:0xb74ae284&gt;;</span>
-irb(main):003:0&gt;; f=fp.fingerprint_smiles <span class="hljs-string">'c1ccccc1'</span>
+irb(main):003:0&gt;; f=fp.fingerprint_smiles <span class="hljs-string">&#x27;c1ccccc1&#x27;</span>
 =&gt;; <span class="hljs-comment">#&amp;lt;Fingerprint id: nil, byte0: 0, byte1: 512, byte2: 0, byte3: 0, byte4: 2112, byte5: 32768, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 134217728, byte11: 0, byte12: 0, byte13: 0, byte14: 131072, byte15: 0, hex: nil&gt;;</span>
 irb(main):004:0&gt;; Fingerprint.find_by_fingerprint f
-=&gt;; <span class="hljs-comment">#&amp;lt;Fingerprint id: 12687, byte0: 0, byte1: 512, byte2: 0, byte3: 0, byte4: 2112, byte5: 32768, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 134217728, byte11: 0, byte12: 0, byte13: 0, byte14: 131072, byte15: 0, hex: "000000000000000000000000000002000000000000000000000..."&gt;;</span>
+=&gt;; <span class="hljs-comment">#&amp;lt;Fingerprint id: 12687, byte0: 0, byte1: 512, byte2: 0, byte3: 0, byte4: 2112, byte5: 32768, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 134217728, byte11: 0, byte12: 0, byte13: 0, byte14: 131072, byte15: 0, hex: &quot;000000000000000000000000000002000000000000000000000...&quot;&gt;;</span>
 </code></pre>
 <h2 id="conclusions">Conclusions</h2>
 <p>We now have the ability to create, store, and query fingerprints created from arbitrary SMILES strings. If there were a 1:1 relationship between molecules and fingerprints, we'd be nearly done. But things are not quite that simple. The next article in this series will show how to relate molecules to fingerprints.</p>

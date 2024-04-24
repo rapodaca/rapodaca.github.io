@@ -81,19 +81,19 @@ git submodule update
 </ol>
 <h2 id="srcmolfile_to_inchic"><code>src/molfile_to_inchi.c</code></h2>
 <p>At the core of InChI-Wasm sits sits the function <code>molfile_to_inchi</code>, which is contained in the file <code>molfile_to_inchi.c</code>. Thanks to the addition of the <code>MakeINCHIFromMolfileText</code> function to the latest InChI revision, the requirements for the wrapper function were minimal:</p>
-<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;time.h&gt;</span></span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">"inchi_api.h"</span></span>
+<pre><code class="hljs c language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;inchi_api.h&quot;</span></span>
 
-<span class="hljs-function"><span class="hljs-keyword">size_t</span> <span class="hljs-title">molfile_to_inchi</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *molfile, <span class="hljs-keyword">char</span> *options, <span class="hljs-keyword">char</span> *result)</span>
-</span>{
+<span class="hljs-type">size_t</span> <span class="hljs-title function_">molfile_to_inchi</span><span class="hljs-params">(<span class="hljs-type">char</span> *molfile, <span class="hljs-type">char</span> *options, <span class="hljs-type">char</span> *result)</span>
+{
     inchi_Output output;
-    <span class="hljs-keyword">int</span> status = MakeINCHIFromMolfileText(molfile, options, &amp;output);
+    <span class="hljs-type">int</span> status = MakeINCHIFromMolfileText(molfile, options, &amp;output);
 
     <span class="hljs-keyword">if</span> (status == <span class="hljs-number">0</span> || status == <span class="hljs-number">1</span>) {
       <span class="hljs-built_in">strcpy</span>(result, output.szInChI);
     } <span class="hljs-keyword">else</span> {
-      <span class="hljs-built_in">strcpy</span>(result, output.szMessage); <span class="hljs-comment">// this should work but doesn't</span>
+      <span class="hljs-built_in">strcpy</span>(result, output.szMessage); <span class="hljs-comment">// this should work but doesn&#x27;t</span>
     }
 
     FreeINCHI(&amp;output);
@@ -104,7 +104,7 @@ git submodule update
 <span class="hljs-comment">// see:</span>
 <span class="hljs-comment">// https://stackoverflow.com/questions/31476632/</span>
 <span class="hljs-comment">// https://stackoverflow.com/a/617606/54426</span>
-<span class="hljs-keyword">clock_t</span> __wrap_clock()
+<span class="hljs-type">clock_t</span> __wrap_clock()
 {
     <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 }
@@ -114,46 +114,46 @@ git submodule update
 <p>I'll have more to say about the second function, <code>__wrap_clock</code>, later.</p>
 <h2 id="libmolfiletoinchijs"><code>lib/molfile-to-inchi.js</code></h2>
 <p>The C function has a counterpart written in JavaScript and hosted at <code>lib/molfile-to-inchi.js</code>. </p>
-<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">import</span> WASI <span class="hljs-keyword">from</span> <span class="hljs-string">'./wasi.esm.js'</span>;
+<pre><code class="hljs javascript language-javascript"><span class="hljs-keyword">import</span> <span class="hljs-variable constant_">WASI</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./wasi.esm.js&#x27;</span>;
 
-<span class="hljs-keyword">const</span> wasmPath = <span class="hljs-string">'../build/molfile_to_inchi.wasm'</span>;
-<span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> WebAssembly.Memory({ <span class="hljs-attr">initial</span>: <span class="hljs-number">10</span> });
+<span class="hljs-keyword">const</span> wasmPath = <span class="hljs-string">&#x27;../build/molfile_to_inchi.wasm&#x27;</span>;
+<span class="hljs-keyword">const</span> memory = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title class_">Memory</span>({ <span class="hljs-attr">initial</span>: <span class="hljs-number">10</span> });
 
-<span class="hljs-function">(<span class="hljs-params"><span class="hljs-keyword">async</span> (</span>) =&gt;</span> {
-  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(wasmPath);
-  <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.arrayBuffer();
-  <span class="hljs-keyword">const</span> wasi = <span class="hljs-keyword">new</span> WASI();
-  <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> WebAssembly.instantiate(bytes, {
-    <span class="hljs-attr">env</span>: { memory }, <span class="hljs-attr">wasi_snapshot_preview1</span>: wasi.wasiImport
+(<span class="hljs-keyword">async</span> () =&gt; {
+  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(wasmPath);
+  <span class="hljs-keyword">const</span> bytes = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">arrayBuffer</span>();
+  <span class="hljs-keyword">const</span> wasi = <span class="hljs-keyword">new</span> <span class="hljs-title function_">WASI</span>();
+  <span class="hljs-keyword">const</span> { instance } = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(bytes, {
+    <span class="hljs-attr">env</span>: { memory }, <span class="hljs-attr">wasi_snapshot_preview1</span>: wasi.<span class="hljs-property">wasiImport</span>
   });
-  <span class="hljs-keyword">const</span> pMolfile = instance.exports.malloc(<span class="hljs-number">1024</span>);
-  <span class="hljs-keyword">const</span> pOptions = instance.exports.malloc(<span class="hljs-number">1024</span>);
-  <span class="hljs-keyword">const</span> pOutput = instance.exports.malloc(<span class="hljs-number">20480</span>);
+  <span class="hljs-keyword">const</span> pMolfile = instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">malloc</span>(<span class="hljs-number">1024</span>);
+  <span class="hljs-keyword">const</span> pOptions = instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">malloc</span>(<span class="hljs-number">1024</span>);
+  <span class="hljs-keyword">const</span> pOutput = instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">malloc</span>(<span class="hljs-number">20480</span>);
 
-  <span class="hljs-built_in">window</span>.molfileToInChI = <span class="hljs-function">(<span class="hljs-params">molfile</span>) =&gt;</span> {
-    <span class="hljs-keyword">const</span> inputView = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
-    <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> TextEncoder();
+  <span class="hljs-variable language_">window</span>.<span class="hljs-property">molfileToInChI</span> = <span class="hljs-function">(<span class="hljs-params">molfile</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> inputView = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(memory.<span class="hljs-property">buffer</span>);
+    <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextEncoder</span>();
 
-    inputView.set(encoder.encode(molfile), pMolfile);
+    inputView.<span class="hljs-title function_">set</span>(encoder.<span class="hljs-title function_">encode</span>(molfile), pMolfile);
 
-    <span class="hljs-keyword">const</span> result = instance.exports.molfile_to_inchi(
+    <span class="hljs-keyword">const</span> result = instance.<span class="hljs-property">exports</span>.<span class="hljs-title function_">molfile_to_inchi</span>(
       pMolfile, pOptions, pOutput
     );
 
-    <span class="hljs-keyword">const</span> outputView = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(memory.buffer);
-    <span class="hljs-keyword">const</span> decoder = <span class="hljs-keyword">new</span> TextDecoder();
-    <span class="hljs-keyword">const</span> output = decoder.decode(
-      outputView.subarray(pOutput, outputView.indexOf(<span class="hljs-number">0</span>, pOutput))
+    <span class="hljs-keyword">const</span> outputView = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(memory.<span class="hljs-property">buffer</span>);
+    <span class="hljs-keyword">const</span> decoder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextDecoder</span>();
+    <span class="hljs-keyword">const</span> output = decoder.<span class="hljs-title function_">decode</span>(
+      outputView.<span class="hljs-title function_">subarray</span>(pOutput, outputView.<span class="hljs-title function_">indexOf</span>(<span class="hljs-number">0</span>, pOutput))
     );
 
     <span class="hljs-keyword">if</span> (result &lt; <span class="hljs-number">0</span> || result &gt; <span class="hljs-number">1</span>) {
-      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"inchi error: "</span> + output);
+      <span class="hljs-keyword">throw</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&quot;inchi error: &quot;</span> + output);
     }
 
     <span class="hljs-keyword">return</span> output;
   };
 
-  <span class="hljs-built_in">window</span>.dispatchEvent(<span class="hljs-keyword">new</span> Event(<span class="hljs-string">'InChIReady'</span>));
+  <span class="hljs-variable language_">window</span>.<span class="hljs-title function_">dispatchEvent</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Event</span>(<span class="hljs-string">&#x27;InChIReady&#x27;</span>));
 })();
 </code></pre>
 <p>The file begins by importing <code>WASI</code> from the <code>wasi.esm.js</code> file. Doing so enables the instantiation of an object with the <code>wasiImport</code> property. This property is used to create the WebAssembly <code>instance</code>.</p>
@@ -163,23 +163,23 @@ git submodule update
 <p>The penultimate line dispatches a custom <code>InChIReady</code> event signaling that the global <code>molfileToInChI</code> function can be used. Attempts to access the function before the event is fired will result in an error.</p>
 <h2 id="binbuildsh">bin/build.sh</h2>
 <p>The script located at <code>bin/build.sh</code> orchestrates the compilation of <code>molfile_from_inchi.c</code> and the InChI source files. Two checks take place before compilation. First, the build script requires that the environment variable <code>WASI_LIBC_HOME</code> be set, or an error will result. Second, the operating system is checked. If macOS is detected, the InChI-specific flag <code>__APPLE__</code>, is set as <a href="/2019/05/15/compiling-inchi-to-webassembly-part-1/">previously described</a>. After making these checks, a build directory is created if necessary.</p>
-<pre><code class="hljs bash language-bash"><span class="hljs-meta">#!/bin/bash
-</span>
-<span class="hljs-keyword">if</span> [ -n <span class="hljs-string">"<span class="hljs-variable">$WASI_LIBC_HOME</span>"</span> ]; <span class="hljs-keyword">then</span>
-  <span class="hljs-built_in">echo</span> <span class="hljs-string">"Reading libc from <span class="hljs-variable">$WASI_LIBC_HOME</span>"</span>
+<pre><code class="hljs bash language-bash"><span class="hljs-meta">#!/bin/bash</span>
+
+<span class="hljs-keyword">if</span> [ -n <span class="hljs-string">&quot;<span class="hljs-variable">$WASI_LIBC_HOME</span>&quot;</span> ]; <span class="hljs-keyword">then</span>
+  <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Reading libc from <span class="hljs-variable">$WASI_LIBC_HOME</span>&quot;</span>
 <span class="hljs-keyword">else</span>
-  <span class="hljs-built_in">echo</span> <span class="hljs-string">"Set the libc location with 'export WASI_LIBC_HOME=path/to/wasi-libc'."</span>
+  <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Set the libc location with &#x27;export WASI_LIBC_HOME=path/to/wasi-libc&#x27;.&quot;</span>
   <span class="hljs-built_in">exit</span> 1
 <span class="hljs-keyword">fi</span>
 
-<span class="hljs-keyword">if</span> [[ <span class="hljs-string">"<span class="hljs-variable">$OSTYPE</span>"</span> =~ ^darwin ]]; <span class="hljs-keyword">then</span>
-  PLATFORM=<span class="hljs-string">"-D__APPLE__"</span>
-  PATH=/usr/<span class="hljs-built_in">local</span>/opt/llvm/bin:<span class="hljs-variable">$PATH</span>
+<span class="hljs-keyword">if</span> [[ <span class="hljs-string">&quot;<span class="hljs-variable">$OSTYPE</span>&quot;</span> =~ ^darwin ]]; <span class="hljs-keyword">then</span>
+  PLATFORM=<span class="hljs-string">&quot;-D__APPLE__&quot;</span>
+  PATH=/usr/local/opt/llvm/bin:<span class="hljs-variable">$PATH</span>
 <span class="hljs-keyword">else</span>
-  PLATFORM=<span class="hljs-string">""</span>
+  PLATFORM=<span class="hljs-string">&quot;&quot;</span>
 <span class="hljs-keyword">fi</span>
 
-mkdir -p build
+<span class="hljs-built_in">mkdir</span> -p build
 
 clang \
   --target=wasm32-unknown-wasi \
@@ -228,13 +228,13 @@ clang \
 <p>The <code>wrap</code> option lets us override the <code>clock</code> function - without touching the InChI code base. The tradeoff is that all of the code relying on time will be rendered inoperable. This doesn't affect InChI, at least not the way it's accessed in this article. However, other applications of InChI or other code bases may require more or less work to get past the 64-bit issue on browsers.</p>
 <h2 id="indexhtml">index.html</h2>
 <p>The HTML file located at <code>web/index.html</code> invokes the <code>molfile-to-inchi.js</code> script and sets up the test harness. Note the presence of the <code>type="module"</code> attribute on the <code>&lt;script&gt;</code> tag, which is required.</p>
-<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;utf-8&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>InChI WASM Test<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"../lib/molfile-to-inchi.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;module&quot;</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;../lib/molfile-to-inchi.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css">
       <span class="hljs-selector-tag">label</span> {
         <span class="hljs-attribute">font-size</span>: <span class="hljs-number">120%</span>;
         <span class="hljs-attribute">font-weight</span>: bold;
@@ -258,8 +258,8 @@ clang \
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"molfile"</span>&gt;</span>Molfile:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"molfile"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;molfile&quot;</span>&gt;</span>Molfile:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;molfile&quot;</span>&gt;</span>
 
    CWRITER02282009502D
 Created with ChemWriter - https://chemwriter.com
@@ -277,30 +277,30 @@ Created with ChemWriter - https://chemwriter.com
   5  6  2  0  0  0  0
   6  1  1  0  0  0  0
 M  END<span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"inchi"</span>&gt;</span>InChI:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"inchi"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
-      <span class="hljs-keyword">const</span> update = <span class="hljs-function">(<span class="hljs-params">molfile</span>) =&gt;</span> {
+    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;inchi&quot;</span>&gt;</span>InChI:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;inchi&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">update</span> = (<span class="hljs-params">molfile</span>) =&gt; {
         <span class="hljs-keyword">let</span> result;
 
         <span class="hljs-keyword">try</span> {
-          result = molfileToInChI(molfile);
+          result = <span class="hljs-title function_">molfileToInChI</span>(molfile);
         } <span class="hljs-keyword">catch</span> (e) {
-          <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#inchi'</span>).value = <span class="hljs-string">'ERROR'</span>;
+          <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#inchi&#x27;</span>).<span class="hljs-property">value</span> = <span class="hljs-string">&#x27;ERROR&#x27;</span>;
 
           <span class="hljs-keyword">return</span>;
         }
 
-        <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#inchi'</span>).value = result;
+        <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#inchi&#x27;</span>).<span class="hljs-property">value</span> = result;
       };
 
-      <span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">'InChIReady'</span>, () =&gt; {
-        <span class="hljs-keyword">const</span> molfile = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#molfile'</span>);
+      <span class="hljs-variable language_">window</span>.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;InChIReady&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+        <span class="hljs-keyword">const</span> molfile = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#molfile&#x27;</span>);
 
-        update(molfile.value);
+        <span class="hljs-title function_">update</span>(molfile.<span class="hljs-property">value</span>);
 
-        molfile.addEventListener(<span class="hljs-string">'input'</span>, (e) =&gt; {
-          update(molfile.value);
+        molfile.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;input&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
+          <span class="hljs-title function_">update</span>(molfile.<span class="hljs-property">value</span>);
         });
       });
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>

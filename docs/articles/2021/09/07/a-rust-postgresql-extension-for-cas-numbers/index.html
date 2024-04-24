@@ -47,41 +47,41 @@
 <pre><code class="hljs bash language-bash">cargo pgx run pg13
 </code></pre>
 <p>pgs starts a Postgres client after compiling the extension. Install it in the usual way.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">DROP</span> EXTENSION <span class="hljs-keyword">IF</span> <span class="hljs-keyword">EXISTS</span> cas_number <span class="hljs-keyword">cascade</span>; <span class="hljs-comment">-- allows re-installation later</span>
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">DROP</span> EXTENSION IF <span class="hljs-keyword">EXISTS</span> cas_number cascade; <span class="hljs-comment">-- allows re-installation later</span>
 <span class="hljs-keyword">CREATE</span> EXTENSION cas_number; <span class="hljs-comment">-- create the extension</span>
 </code></pre>
 <p>Having created the extension, we can work with CAS Numbers as if the type were native to Postgres. For example, we can create a table containing CAS Numbers like so.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> cas_numbers (<span class="hljs-keyword">id</span> <span class="hljs-built_in">int</span>, cas_number casnumber);
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> cas_numbers (id <span class="hljs-type">int</span>, cas_number casnumber);
 <span class="hljs-comment">-- CREATE TABLE</span>
 </code></pre>
 <p>Here, the type <code>casnumber</code> was defined by the <code>cas_number</code> extension. Postgres respects the restrictions on this data type just like it would with <code>string</code> or <code>int</code>.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> cas_numbers (<span class="hljs-keyword">id</span>, cas_number)
-<span class="hljs-keyword">VALUES</span> (<span class="hljs-number">1</span>, <span class="hljs-string">'111-11-1'</span>);
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> cas_numbers (id, cas_number)
+<span class="hljs-keyword">VALUES</span> (<span class="hljs-number">1</span>, <span class="hljs-string">&#x27;111-11-1&#x27;</span>);
 <span class="hljs-comment">-- ERROR:  invalid CAS Number</span>
 <span class="hljs-comment">-- ...</span>
 </code></pre>
 <p>The table can be populated with 100,000 random CAS Numbers.</p>
 <pre><code class="hljs sql language-sql"><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> cas_numbers
-<span class="hljs-keyword">SELECT</span> generate_series(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>) <span class="hljs-keyword">as</span> <span class="hljs-keyword">id</span>,
+<span class="hljs-keyword">SELECT</span> generate_series(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>) <span class="hljs-keyword">as</span> id,
        random_cas_number();
 <span class="hljs-comment">-- INSERT 0 100000</span>
 </code></pre>
 <p>Queries on tables this large without indexes often perform poorly, which can be easily verified here. The problem can be overcome with an index on the <code>cas_number</code> field.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">index</span> cas_numbers_cas_number <span class="hljs-keyword">on</span> cas_numbers (cas_number);
+<pre><code class="hljs sql language-sql"><span class="hljs-keyword">create</span> index cas_numbers_cas_number <span class="hljs-keyword">on</span> cas_numbers (cas_number);
 <span class="hljs-comment">-- CREATE INDEX</span>
 </code></pre>
 <p>Now Postgres will use the index rather than the default sequential scan strategy for many kinds of queries.</p>
-<pre><code class="hljs sql language-sql"><span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">ANALYZE</span>
-<span class="hljs-keyword">SELECT</span>   <span class="hljs-keyword">id</span>, cas_number
+<pre><code class="hljs sql language-sql">EXPLAIN ANALYZE
+<span class="hljs-keyword">SELECT</span>   id, cas_number
 <span class="hljs-keyword">FROM</span>     cas_numbers
-<span class="hljs-keyword">WHERE</span>    cas_number &gt; <span class="hljs-string">'67-64-1'</span>
+<span class="hljs-keyword">WHERE</span>    cas_number <span class="hljs-operator">&gt;</span> <span class="hljs-string">&#x27;67-64-1&#x27;</span>
 <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> cas_number
-<span class="hljs-keyword">LIMIT</span>    <span class="hljs-number">25</span>;
+LIMIT    <span class="hljs-number">25</span>;
 <span class="hljs-comment">--                                                                     QUERY PLAN                                                                     </span>
 <span class="hljs-comment">-- ---------------------------------------------------------------------------------------------------------------------------------------------------</span>
 <span class="hljs-comment">--  Limit  (cost=0.42..3.04 rows=25 width=36) (actual time=0.791..0.822 rows=25 loops=1)</span>
 <span class="hljs-comment">--    -&gt;  Index Scan using cas_numbers_cas_number on cas_numbers  (cost=0.42..3499.74 rows=33333 width=36) (actual time=0.790..0.817 rows=25 loops=1)</span>
-<span class="hljs-comment">--          Index Cond: (cas_number &gt; '67-64-1'::casnumber)</span>
+<span class="hljs-comment">--          Index Cond: (cas_number &gt; &#x27;67-64-1&#x27;::casnumber)</span>
 <span class="hljs-comment">--  Planning Time: 0.356 ms</span>
 <span class="hljs-comment">--  Execution Time: 0.900 ms</span>
 <span class="hljs-comment">-- (5 rows)</span>
@@ -111,71 +111,71 @@ pg_module_magic!();
 </code></pre>
 <p>The file <code>cas_number.rs</code> defines the custom Postgres type and an exported helper function. The type is just an annotated Rust <code>struct</code> following the <a href="https://doc.rust-lang.org/rust-by-example/generics/new_types.html">newtype</a> pattern:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// ... macro invocations</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">CasNumber</span></span>(<span class="hljs-built_in">String</span>);
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">CasNumber</span>(<span class="hljs-type">String</span>);
 </code></pre>
 <p><code>CasNumber</code> contains a private field of type <code>String</code>. This pattern makes it possible to apply various macros and function definitions to <code>CasNumber</code>, including those required by pgx. pgx automatically translates the Rust symbol <code>CasNumber</code> to <code>casnumber</code> in Postgres sessions.</p>
 <h2 id="casnumbervalidationinrust">CAS Number Validation in Rust</h2>
 <p>The business end of the extension is the <code>validate</code> function, which returns <code>true</code> given a valid CAS Number <code>str</code> encoding or <code>false</code> otherwise.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// cas_number.rs</span>
 <span class="hljs-comment">// ...</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">validate</span></span>(id: &amp;<span class="hljs-built_in">str</span>) -&gt; <span class="hljs-built_in">bool</span> {
-    <span class="hljs-keyword">let</span> re = Regex::new(<span class="hljs-string">r"^([1-9])(\d{1,6})-(\d{2})-(\d)$"</span>).unwrap();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">validate</span>(id: &amp;<span class="hljs-type">str</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">bool</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">re</span> = Regex::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-string">r&quot;^([1-9])(\d{1,6})-(\d{2})-(\d)$&quot;</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-keyword">let</span> caps = <span class="hljs-keyword">match</span> re.captures(id) {
-        <span class="hljs-literal">Some</span>(caps) =&gt; caps,
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">caps</span> = <span class="hljs-keyword">match</span> re.<span class="hljs-title function_ invoke__">captures</span>(id) {
+        <span class="hljs-title function_ invoke__">Some</span>(caps) =&gt; caps,
         <span class="hljs-literal">None</span> =&gt; <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>,
     };
 
-    <span class="hljs-keyword">let</span> digits = <span class="hljs-built_in">format!</span>(
-        <span class="hljs-string">"{}{}{}"</span>,
-        caps.get(<span class="hljs-number">1</span>).unwrap().as_str(),
-        caps.get(<span class="hljs-number">2</span>).unwrap().as_str(),
-        caps.get(<span class="hljs-number">3</span>).unwrap().as_str()
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">digits</span> = <span class="hljs-built_in">format!</span>(
+        <span class="hljs-string">&quot;{}{}{}&quot;</span>,
+        caps.<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-number">1</span>).<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">as_str</span>(),
+        caps.<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-number">2</span>).<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">as_str</span>(),
+        caps.<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-number">3</span>).<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">as_str</span>()
     );
 
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> checksum = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">checksum</span> = <span class="hljs-number">0</span>;
 
-    <span class="hljs-keyword">for</span> (n, digit) <span class="hljs-keyword">in</span> digits.chars().rev().enumerate() {
-        checksum += (n + <span class="hljs-number">1</span>) <span class="hljs-keyword">as</span> <span class="hljs-built_in">u32</span> * digit.to_digit(<span class="hljs-number">10</span>).unwrap();
+    <span class="hljs-keyword">for</span> (n, digit) <span class="hljs-keyword">in</span> digits.<span class="hljs-title function_ invoke__">chars</span>().<span class="hljs-title function_ invoke__">rev</span>().<span class="hljs-title function_ invoke__">enumerate</span>() {
+        checksum += (n + <span class="hljs-number">1</span>) <span class="hljs-keyword">as</span> <span class="hljs-type">u32</span> * digit.<span class="hljs-title function_ invoke__">to_digit</span>(<span class="hljs-number">10</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
     }
 
-    checksum % <span class="hljs-number">10</span> == caps.get(<span class="hljs-number">4</span>).unwrap().as_str().parse::&lt;<span class="hljs-built_in">u32</span>&gt;().unwrap()
+    checksum % <span class="hljs-number">10</span> == caps.<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-number">4</span>).<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">as_str</span>().parse::&lt;<span class="hljs-type">u32</span>&gt;().<span class="hljs-title function_ invoke__">unwrap</span>()
 }
 </code></pre>
 <h2 id="generatingrandomcasnumbersinrust">Generating Random CAS Numbers in Rust</h2>
 <p>Also included with the extension is the <code>random_cas_number</code> function, which generates valid <code>CasNumber</code> instances. It can be used to build large tables containing columns of type <code>casnumber</code> for mockups and performance testing.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// cas_number.rs</span>
 <span class="hljs-comment">// ...</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">random_cas_number</span></span>() -&gt; CasNumber {
-    <span class="hljs-keyword">let</span> base = rand::thread_rng().gen_range(<span class="hljs-number">4</span>, <span class="hljs-number">9</span>);
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> digits = <span class="hljs-built_in">Vec</span>::new();
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> checksum: <span class="hljs-built_in">u32</span> = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">random_cas_number</span>() <span class="hljs-punctuation">-&gt;</span> CasNumber {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">base</span> = rand::<span class="hljs-title function_ invoke__">thread_rng</span>().<span class="hljs-title function_ invoke__">gen_range</span>(<span class="hljs-number">4</span>, <span class="hljs-number">9</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">digits</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">checksum</span>: <span class="hljs-type">u32</span> = <span class="hljs-number">0</span>;
 
-    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..(base + <span class="hljs-number">2</span>) {
-        <span class="hljs-keyword">let</span> digit = random_digit(i == <span class="hljs-number">0</span>);
-        checksum += (base <span class="hljs-keyword">as</span> <span class="hljs-built_in">u32</span> + <span class="hljs-number">2</span> - i <span class="hljs-keyword">as</span> <span class="hljs-built_in">u32</span>) * digit <span class="hljs-keyword">as</span> <span class="hljs-built_in">u32</span>;
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..(base + <span class="hljs-number">2</span>) {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">digit</span> = <span class="hljs-title function_ invoke__">random_digit</span>(i == <span class="hljs-number">0</span>);
+        checksum += (base <span class="hljs-keyword">as</span> <span class="hljs-type">u32</span> + <span class="hljs-number">2</span> - i <span class="hljs-keyword">as</span> <span class="hljs-type">u32</span>) * digit <span class="hljs-keyword">as</span> <span class="hljs-type">u32</span>;
 
-        digits.push(digit)
+        digits.<span class="hljs-title function_ invoke__">push</span>(digit)
     }
 
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> string = <span class="hljs-built_in">String</span>::new();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">string</span> = <span class="hljs-type">String</span>::<span class="hljs-title function_ invoke__">new</span>();
 
-    <span class="hljs-keyword">for</span> (i, digit) <span class="hljs-keyword">in</span> digits.into_iter().enumerate() {
-        <span class="hljs-keyword">if</span> i == base <span class="hljs-keyword">as</span> <span class="hljs-built_in">usize</span> {
-            string.push_str(<span class="hljs-string">"-"</span>);
+    <span class="hljs-keyword">for</span> (i, digit) <span class="hljs-keyword">in</span> digits.<span class="hljs-title function_ invoke__">into_iter</span>().<span class="hljs-title function_ invoke__">enumerate</span>() {
+        <span class="hljs-keyword">if</span> i == base <span class="hljs-keyword">as</span> <span class="hljs-type">usize</span> {
+            string.<span class="hljs-title function_ invoke__">push_str</span>(<span class="hljs-string">&quot;-&quot;</span>);
         }
 
-        string.push_str(&amp;digit.to_string())
+        string.<span class="hljs-title function_ invoke__">push_str</span>(&amp;digit.<span class="hljs-title function_ invoke__">to_string</span>())
     }
 
-    CasNumber(<span class="hljs-built_in">format!</span>(<span class="hljs-string">"{}-{}"</span>, string, checksum % <span class="hljs-number">10</span>))
+    <span class="hljs-title function_ invoke__">CasNumber</span>(<span class="hljs-built_in">format!</span>(<span class="hljs-string">&quot;{}-{}&quot;</span>, string, checksum % <span class="hljs-number">10</span>))
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">random_digit</span></span>(exclude_zero: <span class="hljs-built_in">bool</span>) -&gt; <span class="hljs-built_in">u8</span> {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">random_digit</span>(exclude_zero: <span class="hljs-type">bool</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">u8</span> {
     <span class="hljs-keyword">if</span> exclude_zero {
-        rand::thread_rng().gen_range(<span class="hljs-number">1</span>, <span class="hljs-number">9</span>)
+        rand::<span class="hljs-title function_ invoke__">thread_rng</span>().<span class="hljs-title function_ invoke__">gen_range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">9</span>)
     } <span class="hljs-keyword">else</span> {
-        rand::thread_rng().gen_range(<span class="hljs-number">0</span>, <span class="hljs-number">9</span>)
+        rand::<span class="hljs-title function_ invoke__">thread_rng</span>().<span class="hljs-title function_ invoke__">gen_range</span>(<span class="hljs-number">0</span>, <span class="hljs-number">9</span>)
     }
 }
 </code></pre>

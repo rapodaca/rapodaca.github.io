@@ -38,17 +38,17 @@
 <p>After <a href="/articles/2007/10/09/jruby-for-cheminformatics-parsing-smiles-simply">installing JRuby</a>, simply <a href="http://prdownloads.sourceforge.net/oscar3-chem/opsin-big-0.1.0.jar?download">download the OPSIN jarfile</a> and copy it to your JRuby <code>lib</code> directory. You're done.</p>
 <h2 id="asimplelibrary">A Simple Library</h2>
 <p>We can write a simple library to convert an IUPAC name into a CML document:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'jruby'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;jruby&#x27;</span>
 
-import <span class="hljs-string">'uk.ac.cam.ch.wwmm.opsin.NameToStructure'</span>
+import <span class="hljs-string">&#x27;uk.ac.cam.ch.wwmm.opsin.NameToStructure&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">IUPAC</span></span>
-  @@nts = NameToStructure.new
+<span class="hljs-keyword">module</span> <span class="hljs-variable constant_">IUPAC</span>
+  <span class="hljs-variable">@@nts</span> = <span class="hljs-title class_">NameToStructure</span>.new
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">read_name</span> <span class="hljs-title">name</span></span>
-    cml = @@nts.parse_to_cml(name)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">read_name</span> name
+    cml = <span class="hljs-variable">@@nts</span>.parse_to_cml(name)
 
-    raise <span class="hljs-string">"Could not parse '<span class="hljs-subst">#{name}</span>'."</span> <span class="hljs-keyword">unless</span> cml
+    <span class="hljs-keyword">raise</span> <span class="hljs-string">&quot;Could not parse &#x27;<span class="hljs-subst">#{name}</span>&#x27;.&quot;</span> <span class="hljs-keyword">unless</span> cml
 
     cml.to_xml
   <span class="hljs-keyword">end</span>
@@ -58,52 +58,52 @@ import <span class="hljs-string">'uk.ac.cam.ch.wwmm.opsin.NameToStructure'</span
 <h2 id="testingthelibrary">Testing the Library</h2>
 <p>We can test the library by saving it as a file called <strong>iupac.rb</strong> and invoking <code>jirb</code>:</p>
 <pre><code class="hljs bash language-bash">$ jirb
-irb(main):001:0&gt; require <span class="hljs-string">'iupac'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;iupac&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include IUPAC
 =&gt; Object
-irb(main):003:0&gt; read_name(<span class="hljs-string">'4-iodobenzoic acid'</span>)
+irb(main):003:0&gt; read_name(<span class="hljs-string">&#x27;4-iodobenzoic acid&#x27;</span>)
 </code></pre>
 <p>This returns the XML shown below, which has been re-formatted for clarity:</p>
-<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">cml</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://www.xml-cml.org/schema"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">molecule</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"m1"</span>&gt;</span>
+<pre><code class="hljs xml language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">cml</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&quot;http://www.xml-cml.org/schema&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">molecule</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;m1&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">atomArray</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a1"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a1&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;C&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;1&quot;</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a2"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"2"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a2&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;C&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;2&quot;</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a3"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"3"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a3&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;C&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;3&quot;</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a4"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"4"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a4&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;C&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;4&quot;</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a5"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"5"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a5&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;C&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;5&quot;</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a6"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"6"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a6&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;C&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;6&quot;</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a7"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"C"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a8"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"O"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a9"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"O"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"a10"</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">"I"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a7&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;C&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a8&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;O&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a9&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;O&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">atom</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;a10&quot;</span> <span class="hljs-attr">elementType</span>=<span class="hljs-string">&quot;I&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;1&quot;</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">atom</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">atomArray</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">bondArray</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a1 a2"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"2"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a2 a3"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a3 a4"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"2"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a4 a5"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a5 a6"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"2"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a6 a1"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a7 a1"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a7 a8"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"2"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a7 a9"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">"a10 a4"</span> <span class="hljs-attr">order</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a1 a2&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;2&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a2 a3&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;1&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a3 a4&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;2&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a4 a5&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;1&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a5 a6&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;2&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a6 a1&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;1&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a7 a1&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;1&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a7 a8&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;2&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a7 a9&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;1&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">bond</span> <span class="hljs-attr">atomRefs2</span>=<span class="hljs-string">&quot;a10 a4&quot;</span> <span class="hljs-attr">order</span>=<span class="hljs-string">&quot;1&quot;</span> /&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">bondArray</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">molecule</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">cml</span>&gt;</span>

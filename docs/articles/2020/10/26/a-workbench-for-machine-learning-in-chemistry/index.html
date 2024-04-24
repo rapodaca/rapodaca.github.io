@@ -58,7 +58,7 @@
 <h2 id="buildthedataset">Build the Dataset</h2>
 <p>DeepChem comes pre-loaded with a number of sample data sets. The one used here here was assembled for the paper <em><a href="https://dx.doi.org/10.1021/ci034243x">ESOL: Estimating Aqueous Solubility Directly from Molecular Structure</a></em>. This 1,128-record set commonly goes by the author's name, Delaney. Crucial for the task at hand, each record in the Delaney set contains both an experimentally-determined aqueous solubility measurement and a SMILES string representing the molecular species. Aqueous solubility is expressed as the base-10 logarithm of solubility in units of moles per liter (logS). </p>
 <p>Looking at the first function call, however, it's clear that <code>load_delaney</code> is doing more than just loading raw data:</p>
-<pre><code class="hljs python language-python">tasks, datasets, transformers = dc.molnet.load_delaney(featurizer=<span class="hljs-string">'GraphConv'</span>)
+<pre><code class="hljs python language-python">tasks, datasets, transformers = dc.molnet.load_delaney(featurizer=<span class="hljs-string">&#x27;GraphConv&#x27;</span>)
 </code></pre>
 <p>Let's start with the return value, which is a tuple of three elements:</p>
 <ul>
@@ -77,12 +77,12 @@
 </ul>
 <p>Each dataset is an instance of DeepChem's <a href="https://deepchem.readthedocs.io/en/latest/datasets.html#diskdataset"><code>DiskDataset</code></a> class. This data structure is designed to handle sets of 100 GB or larger.</p>
 <p>Let's have another look at the call to <code>load_delaney</code>:</p>
-<pre><code class="hljs python language-python">tasks, datasets, transformers = dc.molnet.load_delaney(featurizer=<span class="hljs-string">'GraphConv'</span>)
+<pre><code class="hljs python language-python">tasks, datasets, transformers = dc.molnet.load_delaney(featurizer=<span class="hljs-string">&#x27;GraphConv&#x27;</span>)
 </code></pre>
 <p>The named parameter <code>featurizer</code> tells <code>load_delaney</code> which kind of post-processing will be applied to the molecule obtained after parsing a SMILES. Setting the featurizer to "GraphConv" tells DeepChem to apply its <a href="https://deepchem.readthedocs.io/en/latest/featurizers.html?highlight=featurizer#convmolfeaturizer"><code>ConvMolFeaturizer</code></a> to input molecules during training.  An alternative would be <a href="https://deepchem.readthedocs.io/en/latest/featurizers.html?highlight=featurizers#weavefeaturizer"><code>Weave</code></a>.</p>
 <h2 id="trainthemodel">Train the Model</h2>
 <p>With training, validation, and test data sets in hand, a model can be trained. We begin by constructing an instance of <a href="https://deepchem.readthedocs.io/en/latest/models.html?highlight=graphconvmodel#graphconvmodel"><code>GraphConvModel</code></a>. This class represents a graph convolutional network as described by Duvenaud in <em><a href="https://arxiv.org/abs/1509.09292">Convolutional Networks on Graphs for Learning Molecular Fingerprints</a></em>.</p>
-<pre><code class="hljs python language-python">model = dc.models.GraphConvModel(n_tasks=<span class="hljs-number">1</span>, mode=<span class="hljs-string">'regression'</span>, dropout=<span class="hljs-number">0.2</span>)
+<pre><code class="hljs python language-python">model = dc.models.GraphConvModel(n_tasks=<span class="hljs-number">1</span>, mode=<span class="hljs-string">&#x27;regression&#x27;</span>, dropout=<span class="hljs-number">0.2</span>)
 </code></pre>
 <p>The constructor call passes three named parameters:</p>
 <ul>
@@ -101,14 +101,14 @@
 <p>The trained model can now be evaluated by comparing the error in the training and test sets.</p>
 <pre><code class="hljs python language-python">metric = dc.metrics.Metric(dc.metrics.pearson_r2_score)
 
-print(model.evaluate(train_dataset, [metric], transformers)) <span class="hljs-comment"># =&gt; {'pearson_r2_score': 0.9110650179980299}</span>
-print(model.evaluate(test_dataset, [metric], transformers)) <span class="hljs-comment"># =&gt; {'pearson_r2_score': 0.759322765543715}</span>
+<span class="hljs-built_in">print</span>(model.evaluate(train_dataset, [metric], transformers)) <span class="hljs-comment"># =&gt; {&#x27;pearson_r2_score&#x27;: 0.9110650179980299}</span>
+<span class="hljs-built_in">print</span>(model.evaluate(test_dataset, [metric], transformers)) <span class="hljs-comment"># =&gt; {&#x27;pearson_r2_score&#x27;: 0.759322765543715}</span>
 </code></pre>
 <p>Unoptimized test error for this convolutional network approach (0.759) compares favorably with the <a href="/articles/2020/09/14/getting-started-with-deepchem/">previously-described</a> random forest approach (0.362). However, the difference in error between training and test sets (0.911 vs. 0.759) for the convolutional network suggests overfitting.</p>
 <h2 id="usethemodel">Use the Model</h2>
 <p>Having built, trained, and evaluated the model, we can now use it to predict the aqueous solubility of unknown molecules.</p>
 <pre><code class="hljs python language-python">featurizer = dc.feat.ConvMolFeaturizer()
-smiles = [<span class="hljs-string">'c1c(O)cccc1O'</span>, <span class="hljs-string">'c1c(F)cccc1O'</span>, <span class="hljs-string">'c1c(Cl)cccc1O'</span>]
+smiles = [<span class="hljs-string">&#x27;c1c(O)cccc1O&#x27;</span>, <span class="hljs-string">&#x27;c1c(F)cccc1O&#x27;</span>, <span class="hljs-string">&#x27;c1c(Cl)cccc1O&#x27;</span>]
 x = featurizer.featurize([Chem.MolFromSmiles(s) <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> smiles])
 
 model.predict_on_batch(x) <span class="hljs-comment"># =&gt; array([[2.0801175], [1.3159559], [1.3712412]], dtype=float32)</span>

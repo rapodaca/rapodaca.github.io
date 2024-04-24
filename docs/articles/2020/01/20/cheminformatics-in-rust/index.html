@@ -98,44 +98,44 @@
 <p>Graphs can and do take many different forms in cheminformatics, so we wouldn't want to lock the <code>Graph</code> interface to any specific implementation. Doing so would severely limit our future options with respect to performance and features. Instead, we'd want to define <code>Graph</code> as a general interface. Rust supports exactly this use case with <em>traits</em>. A trait is similar to the concept of "interface" found in Java.</p>
 <p>We can specify a <code>Graph</code> trait that satisfies the requirements of the minimum Graph API like so:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-meta">#[derive(Debug, PartialEq)]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Error</span></span> {
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">Error</span> {
     UnknownNode,
     DuplicateNode,
     DuplicateEdge
 }
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Graph</span></span>&lt;N, W&gt; {
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">trait</span> <span class="hljs-title class_">Graph</span>&lt;N, W&gt; {
     <span class="hljs-comment">/// Returns true if there are no nodes, or false otherwise.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">is_empty</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">bool</span>;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">is_empty</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">bool</span>;
 
     <span class="hljs-comment">/// Returns the number of nodes in this graph.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">order</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">usize</span>;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">order</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">usize</span>;
 
     <span class="hljs-comment">/// Returns the number of edges in this graph.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">size</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">usize</span>;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">size</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">usize</span>;
 
     <span class="hljs-comment">/// Iterates the nodes of this graph</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">nodes</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;N&gt; + <span class="hljs-symbol">'_</span>&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">nodes</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;N&gt; + <span class="hljs-symbol">&#x27;_</span>&gt;;
 
     <span class="hljs-comment">/// Returns true if node is a member, or false otherwise. </span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">has_node</span></span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) -&gt; <span class="hljs-built_in">bool</span>;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">has_node</span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">bool</span>;
 
     <span class="hljs-comment">/// Iterates the neighbors of node.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">neighbors</span></span>(
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">neighbors</span>(
         &amp;<span class="hljs-keyword">self</span>, node: &amp;N
-    ) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;N&gt; + <span class="hljs-symbol">'_</span>&gt;, Error&gt;;
+    ) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;N&gt; + <span class="hljs-symbol">&#x27;_</span>&gt;, Error&gt;;
 
     <span class="hljs-comment">/// Returns the number of neighbors connected to node.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">degree</span></span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">usize</span>, Error&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">degree</span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">usize</span>, Error&gt;;
 
     <span class="hljs-comment">/// Iterates the edges of this graph.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">edges</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=(&amp;N, &amp;N, <span class="hljs-built_in">Option</span>&lt;&amp;W&gt;)&gt; + <span class="hljs-symbol">'_</span>&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">edges</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Box</span>&lt;<span class="hljs-keyword">dyn</span> <span class="hljs-built_in">Iterator</span>&lt;Item=(&amp;N, &amp;N, <span class="hljs-type">Option</span>&lt;&amp;W&gt;)&gt; + <span class="hljs-symbol">&#x27;_</span>&gt;;
 
     <span class="hljs-comment">/// Returns true if an edge exists between source and target.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">has_edge</span></span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;N, target: &amp;N) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">bool</span>, Error&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">has_edge</span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;N, target: &amp;N) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">bool</span>, Error&gt;;
 
     <span class="hljs-comment">/// Returns the weight of the edge between source and target.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">weight</span></span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;N, target: &amp;N) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Option</span>&lt;&amp;W&gt;, Error&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">weight</span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;N, target: &amp;N) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">Option</span>&lt;&amp;W&gt;, Error&gt;;
 }
 </code></pre>
 <p>There's a lot of Rust syntax to take in here. For the moment, however, the most important thing to notice is that the <code>Graph</code> trait defines all eleven methods needed to work with graphs in the general sense, and cheminformatics in particular. As such, it offers a foundation for building a graph library in Rust, and from there a cheminformatics toolkit.</p>

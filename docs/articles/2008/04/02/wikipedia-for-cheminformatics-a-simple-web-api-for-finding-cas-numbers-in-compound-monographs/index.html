@@ -49,36 +49,36 @@
 <p>But for now we are left with the question of how to index the chemical content of Wikipedia. Although a few systems have been proposed, the only practical method is through the use of CAS numbers. Which brings us to the subject of today's tutorial.</p>
 <h2 id="aquickcasnumberapiforwikipedia">A Quick CAS Number API for Wikipedia</h2>
 <p>The Ruby program below will accept the title of any Wikipedia compound monograph title and return the CAS number for the compound being discussed, or an error message if none was found:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'hpricot'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'open-uri'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'cgi'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;hpricot&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;open-uri&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;cgi&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Wikikemi</span></span>
-  @cas = <span class="hljs-literal">nil</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Wikikemi</span>
+  <span class="hljs-variable">@cas</span> = <span class="hljs-literal">nil</span>
 
-  <span class="hljs-keyword">attr_reader</span> <span class="hljs-symbol">:cas</span>
+  <span class="hljs-built_in">attr_reader</span> <span class="hljs-symbol">:cas</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span> <span class="hljs-title">title</span></span>
-    uri = URI.escape(<span class="hljs-string">"http://en.wikipedia.org/wiki/<span class="hljs-subst">#{title}</span>"</span>)
-    puts <span class="hljs-string">"loading... <span class="hljs-subst">#{uri}</span>"</span>
-    doc = Hpricot(open(uri))
-    table = (doc/<span class="hljs-string">"table"</span>)[<span class="hljs-number">0</span>]
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span> title
+    uri = <span class="hljs-variable constant_">URI</span>.escape(<span class="hljs-string">&quot;http://en.wikipedia.org/wiki/<span class="hljs-subst">#{title}</span>&quot;</span>)
+    puts <span class="hljs-string">&quot;loading... <span class="hljs-subst">#{uri}</span>&quot;</span>
+    doc = <span class="hljs-title class_">Hpricot</span>(open(uri))
+    table = (doc/<span class="hljs-string">&quot;table&quot;</span>)[<span class="hljs-number">0</span>]
 
     table.inner_html.match(<span class="hljs-regexp">/([0-9]{2,7}?\-[0-9]{2}\-[0-9])/</span>) <span class="hljs-keyword">if</span> table
 
-    @cas = $1
+    <span class="hljs-variable">@cas</span> = <span class="hljs-variable">$1</span>
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 
 <span class="hljs-comment"># Returns the CAS number present in the Wikipedia monograph with</span>
 <span class="hljs-comment"># the indicated title, or an error message if none is found. Try, for example,</span>
-<span class="hljs-comment"># "benzene.".</span>
+<span class="hljs-comment"># &quot;benzene.&quot;.</span>
 <span class="hljs-keyword">while</span> <span class="hljs-literal">true</span>
-  puts <span class="hljs-string">"Enter the title of the Wikipedia page, for example: 'benzene'"</span>
+  puts <span class="hljs-string">&quot;Enter the title of the Wikipedia page, for example: &#x27;benzene&#x27;&quot;</span>
   monograph_title = gets.chomp
-  w = Wikikemi.new monograph_title
-  puts w.cas ? <span class="hljs-string">"[<span class="hljs-subst">#{w.cas}</span>]"</span> : <span class="hljs-string">"CAS number not found"</span>
+  w = <span class="hljs-title class_">Wikikemi</span>.new monograph_title
+  puts w.cas ? <span class="hljs-string">&quot;[<span class="hljs-subst">#{w.cas}</span>]&quot;</span> : <span class="hljs-string">&quot;CAS number not found&quot;</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <p>This program makes use of the excellent Ruby HTML parser, <a href="http://code.whytheluckystiff.net/hpricot/">Hpricot</a>.</p>
@@ -87,15 +87,15 @@
 </code></pre>
 <p>For example, we can look up the CAS numbers for Ferrocene, Lipitor, or 1,2,3,4,4a,5,6,7,8,8a-Decahydronaphthalene:</p>
 <pre><code class="hljs bash language-bash">ruby wikikemi.rb
-Enter the title of the Wikipedia page, <span class="hljs-keyword">for</span> example: <span class="hljs-string">'benzene'</span>
+Enter the title of the Wikipedia page, <span class="hljs-keyword">for</span> example: <span class="hljs-string">&#x27;benzene&#x27;</span>
 ferrocene
 loading... http://en.wikipedia.org/wiki/ferrocene
 [102-54-5]
-Enter the title of the Wikipedia page, <span class="hljs-keyword">for</span> example: <span class="hljs-string">'benzene'</span>
+Enter the title of the Wikipedia page, <span class="hljs-keyword">for</span> example: <span class="hljs-string">&#x27;benzene&#x27;</span>
 lipitor
 loading... http://en.wikipedia.org/wiki/lipitor
 [134523-00-5]
-Enter the title of the Wikipedia page, <span class="hljs-keyword">for</span> example: <span class="hljs-string">'benzene'</span>
+Enter the title of the Wikipedia page, <span class="hljs-keyword">for</span> example: <span class="hljs-string">&#x27;benzene&#x27;</span>
 1,2,3,4,4a,5,6,7,8,8a-Decahydronaphthalene
 loading... http://en.wikipedia.org/wiki/1,2,3,4,4a,5,6,7,8,8a-Decahydronaphthalene
 [91-17-8]

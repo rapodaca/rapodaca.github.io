@@ -35,18 +35,18 @@
       </header>
       <p><a href="http://pubchem.ncbi.nlm.nih.gov/">PubChem</a> is an increasingly popular, free-access, online molecular database operated by the National Institutes of Health. Web services are a hot topic, with sites such as <a href="http://www.flickr.com/services/api/">Flickr</a>, <a href="http://www.google.com/apis/">Google</a>, and <a href="http://developer.ebay.com/common/api/">eBay</a> offering developers the tools to build rich content through "mashups" of several web APIs. Although there is no formal PubChem API, it's possible to roll your own. As a demonstration, this article will show how structural information can be retrieved from PubChem using some simple Ruby code. The inspiration for this article came from the <code>PubChem</code> module that is part of <a href="http://chemruby.org">Chemruby</a>.</p>
 <p>The only thing you'll need for this tutorial is Ruby, preferably version 1.8.2 or higher. Create a directory called <strong>pubchem</strong> and make it your working directory. Then create a file called <strong>pubchem.rb</strong> containing the following code:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'net/http'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;net/http&#x27;</span>
 
 <span class="hljs-comment"># A very simple PubChem Web API.</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PubChem</span></span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">PubChem</span>
 
   <span class="hljs-comment"># Returns a molfile (as a String) for the molecule with PubChem</span>
   <span class="hljs-comment"># CID matching compound_id.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">get_molfile</span><span class="hljs-params">(compound_id)</span></span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">self</span>.get_molfile(compound_id)
     molfile = <span class="hljs-literal">nil</span>
-    path = <span class="hljs-string">'/summary/summary.cgi?cid='</span> + compound_id + <span class="hljs-string">'&amp;disopt=DisplaySDF'</span>
+    path = <span class="hljs-string">&#x27;/summary/summary.cgi?cid=&#x27;</span> + compound_id + <span class="hljs-string">&#x27;&amp;disopt=DisplaySDF&#x27;</span>
 
-    Net::HTTP.start(<span class="hljs-string">'pubchem.ncbi.nlm.nih.gov'</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|http|</span>
+    <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:HTTP</span>.start(<span class="hljs-string">&#x27;pubchem.ncbi.nlm.nih.gov&#x27;</span>) <span class="hljs-keyword">do</span> |<span class="hljs-params">http</span>|
       response = http.get(path)
       molfile = response.body
     <span class="hljs-keyword">end</span>
@@ -56,14 +56,14 @@
 
   <span class="hljs-comment"># Writes a PNG image, for the molecule with PubChem</span>
   <span class="hljs-comment"># CID matching compound_id, to the file specified by filename.</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">write_image</span><span class="hljs-params">(compound_id, filename)</span></span>
-    path = <span class="hljs-string">'/image/imgsrv.fcgi?t=l&amp;cid='</span> + compound_id
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">self</span>.write_image(compound_id, filename)
+    path = <span class="hljs-string">&#x27;/image/imgsrv.fcgi?t=l&amp;cid=&#x27;</span> + compound_id
 
-    Net::HTTP.start(<span class="hljs-string">'pubchem.ncbi.nlm.nih.gov'</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|http|</span>
+    <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:HTTP</span>.start(<span class="hljs-string">&#x27;pubchem.ncbi.nlm.nih.gov&#x27;</span>) <span class="hljs-keyword">do</span> |<span class="hljs-params">http</span>|
       response = http.get(path)
       image = response.body
 
-      File.open(filename, <span class="hljs-string">"w"</span>) <span class="hljs-keyword">do</span> <span class="hljs-params">|file|</span>
+      <span class="hljs-title class_">File</span>.open(filename, <span class="hljs-string">&quot;w&quot;</span>) <span class="hljs-keyword">do</span> |<span class="hljs-params">file</span>|
         file &lt;&lt; image
       <span class="hljs-keyword">end</span>
     <span class="hljs-keyword">end</span>
@@ -72,14 +72,14 @@
 </code></pre>
 <p>PubChem references each of its compounds by a unique integer identifier, the PubChem CID. This is very handy because retrieving PubChem resources is as simple as encoding a URL containing the CID of interest. The class above illustrates how this system can be used to get a molfile and write a PNG image using just a few lines of Ruby.</p>
 <p>Using the <code>PubChem</code> class is simplicity itself. To get the molfile for Levonorgestrel (<a href="http://www.go2planb.com/ForConsumers/Index.aspx">Plan B</a>), which has the CID 13109:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'pubchem'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;pubchem&#x27;</span>
 
-molfile = PubChem::get_molfile(<span class="hljs-string">'13109'</span>) <span class="hljs-comment">#=&gt; returns the molfile for Levonorgestrel as a String</span>
+molfile = <span class="hljs-title class_">PubChem</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:get_molfile</span>(<span class="hljs-string">&#x27;13109&#x27;</span>) <span class="hljs-comment">#=&gt; returns the molfile for Levonorgestrel as a String</span>
 </code></pre>
 <p>To write the 2-D structure diagram of Levonorgestrel as a PNG:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'pubchem'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;pubchem&#x27;</span>
 
-PubChem::write_png(<span class="hljs-string">'13109'</span>, <span class="hljs-string">'image.png'</span>) <span class="hljs-comment">#=&gt; writes a PNG image of Levonorgestrel</span>
+<span class="hljs-title class_">PubChem</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:write_png</span>(<span class="hljs-string">&#x27;13109&#x27;</span>, <span class="hljs-string">&#x27;image.png&#x27;</span>) <span class="hljs-comment">#=&gt; writes a PNG image of Levonorgestrel</span>
 </code></pre>
 <p>This code saves the image below to your working directory as <strong>image.png</strong>. The above two code fragments can either be saved as a file and executed by the Ruby interpreter:</p>
 <pre><code class="hljs bash language-bash">ruby filename.rb

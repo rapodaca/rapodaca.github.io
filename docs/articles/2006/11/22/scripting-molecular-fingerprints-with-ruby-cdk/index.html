@@ -40,39 +40,39 @@
 <p>For this tutorial, you'll need <a href="/articles/2006/10/30/agile-chemical-informatics-development-with-cdk-and-ruby-rcdk-0-3-0">Ruby CDK</a> (RCDK). A recent article described the small amount of system configuration required for <a href="/articles/2006/09/25/cdk-the-ruby-way-rcdk-0-2-0">RCDK on Linux</a>. Another article showed how to install <a href="/articles/2006/10/12/running-ruby-java-bridge-on-windows">RCDK on Windows</a>.</p>
 <h2 id="asmallfingerprintlibrary">A Small Fingerprint Library</h2>
 <p>Let's build a small Ruby library for working with fingerprints. Place the following code into a file called <strong>fingerprint.rb</strong> in your working directory:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
 
-jrequire <span class="hljs-string">'org.openscience.cdk.fingerprint.Fingerprinter'</span>
-jrequire <span class="hljs-string">'org.openscience.cdk.similarity.Tanimoto'</span>
+jrequire <span class="hljs-string">&#x27;org.openscience.cdk.fingerprint.Fingerprinter&#x27;</span>
+jrequire <span class="hljs-string">&#x27;org.openscience.cdk.similarity.Tanimoto&#x27;</span>
 
 <span class="hljs-comment"># Molecule fingerprinting</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Fingerprinter</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @fingerprinter = Org::Openscience::Cdk::Fingerprint::Fingerprinter.new
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Fingerprinter</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@fingerprinter</span> = <span class="hljs-title class_">Org</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Openscience</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Fingerprint</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Fingerprinter</span>.new
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fingerprint</span><span class="hljs-params">(smiles)</span></span>
-    mol = RCDK::Util::Lang.read_smiles smiles
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">fingerprint</span>(<span class="hljs-params">smiles</span>)
+    mol = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Lang</span>.read_smiles smiles
 
-    fp = @fingerprinter.getFingerprint mol
+    fp = <span class="hljs-variable">@fingerprinter</span>.getFingerprint mol
 
     <span class="hljs-comment"># Metaprogramming!</span>
-    fp.extend(Fingerprint)
+    fp.<span class="hljs-keyword">extend</span>(<span class="hljs-title class_">Fingerprint</span>)
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 
 <span class="hljs-comment"># BitSet comparison</span>
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">Fingerprint</span></span>
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">Fingerprint</span>
   <span class="hljs-comment"># Returns true of all of the bits set to true in this fingerprint are also set to true in the specified fingerprint</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">subset?</span><span class="hljs-params">(fingerprint)</span></span>
-    Org::Openscience::Cdk::Fingerprint::Fingerprinter.isSubset(fingerprint, <span class="hljs-keyword">self</span>)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">subset?</span>(<span class="hljs-params">fingerprint</span>)
+    <span class="hljs-title class_">Org</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Openscience</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Fingerprint</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Fingerprinter</span>.isSubset(fingerprint, <span class="hljs-variable language_">self</span>)
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Tanimoto similarity of this fingerprint and the specified fingerprint</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">tanimoto</span><span class="hljs-params">(fingerprint)</span></span>
-    Org::Openscience::Cdk::Similarity::Tanimoto.calculate(<span class="hljs-keyword">self</span>, fingerprint)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">tanimoto</span>(<span class="hljs-params">fingerprint</span>)
+    <span class="hljs-title class_">Org</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Openscience</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Similarity</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Tanimoto</span>.calculate(<span class="hljs-variable language_">self</span>, fingerprint)
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -80,39 +80,39 @@ jrequire <span class="hljs-string">'org.openscience.cdk.similarity.Tanimoto'</sp
 <h2 id="testingthelibrary">Testing the Library</h2>
 <p><img src="/images/posts/20061122/desloratadine.png" alt="Desloratadine" title="Desloratadine"></p>
 <p><a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=3957">Claritin</a> (loratadine, left) and <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=124087">Clarinex</a> (desloratadine, right) are two structurally-related antihistamines. Can we quantitate the degree of similarity between these two structures? Fingerprints provide one way. The following code creates fingerprints for the two structures, determines if one is the subset of another, and assigns a Tanimoto similarity value:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
 
-jrequire <span class="hljs-string">'org.openscience.cdk.fingerprint.Fingerprinter'</span>
-jrequire <span class="hljs-string">'org.openscience.cdk.similarity.Tanimoto'</span>
+jrequire <span class="hljs-string">&#x27;org.openscience.cdk.fingerprint.Fingerprinter&#x27;</span>
+jrequire <span class="hljs-string">&#x27;org.openscience.cdk.similarity.Tanimoto&#x27;</span>
 
 <span class="hljs-comment"># Molecule fingerprinting</span>
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Fingerprinter</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @fingerprinter = Org::Openscience::Cdk::Fingerprint::Fingerprinter.new
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Fingerprinter</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@fingerprinter</span> = <span class="hljs-title class_">Org</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Openscience</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Fingerprint</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Fingerprinter</span>.new
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fingerprint</span><span class="hljs-params">(smiles)</span></span>
-    mol = RCDK::Util::Lang.read_smiles smiles
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">fingerprint</span>(<span class="hljs-params">smiles</span>)
+    mol = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Lang</span>.read_smiles smiles
 
-    fp = @fingerprinter.getFingerprint mol
+    fp = <span class="hljs-variable">@fingerprinter</span>.getFingerprint mol
 
     <span class="hljs-comment"># Metaprogramming!</span>
-    fp.extend(Fingerprint)
+    fp.<span class="hljs-keyword">extend</span>(<span class="hljs-title class_">Fingerprint</span>)
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 
 <span class="hljs-comment"># BitSet comparison</span>
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">Fingerprint</span></span>
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">Fingerprint</span>
   <span class="hljs-comment"># Returns true of all of the bits set to true in this fingerprint are also set to true in the specified fingerprint</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">subset?</span><span class="hljs-params">(fingerprint)</span></span>
-    Org::Openscience::Cdk::Fingerprint::Fingerprinter.isSubset(fingerprint, <span class="hljs-keyword">self</span>)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">subset?</span>(<span class="hljs-params">fingerprint</span>)
+    <span class="hljs-title class_">Org</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Openscience</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Fingerprint</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Fingerprinter</span>.isSubset(fingerprint, <span class="hljs-variable language_">self</span>)
   <span class="hljs-keyword">end</span>
 
   <span class="hljs-comment"># Tanimoto similarity of this fingerprint and the specified fingerprint</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">tanimoto</span><span class="hljs-params">(fingerprint)</span></span>
-    Org::Openscience::Cdk::Similarity::Tanimoto.calculate(<span class="hljs-keyword">self</span>, fingerprint)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">tanimoto</span>(<span class="hljs-params">fingerprint</span>)
+    <span class="hljs-title class_">Org</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Openscience</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Similarity</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Tanimoto</span>.calculate(<span class="hljs-variable language_">self</span>, fingerprint)
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -124,7 +124,7 @@ jrequire <span class="hljs-string">'org.openscience.cdk.similarity.Tanimoto'</sp
 <pre><code class="hljs ruby language-ruby">loratadine.cardinality <span class="hljs-comment"># =&gt; 278</span>
 </code></pre>
 <p>To print out a list of all bits set to true, we could use the <code>toString</code> method:</p>
-<pre><code class="hljs ruby language-ruby">loratadine.toString <span class="hljs-comment"># =&gt; "{2, 8, 11, 16, 18, 22, 32, 37, 38, 41, 42, 46, 47, 51, 57, 64, 65, 66, 69 ... }"</span>
+<pre><code class="hljs ruby language-ruby">loratadine.toString <span class="hljs-comment"># =&gt; &quot;{2, 8, 11, 16, 18, 22, 32, 37, 38, 41, 42, 46, 47, 51, 57, 64, 65, 66, 69 ... }&quot;</span>
 </code></pre>
 <h2 id="conclusions">Conclusions</h2>
 <p>Fingerprints enable many useful and fast comparisons between molecules. The form of fingerprint we've used here is but one of possibilities offered by CDK. The next article in this series will discuss fingerprints in <a href="http://openbabel.sourceforge.net/wiki/Fingerprint">Open Babel</a> using both Ruby and Python.</p>

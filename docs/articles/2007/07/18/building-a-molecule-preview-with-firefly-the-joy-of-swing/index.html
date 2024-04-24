@@ -40,10 +40,10 @@
 <p><img src="/images/posts/20070718/dialog2.png" alt="Dialog" title="Dialog"></p>
 <p>The molecule preview is capable of all of the customizations available in Firefly including background, bond, and atom colors, borders, and atom label fonts. No matter how large or small the molecule, and regardless of its starting coordinates, it will always be exactly scaled to fit the available space and precisely centered.</p>
 <p>This dialog was rapidly implemented using the accessory capability provided by Swing's <code>JFileChooser</code>:</p>
-<pre><code class="hljs java language-java">JFileChooser chooser = <span class="hljs-keyword">new</span> JFileChooser();
-PreviewAccessory accessory = <span class="hljs-keyword">new</span> PreviewAccessory(chooser);
+<pre><code class="hljs java language-java"><span class="hljs-type">JFileChooser</span> <span class="hljs-variable">chooser</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JFileChooser</span>();
+<span class="hljs-type">PreviewAccessory</span> <span class="hljs-variable">accessory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PreviewAccessory</span>(chooser);
 
-accessory.setPreferredSize(<span class="hljs-keyword">new</span> Dimension(<span class="hljs-number">150</span>, <span class="hljs-number">150</span>));
+accessory.setPreferredSize(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Dimension</span>(<span class="hljs-number">150</span>, <span class="hljs-number">150</span>));
 
 chooser.setAccessory(accessory);
 chooser.addPropertyChangeListener(accessory);
@@ -51,8 +51,8 @@ chooser.addPropertyChangeListener(accessory);
 <span class="hljs-comment">// ...</span>
 </code></pre>
 <p>Defining a JComponent implmenting the <code>PropertyChangeListener</code> interface is all that's needed to get a working molecule preview:</p>
-<pre><code class="hljs java language-java"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PreviewAccessory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">DefaultPainter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">PropertyChangeListener</span>
-</span>{
+<pre><code class="hljs java language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">PreviewAccessory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">DefaultPainter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">PropertyChangeListener</span>
+{
   <span class="hljs-comment">// implementation</span>
 }
 </code></pre>

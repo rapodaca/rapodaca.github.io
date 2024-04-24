@@ -57,7 +57,7 @@ jruby 1.1.5 (ruby 1.8.6 patchlevel 114) (2008-11-03 rev 7996) [i386-java]
 <h2 id="hellobenzene">Hello, Benzene</h2>
 <p>Let's create a benzene molecule using MX:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'mx-0.103.0.jar'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;mx-0.103.0.jar&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; import com.metamolecular.mx.io.Molecules
 =&gt; Java::ComMetamolecularMxIo::Molecules
@@ -69,14 +69,14 @@ irb(main):004:0&gt; benzene.countAtoms
 <p>Here, we've used one of the precompiled molecules available through the static methods of the <code>Molecules</code> class.</p>
 <p>We can also create a <code>Molecule</code> from a molfile in a single line of code using <code>MoleculeKit</code>. Let's grab the <a href="http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=3386&amp;loc=ec_rcs">fluoxetine molfile</a> from PubChem and convert it into a molecule:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'mx-0.103.0.jar'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;mx-0.103.0.jar&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; import com.metamolecular.mx.model.MoleculeKit
 =&gt; Java::ComMetamolecularMxModel::MoleculeKit
-irb(main):003:0&gt; require <span class="hljs-string">'open-uri'</span>
+irb(main):003:0&gt; require <span class="hljs-string">&#x27;open-uri&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):004:0&gt; molfile = open(<span class="hljs-string">'http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=3386&amp;disopt=DisplaySDF'</span>).<span class="hljs-built_in">read</span>
-=&gt; <span class="hljs-string">"3386\n  -OEChem-11240812312D\n\n 40 41 ..."</span>
+irb(main):004:0&gt; molfile = open(<span class="hljs-string">&#x27;http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=3386&amp;disopt=DisplaySDF&#x27;</span>).<span class="hljs-built_in">read</span>
+=&gt; <span class="hljs-string">&quot;3386\n  -OEChem-11240812312D\n\n 40 41 ...&quot;</span>
 irb(main):005:0&gt; fluoxetine = MoleculeKit.readMolfile molfile, <span class="hljs-literal">true</span>
 =&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0x2b1682 @java_object=com.metamolecular.mx.model.DefaultMolecule@b655a&gt;</span>
 irb(main):006:0&gt; fluoxetine.countAtoms
@@ -87,7 +87,7 @@ irb(main):006:0&gt; fluoxetine.countAtoms
 <p>Substructure searches are done through an instance of a class implementing the <code>Matcher</code> interface. Currenly, only one such class exists, <code>DefaultMatcher</code>, so we'll use it.</p>
 <p>Let's verify that benzene is a substructure of toluene:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'mx-0.103.0.jar'</span>                     
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;mx-0.103.0.jar&#x27;</span>                     
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; import com.metamolecular.mx.io.Molecules     
 =&gt; Java::ComMetamolecularMxIo::Molecules

@@ -54,7 +54,7 @@
 <p>Before introducing the members of the cast, a brief summary of what brings them together will be helpful. The Blossom algorithm accepts a graph and an arbitrary matching over that graph, which may be empty. The algorithm grows the matching iteratively, attempting to find a way to add one additional edge at each step. Failure to do so terminates the algorithm.</p>
 <p>An implementation for a <code>maximum_matching</code> function in Rust might start off as something like:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// hypothetical function signature in Rust</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">maximum_matching</span></span>(graph: &amp;Graph, matching: &amp;Matching) {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">maximum_matching</span>(graph: &amp;Graph, matching: &amp;Matching) {
   <span class="hljs-comment">// 1. find the next augmenting path</span>
   <span class="hljs-comment">// 2. if path exists, augment matching with it, then</span>
   <span class="hljs-comment">//    call maximum_matching</span>

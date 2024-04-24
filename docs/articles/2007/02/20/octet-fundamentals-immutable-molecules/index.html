@@ -56,47 +56,47 @@
 <h2 id="howtobuildimmutablemolecules">How to Build Immutable Molecules</h2>
 <p>Immutable Molecules may be a good idea, but how can they get created in the first place? After all, there are no methods such as <code>addAtom</code> though which a Molecule can be built up!</p>
 <p>Java inner classes and the <a href="http://c2.com/cgi/wiki?BuilderPattern">Builder Pattern</a> provide one solution to this problem. Consider the following Java snippet, which is adapted from the Octet source code:</p>
-<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BasicMoleculeBuilder</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">MoleculeBuilder</span>
-</span>{
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BasicMoleculeBuilder</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">MoleculeBuilder</span>
+{
   <span class="hljs-keyword">private</span> MoleculeImpl molecule;
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">BasicMoleculeBuilder</span><span class="hljs-params">()</span></span>{
-    molecule = <span class="hljs-keyword">new</span> MoleculeImpl();
+  <span class="hljs-keyword">public</span> <span class="hljs-title function_">BasicMoleculeBuilder</span><span class="hljs-params">()</span>{
+    molecule = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MoleculeImpl</span>();
 
     <span class="hljs-comment">// implement the rest</span>
   }
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addAtom</span><span class="hljs-params">(IsotopicDistribution distribution)</span></span>{
-    AtomImpl atom = <span class="hljs-keyword">new</span> AtomImpl(distribution);
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addAtom</span><span class="hljs-params">(IsotopicDistribution distribution)</span>{
+    <span class="hljs-type">AtomImpl</span> <span class="hljs-variable">atom</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomImpl</span>(distribution);
 
     <span class="hljs-comment">// changing the molecule!</span>
     molecule.atoms.add(atom);
   }
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> Molecule <span class="hljs-title">releaseMolecule</span><span class="hljs-params">()</span></span>{
-    Molecule result = molecule;
-    molecule = <span class="hljs-keyword">new</span> MoleculeImpl();
+  <span class="hljs-keyword">public</span> Molecule <span class="hljs-title function_">releaseMolecule</span><span class="hljs-params">()</span>{
+    <span class="hljs-type">Molecule</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> molecule;
+    molecule = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MoleculeImpl</span>();
 
     <span class="hljs-keyword">return</span> result;
   }
 
   <span class="hljs-comment">// implement the remaining MoleculeBuilder methods</span>
 
-  <span class="hljs-keyword">private</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MoleculeImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Molecule</span>  </span>{
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MoleculeImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Molecule</span>  {
     <span class="hljs-keyword">private</span> List atoms;
 
-    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">MoleculeImpl</span><span class="hljs-params">()</span></span>{
-      atoms = <span class="hljs-keyword">new</span> ArrayList();
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">MoleculeImpl</span><span class="hljs-params">()</span>{
+      atoms = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>();
     }
 
     <span class="hljs-comment">// implement the remaining Molecule methods</span>
   }
 
-  <span class="hljs-keyword">private</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AtomImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Atom</span></span>{
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AtomImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Atom</span>{
     <span class="hljs-keyword">private</span> IsotopicDistribution dist;
 
-    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">AtomImpl</span><span class="hljs-params">(IsotopicDistribution dist)</span></span>{
-      <span class="hljs-keyword">this</span>.dist = dist;
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">AtomImpl</span><span class="hljs-params">(IsotopicDistribution dist)</span>{
+      <span class="hljs-built_in">this</span>.dist = dist;
     }
 
     <span class="hljs-comment">// implement the remaining Atom methods</span>

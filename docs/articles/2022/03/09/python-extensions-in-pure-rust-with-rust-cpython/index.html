@@ -49,14 +49,14 @@
 <pre><code class="hljs toml language-toml"><span class="hljs-comment"># ... package attributes</span>
 
 <span class="hljs-section">[lib]</span>
-<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">"cdylib"</span>]
+<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">&quot;cdylib&quot;</span>]
 
 <span class="hljs-section">[dependencies]</span>
-<span class="hljs-attr">cpython</span> = <span class="hljs-string">"0.7"</span>
+<span class="hljs-attr">cpython</span> = <span class="hljs-string">&quot;0.7&quot;</span>
 
 <span class="hljs-section">[features]</span>
-<span class="hljs-attr">default</span> = [<span class="hljs-string">"python3"</span>]
-<span class="hljs-attr">python3</span> = [<span class="hljs-string">"cpython/python3-sys"</span>, <span class="hljs-string">"cpython/extension-module"</span>]
+<span class="hljs-attr">default</span> = [<span class="hljs-string">&quot;python3&quot;</span>]
+<span class="hljs-attr">python3</span> = [<span class="hljs-string">&quot;cpython/python3-sys&quot;</span>, <span class="hljs-string">&quot;cpython/extension-module&quot;</span>]
 </code></pre>
 <h2 id="thesimplestmodule">The Simplest Module</h2>
 <p>The core of Rust-CPython is the <code>py_module_initializer!</code> macro. To illustrate its use, consider a module consisting of just a docstring. It can be implemented like so:</p>
@@ -64,9 +64,9 @@
 
 py_module_initializer! {
     docstring, |py, module| {
-        module.add(py, <span class="hljs-string">"__doc__"</span>, <span class="hljs-string">"This module is implemented in Rust."</span>)?;
+        module.<span class="hljs-title function_ invoke__">add</span>(py, <span class="hljs-string">&quot;__doc__&quot;</span>, <span class="hljs-string">&quot;This module is implemented in Rust.&quot;</span>)?;
 
-        <span class="hljs-literal">Ok</span>(())
+        <span class="hljs-title function_ invoke__">Ok</span>(())
     }
 }
 </code></pre>
@@ -79,13 +79,13 @@ py_module_initializer! {
 <p>The block inside the macro adds the attribute <code>__doc__</code> to the module with the indicated string value.</p>
 <p>Compiling with <code>cargo build</code> yields a shared library in <code>target/debug</code>. The filename consists of the package name (defined in <code>Cargo.toml</code>) prefixed with "lib". The filename extension will be platform specific. On MacOS, it should be "dylib". Compilation on MacOS therefore yields the file <code>target/debug/libdocstring.dylib</code>.</p>
 <p>Minor changes will be required before using the shared library. On all platforms the "lib" prefix typically needs to be removed, unless a package name like "libdocstring" was used inside <code>py_module_initializer!</code>. MacOS users will also need to swap the <code>.dylib</code> extension for <code>.so</code>. These changes can be accomplished by copying the shared library with a new name and/or extension. On MacOS use:</p>
-<pre><code class="hljs bash language-bash">cp target/debug/libdocstring.dylib target/debug/docstring.so
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cp</span> target/debug/libdocstring.dylib target/debug/docstring.so
 </code></pre>
 <p>It is now possible to use the shared library like any other Python module.</p>
 <pre><code class="hljs python language-python"><span class="hljs-comment"># ./run.py</span>
 <span class="hljs-keyword">from</span> target.debug <span class="hljs-keyword">import</span> docstring
 
-print(docstring.__doc__)
+<span class="hljs-built_in">print</span>(docstring.__doc__)
 </code></pre>
 <p>Running this program yields the output "This module is implemented in Rust."</p>
 <p>You may receive an error along the lines of "ImportError: dynamic module does not define module export function…". This error occurs when the name of the <code>so</code> file does not match the module name provided in the <code>py_module_initializer</code> macro. Be sure that both names are identical. In this case, "docstring" should be used.</p>
@@ -93,34 +93,34 @@ print(docstring.__doc__)
 <p>Functions are implemented in a similar manner. Conveniently, ordinary Rust functions are used. However, the first argument must be of type <code>Python</code>, and the return type must be <code>PyResult</code>. The <code>py_fn!</code> macro wraps the function added to the module.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> cpython::{py_module_initializer, py_fn, PyResult, Python};
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">greet</span></span>(_: Python, name: <span class="hljs-built_in">String</span>) -&gt; PyResult&lt;<span class="hljs-built_in">String</span>&gt; {
-    <span class="hljs-literal">Ok</span>(<span class="hljs-built_in">format!</span>(<span class="hljs-string">"Hello, {}!"</span>, name))
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">greet</span>(_: Python, name: <span class="hljs-type">String</span>) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;<span class="hljs-type">String</span>&gt; {
+    <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-built_in">format!</span>(<span class="hljs-string">&quot;Hello, {}!&quot;</span>, name))
 }
 
 py_module_initializer! {
     function, |py, module| {
-        module.add(py, <span class="hljs-string">"greet"</span>, py_fn!(py, greet(string: <span class="hljs-built_in">String</span>)))?;
+        module.<span class="hljs-title function_ invoke__">add</span>(py, <span class="hljs-string">&quot;greet&quot;</span>, py_fn!(py, <span class="hljs-title function_ invoke__">greet</span>(string: <span class="hljs-type">String</span>)))?;
 
-        <span class="hljs-literal">Ok</span>(())
+        <span class="hljs-title function_ invoke__">Ok</span>(())
     }
 }
 </code></pre>
 <p>After building and copying the dynamic library as before, it can be used as an ordinary Python module.</p>
 <pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> target.debug.function <span class="hljs-keyword">import</span> greet
 
-print(greet(<span class="hljs-string">"Smith"</span>))
+<span class="hljs-built_in">print</span>(greet(<span class="hljs-string">&quot;Smith&quot;</span>))
 </code></pre>
 <h2 id="classes">Classes</h2>
 <p>Classes are implemented using the <code>py_class!</code> macro. Here a hybrid language mixing Rust and Python syntax is used. The following example illustrates a class that exposes an instance method called <code>greet</code>.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> cpython::{py_class, PyResult, py_module_initializer};
 
 py_class!{<span class="hljs-keyword">pub</span> class Class |py| {
-    def __new__(_cls) -&gt; PyResult&lt;Class&gt; {
-        Class::create_instance(py)
+    def __new__(_cls) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;Class&gt; {
+        Class::<span class="hljs-title function_ invoke__">create_instance</span>(py)
     }
 
-    def greet(&amp;<span class="hljs-keyword">self</span>, name: <span class="hljs-built_in">String</span>) -&gt; PyResult&lt;<span class="hljs-built_in">String</span>&gt; {
-        <span class="hljs-literal">Ok</span>(<span class="hljs-built_in">format!</span>(<span class="hljs-string">"Hello, {}!"</span>, name))
+    def <span class="hljs-title function_ invoke__">greet</span>(&amp;<span class="hljs-keyword">self</span>, name: <span class="hljs-type">String</span>) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;<span class="hljs-type">String</span>&gt; {
+        <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-built_in">format!</span>(<span class="hljs-string">&quot;Hello, {}!&quot;</span>, name))
     }
 }}
 
@@ -128,7 +128,7 @@ py_module_initializer! {
     klass, |py, module| {
         module.add_class::&lt;Class&gt;(py)?;
 
-        <span class="hljs-literal">Ok</span>(())
+        <span class="hljs-title function_ invoke__">Ok</span>(())
     }
 }
 </code></pre>
@@ -137,7 +137,7 @@ py_module_initializer! {
 
 klass = Class()
 
-print(klass.greet(<span class="hljs-string">"Smith"</span>))
+<span class="hljs-built_in">print</span>(klass.greet(<span class="hljs-string">&quot;Smith&quot;</span>))
 </code></pre>
 <h2 id="wrappingrusttypes">Wrapping Rust Types</h2>
 <p>The <code>py_class!</code> macro can wrap Rust structs containing both accessors and mutators. The following demonstrates the idea based in part on the previous article's <a href="/articles/2020/08/10/python-extensions-in-pure-rust-with-pyo3/">PyO3 example</a>.</p>
@@ -145,46 +145,46 @@ print(klass.greet(<span class="hljs-string">"Smith"</span>))
 
 <span class="hljs-keyword">use</span> cpython::{py_class, py_module_initializer, PyClone, PyObject, PyResult};
 
-<span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Inner</span></span> = std::collections::HashSet&lt;<span class="hljs-built_in">u32</span>&gt;;
+<span class="hljs-keyword">type</span> <span class="hljs-title class_">Inner</span> = std::collections::HashSet&lt;<span class="hljs-type">u32</span>&gt;;
 
 py_class! {<span class="hljs-keyword">pub</span> class SetIterator |py| {
-    data iter: RefCell&lt;std::collections::hash_set::IntoIter&lt;<span class="hljs-built_in">u32</span>&gt;&gt;;
+    data iter: RefCell&lt;std::collections::hash_set::IntoIter&lt;<span class="hljs-type">u32</span>&gt;&gt;;
 
-    def __iter__(&amp;<span class="hljs-keyword">self</span>) -&gt; PyResult&lt;<span class="hljs-keyword">Self</span>&gt; {
-        <span class="hljs-literal">Ok</span>(<span class="hljs-keyword">self</span>.clone_ref(py))
+    def __iter__(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;<span class="hljs-keyword">Self</span>&gt; {
+        <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">clone_ref</span>(py))
     }
 
-    def __next__(&amp;<span class="hljs-keyword">self</span>) -&gt; PyResult&lt;<span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">u32</span>&gt;&gt; {
-        <span class="hljs-literal">Ok</span>(<span class="hljs-keyword">self</span>.iter(py).borrow_mut().next())
+    def __next__(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;<span class="hljs-type">Option</span>&lt;<span class="hljs-type">u32</span>&gt;&gt; {
+        <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">iter</span>(py).<span class="hljs-title function_ invoke__">borrow_mut</span>().<span class="hljs-title function_ invoke__">next</span>())
     }
 }}
 
 py_class! {<span class="hljs-keyword">pub</span> class HashSet |py| {
     data hash_set: RefCell&lt;Inner&gt;;
 
-    def __new__(_cls) -&gt; PyResult&lt;HashSet&gt; {
-        HashSet::create_instance(py, RefCell::new(Inner::new()))
+    def __new__(_cls) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;HashSet&gt; {
+        HashSet::<span class="hljs-title function_ invoke__">create_instance</span>(py, RefCell::<span class="hljs-title function_ invoke__">new</span>(Inner::<span class="hljs-title function_ invoke__">new</span>()))
     }
 
-    def __len__(&amp;<span class="hljs-keyword">self</span>) -&gt; PyResult&lt;<span class="hljs-built_in">usize</span>&gt; {
-        <span class="hljs-literal">Ok</span>(<span class="hljs-keyword">self</span>.hash_set(py).borrow().len())
+    def __len__(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;<span class="hljs-type">usize</span>&gt; {
+        <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">hash_set</span>(py).<span class="hljs-title function_ invoke__">borrow</span>().<span class="hljs-title function_ invoke__">len</span>())
     }
 
-    def __contains__(&amp;<span class="hljs-keyword">self</span>, v: <span class="hljs-built_in">u32</span>) -&gt; PyResult&lt;<span class="hljs-built_in">bool</span>&gt; {
-        <span class="hljs-literal">Ok</span>(<span class="hljs-keyword">self</span>.hash_set(py).borrow().contains(&amp;v))
+    def __contains__(&amp;<span class="hljs-keyword">self</span>, v: <span class="hljs-type">u32</span>) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;<span class="hljs-type">bool</span>&gt; {
+        <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">hash_set</span>(py).<span class="hljs-title function_ invoke__">borrow</span>().<span class="hljs-title function_ invoke__">contains</span>(&amp;v))
     }
 
-    def __iter__(&amp;<span class="hljs-keyword">self</span>) -&gt; PyResult&lt;SetIterator&gt; {
-        SetIterator::create_instance(
+    def __iter__(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;SetIterator&gt; {
+        SetIterator::<span class="hljs-title function_ invoke__">create_instance</span>(
             py,
-            RefCell::new(<span class="hljs-keyword">self</span>.hash_set(py).borrow().clone().into_iter())
+            RefCell::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">hash_set</span>(py).<span class="hljs-title function_ invoke__">borrow</span>().<span class="hljs-title function_ invoke__">clone</span>().<span class="hljs-title function_ invoke__">into_iter</span>())
         )
     }
 
-    def add(&amp;<span class="hljs-keyword">self</span>, v: <span class="hljs-built_in">u32</span>) -&gt; PyResult&lt;PyObject&gt; {
-        <span class="hljs-keyword">self</span>.hash_set(py).borrow_mut().insert(v);
+    def <span class="hljs-title function_ invoke__">add</span>(&amp;<span class="hljs-keyword">self</span>, v: <span class="hljs-type">u32</span>) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;PyObject&gt; {
+        <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">hash_set</span>(py).<span class="hljs-title function_ invoke__">borrow_mut</span>().<span class="hljs-title function_ invoke__">insert</span>(v);
 
-        <span class="hljs-literal">Ok</span>(py.<span class="hljs-literal">None</span>())
+        <span class="hljs-title function_ invoke__">Ok</span>(py.<span class="hljs-title function_ invoke__">None</span>())
     }
 }}
 
@@ -192,26 +192,26 @@ py_module_initializer! {
     wrapper, |py, module| {
         module.add_class::&lt;HashSet&gt;(py)?;
 
-        <span class="hljs-literal">Ok</span>(())
+        <span class="hljs-title function_ invoke__">Ok</span>(())
     }
 }
 </code></pre>
 <p>In analogy with the previous examples, this one can be compiled into a shared library extension and run from Python.</p>
 <pre><code class="hljs python language-python"><span class="hljs-keyword">from</span> target.debug.wrapper <span class="hljs-keyword">import</span> HashSet
 
-set = HashSet()
+<span class="hljs-built_in">set</span> = HashSet()
 
-set.add(<span class="hljs-number">1</span>)
+<span class="hljs-built_in">set</span>.add(<span class="hljs-number">1</span>)
 
-print(<span class="hljs-string">f"has 0: <span class="hljs-subst">{<span class="hljs-number">0</span> <span class="hljs-keyword">in</span> set}</span>"</span>)
-print(<span class="hljs-string">f"has 1: <span class="hljs-subst">{<span class="hljs-number">1</span> <span class="hljs-keyword">in</span> set}</span>"</span>)
+<span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;has 0: <span class="hljs-subst">{<span class="hljs-number">0</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span>}</span>&quot;</span>)
+<span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;has 1: <span class="hljs-subst">{<span class="hljs-number">1</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span>}</span>&quot;</span>)
 
-set.add(<span class="hljs-number">2</span>)
+<span class="hljs-built_in">set</span>.add(<span class="hljs-number">2</span>)
 
-<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> set:
-    print(<span class="hljs-string">f"found <span class="hljs-subst">{i}</span>"</span>)
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span>:
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;found <span class="hljs-subst">{i}</span>&quot;</span>)
 
-print(len(set))
+<span class="hljs-built_in">print</span>(<span class="hljs-built_in">len</span>(<span class="hljs-built_in">set</span>))
 </code></pre>
 <p>Most of the functionality resides on <code>HashSet</code>. This type uses an internal data store wrapped in a <code>RefCell</code>. The reason has to do with "<a href="https://doc.rust-lang.org/book/ch15-05-interior-mutability.html">interior mutability</a>." In a nutshell, the dynamic environment of the Python runtime breaks Rust's <a href="/articles/2020/01/27/rust-ownership-by-example/">compile-time memory management model</a>. <code>RefCell</code> offers a mechanism to re-instate safe, dynamically-checked borrowing for those situations, like a Python extension. Interior mutability has been covered in an excellent video by <a href="https://thesquareplanet.com">Jon Gjengset</a></p>
 <div class="videowrapper">

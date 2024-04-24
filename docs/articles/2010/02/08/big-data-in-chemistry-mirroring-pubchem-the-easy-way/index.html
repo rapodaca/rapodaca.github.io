@@ -39,16 +39,16 @@
 <p>The method described here will create two directories on your filesystem that will exactly mirror the contents of the PubChem Compound and Substance archives, respectively. A simple command, which can either be run as a nightly cron job or on demand, will efficiently bring these local files up-to-date with PubChem whenever it's run.</p>
 <h2 id="step1createaworkspaceandmountpubchemftpsite">Step 1. Create A Workspace and Mount PubChem FTP Site</h2>
 <p>We're going to need a workspace. In this workspace, we'll first create a mountpoint for the PubChem FTP site archives, then we'll mount the archives:</p>
-<pre><code class="hljs bash language-bash">mkdir workspace
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">mkdir</span> workspace
 <span class="hljs-built_in">cd</span> workspace
-mkdir -p ftp.ncbi.nlm.nih.gov/pubchem
+<span class="hljs-built_in">mkdir</span> -p ftp.ncbi.nlm.nih.gov/pubchem
 curlftpfs ftp.ncbi.nlm.nih.gov/pubchem/ ftp.ncbi.nlm.nih.gov/pubchem/
 </code></pre>
 <p>My Linux distribution (Ubuntu Karmic) gives me the error message:</p>
 <pre><code class="hljs bash language-bash">fusermount: failed to open /etc/fuse.conf: Permission denied
 </code></pre>
 <p>which doesn't seem to matter. The FTP site is mounted, as I can see by listing the top-level entries:</p>
-<pre><code class="hljs bash language-bash">ls ftp.ncbi.nlm.nih.gov/pubchem
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">ls</span> ftp.ncbi.nlm.nih.gov/pubchem
 Bioassay  Compound     data_spec     README         Substance
 CACTVS      Compound_3D  publications  specifications
 </code></pre>
@@ -57,16 +57,16 @@ CACTVS      Compound_3D  publications  specifications
 </code></pre>
 <h2 id="step2createsynchronizationdirectoriesandtransferfiles">Step 2. Create Synchronization Directories and Transfer Files</h2>
 <p>Next, let's create two directories to hold the PubChem files - one for Compounds and one for Substances:</p>
-<pre><code class="hljs bash language-bash">mkdir substances
-mkdir compounds
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">mkdir</span> substances
+<span class="hljs-built_in">mkdir</span> compounds
 </code></pre>
 <p>Now comes the magic. We'll use <a href="http://samba.anu.edu.au/rsync/">rsync</a> to copy the contents of the mounted FTP archive into each of our local directories. First, we synchronize the Compounds:</p>
-<pre><code class="hljs bash language-bash">rsync -r -t -v --progress --bwlimit=500  --include=<span class="hljs-string">'*/'</span> --include=<span class="hljs-string">'*.sdf.gz'</span> --exclude=<span class="hljs-string">'*'</span> ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/ compounds
+<pre><code class="hljs bash language-bash">rsync -r -t -v --progress --bwlimit=500  --include=<span class="hljs-string">&#x27;*/&#x27;</span> --include=<span class="hljs-string">&#x27;*.sdf.gz&#x27;</span> --exclude=<span class="hljs-string">&#x27;*&#x27;</span> ftp.ncbi.nlm.nih.gov/pubchem/Compound/CURRENT-Full/SDF/ compounds
 </code></pre>
 <p>This is going to take nearly 24 hours.</p>
 <p>The option <em>--bwlimit</em> sets the maximum bandwidth (in Mb/S). The <em>--include</em> and <em>--exclude</em> options say that we're only interested in gzipped sd files.</p>
 <p>We synchronize Substance records analogously:</p>
-<pre><code class="hljs bash language-bash">rsync -r -t -v --progress --bwlimit=500  --include=<span class="hljs-string">'*/'</span> --include=<span class="hljs-string">'*.sdf.gz'</span> --exclude=<span class="hljs-string">'*'</span> ftp.ncbi.nlm.nih.gov/pubchem/Substance/CURRENT-Full/SDF/ substances
+<pre><code class="hljs bash language-bash">rsync -r -t -v --progress --bwlimit=500  --include=<span class="hljs-string">&#x27;*/&#x27;</span> --include=<span class="hljs-string">&#x27;*.sdf.gz&#x27;</span> --exclude=<span class="hljs-string">&#x27;*&#x27;</span> ftp.ncbi.nlm.nih.gov/pubchem/Substance/CURRENT-Full/SDF/ substances
 </code></pre>
 <p>This command will take even longer to run.</p>
 <h2 id="step3thereisnostep3">Step 3. There Is No Step 3</h2>

@@ -36,34 +36,34 @@
       <p>A D-F reader wrote in to ask how to calculate Topological Polar Surface Area (TPSA) using Ruby CDK. TPSA is one of the most widely-used descriptors for predicting membrane permeability and from it other important ADME properties. This article shows how to calculate TPSA with Ruby using Ruby CDK.</p>
 <h2 id="thelibrary">The Library</h2>
 <p>Our library consists of nothing more than a few method calls to manipulate the underlying <a href="http://cdk.sf.net">CDK</a> library. The <code>tpsa_for</code> method accepts any SMILES string and returns the calculated TPSA:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
 
-jrequire <span class="hljs-string">'org.openscience.cdk.qsar.descriptors.molecular.TPSADescriptor'</span>
+jrequire <span class="hljs-string">&#x27;org.openscience.cdk.qsar.descriptors.molecular.TPSADescriptor&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">TPSA</span></span>
-  @@calc = Org::Openscience::Cdk::Qsar::Descriptors::Molecular::TPSADescriptor.new
+<span class="hljs-keyword">module</span> <span class="hljs-variable constant_">TPSA</span>
+  <span class="hljs-variable">@@calc</span> = <span class="hljs-title class_">Org</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Openscience</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Cdk</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Qsar</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Descriptors</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Molecular</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:TPSADescriptor</span>.new
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">tpsa_for</span> <span class="hljs-title">smiles</span></span>
-    mol = RCDK::Util::Lang.read_smiles smiles
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">tpsa_for</span> smiles
+    mol = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Lang</span>.read_smiles smiles
 
-    @@calc.calculate(mol).getValue.doubleValue
+    <span class="hljs-variable">@@calc</span>.calculate(mol).getValue.doubleValue
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <h2 id="aninteractivetest">An Interactive Test</h2>
 <p>Saving the library to a file called <strong>tpsa.rb</strong> lets us test it through interactive Ruby (irb):</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'tpsa'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;tpsa&#x27;</span>
 ./tpsa.rb:2:Warning: require_gem is obsolete.  Use gem instead.
-/usr/<span class="hljs-built_in">local</span>/lib/ruby/gems/1.8/gems/rcdk-0.3.0/lib/rcdk/java.rb:26:Warning: require_gem is obsolete.  Use gem instead.
+/usr/local/lib/ruby/gems/1.8/gems/rcdk-0.3.0/lib/rcdk/java.rb:26:Warning: require_gem is obsolete.  Use gem instead.
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include TPSA
 =&gt; Object
-irb(main):003:0&gt; tpsa_for <span class="hljs-string">'COCCc1ccc(OCC(O)CNC(C)C)cc1'</span> <span class="hljs-comment"># metoprolol</span>
+irb(main):003:0&gt; tpsa_for <span class="hljs-string">&#x27;COCCc1ccc(OCC(O)CNC(C)C)cc1&#x27;</span> <span class="hljs-comment"># metoprolol</span>
 =&gt; 50.72
-irb(main):004:0&gt; tpsa_for <span class="hljs-string">'O=C3Nc1ccc(Cl)cc1C(c2ccccc2)=NC3O'</span> <span class="hljs-comment"># oxazepam</span>
+irb(main):004:0&gt; tpsa_for <span class="hljs-string">&#x27;O=C3Nc1ccc(Cl)cc1C(c2ccccc2)=NC3O&#x27;</span> <span class="hljs-comment"># oxazepam</span>
 =&gt; 61.69
 </code></pre>
 <p>The results we obtain for metoprolol and oxazepam are 50.72 and 61.69, respectively. These values compare well with those reported by Ertl et al. in the <a href="http://dx.doi.org/10.1021/jm000942e">definitive paper on TPSA</a> (50.7 and 61.7, respectively).</p>

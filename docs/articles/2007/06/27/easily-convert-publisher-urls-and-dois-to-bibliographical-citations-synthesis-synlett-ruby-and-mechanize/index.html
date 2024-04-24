@@ -44,15 +44,15 @@
 <p>Think of Mechanize as a programmable Web browser controlled by Ruby. This powerful idea offers possibilities that go far beyond the relatively simple example I'll describe here.</p>
 <h2 id="asimplelibrary">A Simple Library</h2>
 <p>Our library consists of the following code:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'mechanize'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;mechanize&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">Thieme</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_ris</span> <span class="hljs-title">url</span></span>
-    agent =  WWW::Mechanize.new
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">Thieme</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_ris</span> url
+    agent =  <span class="hljs-variable constant_">WWW</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Mechanize</span>.new
     page = agent.get url
-    ris_link = page.links.text /[Bb]iblio/
-    ris_url = <span class="hljs-string">"http://"</span> + page.uri.host + ris_link.href
+    ris_link = page.links.text /[<span class="hljs-title class_">Bb</span>]iblio/
+    ris_url = <span class="hljs-string">&quot;http://&quot;</span> + page.uri.host + ris_link.href
 
     agent.get_file ris_url
   <span class="hljs-keyword">end</span>
@@ -60,24 +60,24 @@
 </code></pre>
 <p>After saving this code in a file called <strong>thieme.rb</strong>, we can test it on <a href="http://dx.doi.org/10.1055/s-2007-966071">this <i>Synthesis</i> article</a> with interactive ruby (irb):</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'thieme'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;thieme&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; include Thieme
 =&gt; Object
-irb(main):003:0&gt; ris=get_ris <span class="hljs-string">'http://www.thieme-connect.com/ejournals/abstract/synthesis/doi/10.1055/s-2007-966071'</span>
-=&gt; <span class="hljs-string">"\nTY  - JOUR\nID  - 101055S2007966071\nAU  - Gil,Mar\355a Victoria\nAU  - Ar\351valo,Mar\355a Jos\351\nAU  - L\363pez,\323scar\nT1  - Click Chemistry - What?s in a Name? Triazole Synthesis and Beyond\nJO  - Synthesis\nPY  - 2007///\nIS  - 11\nSP  - 1589\nEP  - 1620\nER  - \n\n"</span>
+irb(main):003:0&gt; ris=get_ris <span class="hljs-string">&#x27;http://www.thieme-connect.com/ejournals/abstract/synthesis/doi/10.1055/s-2007-966071&#x27;</span>
+=&gt; <span class="hljs-string">&quot;\nTY  - JOUR\nID  - 101055S2007966071\nAU  - Gil,Mar\355a Victoria\nAU  - Ar\351valo,Mar\355a Jos\351\nAU  - L\363pez,\323scar\nT1  - Click Chemistry - What?s in a Name? Triazole Synthesis and Beyond\nJO  - Synthesis\nPY  - 2007///\nIS  - 11\nSP  - 1589\nEP  - 1620\nER  - \n\n&quot;</span>
 irb(main):004:0&gt; ris.match /T1  - (.*)/
 =&gt; <span class="hljs-comment">#&lt;MatchData:0xb77c9784&gt;</span>
 irb(main):005:0&gt; title = <span class="hljs-variable">$1</span>
-=&gt; <span class="hljs-string">"Click Chemistry - What?s in a Name? Triazole Synthesis and Beyond"</span>
+=&gt; <span class="hljs-string">&quot;Click Chemistry - What?s in a Name? Triazole Synthesis and Beyond&quot;</span>
 </code></pre>
 <p>Let's say that instead of a deep link to an article in the Thieme site we have a DOI. Can we still get the bibliographical citation?</p>
-<pre><code class="hljs bash language-bash">irb(main):006:0&gt; ris=get_ris <span class="hljs-string">'http://dx.doi.org/10.1055/s-2007-966071'</span>
-=&gt; <span class="hljs-string">"\nTY  - JOUR\nID  - 101055S2007966071\nAU  - Gil,Mar\355a Victoria\nAU  - Ar\351valo,Mar\355a Jos\351\nAU  - L\363pez,\323scar\nT1  - Click Chemistry - What?s in a Name? Triazole Synthesis and Beyond\nJO  - Synthesis\nPY  - 2007///\nIS  - 11\nSP  - 1589\nEP  - 1620\nER  - \n\n"</span>
+<pre><code class="hljs bash language-bash">irb(main):006:0&gt; ris=get_ris <span class="hljs-string">&#x27;http://dx.doi.org/10.1055/s-2007-966071&#x27;</span>
+=&gt; <span class="hljs-string">&quot;\nTY  - JOUR\nID  - 101055S2007966071\nAU  - Gil,Mar\355a Victoria\nAU  - Ar\351valo,Mar\355a Jos\351\nAU  - L\363pez,\323scar\nT1  - Click Chemistry - What?s in a Name? Triazole Synthesis and Beyond\nJO  - Synthesis\nPY  - 2007///\nIS  - 11\nSP  - 1589\nEP  - 1620\nER  - \n\n&quot;</span>
 irb(main):007:0&gt; ris.match /T1  - (.*)/
 =&gt; <span class="hljs-comment">#&lt;MatchData:0xb77c6264&gt;</span>
 irb(main):008:0&gt; title = <span class="hljs-variable">$1</span>
-=&gt; <span class="hljs-string">"Click Chemistry - What?s in a Name? Triazole Synthesis and Beyond"</span>
+=&gt; <span class="hljs-string">&quot;Click Chemistry - What?s in a Name? Triazole Synthesis and Beyond&quot;</span>
 </code></pre>
 <p>It worked! Mechanize had no problem following the redirect from dx.doi.org. Similar results would be obtained with a <em>Synlett</em> article or DOI.</p>
 <p>For this approach to be truly useful, our software would need to gracefully handle character encoding to avoid garbled strings such as "What?s".</p>

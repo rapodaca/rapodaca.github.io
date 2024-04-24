@@ -41,32 +41,32 @@
 </code></pre>
 <p>If you were developing a database of molecules and needed to support exact structure searching, how would you do it? One way would be to convert a query molecule to a canonical SMILES string, and then simply look for that string in an index of your database's canonical SMILES. This is useful because it allows us to convert a chemistry-specific problem (exact structure search) into a generic computer science problem (text matching).</p>
 <p>We can create a simple Ruby library to convert any SMILES string into an Open Babel canonical SMILES string:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'openbabel'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;openbabel&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Can</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @conversion = OpenBabel::OBConversion.new
-    @conversion.set_in_and_out_formats <span class="hljs-string">'smi'</span>, <span class="hljs-string">'can'</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Can</span>
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@conversion</span> = <span class="hljs-title class_">OpenBabel</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:OBConversion</span>.new
+    <span class="hljs-variable">@conversion</span>.set_in_and_out_formats <span class="hljs-string">&#x27;smi&#x27;</span>, <span class="hljs-string">&#x27;can&#x27;</span>
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">convert</span> <span class="hljs-title">smiles</span></span>
-    mol = OpenBabel::OBMol.new
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">convert</span> smiles
+    mol = <span class="hljs-title class_">OpenBabel</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:OBMol</span>.new
 
-    @conversion.read_string mol, smiles
-    @conversion.write_string mol
+    <span class="hljs-variable">@conversion</span>.read_string mol, smiles
+    <span class="hljs-variable">@conversion</span>.write_string mol
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <p>Save this code as a file called <strong>can.rb</strong> in your working directory. The library can then be used, for example, via interactive ruby (irb):</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'can'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;can&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; c=Can.new
 =&gt; <span class="hljs-comment">#&lt;Can:0x2ac6cc653228 @conversion=#&lt;OpenBabel::Conversion:0x2ac6cc6531d8&gt;&gt;</span>
-irb(main):003:0&gt; puts c.convert(<span class="hljs-string">'Nc3nc(N)c2nc(CNc1ccc(C(=O)N[C@@H](CCC(=O)O)C(=O)O)cc1)cnc2n3'</span>)
+irb(main):003:0&gt; puts c.convert(<span class="hljs-string">&#x27;Nc3nc(N)c2nc(CNc1ccc(C(=O)N[C@@H](CCC(=O)O)C(=O)O)cc1)cnc2n3&#x27;</span>)
 OC(=O)CC[C@@H](NC(=O)c1ccc(NCc2cnc3nc(N)nc(N)c3n2)cc1)C(=O)O
 =&gt; nil
-irb(main):004:0&gt; puts c.convert(<span class="hljs-string">'C1=CC(=CC=C1C(=O)N[C@@H](CCC(=O)O)C(=O)O)NCC2=CN=C3C(=N2)C(=NC(=N3)N)N'</span>)
+irb(main):004:0&gt; puts c.convert(<span class="hljs-string">&#x27;C1=CC(=CC=C1C(=O)N[C@@H](CCC(=O)O)C(=O)O)NCC2=CN=C3C(=N2)C(=NC(=N3)N)N&#x27;</span>)
 OC(=O)CC[C@@H](NC(=O)c1ccc(NCc2cnc3nc(N)nc(N)c3n2)cc1)C(=O)O
 =&gt; nil
 </code></pre>

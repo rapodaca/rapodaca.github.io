@@ -37,21 +37,21 @@
 <p>Various application programming interfaces (APIs) are available for accessing PubChem and PDB records. For example, PubChem recently introduced its <a href="/articles/tag/pug">Power User Gateway</a> (PUG), an XML-based query language. But writing APIs is extremely difficult; reconciling the need for simplicity with the need for rich functionality is a tough balancing act. Where do you draw the line?</p>
 <p>Recently, <a href="http://boscoh.com/">Bosco</a> described a <a href="http://boscoh.com/protein/fetching-pdb-files-remotely-in-pure-python-code">remarkably short method</a> to retrieve PDB records using nothing more than standard Python. Given the similarities between Python and Ruby, it seemed reasonable that his method could be adapted to Ruby.</p>
 <p>The following Ruby library accepts a PDB identifier and returns the corresponding PDB record:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'net/http'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;net/http&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">PDB</span></span>
+<span class="hljs-keyword">module</span> <span class="hljs-variable constant_">PDB</span>
   <span class="hljs-comment"># Returns a PDB record for the given id</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">get_record</span> <span class="hljs-title">id</span></span>
-    Net::HTTP.get_response(<span class="hljs-string">'www.rcsb.org'</span>, <span class="hljs-string">"/pdb/files/<span class="hljs-subst">#{id}</span>.pdb"</span>).body
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">self</span>.get_record id
+    <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:HTTP</span>.get_response(<span class="hljs-string">&#x27;www.rcsb.org&#x27;</span>, <span class="hljs-string">&quot;/pdb/files/<span class="hljs-subst">#{id}</span>.pdb&quot;</span>).body
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
 <p>Notice how the business end of this library is nothing more than a single line of Ruby code.</p>
 <p>The library can be tested by saving it in a file called <code>pdb.rb</code> and invoking interactive Ruby (irb):</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'pdb'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;pdb&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):002:0&gt; puts PDB::get_record(<span class="hljs-string">'1hpn'</span>)
+irb(main):002:0&gt; puts PDB::get_record(<span class="hljs-string">&#x27;1hpn&#x27;</span>)
 HEADER    GLYCOSAMINOGLYCAN                       17-JAN-95   1HPN
 TITLE     N.M.R. AND MOLECULAR-MODELLING STUDIES OF THE SOLUTION
 TITLE    2 CONFORMATION OF HEPARIN
@@ -59,20 +59,20 @@ TITLE    2 CONFORMATION OF HEPARIN
 [truncated]
 </code></pre>
 <p>Several months ago, a D-F article described a related, but somewhat lengthier approach to <a href="/articles/2006/08/30/hacking-pubchem-with-ruby">retrieving PubChem molfiles</a>. Using the same approach we used for PDB, we can create the world's shortest PubChem library:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'net/http'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;net/http&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">module</span> <span class="hljs-title">PubChem</span></span>
+<span class="hljs-keyword">module</span> <span class="hljs-title class_">PubChem</span>
   <span class="hljs-comment"># Returns a molfile for the given PubChem CID</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">self</span>.<span class="hljs-title">get_molfile</span> <span class="hljs-title">cid</span></span>
-    Net::HTTP.get_response(<span class="hljs-string">'pubchem.ncbi.nlm.nih.gov'</span>, <span class="hljs-string">"/summary/summary.cgi?cid=<span class="hljs-subst">#{cid}</span>&amp;disopt=DisplaySDF"</span>).body
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">self</span>.get_molfile cid
+    <span class="hljs-title class_">Net</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:HTTP</span>.get_response(<span class="hljs-string">&#x27;pubchem.ncbi.nlm.nih.gov&#x27;</span>, <span class="hljs-string">&quot;/summary/summary.cgi?cid=<span class="hljs-subst">#{cid}</span>&amp;disopt=DisplaySDF&quot;</span>).body
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span> 
 </code></pre>
 <p>This library can be tested by saving it in a file called <code>pubchem.rb</code> followed by running irb:</p>
 <pre><code class="hljs bash language-bash">irb
-irb(main):001:0&gt; require <span class="hljs-string">'pubchem'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;pubchem&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
-irb(main):002:0&gt; puts PubChem::get_molfile(<span class="hljs-string">'969472'</span>) <span class="hljs-comment">#eszopiclone (Lunesta)</span>
+irb(main):002:0&gt; puts PubChem::get_molfile(<span class="hljs-string">&#x27;969472&#x27;</span>) <span class="hljs-comment">#eszopiclone (Lunesta)</span>
 969472
   -OEChem-08130700422D
 
@@ -85,10 +85,10 @@ irb(main):002:0&gt; puts PubChem::get_molfile(<span class="hljs-string">'969472'
 <p>One limitation of the approach described here is that the PubChem (or PDB) folks may get upset if you use it a lot. For example, if you examine the <a href="http://pubchem.ncbi.nlm.nih.gov/robots.txt">PubChem robots.txt file</a>, you'll notice that access to the <tt>summary.cgi</tt> resource, which our library makes use of, is prohibited to robots:</p>
 <pre><code class="hljs http language-http">...
 
-User-agent: *
+<span class="hljs-attribute">User-agent</span><span class="hljs-punctuation">: </span>*
 
 ...
-Disallow: /summary/summary.cgi
+<span class="hljs-attribute">Disallow</span><span class="hljs-punctuation">: </span>/summary/summary.cgi
 ...
 </code></pre>
 <p>What makes a "robot" and does your software qualify for exclusion? The answer is not enirely clear-cut, especially in the era of browser-side scripting.</p>

@@ -40,34 +40,34 @@
 <p>Our implementation will gradually build up an atom mapping by traversing the atoms of <code>query</code> in depth-first order and trying to map each found atom onto an atom in <code>target</code>. At each step in the process, we will have a partial atom map that maps some of the atoms in <code>query</code> onto <code>target</code>. That map, and any other information needed to complete the analysis will be kept in an instance of a class implementing the <code>State</code> interface.</p>
 <p>A <code>State</code> will be manipulated by a recursive method, <code>mapFirst</code> that returns when the first atom map is found:</p>
 <pre><code class="hljs java language-java"><span class="hljs-comment">// create a list to hold atom maps</span>
-List&lt;Map&lt;Atom, Atom&gt;&gt; maps = <span class="hljs-keyword">new</span> ArrayList&lt;Map&lt;Atom, Atom&gt;&gt;();
+List&lt;Map&lt;Atom, Atom&gt;&gt; maps = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;Map&lt;Atom, Atom&gt;&gt;();
 
 <span class="hljs-comment">// create initial state</span>
-State state = ...; 
+<span class="hljs-type">State</span> <span class="hljs-variable">state</span> <span class="hljs-operator">=</span> ...; 
 
-<span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">mapFirst</span><span class="hljs-params">(State state)</span>
-</span>{
+<span class="hljs-type">boolean</span> <span class="hljs-title function_">mapFirst</span><span class="hljs-params">(State state)</span>
+{
   <span class="hljs-keyword">if</span> (state.isDead())
   {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
   }
 
   <span class="hljs-keyword">if</span> (state.isGoal())
   {
     maps.add(state.getMap());
 
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
   }
 
-  <span class="hljs-keyword">boolean</span> found = <span class="hljs-keyword">false</span>;
+  <span class="hljs-type">boolean</span> <span class="hljs-variable">found</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;
 
   <span class="hljs-keyword">while</span> (!found &amp;&amp; state.hasNextCandidate())
   {
-    Match candidate = state.nextCandidate();
+    <span class="hljs-type">Match</span> <span class="hljs-variable">candidate</span> <span class="hljs-operator">=</span> state.nextCandidate();
 
     <span class="hljs-keyword">if</span> (state.isMatchFeasible(candidate))
     {
-      State nextState = state.nextState(candidate);
+      <span class="hljs-type">State</span> <span class="hljs-variable">nextState</span> <span class="hljs-operator">=</span> state.nextState(candidate);
       found = mapFirst(nextState);
 
       nextState.backTrack();
@@ -81,8 +81,8 @@ State state = ...;
 <p>Although it may be clear from the code, it's worth re-iterating that each time <code>mapFirst</code> is recursively called, an attempt is made to branch off a new <code>State</code> that maps an additional pair of atoms from <code>query</code> to <code>target</code>. If that branch leads to a possible solution, it's followed. Otherwise the next possible mapping is explored.</p>
 <h2 id="thestateinterface">The <code>State</code> Interface</h2>
 <p>The recursive <code>mapFirst</code> method determines all of the methods the <code>State</code> interface needs to define:</p>
-<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">State</span>
-</span>{
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">State</span>
+{
   <span class="hljs-comment">/**
    * Returns the current mapping of query atoms onto target atoms.
    * This map is shared among all states obtained through nextState.
@@ -93,61 +93,61 @@ State state = ...;
    * Returns true if another candidate match can be found or
    * false otherwise.
    */</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">hasNextCandidate</span><span class="hljs-params">()</span></span>;
+  <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">hasNextCandidate</span><span class="hljs-params">()</span>;
 
   <span class="hljs-comment">/**
    * Returns the next candidate match.
    */</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> Match <span class="hljs-title">nextCandidate</span><span class="hljs-params">()</span></span>;
+  <span class="hljs-keyword">public</span> Match <span class="hljs-title function_">nextCandidate</span><span class="hljs-params">()</span>;
 
   <span class="hljs-comment">/**
    * Returns true if the given match will work with the current
    * map, or false otherwise.
    */</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isMatchFeasible</span><span class="hljs-params">(Match match)</span></span>;
+  <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isMatchFeasible</span><span class="hljs-params">(Match match)</span>;
 
   <span class="hljs-comment">/**
    * Returns true if all atoms in the query molecule have been
    * mapped.
    */</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isGoal</span><span class="hljs-params">()</span></span>;
+  <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isGoal</span><span class="hljs-params">()</span>;
 
   <span class="hljs-comment">/**
    * Returns true if no match will come from this State.
    */</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isDead</span><span class="hljs-params">()</span></span>;
+  <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isDead</span><span class="hljs-params">()</span>;
 
   <span class="hljs-comment">/**
    * Returns a state in which the atoms in match have been
    * added to the current mapping.
    */</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> State <span class="hljs-title">nextState</span><span class="hljs-params">(Match match)</span></span>;
+  <span class="hljs-keyword">public</span> State <span class="hljs-title function_">nextState</span><span class="hljs-params">(Match match)</span>;
 
   <span class="hljs-comment">/**
-   * Returns this State's atom map to its original condition.
+   * Returns this State&#x27;s atom map to its original condition.
    */</span>
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">backTrack</span><span class="hljs-params">()</span></span>;
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">backTrack</span><span class="hljs-params">()</span>;
 }
 </code></pre>
 <p>Finally, <code>State</code> uses an instance of the <code>Match</code> class:</p>
-<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Match</span>
-</span>{
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Match</span>
+{
   <span class="hljs-keyword">private</span> Atom query;
   <span class="hljs-keyword">private</span> Atom target;
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Match</span><span class="hljs-params">(Atom query, Atom target)</span>
-  </span>{
-    <span class="hljs-keyword">this</span>.query = query;
-    <span class="hljs-keyword">this</span>.target = target;
+  <span class="hljs-keyword">public</span> <span class="hljs-title function_">Match</span><span class="hljs-params">(Atom query, Atom target)</span>
+  {
+    <span class="hljs-built_in">this</span>.query = query;
+    <span class="hljs-built_in">this</span>.target = target;
   }
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> Atom <span class="hljs-title">getQueryAtom</span><span class="hljs-params">()</span>
-  </span>{
+  <span class="hljs-keyword">public</span> Atom <span class="hljs-title function_">getQueryAtom</span><span class="hljs-params">()</span>
+  {
     <span class="hljs-keyword">return</span> query;
   }
 
-  <span class="hljs-function"><span class="hljs-keyword">public</span> Atom <span class="hljs-title">getTargetAtom</span><span class="hljs-params">()</span>
-  </span>{
+  <span class="hljs-keyword">public</span> Atom <span class="hljs-title function_">getTargetAtom</span><span class="hljs-params">()</span>
+  {
     <span class="hljs-keyword">return</span> target;
   }
 }

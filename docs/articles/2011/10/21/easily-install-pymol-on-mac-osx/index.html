@@ -39,23 +39,23 @@
 <pre><code class="hljs bash language-bash">sudo python setup.py build install
 running build
 running build_py
-package init file <span class="hljs-string">'modules/web/javascript/__init__.py'</span> not found (or not a regular file)
-package init file <span class="hljs-string">'modules/web/javascript/__init__.py'</span> not found (or not a regular file)
+package init file <span class="hljs-string">&#x27;modules/web/javascript/__init__.py&#x27;</span> not found (or not a regular file)
+package init file <span class="hljs-string">&#x27;modules/web/javascript/__init__.py&#x27;</span> not found (or not a regular file)
 running build_ext
-building <span class="hljs-string">'pymol._cmd'</span> extension
-gcc-4.2 -fno-strict-aliasing -fno-common -dynamic -DNDEBUG -g -fwrapv -Os -Wall -Wstrict-prototypes -DENABLE_DTRACE -arch i386 -arch ppc -arch x86_64 -pipe -D_PYMOL_MODULE -D_PYMOL_LIBPNG -D_PYMOL_FREETYPE -Iov/src -Ilayer0 -Ilayer1 -Ilayer2 -Ilayer3 -Ilayer4 -Ilayer5 -I/usr/X11R6/include -I/Users/rich/Downloads/pymol/ext/include -I/Users/rich/Downloads/pymol/ext/include/GL -I/Users/rich/Downloads/pymol/ext/include/freetype2 -Imodules/cealign/src -Imodules/cealign/src/tnt -I/System/Library/Frameworks/Python.framework/Versions/2.6/include/python2.6 -c ov/src/OVContext.c -o build/temp.macosx-10.6-universal-2.6/ov/src/OVContext.o
-/usr/libexec/gcc/powerpc-apple-darwin10/4.2.1/as: assembler (/usr/bin/../libexec/as/ppc/as or /usr/bin/../<span class="hljs-built_in">local</span>/libexec/as/ppc/as) <span class="hljs-keyword">for</span> architecture ppc not installed
+building <span class="hljs-string">&#x27;pymol._cmd&#x27;</span> extension
+gcc-4.2 -fno-strict-aliasing -fno-common -dynamic -DNDEBUG -g -fwrapv -Os -Wall -Wstrict-prototypes -DENABLE_DTRACE -<span class="hljs-built_in">arch</span> i386 -<span class="hljs-built_in">arch</span> ppc -<span class="hljs-built_in">arch</span> x86_64 -pipe -D_PYMOL_MODULE -D_PYMOL_LIBPNG -D_PYMOL_FREETYPE -Iov/src -Ilayer0 -Ilayer1 -Ilayer2 -Ilayer3 -Ilayer4 -Ilayer5 -I/usr/X11R6/include -I/Users/rich/Downloads/pymol/ext/include -I/Users/rich/Downloads/pymol/ext/include/GL -I/Users/rich/Downloads/pymol/ext/include/freetype2 -Imodules/cealign/src -Imodules/cealign/src/tnt -I/System/Library/Frameworks/Python.framework/Versions/2.6/include/python2.6 -c ov/src/OVContext.c -o build/temp.macosx-10.6-universal-2.6/ov/src/OVContext.o
+/usr/libexec/gcc/powerpc-apple-darwin10/4.2.1/as: assembler (/usr/bin/../libexec/as/ppc/as or /usr/bin/../local/libexec/as/ppc/as) <span class="hljs-keyword">for</span> architecture ppc not installed
 Installed assemblers are:
 /usr/bin/../libexec/as/x86_64/as <span class="hljs-keyword">for</span> architecture x86_64
 /usr/bin/../libexec/as/i386/as <span class="hljs-keyword">for</span> architecture i386
 /usr/bin/../libexec/as/arm/as <span class="hljs-keyword">for</span> architecture arm
 ov/src/OVContext.c:28: fatal error: error closing -: Broken pipe
 compilation terminated.
-lipo: can<span class="hljs-string">'t open input file: /var/tmp//ccWpUaKz.out (No such file or directory)
-error: command '</span>gcc-4.2<span class="hljs-string">' failed with exit status 1
+lipo: can<span class="hljs-string">&#x27;t open input file: /var/tmp//ccWpUaKz.out (No such file or directory)
+error: command &#x27;</span>gcc-4.2<span class="hljs-string">&#x27; failed with exit status 1
 </span></code></pre>
 <p>This appears to have something to do with more recent version of OS X build tools lacking Power PC architecture dependencies. A <a href="http://superuser.com/questions/259278/python-2-6-1-pycrypto-2-3-pypi-package-broken-pipe-during-build">question on Superuser</a> prompted me to try this solution:</p>
-<pre><code class="hljs bash language-bash">ARCHFLAGS=<span class="hljs-string">"-arch i386 -arch x86_64"</span> python setup.py build
+<pre><code class="hljs bash language-bash">ARCHFLAGS=<span class="hljs-string">&quot;-arch i386 -arch x86_64&quot;</span> python setup.py build
 </code></pre>
 <p>After an encouraging period where a lot seemed to be happening, the build process terminated with the same complaint from lipo.</p>
 <p>Fortunately, there is another way. <a href="http://guide.macports.org/#installing">MacPorts</a> makes it very easy to install the most recent version of PyMOL (1.4.1) and all of its dependencies with:</p>

@@ -36,16 +36,16 @@
       <p>The <a href="http://code.google.com/p/mx-java/downloads/list">latest release</a> of <a href="http://code.google.com/p/mx-java/">MX</a>, the Java toolkit for cheminformatics, now supports reading a subset of <a href="http://www.daylight.com/smiles/">SMILES strings</a>. Although incomplete, full support for this feature is planned within a few releases.</p>
 <p>To get an idea of how to use the new SMILES reader, we can use <a href="/articles/2008/11/24/getting-started-with-mx">interactive JRuby</a>. Assuming we've downloaded the <a href="http://mx-java.googlecode.com/files/mx-0.105.0.jar">mx-0.105.0 jarfile</a> to our working directory, we can use:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'mx-0.105.0.jar'</span>                            
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;mx-0.105.0.jar&#x27;</span>                            
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; import com.metamolecular.mx.io.daylight.SMILESReader
 =&gt; Java::ComMetamolecularMxIoDaylight::SMILESReader
-irb(main):003:0&gt; bromobenzene = SMILESReader.read <span class="hljs-string">'C1=CC=CC=C1Br'</span>    
+irb(main):003:0&gt; bromobenzene = SMILESReader.<span class="hljs-built_in">read</span> <span class="hljs-string">&#x27;C1=CC=CC=C1Br&#x27;</span>    
 =&gt; <span class="hljs-comment">#&amp;lt;Java::ComMetamolecularMxModel::DefaultMolecule:0x8a2023 @java_object=com.metamolecular.mx.model.DefaultMolecule@182a70&gt;</span>
 irb(main):004:0&gt; bromobenzene.count_atoms                            
 =&gt; 7
 irb(main):005:0&gt; bromobenzene.get_atom(6).get_symbol                 
-=&gt; <span class="hljs-string">"Br"</span>
+=&gt; <span class="hljs-string">&quot;Br&quot;</span>
 </code></pre>
     </article>
 

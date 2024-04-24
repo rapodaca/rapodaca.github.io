@@ -49,84 +49,84 @@
 <h2 id="thecode">The Code</h2>
 <p>Below is the source I added to implement the <code>execute</code> method:</p>
 <pre><code class="hljs java language-java"><span class="hljs-keyword">protected</span> BufferedDataTable[] execute(<span class="hljs-keyword">final</span> BufferedDataTable[] inData, <span class="hljs-keyword">final</span> ExecutionContext exec) <span class="hljs-keyword">throws</span> Exception {
-  logger.warn(<span class="hljs-string">"Calculating InChIs..."</span>);
+  logger.warn(<span class="hljs-string">&quot;Calculating InChIs...&quot;</span>);
 
-  DataTableSpec inputTableSpec = inData[<span class="hljs-number">0</span>].getDataTableSpec();
-  DataColumnSpec[] outputColumnSpecs = <span class="hljs-keyword">new</span> DataColumnSpec[inputTableSpec.getNumColumns() + <span class="hljs-number">2</span>];
+  <span class="hljs-type">DataTableSpec</span> <span class="hljs-variable">inputTableSpec</span> <span class="hljs-operator">=</span> inData[<span class="hljs-number">0</span>].getDataTableSpec();
+  DataColumnSpec[] outputColumnSpecs = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DataColumnSpec</span>[inputTableSpec.getNumColumns() + <span class="hljs-number">2</span>];
 
-  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; inputTableSpec.getNumColumns(); i++) {
-    DataColumnSpec columnSpec = inputTableSpec.getColumnSpec(i);
+  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; inputTableSpec.getNumColumns(); i++) {
+    <span class="hljs-type">DataColumnSpec</span> <span class="hljs-variable">columnSpec</span> <span class="hljs-operator">=</span> inputTableSpec.getColumnSpec(i);
 
     outputColumnSpecs[i] = columnSpec;
   }
 
-  outputColumnSpecs[inputTableSpec.getNumColumns()] = <span class="hljs-keyword">new</span> DataColumnSpecCreator(<span class="hljs-string">"inchi"</span>, StringCell.TYPE).createSpec();
-  outputColumnSpecs[inputTableSpec.getNumColumns() + <span class="hljs-number">1</span>] = <span class="hljs-keyword">new</span> DataColumnSpecCreator(<span class="hljs-string">"inchi_key"</span>, StringCell.TYPE).createSpec();
+  outputColumnSpecs[inputTableSpec.getNumColumns()] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DataColumnSpecCreator</span>(<span class="hljs-string">&quot;inchi&quot;</span>, StringCell.TYPE).createSpec();
+  outputColumnSpecs[inputTableSpec.getNumColumns() + <span class="hljs-number">1</span>] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DataColumnSpecCreator</span>(<span class="hljs-string">&quot;inchi_key&quot;</span>, StringCell.TYPE).createSpec();
 
-  DataTableSpec outputTableSpec = <span class="hljs-keyword">new</span> DataTableSpec(outputColumnSpecs);
-  BufferedDataContainer outputContainer = exec.createDataContainer(outputTableSpec);
+  <span class="hljs-type">DataTableSpec</span> <span class="hljs-variable">outputTableSpec</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DataTableSpec</span>(outputColumnSpecs);
+  <span class="hljs-type">BufferedDataContainer</span> <span class="hljs-variable">outputContainer</span> <span class="hljs-operator">=</span> exec.createDataContainer(outputTableSpec);
 
-  CloseableRowIterator it = inData[<span class="hljs-number">0</span>].iterator();
-  <span class="hljs-keyword">int</span> rowNumber = <span class="hljs-number">1</span>;
+  <span class="hljs-type">CloseableRowIterator</span> <span class="hljs-variable">it</span> <span class="hljs-operator">=</span> inData[<span class="hljs-number">0</span>].iterator();
+  <span class="hljs-type">int</span> <span class="hljs-variable">rowNumber</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;
 
   <span class="hljs-keyword">while</span> (it.hasNext()) {
-    DataRow inputRow = it.next();
-    RowKey key = inputRow.getKey();
-    DataCell[] cells = <span class="hljs-keyword">new</span> DataCell[inputRow.getNumCells() + <span class="hljs-number">2</span>];
+    <span class="hljs-type">DataRow</span> <span class="hljs-variable">inputRow</span> <span class="hljs-operator">=</span> it.next();
+    <span class="hljs-type">RowKey</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> inputRow.getKey();
+    DataCell[] cells = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DataCell</span>[inputRow.getNumCells() + <span class="hljs-number">2</span>];
 
-    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; inputRow.getNumCells(); i++) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; inputRow.getNumCells(); i++) {
       cells[i] = inputRow.getCell(i);
     }
 
-    DataCell molfileCell = inputRow.getCell(<span class="hljs-number">0</span>);
-    String inchi = getInChIFromMolfile(molfileCell.toString());
-    String inchiKey = getInChIKeyFromMolfile(molfileCell.toString());
-    cells[inputRow.getNumCells()] = <span class="hljs-keyword">new</span> StringCell(inchi);
-    cells[inputRow.getNumCells() + <span class="hljs-number">1</span>] = <span class="hljs-keyword">new</span> StringCell(inchiKey);
+    <span class="hljs-type">DataCell</span> <span class="hljs-variable">molfileCell</span> <span class="hljs-operator">=</span> inputRow.getCell(<span class="hljs-number">0</span>);
+    <span class="hljs-type">String</span> <span class="hljs-variable">inchi</span> <span class="hljs-operator">=</span> getInChIFromMolfile(molfileCell.toString());
+    <span class="hljs-type">String</span> <span class="hljs-variable">inchiKey</span> <span class="hljs-operator">=</span> getInChIKeyFromMolfile(molfileCell.toString());
+    cells[inputRow.getNumCells()] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringCell</span>(inchi);
+    cells[inputRow.getNumCells() + <span class="hljs-number">1</span>] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringCell</span>(inchiKey);
 
-    DataRow outputRow = <span class="hljs-keyword">new</span> DefaultRow(key, cells);
+    <span class="hljs-type">DataRow</span> <span class="hljs-variable">outputRow</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultRow</span>(key, cells);
 
     outputContainer.addRowToTable(outputRow);
     exec.checkCanceled();
-    exec.setProgress(rowNumber / (<span class="hljs-keyword">double</span>)inData[<span class="hljs-number">0</span>].getRowCount(), <span class="hljs-string">"Adding row "</span> + rowNumber);
+    exec.setProgress(rowNumber / (<span class="hljs-type">double</span>)inData[<span class="hljs-number">0</span>].getRowCount(), <span class="hljs-string">&quot;Adding row &quot;</span> + rowNumber);
 
     rowNumber++;
   }
 
   outputContainer.close();
-  BufferedDataTable outputTable = outputContainer.getTable();
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BufferedDataTable[]{outputTable};
+  <span class="hljs-type">BufferedDataTable</span> <span class="hljs-variable">outputTable</span> <span class="hljs-operator">=</span> outputContainer.getTable();
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedDataTable</span>[]{outputTable};
 }
 </code></pre>
 <p>The code is fairly straightforward, if verbose. At a high level, we're transforming a tabular representation of a data stream into another tabular representation of that stream by adding two columns - one called "inchi", and the other called "inchi_key". We preserve the contents and ordering of all input fields. We then populate the extra columns with the InChI and InChI key generated by the lightweight wrapper to the InChI binary.</p>
 <p>The <code>execute</code> method invokes both <code>getInChIFromMolfile</code> and <code>getInChIKeyFromMolfile</code>, the implementations of which follow:</p>
-<pre><code class="hljs java language-java"><span class="hljs-function"><span class="hljs-keyword">private</span> BufferedReader <span class="hljs-title">runInChI</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
+<pre><code class="hljs java language-java"><span class="hljs-keyword">private</span> BufferedReader <span class="hljs-title function_">runInChI</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException {
   String[] command = {
-    <span class="hljs-string">"/bin/sh"</span>,
-    <span class="hljs-string">"-c"</span>,
-    <span class="hljs-string">"echo \""</span> + molfile + <span class="hljs-string">"\" | inchi -STDIO -AuxNone -NoLabels -Key 2&gt;/dev/null"</span>
+    <span class="hljs-string">&quot;/bin/sh&quot;</span>,
+    <span class="hljs-string">&quot;-c&quot;</span>,
+    <span class="hljs-string">&quot;echo \&quot;&quot;</span> + molfile + <span class="hljs-string">&quot;\&quot; | inchi -STDIO -AuxNone -NoLabels -Key 2&gt;/dev/null&quot;</span>
   };
-  Process inchi = Runtime.getRuntime().exec(command);
+  <span class="hljs-type">Process</span> <span class="hljs-variable">inchi</span> <span class="hljs-operator">=</span> Runtime.getRuntime().exec(command);
 
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BufferedReader(<span class="hljs-keyword">new</span> InputStreamReader(inchi.getInputStream()));
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(inchi.getInputStream()));
 }
 
-<span class="hljs-function"><span class="hljs-keyword">private</span> String <span class="hljs-title">getInChIFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
-  BufferedReader input = runInChI(molfile);
-  String result = input.readLine();      
+<span class="hljs-keyword">private</span> String <span class="hljs-title function_">getInChIFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException {
+  <span class="hljs-type">BufferedReader</span> <span class="hljs-variable">input</span> <span class="hljs-operator">=</span> runInChI(molfile);
+  <span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> input.readLine();      
   input.close();
 
-  <span class="hljs-keyword">return</span> result == <span class="hljs-keyword">null</span> ? <span class="hljs-string">""</span> : result;
+  <span class="hljs-keyword">return</span> result == <span class="hljs-literal">null</span> ? <span class="hljs-string">&quot;&quot;</span> : result;
 }
 
-<span class="hljs-function"><span class="hljs-keyword">private</span> String <span class="hljs-title">getInChIKeyFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException </span>{
-  BufferedReader input = runInChI(molfile);
+<span class="hljs-keyword">private</span> String <span class="hljs-title function_">getInChIKeyFromMolfile</span><span class="hljs-params">(String molfile)</span> <span class="hljs-keyword">throws</span> IOException {
+  <span class="hljs-type">BufferedReader</span> <span class="hljs-variable">input</span> <span class="hljs-operator">=</span> runInChI(molfile);
   input.readLine();
-  String result = input.readLine();
+  <span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> input.readLine();
 
   input.close();
 
-  <span class="hljs-keyword">return</span> result == <span class="hljs-keyword">null</span> ? <span class="hljs-string">""</span> : result.substring(<span class="hljs-number">9</span>);
+  <span class="hljs-keyword">return</span> result == <span class="hljs-literal">null</span> ? <span class="hljs-string">&quot;&quot;</span> : result.substring(<span class="hljs-number">9</span>);
 }
 </code></pre>
 <h2 id="compile">Compile</h2>

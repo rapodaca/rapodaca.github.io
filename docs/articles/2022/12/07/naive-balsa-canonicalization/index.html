@@ -80,17 +80,17 @@
 <p>The idea is very general. For example, <code>tree::Builder</code> is a <code>Follower</code> that constructs a tree representation whereas <code>graph::Builder</code> constructs a graph representation. <code>Writer</code> is a <code>Follower</code> that produces a Balsa string. The nature of what a <code>Follower</code> builds is completely dependent on the implementation.</p>
 <p>Returning to the problem of exhaustive tree generation, it's possible to implement <code>Follower</code> in such a way as to construct multiple trees simultaneously. Each tree would be rooted at the same atom. Using some basic properties of Balsa trees, it should be possible to build all possible trees rooted at a given atom using a single walk of either a tree or graph.</p>
 <p>Setting aside the issue of implementation, the <code>Follower</code> might look something like this:</p>
-<pre><code class="hljs rust language-rust"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BranchingBuilder</span></span> {
+<pre><code class="hljs rust language-rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">BranchingBuilder</span> {
     <span class="hljs-comment">// private values</span>
 }
 
-<span class="hljs-keyword">impl</span> Follower <span class="hljs-keyword">for</span> BranchingBuilder {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Follower</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">BranchingBuilder</span> {
     <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> implement the root, extend, bridge, push, and pop methods</span>
     <span class="hljs-comment">// to construct an exhaustive set of trees rooted at the same atom</span>
 }
 
-<span class="hljs-keyword">impl</span> BranchingBuilder {
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">build</span></span>(<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">Vec</span>&lt;Atom&gt; {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">BranchingBuilder</span> {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">build</span>(<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Vec</span>&lt;Atom&gt; {
         <span class="hljs-comment">// final processing and return the root atom for each tree</span>
         <span class="hljs-comment">// under construction</span>
         todo!()

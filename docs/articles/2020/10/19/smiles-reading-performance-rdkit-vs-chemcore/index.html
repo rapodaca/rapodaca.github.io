@@ -62,55 +62,55 @@
 <span class="hljs-keyword">use</span> chemcore::molecule::{ Molecule, Error };
 <span class="hljs-keyword">use</span> gamma::graph::Graph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
-    <span class="hljs-keyword">let</span> _ = fs::create_dir(<span class="hljs-string">"./results"</span>);
-    <span class="hljs-keyword">let</span> in_path = <span class="hljs-string">"./data/rdkit_2017.03.3.smi"</span>;
-    <span class="hljs-keyword">let</span> out_path = <span class="hljs-string">"./results/chemcore-out.txt"</span>;
-    <span class="hljs-comment">// let in_path = "./data/pcba.smi";</span>
-    <span class="hljs-comment">// let out_path = "./results/chemcore-pcba-out.txt";</span>
-    <span class="hljs-keyword">let</span> in_file = fs::File::open(in_path)?;
-    <span class="hljs-keyword">let</span> out_file = fs::File::create(out_path)?;
-    <span class="hljs-keyword">let</span> reader = io::BufReader::new(in_file);
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> writer = io::LineWriter::new(out_file);
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() <span class="hljs-punctuation">-&gt;</span> io::<span class="hljs-type">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">_</span> = fs::<span class="hljs-title function_ invoke__">create_dir</span>(<span class="hljs-string">&quot;./results&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">in_path</span> = <span class="hljs-string">&quot;./data/rdkit_2017.03.3.smi&quot;</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">out_path</span> = <span class="hljs-string">&quot;./results/chemcore-out.txt&quot;</span>;
+    <span class="hljs-comment">// let in_path = &quot;./data/pcba.smi&quot;;</span>
+    <span class="hljs-comment">// let out_path = &quot;./results/chemcore-pcba-out.txt&quot;;</span>
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">in_file</span> = fs::File::<span class="hljs-title function_ invoke__">open</span>(in_path)?;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">out_file</span> = fs::File::<span class="hljs-title function_ invoke__">create</span>(out_path)?;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">reader</span> = io::BufReader::<span class="hljs-title function_ invoke__">new</span>(in_file);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">writer</span> = io::LineWriter::<span class="hljs-title function_ invoke__">new</span>(out_file);
 
-    <span class="hljs-keyword">for</span> result <span class="hljs-keyword">in</span> reader.lines() {
-        <span class="hljs-keyword">let</span> line = result?;
-        <span class="hljs-keyword">let</span> parts = line.split_whitespace().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
-        <span class="hljs-keyword">let</span> id = parts.last().expect(<span class="hljs-string">"no parts"</span>);
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">result</span> <span class="hljs-keyword">in</span> reader.<span class="hljs-title function_ invoke__">lines</span>() {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">line</span> = result?;
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">parts</span> = line.<span class="hljs-title function_ invoke__">split_whitespace</span>().collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;();
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">id</span> = parts.<span class="hljs-title function_ invoke__">last</span>().<span class="hljs-title function_ invoke__">expect</span>(<span class="hljs-string">&quot;no parts&quot;</span>);
 
-        <span class="hljs-keyword">if</span> parts.len() == <span class="hljs-number">1</span> {
-            <span class="hljs-built_in">writeln!</span>(&amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-string">"# {} No_input"</span>, id)?;
+        <span class="hljs-keyword">if</span> parts.<span class="hljs-title function_ invoke__">len</span>() == <span class="hljs-number">1</span> {
+            <span class="hljs-built_in">writeln!</span>(&amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-string">&quot;# {} No_input&quot;</span>, id)?;
 
             <span class="hljs-keyword">continue</span>;
         }
 
-        <span class="hljs-keyword">let</span> smiles = parts.first().expect(<span class="hljs-string">"no smiles"</span>);
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">smiles</span> = parts.<span class="hljs-title function_ invoke__">first</span>().<span class="hljs-title function_ invoke__">expect</span>(<span class="hljs-string">&quot;no smiles&quot;</span>);
 
-        <span class="hljs-keyword">match</span> daylight::read(smiles) {
-            <span class="hljs-literal">Ok</span>(molecule) =&gt; {
-                <span class="hljs-keyword">let</span> hcounts = molecule.nodes().iter().map(|id| {
-                    molecule.hydrogens(*id).unwrap().to_string()
-                }).collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+        <span class="hljs-keyword">match</span> daylight::<span class="hljs-title function_ invoke__">read</span>(smiles) {
+            <span class="hljs-title function_ invoke__">Ok</span>(molecule) =&gt; {
+                <span class="hljs-keyword">let</span> <span class="hljs-variable">hcounts</span> = molecule.<span class="hljs-title function_ invoke__">nodes</span>().<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">map</span>(|id| {
+                    molecule.<span class="hljs-title function_ invoke__">hydrogens</span>(*id).<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">to_string</span>()
+                }).collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;();
 
-                <span class="hljs-built_in">writeln!</span>(&amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-string">"{} {}"</span>, id, hcounts.join(<span class="hljs-string">" "</span>))?;
+                <span class="hljs-built_in">writeln!</span>(&amp;<span class="hljs-keyword">mut</span> writer, <span class="hljs-string">&quot;{} {}&quot;</span>, id, hcounts.<span class="hljs-title function_ invoke__">join</span>(<span class="hljs-string">&quot; &quot;</span>))?;
             },
-            <span class="hljs-literal">Err</span>(Error::CanNotKekulize) =&gt; {
-                <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"# {} Kekulization_failure"</span>, id)?;
+            <span class="hljs-title function_ invoke__">Err</span>(Error::CanNotKekulize) =&gt; {
+                <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">&quot;# {} Kekulization_failure&quot;</span>, id)?;
             },
-            <span class="hljs-literal">Err</span>(Error::Hypervalent(_)) =&gt; {
-                <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"# {} Bad_valence"</span>, id)?;
+            <span class="hljs-title function_ invoke__">Err</span>(Error::<span class="hljs-title function_ invoke__">Hypervalent</span>(_)) =&gt; {
+                <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">&quot;# {} Bad_valence&quot;</span>, id)?;
             },
-            <span class="hljs-literal">Err</span>(error) =&gt; {
-                <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">"# {} ERROR: {:?}"</span>, id, error)?;
+            <span class="hljs-title function_ invoke__">Err</span>(error) =&gt; {
+                <span class="hljs-built_in">writeln!</span>(writer, <span class="hljs-string">&quot;# {} ERROR: {:?}&quot;</span>, id, error)?;
             }
         }
     }
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>Run this task using the following command. Output times are representative for my system.</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> time cargo run --release --bin integration</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">time cargo run --release --bin integration</span>
     Finished release [optimized] target(s) in 0.00s
      Running `target/release/integration`
 
@@ -124,38 +124,38 @@ sys     0m0.264s
 <span class="hljs-keyword">use</span> io::prelude::*;
 <span class="hljs-keyword">use</span> chemcore::daylight;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() -&gt; io::<span class="hljs-built_in">Result</span>&lt;()&gt; {
-    <span class="hljs-keyword">let</span> in_path = <span class="hljs-string">"./data/rdkit_2017.03.3.smi"</span>;
-    <span class="hljs-keyword">let</span> in_file = fs::File::open(in_path)?;
-    <span class="hljs-keyword">let</span> reader = io::BufReader::new(in_file);
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> inputs = <span class="hljs-built_in">Vec</span>::new();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() <span class="hljs-punctuation">-&gt;</span> io::<span class="hljs-type">Result</span>&lt;()&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">in_path</span> = <span class="hljs-string">&quot;./data/rdkit_2017.03.3.smi&quot;</span>;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">in_file</span> = fs::File::<span class="hljs-title function_ invoke__">open</span>(in_path)?;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">reader</span> = io::BufReader::<span class="hljs-title function_ invoke__">new</span>(in_file);
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">inputs</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">new</span>();
 
-    <span class="hljs-keyword">for</span> result <span class="hljs-keyword">in</span> reader.lines() {
-        <span class="hljs-keyword">let</span> line = result?;
-        <span class="hljs-keyword">let</span> parts = line.split_whitespace().collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;();
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">result</span> <span class="hljs-keyword">in</span> reader.<span class="hljs-title function_ invoke__">lines</span>() {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">line</span> = result?;
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">parts</span> = line.<span class="hljs-title function_ invoke__">split_whitespace</span>().collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;();
 
-        <span class="hljs-keyword">if</span> parts.len() == <span class="hljs-number">1</span> {
+        <span class="hljs-keyword">if</span> parts.<span class="hljs-title function_ invoke__">len</span>() == <span class="hljs-number">1</span> {
             <span class="hljs-keyword">continue</span>;
         }
 
-        <span class="hljs-keyword">let</span> smiles = parts.first().expect(<span class="hljs-string">"no smiles"</span>).to_string();
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">smiles</span> = parts.<span class="hljs-title function_ invoke__">first</span>().<span class="hljs-title function_ invoke__">expect</span>(<span class="hljs-string">&quot;no smiles&quot;</span>).<span class="hljs-title function_ invoke__">to_string</span>();
 
-        inputs.push(smiles);
+        inputs.<span class="hljs-title function_ invoke__">push</span>(smiles);
     }
 
-    <span class="hljs-keyword">let</span> start = time::Instant::now();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">start</span> = time::Instant::<span class="hljs-title function_ invoke__">now</span>();
 
-    <span class="hljs-keyword">for</span> smiles <span class="hljs-keyword">in</span> inputs {
-        <span class="hljs-keyword">let</span> _ = daylight::read(&amp;smiles);
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">smiles</span> <span class="hljs-keyword">in</span> inputs {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">_</span> = daylight::<span class="hljs-title function_ invoke__">read</span>(&amp;smiles);
     }
 
-    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"elapsed: {}"</span>, start.elapsed().as_secs_f32());
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;elapsed: {}&quot;</span>, start.<span class="hljs-title function_ invoke__">elapsed</span>().<span class="hljs-title function_ invoke__">as_secs_f32</span>());
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>Run this task using the following command. Output times are representative for my system.</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> cargo run --release --bin micro</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">cargo run --release --bin micro</span>
     Finished release [optimized] target(s) in 0.01s
      Running `target/release/micro`
 elapsed: 2.8601365
@@ -167,23 +167,23 @@ elapsed: 2.8601365
 <span class="hljs-keyword">from</span> io <span class="hljs-keyword">import</span> StringIO
 <span class="hljs-keyword">from</span> rdkit <span class="hljs-keyword">import</span> Chem
 
-in_path = <span class="hljs-string">"./data/rdkit_2017.03.3.smi"</span>
-out_path = <span class="hljs-string">"./results/rdkit-out.txt"</span>
-<span class="hljs-comment"># in_path = "./data/pcba.smi"</span>
-<span class="hljs-comment"># out_path = "./results/rdkit-pcba-out.txt"</span>
+in_path = <span class="hljs-string">&quot;./data/rdkit_2017.03.3.smi&quot;</span>
+out_path = <span class="hljs-string">&quot;./results/rdkit-out.txt&quot;</span>
+<span class="hljs-comment"># in_path = &quot;./data/pcba.smi&quot;</span>
+<span class="hljs-comment"># out_path = &quot;./results/rdkit-pcba-out.txt&quot;</span>
 
-pathlib.Path(<span class="hljs-string">'./results'</span>).mkdir(exist_ok=<span class="hljs-literal">True</span>)
+pathlib.Path(<span class="hljs-string">&#x27;./results&#x27;</span>).mkdir(exist_ok=<span class="hljs-literal">True</span>)
 Chem.WrapLogs()
 
 sio = sys.stderr = StringIO()
 
-<span class="hljs-keyword">with</span> open(in_path) <span class="hljs-keyword">as</span> in_file, open(out_path, <span class="hljs-string">'w'</span>) <span class="hljs-keyword">as</span> out_file:
+<span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(in_path) <span class="hljs-keyword">as</span> in_file, <span class="hljs-built_in">open</span>(out_path, <span class="hljs-string">&#x27;w&#x27;</span>) <span class="hljs-keyword">as</span> out_file:
     <span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> in_file:
         parts = line.strip().split()
-        id = parts[<span class="hljs-number">-1</span>]
+        <span class="hljs-built_in">id</span> = parts[-<span class="hljs-number">1</span>]
 
-        <span class="hljs-keyword">if</span> len(parts) == <span class="hljs-number">1</span>:
-            out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> No_input\n'</span>)
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(parts) == <span class="hljs-number">1</span>:
+            out_file.write(<span class="hljs-string">f&#x27;# <span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span> No_input\n&#x27;</span>)
             <span class="hljs-keyword">continue</span>
 
         smiles = parts[<span class="hljs-number">0</span>]
@@ -192,36 +192,36 @@ sio = sys.stderr = StringIO()
         err = sio.getvalue()
         <span class="hljs-keyword">if</span> err:
             sio = sys.stderr = StringIO()
-            <span class="hljs-keyword">if</span> <span class="hljs-string">"Can't kekulize"</span> <span class="hljs-keyword">in</span> err:
-                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> Kekulization_failure\n'</span>)
+            <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;Can&#x27;t kekulize&quot;</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f&#x27;# <span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span> Kekulization_failure\n&#x27;</span>)
                 <span class="hljs-keyword">continue</span>
-            <span class="hljs-keyword">elif</span> <span class="hljs-string">"Explicit valence"</span> <span class="hljs-keyword">in</span> err:
-                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> Bad_valence\n'</span>)
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">&quot;Explicit valence&quot;</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f&#x27;# <span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span> Bad_valence\n&#x27;</span>)
                 <span class="hljs-keyword">continue</span>
-            <span class="hljs-keyword">elif</span> <span class="hljs-string">"SMILES Parse Error"</span> <span class="hljs-keyword">in</span> err:
-                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> SMILES_parse_error\n'</span>)
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">&quot;SMILES Parse Error&quot;</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f&#x27;# <span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span> SMILES_parse_error\n&#x27;</span>)
                 <span class="hljs-keyword">continue</span>
-            <span class="hljs-keyword">elif</span> <span class="hljs-string">"Aromatic bonds on non aromatic atom"</span> <span class="hljs-keyword">in</span> err:
-                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> Aromatic_bonds_on_non_aromatic_atom\n'</span>)
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">&quot;Aromatic bonds on non aromatic atom&quot;</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f&#x27;# <span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span> Aromatic_bonds_on_non_aromatic_atom\n&#x27;</span>)
                 <span class="hljs-keyword">continue</span>
-            <span class="hljs-keyword">elif</span> <span class="hljs-string">"non-ring"</span> <span class="hljs-keyword">in</span> err <span class="hljs-keyword">and</span> <span class="hljs-string">"marked aromatic"</span> <span class="hljs-keyword">in</span> err:
-                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> Non_ring_atom_marked_aromatic\n'</span>)
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">&quot;non-ring&quot;</span> <span class="hljs-keyword">in</span> err <span class="hljs-keyword">and</span> <span class="hljs-string">&quot;marked aromatic&quot;</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f&#x27;# <span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span> Non_ring_atom_marked_aromatic\n&#x27;</span>)
                 <span class="hljs-keyword">continue</span>
-            <span class="hljs-keyword">elif</span> <span class="hljs-string">"WARNING"</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> err:
-                out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> ERROR: <span class="hljs-subst">{err}</span>\n'</span>)
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">&quot;WARNING&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> err:
+                out_file.write(<span class="hljs-string">f&#x27;# <span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span> ERROR: <span class="hljs-subst">{err}</span>\n&#x27;</span>)
                 <span class="hljs-keyword">continue</span>
 
         <span class="hljs-keyword">if</span> mol <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:
-            out_file.write(<span class="hljs-string">f'# <span class="hljs-subst">{id}</span> No_output\n'</span>)
+            out_file.write(<span class="hljs-string">f&#x27;# <span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span> No_output\n&#x27;</span>)
             <span class="hljs-keyword">continue</span>
 
-        counts = <span class="hljs-string">' '</span>.join(str(atom.GetTotalNumHs()) <span class="hljs-keyword">for</span> atom <span class="hljs-keyword">in</span> mol.GetAtoms())
+        counts = <span class="hljs-string">&#x27; &#x27;</span>.join(<span class="hljs-built_in">str</span>(atom.GetTotalNumHs()) <span class="hljs-keyword">for</span> atom <span class="hljs-keyword">in</span> mol.GetAtoms())
 
-        out_file.write(<span class="hljs-string">f'<span class="hljs-subst">{id}</span> <span class="hljs-subst">{counts}</span>\n'</span>)
+        out_file.write(<span class="hljs-string">f&#x27;<span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span> <span class="hljs-subst">{counts}</span>\n&#x27;</span>)
 </code></pre>
 <p>Run this file using the following (timings are representative for my system):</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> time python py/integration.py</span>
-[17:13:06] Can't kekulize mol.  Unkekulized atoms: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 25 26 27 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 46 47 48 56 57 58 59 60 61 62 63 64
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">time python py/integration.py</span>
+[17:13:06] Can&#x27;t kekulize mol.  Unkekulized atoms: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 25 26 27 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 46 47 48 56 57 58 59 60 61 62 63 64
 
 real    0m14.302s
 user    0m14.764s
@@ -233,15 +233,15 @@ sys     0m0.090s
 <span class="hljs-keyword">import</span> time
 <span class="hljs-keyword">from</span> rdkit <span class="hljs-keyword">import</span> Chem
 
-in_path = <span class="hljs-string">"./data/rdkit_2017.03.3.smi"</span>
+in_path = <span class="hljs-string">&quot;./data/rdkit_2017.03.3.smi&quot;</span>
 
-<span class="hljs-keyword">with</span> open(in_path) <span class="hljs-keyword">as</span> in_file:
+<span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(in_path) <span class="hljs-keyword">as</span> in_file:
     inputs = [ ]
 
     <span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> in_file:
         parts = line.strip().split()
 
-        <span class="hljs-keyword">if</span> len(parts) == <span class="hljs-number">1</span>:
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(parts) == <span class="hljs-number">1</span>:
             <span class="hljs-keyword">continue</span>
 
         inputs.append(parts[<span class="hljs-number">0</span>])
@@ -251,11 +251,11 @@ in_path = <span class="hljs-string">"./data/rdkit_2017.03.3.smi"</span>
     <span class="hljs-keyword">for</span> smiles <span class="hljs-keyword">in</span> inputs:
         Chem.MolFromSmiles(smiles)
 
-    print(<span class="hljs-string">"elapsed: "</span> + str(time.time() - start))
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;elapsed: &quot;</span> + <span class="hljs-built_in">str</span>(time.time() - start))
 </code></pre>
 <p>Run this task using the following (timings are representative for my system):</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> python py/micro.py </span>
-[16:02:38] Can't kekulize mol.  Unkekulized atoms: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 25 26 27 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 46 47 48 56 57 58 59 60 61 62 63 64
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">python py/micro.py</span> 
+[16:02:38] Can&#x27;t kekulize mol.  Unkekulized atoms: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 25 26 27 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 46 47 48 56 57 58 59 60 61 62 63 64
 
 elapsed: 11.64182710647583
 </code></pre>
@@ -291,7 +291,7 @@ elapsed: 11.64182710647583
 <p>Whatever the reason for ChemCore's better performance, the effect was observed in data sets of different composition and size.</p>
 <h2 id="correctness">Correctness</h2>
 <p>A fast implementation that delivers the wrong answer isn't that useful. As a sanity check, the output for both integration tasks was compared using diff:</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> diff results/chemcore-pcba-out.txt results/rdkit-pcba-out.txt </span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">diff results/chemcore-pcba-out.txt results/rdkit-pcba-out.txt</span> 
 </code></pre>
 <p>As expected, there were few differences. However, a few points are worth mention:</p>
 <ol>

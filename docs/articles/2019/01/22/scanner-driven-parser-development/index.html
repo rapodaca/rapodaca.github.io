@@ -46,11 +46,11 @@
 <p>For the purposes of this article, a parser is a function that accepts a string conforming to some set of rules as input and returns an object representing the string's syntax as output. Input strings are evaluated one character at a time from left-to-right until either all characters are consumed or an invalid character is found.</p>
 <p>The following function template captures the essence of a parser:</p>
 <pre><code class="hljs js language-js"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> </span>string input to be parsed
- * <span class="hljs-doctag">@returns <span class="hljs-type">{*}</span> </span>representation of string's syntax
- * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given invalid string
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} string input to be parsed
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">*</span>} representation of string&#x27;s syntax
+ * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given invalid string
  */</span>
-<span class="hljs-keyword">const</span> parse = <span class="hljs-function">(<span class="hljs-params">string</span>) =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">parse</span> = (<span class="hljs-params">string</span>) =&gt; {
   <span class="hljs-comment">// parse string, return representation</span>
 };
 </code></pre>
@@ -65,64 +65,64 @@
 <h2 id="aminimalscanner">A Minimal Scanner</h2>
 <p>The centerpiece of Scanner-Driven Parser Development is a <em>Scanner</em>. A Scanner wraps a string, dividing it into two regions with a cursor. Before the cursor, characters are completely inaccessible. After the cursor, characters can be read either with or without advancing the cursor.</p>
 <p>Some languages (such as <a href="http://ruby-doc.org/stdlib-2.5.3/libdoc/strscan/rdoc/StringScanner.html">Ruby</a>) include a <code>Scanner</code> class. Although JavaScript has none, a minimal <code>Scanner</code> is easy to implement:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> Scanner = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
-  <span class="hljs-keyword">constructor</span> (string) {
-    <span class="hljs-keyword">this</span>._string = string;
-    <span class="hljs-keyword">this</span>._cursor = <span class="hljs-number">0</span>;
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> <span class="hljs-title class_">Scanner</span> = <span class="hljs-keyword">class</span> {
+  <span class="hljs-title function_">constructor</span> (string) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">_string</span> = string;
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">_cursor</span> = <span class="hljs-number">0</span>;
   }
 
   <span class="hljs-comment">/**
-   * <span class="hljs-doctag">@return <span class="hljs-type">{number}</span></span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">number</span>}
    */</span>
-  <span class="hljs-keyword">get</span> cursor () {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._cursor;
+  get cursor () {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">_cursor</span>;
   }
 
   <span class="hljs-comment">/**
-   * Returns the next character, or '' if done without advancing the cursor.
+   * Returns the next character, or &#x27;&#x27; if done without advancing the cursor.
    *
-   * <span class="hljs-doctag">@return <span class="hljs-type">{string}</span> </span>a single character or ''
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">string</span>} a single character or &#x27;&#x27;
    */</span>
   peek () {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._string[<span class="hljs-keyword">this</span>._cursor];
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">_string</span>[<span class="hljs-variable language_">this</span>.<span class="hljs-property">_cursor</span>];
   }
 
   <span class="hljs-comment">/**
-   * Returns the next character, or '' if done. Advances the cursor.
+   * Returns the next character, or &#x27;&#x27; if done. Advances the cursor.
    *
-   * <span class="hljs-doctag">@return <span class="hljs-type">{string}</span> </span>a single character or ''
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">string</span>} a single character or &#x27;&#x27;
    */</span>
   pop () {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._string[<span class="hljs-keyword">this</span>._cursor++];
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">_string</span>[<span class="hljs-variable language_">this</span>.<span class="hljs-property">_cursor</span>++];
   }
 };
 </code></pre>
 <h2 id="usingascanner">Using a Scanner</h2>
 <p>Rather than using a string directly to implement the <code>parse</code> function, commit yourself to only interacting with a string through a <code>Scanner</code> instance. Here are some example uses:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(<span class="hljs-string">'abc'</span>);
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Scanner</span>(<span class="hljs-string">&#x27;abc&#x27;</span>);
 
-scanner.cursor;  <span class="hljs-comment">// =&gt; 0</span>
-scanner.peek();  <span class="hljs-comment">// =&gt; 'a'</span>
-scanner.pop();   <span class="hljs-comment">// =&gt; 'a'</span>
-scanner.peek();  <span class="hljs-comment">// =&gt; 'b'</span>
-scanner.pop();   <span class="hljs-comment">// =&gt; 'b'</span>
-scanner.peek();  <span class="hljs-comment">// =&gt; 'c'</span>
-scanner.cursor;  <span class="hljs-comment">// =&gt; 2</span>
+scanner.<span class="hljs-property">cursor</span>;  <span class="hljs-comment">// =&gt; 0</span>
+scanner.<span class="hljs-title function_">peek</span>();  <span class="hljs-comment">// =&gt; &#x27;a&#x27;</span>
+scanner.<span class="hljs-title function_">pop</span>();   <span class="hljs-comment">// =&gt; &#x27;a&#x27;</span>
+scanner.<span class="hljs-title function_">peek</span>();  <span class="hljs-comment">// =&gt; &#x27;b&#x27;</span>
+scanner.<span class="hljs-title function_">pop</span>();   <span class="hljs-comment">// =&gt; &#x27;b&#x27;</span>
+scanner.<span class="hljs-title function_">peek</span>();  <span class="hljs-comment">// =&gt; &#x27;c&#x27;</span>
+scanner.<span class="hljs-property">cursor</span>;  <span class="hljs-comment">// =&gt; 2</span>
 </code></pre>
 <p>Here's a more complex example:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(<span class="hljs-string">'abc'</span>);
-<span class="hljs-keyword">let</span> char = scanner.peek();
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Scanner</span>(<span class="hljs-string">&#x27;abc&#x27;</span>);
+<span class="hljs-keyword">let</span> char = scanner.<span class="hljs-title function_">peek</span>();
 
 <span class="hljs-keyword">while</span> (char) {
-  <span class="hljs-built_in">console</span>.log(scanner.pop());
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(scanner.<span class="hljs-title function_">pop</span>());
 
-  char = scanner.peek();
+  char = scanner.<span class="hljs-title function_">peek</span>();
 }
 </code></pre>
 <p>Notice that <code>Scanner</code> can only return the character immediately following the cursor. <code>Scanner</code> moves forward over the characters of a string, never backward.</p>
 <p>Given a <code>Scanner</code>, the original goal for the <code>parse</code> function can be recast as follows:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> parse = <span class="hljs-function">(<span class="hljs-params">string</span>) =&gt;</span> {
-  <span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(string);
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> <span class="hljs-title function_">parse</span> = (<span class="hljs-params">string</span>) =&gt; {
+  <span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Scanner</span>(string);
 
   <span class="hljs-comment">// parse string using only scanner, then return result</span>
 };
@@ -154,61 +154,61 @@ scanner.cursor;  <span class="hljs-comment">// =&gt; 2</span>
 <p>Consider writing a simple JSON parser. If the input string is valid, it returns an array containing the input characters. Otherwise an error is thrown. Whitespace is not allowed.</p>
 <p><img src="/images/posts/20190122/object.gif" alt="JSON Object" title="JSON Object"></p>
 <p>The topmost production rule given for JSON is "object." Following Step (1), we begin by creating an empty function body called <code>parseObject</code> and invoke it from <code>parse</code>:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> parse = <span class="hljs-function">(<span class="hljs-params">string</span>) =&gt;</span> {
-  <span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(string);
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> <span class="hljs-title function_">parse</span> = (<span class="hljs-params">string</span>) =&gt; {
+  <span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Scanner</span>(string);
   <span class="hljs-keyword">const</span> result = [ ];
 
-  <span class="hljs-keyword">if</span> (!parseObject(scanner, result)) {
-    <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">`invalid character at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
+  <span class="hljs-keyword">if</span> (!<span class="hljs-title function_">parseObject</span>(scanner, result)) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">`invalid character at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
   }
 
   <span class="hljs-keyword">return</span> result;
 };
 
-<span class="hljs-keyword">const</span> parseObject = <span class="hljs-function">(<span class="hljs-params">scanner</span>) =&gt;</span> { }; <span class="hljs-comment">// TODO</span>
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">parseObject</span> = (<span class="hljs-params">scanner</span>) =&gt; { }; <span class="hljs-comment">// TODO</span>
 </code></pre>
 <p>Following Step (3), we implement <code>parseObject</code>:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> parseObject = <span class="hljs-function">(<span class="hljs-params">scanner, characters</span>) =&gt;</span> {
-  <span class="hljs-keyword">if</span> (scanner.peek() === <span class="hljs-string">'{'</span>) {
-    characters.push(scanner.pop());
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> <span class="hljs-title function_">parseObject</span> = (<span class="hljs-params">scanner, characters</span>) =&gt; {
+  <span class="hljs-keyword">if</span> (scanner.<span class="hljs-title function_">peek</span>() === <span class="hljs-string">&#x27;{&#x27;</span>) {
+    characters.<span class="hljs-title function_">push</span>(scanner.<span class="hljs-title function_">pop</span>());
   } <span class="hljs-keyword">else</span> {
     <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
   }
 
-  <span class="hljs-keyword">const</span> parseKeyValue = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">if</span> (!parseString(scanner, characters)) {
+  <span class="hljs-keyword">const</span> <span class="hljs-title function_">parseKeyValue</span> = (<span class="hljs-params"></span>) =&gt; {
+    <span class="hljs-keyword">if</span> (!<span class="hljs-title function_">parseString</span>(scanner, characters)) {
       <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
     }
 
-    <span class="hljs-keyword">if</span> (scanner.peek() === <span class="hljs-string">':'</span>) {
-      characters.push(scanner.pop());
+    <span class="hljs-keyword">if</span> (scanner.<span class="hljs-title function_">peek</span>() === <span class="hljs-string">&#x27;:&#x27;</span>) {
+      characters.<span class="hljs-title function_">push</span>(scanner.<span class="hljs-title function_">pop</span>());
     } <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">`expected : at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
+      <span class="hljs-keyword">throw</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">`expected : at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
     }
 
-    <span class="hljs-keyword">if</span> (!parseValue(scanner, characters)) {
-      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">`expected value at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
+    <span class="hljs-keyword">if</span> (!<span class="hljs-title function_">parseValue</span>(scanner, characters)) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">`expected value at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
     }
   };
 
-  parseKeyValue();
+  <span class="hljs-title function_">parseKeyValue</span>();
 
-  <span class="hljs-keyword">while</span> (scanner.peek() === <span class="hljs-string">','</span>) {
-    characters.push(scanner.pop());
-    parseKeyValue();
+  <span class="hljs-keyword">while</span> (scanner.<span class="hljs-title function_">peek</span>() === <span class="hljs-string">&#x27;,&#x27;</span>) {
+    characters.<span class="hljs-title function_">push</span>(scanner.<span class="hljs-title function_">pop</span>());
+    <span class="hljs-title function_">parseKeyValue</span>();
   }
 
-  <span class="hljs-keyword">if</span> (scanner.peek() === <span class="hljs-string">'}'</span>) {
-    characters.push(scanner.pop());
+  <span class="hljs-keyword">if</span> (scanner.<span class="hljs-title function_">peek</span>() === <span class="hljs-string">&#x27;}&#x27;</span>) {
+    characters.<span class="hljs-title function_">push</span>(scanner.<span class="hljs-title function_">pop</span>());
   } <span class="hljs-keyword">else</span> {
-    <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">`expected } at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
+    <span class="hljs-keyword">throw</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">`expected } at <span class="hljs-subst">${scanner.cursor}</span>`</span>);
   }
 
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
 };
 
-<span class="hljs-keyword">const</span> parseString = <span class="hljs-function">(<span class="hljs-params">scanner, characters</span>) =&gt;</span> { }; <span class="hljs-comment">// TODO</span>
-<span class="hljs-keyword">const</span> parseValue = <span class="hljs-function">(<span class="hljs-params">scanner, characters</span>) =&gt;</span> { }; <span class="hljs-comment">// TODO</span>
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">parseString</span> = (<span class="hljs-params">scanner, characters</span>) =&gt; { }; <span class="hljs-comment">// TODO</span>
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">parseValue</span> = (<span class="hljs-params">scanner, characters</span>) =&gt; { }; <span class="hljs-comment">// TODO</span>
 </code></pre>
 <p>Several points are worth noting:</p>
 <ul>
@@ -224,7 +224,7 @@ scanner.cursor;  <span class="hljs-comment">// =&gt; 2</span>
 <p>Not all grammars will be compatible with the simple method outlined here. The trick is to configure the grammar to be compatible with the method. The name "Scanner-Driven Parser Development" reflects the fact that this method forces the grammar to be moulded around the parser, not the other way around.</p>
 <h2 id="supportingregularexpressions">Supporting Regular Expressions</h2>
 <p>It will often be more convenient to consume characters, not one at a time, but as a group. <code>Scanner</code> can support this functionality by adding a new method, <code>scan</code>:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> Scanner = <span class="hljs-class"><span class="hljs-keyword">class</span> </span>{
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> <span class="hljs-title class_">Scanner</span> = <span class="hljs-keyword">class</span> {
 <span class="hljs-comment">// ...</span>
 
   <span class="hljs-comment">/**
@@ -232,23 +232,23 @@ scanner.cursor;  <span class="hljs-comment">// =&gt; 2</span>
    * from the current cursor. Advances cursor if a
    * match is found. Returns `undefined` otherwise.
    * 
-   * <span class="hljs-doctag">@param <span class="hljs-type">{RegExp}</span> <span class="hljs-variable">regex</span></span>
-   * <span class="hljs-doctag">@return <span class="hljs-type">{string|undefined}</span></span>
-   * <span class="hljs-doctag">@throws <span class="hljs-type">{Error}</span> </span>given regex global flag not set
+   * <span class="hljs-doctag">@param</span> {<span class="hljs-type">RegExp</span>} <span class="hljs-variable">regex</span>
+   * <span class="hljs-doctag">@return</span> {<span class="hljs-type">string|undefined</span>}
+   * <span class="hljs-doctag">@throws</span> {<span class="hljs-type">Error</span>} given regex global flag not set
    */</span>
   scan (regex) {
-    <span class="hljs-keyword">if</span> (!regex.global) {
-      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'regex global flag must be set'</span>);
+    <span class="hljs-keyword">if</span> (!regex.<span class="hljs-property">global</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;regex global flag must be set&#x27;</span>);
     }
 
-    regex.lastIndex = <span class="hljs-keyword">this</span>._cursor;
-    <span class="hljs-keyword">const</span> match = regex.exec(<span class="hljs-keyword">this</span>._string);
+    regex.<span class="hljs-property">lastIndex</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">_cursor</span>;
+    <span class="hljs-keyword">const</span> match = regex.<span class="hljs-title function_">exec</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">_string</span>);
 
-    <span class="hljs-keyword">if</span> (match === <span class="hljs-literal">null</span> || match.index !== <span class="hljs-keyword">this</span>._cursor) {
+    <span class="hljs-keyword">if</span> (match === <span class="hljs-literal">null</span> || match.<span class="hljs-property">index</span> !== <span class="hljs-variable language_">this</span>.<span class="hljs-property">_cursor</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
     }
 
-    <span class="hljs-keyword">this</span>._cursor = regex.lastIndex;
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">_cursor</span> = regex.<span class="hljs-property">lastIndex</span>;
 
     <span class="hljs-keyword">return</span> match[<span class="hljs-number">0</span>];
   }
@@ -258,15 +258,15 @@ scanner.cursor;  <span class="hljs-comment">// =&gt; 2</span>
 </code></pre>
 <p>The <code>global</code> flag must be set for regular expressions passed to <code>scan</code>. The reason has to do with <a href="http://2ality.com/2013/08/regexp-g.html">how JavaScript treats the <code>lastIndex</code> property</a>.</p>
 <p>This new version allows text to be matched by pattern:</p>
-<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> Scanner(<span class="hljs-string">'hello, world'</span>);
+<pre><code class="hljs js language-js"><span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Scanner</span>(<span class="hljs-string">&#x27;hello, world&#x27;</span>);
 
-scanner.match(<span class="hljs-regexp">/h[aeiou]/g</span>); <span class="hljs-comment">// =&gt; 'he'</span>
-scanner.match(<span class="hljs-regexp">/llo/g</span>);      <span class="hljs-comment">// =&gt; 'llo'</span>
-scanner.match/[a-z]/g);     <span class="hljs-comment">// =&gt; undefined</span>
-scanner.match/[^a-z]/g);    <span class="hljs-comment">// =&gt; ','</span>
-scanner.match(<span class="hljs-regexp">/\s+/g</span>);      <span class="hljs-comment">// =&gt; ' '</span>
-scanner.match(<span class="hljs-regexp">/world/g</span>);    <span class="hljs-comment">// =&gt; 'world'</span>
-scanner.peek();             <span class="hljs-comment">// =&gt; ''</span>
+scanner.<span class="hljs-title function_">match</span>(<span class="hljs-regexp">/h[aeiou]/g</span>); <span class="hljs-comment">// =&gt; &#x27;he&#x27;</span>
+scanner.<span class="hljs-title function_">match</span>(<span class="hljs-regexp">/llo/g</span>);      <span class="hljs-comment">// =&gt; &#x27;llo&#x27;</span>
+scanner.<span class="hljs-property">match</span>/[a-z]/g);     <span class="hljs-comment">// =&gt; undefined</span>
+scanner.<span class="hljs-property">match</span>/[^a-z]/g);    <span class="hljs-comment">// =&gt; &#x27;,&#x27;</span>
+scanner.<span class="hljs-title function_">match</span>(<span class="hljs-regexp">/\s+/g</span>);      <span class="hljs-comment">// =&gt; &#x27; &#x27;</span>
+scanner.<span class="hljs-title function_">match</span>(<span class="hljs-regexp">/world/g</span>);    <span class="hljs-comment">// =&gt; &#x27;world&#x27;</span>
+scanner.<span class="hljs-title function_">peek</span>();             <span class="hljs-comment">// =&gt; &#x27;&#x27;</span>
 </code></pre>
 <p>The same functionality is available through <code>peek</code> and <code>pop</code>, but <code>scan</code> collapses what would otherwise require multiple operations into one.</p>
 <h2 id="theory">Theory</h2>

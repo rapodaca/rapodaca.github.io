@@ -42,17 +42,17 @@
 </ul>
 <h2 id="bringonthecode">Bring on the Code</h2>
 <p>The following Ruby code illustrates how the InChI for the pesticide fipronil (Regent) can be translated into a PNG image:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rino'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'util'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rino&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;util&#x27;</span>
 
-inchi = <span class="hljs-string">'InChI=1/C12H4Cl2F6N4OS/c13-5-1-4(11(15,16)17)2-6(14)8(5)24-10(22)9(7(3-21)23-24)26(25)12(18,19)20/h1-2H,22H2'</span> <span class="hljs-comment">#fipronil</span>
-reader = Rino::InChIReader.new
+inchi = <span class="hljs-string">&#x27;InChI=1/C12H4Cl2F6N4OS/c13-5-1-4(11(15,16)17)2-6(14)8(5)24-10(22)9(7(3-21)23-24)26(25)12(18,19)20/h1-2H,22H2&#x27;</span> <span class="hljs-comment">#fipronil</span>
+reader = <span class="hljs-title class_">Rino</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:InChIReader</span>.new
 molfile1 = reader.read(inchi) <span class="hljs-comment"># lacks 2-D atomic coordinates</span>
-molfile2 = RCDK::Util::XY.coordinate_molfile(molfile1) <span class="hljs-comment"># has 2-D atomic coordinates</span>
+molfile2 = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:XY</span>.coordinate_molfile(molfile1) <span class="hljs-comment"># has 2-D atomic coordinates</span>
 
-RCDK::Util::Image.molfile_to_png(molfile2, <span class="hljs-string">'fipronil.png'</span>, <span class="hljs-number">350</span>, <span class="hljs-number">300</span>)
+<span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Image</span>.molfile_to_png(molfile2, <span class="hljs-string">&#x27;fipronil.png&#x27;</span>, <span class="hljs-number">350</span>, <span class="hljs-number">300</span>)
 </code></pre>
 <p>Running this code produces the image <strong>fipronil.png</strong> in your working directory:</p>
 <p><img src="/images/posts/20060926/fipronil.png" alt="Fipronil"></p>

@@ -51,7 +51,7 @@ cargo test
 </code></pre>
 <p>Use ChemCore as a dependency in your project by adding this to your <code>Cargo.toml</code>:</p>
 <pre><code class="hljs toml language-toml"><span class="hljs-section">[dependencies]</span>
-<span class="hljs-attr">chemcore</span> = <span class="hljs-string">"0.1"</span>
+<span class="hljs-attr">chemcore</span> = <span class="hljs-string">&quot;0.1&quot;</span>
 </code></pre>
 <h2 id="examples">Examples</h2>
 <p>ChemCore should be considered a proof-of-concept at this point. The following examples illustrate the scope of the current capabilities.</p>
@@ -59,51 +59,51 @@ cargo test
 <span class="hljs-keyword">use</span> chemcore::molecule::DefaultMolecule;
 
 <span class="hljs-comment">// build a Molecule using a specification object</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> ethanol = DefaultMolecule::build(spec::Molecule {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">ethanol</span> = DefaultMolecule::<span class="hljs-title function_ invoke__">build</span>(spec::Molecule {
         atoms: <span class="hljs-built_in">vec!</span>[
             spec::Atom {
-                element: Element::O, hydrogens: <span class="hljs-number">1</span>, ..<span class="hljs-built_in">Default</span>::default()
+                element: Element::O, hydrogens: <span class="hljs-number">1</span>, ..<span class="hljs-built_in">Default</span>::<span class="hljs-title function_ invoke__">default</span>()
             },
             spec::Atom {
-                element: Element::C, hydrogens: <span class="hljs-number">2</span>, ..<span class="hljs-built_in">Default</span>::default()
+                element: Element::C, hydrogens: <span class="hljs-number">2</span>, ..<span class="hljs-built_in">Default</span>::<span class="hljs-title function_ invoke__">default</span>()
             },
             spec::Atom {
-                element: Element::C, hydrogens: <span class="hljs-number">3</span>, ..<span class="hljs-built_in">Default</span>::default()
+                element: Element::C, hydrogens: <span class="hljs-number">3</span>, ..<span class="hljs-built_in">Default</span>::<span class="hljs-title function_ invoke__">default</span>()
             }
         ],
         bonds: <span class="hljs-built_in">vec!</span>[
-            spec::Bond { sid: <span class="hljs-number">0</span>, tid: <span class="hljs-number">1</span>, ..<span class="hljs-built_in">Default</span>::default() },
-            spec::Bond { sid: <span class="hljs-number">1</span>, tid: <span class="hljs-number">2</span>, ..<span class="hljs-built_in">Default</span>::default() }
+            spec::Bond { sid: <span class="hljs-number">0</span>, tid: <span class="hljs-number">1</span>, ..<span class="hljs-built_in">Default</span>::<span class="hljs-title function_ invoke__">default</span>() },
+            spec::Bond { sid: <span class="hljs-number">1</span>, tid: <span class="hljs-number">2</span>, ..<span class="hljs-built_in">Default</span>::<span class="hljs-title function_ invoke__">default</span>() }
         ]
-    }).unwrap();
+    }).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(ethane.element(&amp;<span class="hljs-number">0</span>), Element::O);
-    <span class="hljs-built_in">assert_eq!</span>(ethane.degree(&amp;<span class="hljs-number">1</span>), <span class="hljs-literal">Ok</span>(<span class="hljs-number">2</span>));
+    <span class="hljs-built_in">assert_eq!</span>(ethane.<span class="hljs-title function_ invoke__">element</span>(&amp;<span class="hljs-number">0</span>), Element::O);
+    <span class="hljs-built_in">assert_eq!</span>(ethane.<span class="hljs-title function_ invoke__">degree</span>(&amp;<span class="hljs-number">1</span>), <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-number">2</span>));
 }
 </code></pre>
 <p>The above example builds a molecule using the ChemCore native method <code>DefaultMolecule::build</code>. The result inherits the traits <code>Graph</code> (from <a href=")">Gamma</a> and <code>Molecule</code> (from ChemCore).</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::Graph;
 <span class="hljs-keyword">use</span> chemcore::daylight::Molecule;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
     <span class="hljs-comment">// build a molecule from SMILES</span>
-    <span class="hljs-keyword">let</span> ethanol = Molecule::build(&amp;<span class="hljs-string">"OCC"</span>).unwrap();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">ethanol</span> = Molecule::<span class="hljs-title function_ invoke__">build</span>(&amp;<span class="hljs-string">&quot;OCC&quot;</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(ethane.element(&amp;<span class="hljs-number">0</span>), Element::O);
-    <span class="hljs-built_in">assert_eq!</span>(ethane.degree(&amp;<span class="hljs-number">1</span>), <span class="hljs-literal">Ok</span>(<span class="hljs-number">2</span>));
+    <span class="hljs-built_in">assert_eq!</span>(ethane.<span class="hljs-title function_ invoke__">element</span>(&amp;<span class="hljs-number">0</span>), Element::O);
+    <span class="hljs-built_in">assert_eq!</span>(ethane.<span class="hljs-title function_ invoke__">degree</span>(&amp;<span class="hljs-number">1</span>), <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-number">2</span>));
 }
 </code></pre>
 <p>ChemCore supports reading SMILES through the <code>build</code> method of <code>daylight::Molecule</code>. The result is a ChemCore <code>Molecule</code> and so can be treated identically to a <code>Molecule</code> built natively (listing above).</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> chemcore::daylight::Molecule;
 <span class="hljs-keyword">use</span> gamma::traversal::depth_first;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
     <span class="hljs-comment">// build a molecule from SMILES and traverse it in depth-first order</span>
-    <span class="hljs-keyword">let</span> molecule = daylight::Molecule::build(&amp;<span class="hljs-string">"C1CC1"</span>).unwrap();
-    <span class="hljs-keyword">let</span> traversal = depth_first(&amp;molecule, &amp;<span class="hljs-number">0</span>).unwrap();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">molecule</span> = daylight::Molecule::<span class="hljs-title function_ invoke__">build</span>(&amp;<span class="hljs-string">&quot;C1CC1&quot;</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">traversal</span> = <span class="hljs-title function_ invoke__">depth_first</span>(&amp;molecule, &amp;<span class="hljs-number">0</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">false</span>),
         (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>),
         (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">0</span>, <span class="hljs-literal">true</span>)
@@ -114,12 +114,12 @@ cargo test
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> chemcore::daylight::Molecule;
 <span class="hljs-keyword">use</span> gamma::traversal::breadth_first;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
     <span class="hljs-comment">// build a molecule from SMILES and traverse it in breadth-first order</span>
-    <span class="hljs-keyword">let</span> molecule = Molecule::build(&amp;<span class="hljs-string">"C1CC1"</span>).unwrap();
-    <span class="hljs-keyword">let</span> traversal = breadth_first(&amp;molecule, &amp;<span class="hljs-number">0</span>).unwrap();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">molecule</span> = Molecule::<span class="hljs-title function_ invoke__">build</span>(&amp;<span class="hljs-string">&quot;C1CC1&quot;</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">traversal</span> = <span class="hljs-title function_ invoke__">breadth_first</span>(&amp;molecule, &amp;<span class="hljs-number">0</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">false</span>),
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>),
         (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">true</span>)

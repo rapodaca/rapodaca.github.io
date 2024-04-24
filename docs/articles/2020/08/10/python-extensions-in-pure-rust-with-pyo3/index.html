@@ -58,62 +58,62 @@
 <span class="hljs-comment"># ...</span>
 
 <span class="hljs-section">[lib]</span>
-<span class="hljs-attr">name</span> = <span class="hljs-string">"point"</span>
-<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">"cdylib"</span>]
+<span class="hljs-attr">name</span> = <span class="hljs-string">&quot;point&quot;</span>
+<span class="hljs-attr">crate-type</span> = [<span class="hljs-string">&quot;cdylib&quot;</span>]
 
 <span class="hljs-section">[dependencies.pyo3]</span>
-<span class="hljs-attr">version</span> = <span class="hljs-string">"0.11.1"</span>
-<span class="hljs-attr">features</span> = [<span class="hljs-string">"extension-module"</span>]
+<span class="hljs-attr">version</span> = <span class="hljs-string">&quot;0.11.1&quot;</span>
+<span class="hljs-attr">features</span> = [<span class="hljs-string">&quot;extension-module&quot;</span>]
 </code></pre>
 <p>Add a Rust type consisting of two fields and a constructor. Applying the macros <code>pyclass</code>, <code>pymethods</code>, and <code>new</code> direct PyO3 to the functionality to be wrapped.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// src/lib.rs</span>
 <span class="hljs-keyword">use</span> pyo3::prelude::*;
 
 <span class="hljs-meta">#[pyclass]</span>
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Point</span></span> {
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Point</span> {
     <span class="hljs-meta">#[pyo3(get)]</span>
-    x: <span class="hljs-built_in">f64</span>,
+    x: <span class="hljs-type">f64</span>,
     <span class="hljs-meta">#[pyo3(get)]</span>
-    y: <span class="hljs-built_in">f64</span>
+    y: <span class="hljs-type">f64</span>
 }
 
 <span class="hljs-meta">#[pymethods]</span>
-<span class="hljs-keyword">impl</span> Point {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Point</span> {
     <span class="hljs-meta">#[new]</span>
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(x: <span class="hljs-built_in">f64</span>, y: <span class="hljs-built_in">f64</span>) -&gt; <span class="hljs-keyword">Self</span> {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(x: <span class="hljs-type">f64</span>, y: <span class="hljs-type">f64</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> {
         Point { x, y }
     }
 }
 
 <span class="hljs-meta">#[pymodule]</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">point</span></span>(_: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">point</span>(_: Python, m: &amp;PyModule) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;()&gt; {
     m.add_class::&lt;Point&gt;()?;
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>This code will build a Python module called "point" that contains class called <code>Point</code>. Two attributes will be accessible on <code>Point</code> instances: <code>x</code> and <code>y</code>. A constructor allows the class to be constructed from Python.</p>
 <p>We're going to compile this Rust code using the PyO3 subproject <a href="https://github.com/PyO3/maturin">Maturin</a>. The recommended procedure is to set up a Python 3 <a href="https://docs.python.org/3/tutorial/venv.html">virtual environment</a>. In a nutshell, packages such as Maturin can be installed and used within a virtual environment without affecting the global Python 3 installation.</p>
 <p>Create a virtual environment, activate it, and install Maturin with the following.</p>
-<pre><code class="hljs console language-console"><span class="hljs-meta">$</span><span class="bash"> python3 -m venv env</span>
-<span class="hljs-meta">$</span><span class="bash"> <span class="hljs-built_in">source</span> env/bin/activate</span>
+<pre><code class="hljs console language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">python3 -m venv <span class="hljs-built_in">env</span></span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">source</span> <span class="hljs-built_in">env</span>/bin/activate</span>
 (env) $ pip3 install maturin
 </code></pre>
 <p>The first command creates a virtual environment within the working directory. The second command activates that virtual environment. The prefix <code>(env)</code> on the command prompt notifies us that Python is using the virtual environment called <code>env</code>. It can be deactivated with:</p>
 <pre><code class="hljs console language-console">(env) $ deactivate # use this to deactivate a virtual environment
-<span class="hljs-meta">$</span><span class="bash"> </span>
-</code></pre>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">
+</span></code></pre>
 <p>For now, don't deactivate the <code>env</code> virtual environment.</p>
 <p>Instead, compile the <code>point</code> project with the following:</p>
 <pre><code class="hljs console language-console">(env) $ maturin develop
 </code></pre>
 <p>This command produces the binding needed to import and use the <code>point</code> module from Python.</p>
 <pre><code class="hljs test language-test">(env) $ python3
-<span class="hljs-meta">&gt;&gt;</span>&gt; import point
-<span class="hljs-meta">&gt;&gt;</span>&gt; from point import Point
-<span class="hljs-meta">&gt;&gt;</span>&gt; p = Point(<span class="hljs-number">13</span>, <span class="hljs-number">42</span>)
-<span class="hljs-meta">&gt;&gt;</span>&gt; print(p.x, p.y)
-<span class="hljs-number">13</span> <span class="hljs-number">42</span>
+<span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-keyword">import</span> point</span>
+<span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-keyword">from</span> point <span class="hljs-keyword">import</span> Point</span>
+<span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">p = Point(<span class="hljs-number">13</span>, <span class="hljs-number">42</span>)</span>
+<span class="hljs-meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="hljs-built_in">print</span>(p.x, p.y)</span>
+13 42
 </code></pre>
 <p>This short workflow has demonstrated how to build a Python module entirely in Rust with Maturin. At some point, however, we'll want to distribute it. And this is where things get even better.</p>
 <h2 id="distribution">Distribution</h2>
@@ -155,61 +155,61 @@ drwxr-xr-x  6 rich  staff      192 Aug  8 07:33 ..
 <span class="hljs-keyword">use</span> pyo3::PyIterProtocol;
 
 <span class="hljs-meta">#[pyclass]</span>
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">SetIterator</span></span> {
-    iter: std::collections::hash_set::IntoIter&lt;<span class="hljs-built_in">usize</span>&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">SetIterator</span> {
+    iter: std::collections::hash_set::IntoIter&lt;<span class="hljs-type">usize</span>&gt;
 }
 
 <span class="hljs-meta">#[pyproto]</span>
-<span class="hljs-keyword">impl</span> PyIterProtocol <span class="hljs-keyword">for</span> SetIterator {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">__iter__</span></span>(slf: PyRef&lt;<span class="hljs-keyword">Self</span>&gt;) -&gt; Py&lt;SetIterator&gt; {
-        slf.into()
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">PyIterProtocol</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">SetIterator</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">__iter__</span>(slf: PyRef&lt;<span class="hljs-keyword">Self</span>&gt;) <span class="hljs-punctuation">-&gt;</span> Py&lt;SetIterator&gt; {
+        slf.<span class="hljs-title function_ invoke__">into</span>()
     }
 
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">__next__</span></span>(<span class="hljs-keyword">mut</span> slf: PyRefMut&lt;<span class="hljs-keyword">Self</span>&gt;) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-built_in">usize</span>&gt; {
-        slf.iter.next()
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">__next__</span>(<span class="hljs-keyword">mut</span> slf: PyRefMut&lt;<span class="hljs-keyword">Self</span>&gt;) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;<span class="hljs-type">usize</span>&gt; {
+        slf.iter.<span class="hljs-title function_ invoke__">next</span>()
     }
 }
 
 <span class="hljs-meta">#[pyclass]</span>
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HashSet</span></span> {
-    inner: std::collections::HashSet&lt;<span class="hljs-built_in">usize</span>&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">HashSet</span> {
+    inner: std::collections::HashSet&lt;<span class="hljs-type">usize</span>&gt;
 }
 
 <span class="hljs-meta">#[pymethods]</span>
-<span class="hljs-keyword">impl</span> HashSet {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">HashSet</span> {
     <span class="hljs-meta">#[new]</span>
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>() -&gt; <span class="hljs-keyword">Self</span> {
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> {
         HashSet {
-            inner: std::collections::HashSet::new()
+            inner: std::collections::HashSet::<span class="hljs-title function_ invoke__">new</span>()
         }
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">insert</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, value: <span class="hljs-built_in">usize</span>) {
-        <span class="hljs-keyword">self</span>.inner.insert(value);
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">insert</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, value: <span class="hljs-type">usize</span>) {
+        <span class="hljs-keyword">self</span>.inner.<span class="hljs-title function_ invoke__">insert</span>(value);
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">contains</span></span>(&amp;<span class="hljs-keyword">self</span>, value: <span class="hljs-built_in">usize</span>) -&gt; <span class="hljs-built_in">bool</span> {
-        <span class="hljs-keyword">self</span>.inner.contains(&amp;value)
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">contains</span>(&amp;<span class="hljs-keyword">self</span>, value: <span class="hljs-type">usize</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">bool</span> {
+        <span class="hljs-keyword">self</span>.inner.<span class="hljs-title function_ invoke__">contains</span>(&amp;value)
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">len</span></span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">usize</span> {
-        <span class="hljs-keyword">self</span>.inner.len()
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">len</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">usize</span> {
+        <span class="hljs-keyword">self</span>.inner.<span class="hljs-title function_ invoke__">len</span>()
     }
 
-    <span class="hljs-keyword">pub</span> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">iter</span></span>(slf: PyRef&lt;<span class="hljs-keyword">Self</span>&gt;) -&gt; PyResult&lt;Py&lt;SetIterator&gt;&gt; {
-        <span class="hljs-keyword">let</span> iter = SetIterator {
-            iter: slf.inner.clone().into_iter()
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">iter</span>(slf: PyRef&lt;<span class="hljs-keyword">Self</span>&gt;) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;Py&lt;SetIterator&gt;&gt; {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">iter</span> = SetIterator {
+            iter: slf.inner.<span class="hljs-title function_ invoke__">clone</span>().<span class="hljs-title function_ invoke__">into_iter</span>()
         };
 
-        Py::new(slf.py(), iter)
+        Py::<span class="hljs-title function_ invoke__">new</span>(slf.<span class="hljs-title function_ invoke__">py</span>(), iter)
     }
 }
 
 <span class="hljs-meta">#[pymodule]</span>
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">hash_set</span></span>(_: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">hash_set</span>(_: Python, m: &amp;PyModule) <span class="hljs-punctuation">-&gt;</span> PyResult&lt;()&gt; {
     m.add_class::&lt;HashSet&gt;()?;
 
-    <span class="hljs-literal">Ok</span>(())
+    <span class="hljs-title function_ invoke__">Ok</span>(())
 }
 </code></pre>
 <p>This sample can be compiled and run using <code>maturin develop</code> as before.</p>
@@ -220,16 +220,16 @@ drwxr-xr-x  6 rich  staff      192 Aug  8 07:33 ..
 <p>For example, the preferred method for exposing an iterator in the <code>HashSet</code> example above would be to simply wrap the Iterator returned from the standard library's <code>HashSet#iter</code> method. We could do that with a struct owning an internal iterator like so:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// Compile ERROR: #[pyclass] cannot have generic parameters</span>
 <span class="hljs-meta">#[pyclass]</span>
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Foo</span></span>&lt;<span class="hljs-symbol">'a</span>&gt; {
-    iter: std::collections::hash_set::Iter&lt;<span class="hljs-symbol">'a</span>, <span class="hljs-built_in">usize</span>&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Foo</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; {
+    iter: std::collections::hash_set::Iter&lt;<span class="hljs-symbol">&#x27;a</span>, <span class="hljs-type">usize</span>&gt;
 }
 </code></pre>
 <p>However, compliation fails with the error <code>#[pyclass] cannot have generic parameters</code>. Although there may be workarounds, they are unsafe and nontrivial. For details, see this <a href="https://github.com/PyO3/pyo3/issues/1085">GitHub issue</a>.</p>
 <p>Nor is the problem restricted to Iterators. It crops up with any struct holding a borrowed reference. Consider, for example, the following:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-comment">// Compile ERROR: #[pyclass] cannot have generic parameters</span>
 <span class="hljs-meta">#[pyclass]</span>
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Bar</span></span>&lt;<span class="hljs-symbol">'a</span>&gt; {
-    name: &amp;<span class="hljs-symbol">'a</span> <span class="hljs-built_in">str</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Bar</span>&lt;<span class="hljs-symbol">&#x27;a</span>&gt; {
+    name: &amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-type">str</span>
 }
 </code></pre>
 <p>It should be noted that the workaround used in the <code>HashSet</code> demo, copying the underlying object containing the Iterator, won't be feasible in many situations.</p>

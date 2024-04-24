@@ -49,7 +49,7 @@
 +--------+---------------------+------+-----+---------+----------------+
 | Field  | Type                | Null | Key | Default | Extra          |
 +--------+---------------------+------+-----+---------+----------------+
-| id     | int(11)             | NO   | PRI | NULL    | auto_increment | 
+| <span class="hljs-built_in">id</span>     | int(11)             | NO   | PRI | NULL    | auto_increment | 
 | byte0  | bigint(64) unsigned | YES  |     | 0       |                | 
 | byte1  | bigint(64) unsigned | YES  |     | 0       |                | 
 | byte2  | bigint(64) unsigned | YES  |     | 0       |                | 
@@ -70,9 +70,9 @@
 17 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
 </code></pre>
 <p>This database contains a single (empty) fingerprint:</p>
-<pre><code class="hljs bash language-bash">mysql&gt; select * from fingerprints;
+<pre><code class="hljs bash language-bash">mysql&gt; <span class="hljs-keyword">select</span> * from fingerprints;
 +----+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
-| id | byte0 | byte1 | byte2 | byte3 | byte4 | byte5 | byte6 | byte7 | byte8 | byte9 | byte10 | byte11 | byte12 | byte13 | byte14 | byte15 |
+| <span class="hljs-built_in">id</span> | byte0 | byte1 | byte2 | byte3 | byte4 | byte5 | byte6 | byte7 | byte8 | byte9 | byte10 | byte11 | byte12 | byte13 | byte14 | byte15 |
 +----+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
 |  1 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |      0 |      0 |      0 |      0 |      0 |      0 | 
 +----+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--------+--------+--------+--------+--------+--------+
@@ -83,16 +83,16 @@
 +----------------+---------+------+-----+---------+----------------+
 | Field          | Type    | Null | Key | Default | Extra          |
 +----------------+---------+------+-----+---------+----------------+
-| id             | int(11) | NO   | PRI | NULL    | auto_increment | 
+| <span class="hljs-built_in">id</span>             | int(11) | NO   | PRI | NULL    | auto_increment | 
 | fingerprint_id | int(11) | YES  |     | NULL    |                | 
 | smiles         | text    | YES  |     | NULL    |                | 
 +----------------+---------+------+-----+---------+----------------+
 3 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)
 </code></pre>
 <p>In this hypothetical example, the compounds database is populated by two molecules, benzene and bromobenzene, both of which share the same fingerprint:</p>
-<pre><code class="hljs bash language-bash">mysql&gt; select * from compounds;
+<pre><code class="hljs bash language-bash">mysql&gt; <span class="hljs-keyword">select</span> * from compounds;
 +----+----------------+------------+
-| id | fingerprint_id | smiles     |
+| <span class="hljs-built_in">id</span> | fingerprint_id | smiles     |
 +----+----------------+------------+
 |  1 |              1 | c1ccccc1   | 
 |  2 |              1 | c1ccccc1Br | 
@@ -102,20 +102,20 @@
 <h2 id="addingtherubylayer">Adding the Ruby Layer</h2>
 <p>In <a href="/articles/2008/10/06/fast-substructure-search-using-open-source-tools-part-3-a-crud-api-for-fingerprints-in-ruby">Part 3</a>, we created a CRUD API for fingerprints in Ruby. We now need to modify the class we created there, Fingerprint, to make it aware of the Compounds it will be associated with.</p>
 <p>For brevity, you can <a href="/images/posts/20081029/fingerprint.rb">view the updated Fingerprint class here</a>. The main change has been to add a single line of code that tells <code>Fingerprint</code> that it's now associated with a class called <code>Compound</code>:</p>
-<pre><code class="hljs bash language-bash">&lt;pre class=<span class="hljs-string">"prettyprint"</span>&gt;
+<pre><code class="hljs bash language-bash">&lt;pre class=<span class="hljs-string">&quot;prettyprint&quot;</span>&gt;
   has_many :compounds
 </code></pre>
 <p>All that remains is to bring the <code>Compound</code> class into being:</p>
-<pre><code class="hljs bash language-bash">require <span class="hljs-string">'rubygems'</span>
-require <span class="hljs-string">'active_record'</span>
-require <span class="hljs-string">'fingerprint'</span>
+<pre><code class="hljs bash language-bash">require <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require <span class="hljs-string">&#x27;active_record&#x27;</span>
+require <span class="hljs-string">&#x27;fingerprint&#x27;</span>
 
 ActiveRecord::Base.establish_connection(
-  :adapter    =&amp;gt; <span class="hljs-string">'mysql'</span>,
-  :host       =&amp;gt; <span class="hljs-string">'localhost'</span>,
-  :username   =&amp;gt;  <span class="hljs-string">'root'</span>,
-  :password   =&amp;gt;  <span class="hljs-string">''</span>,
-  :database   =&amp;gt;  <span class="hljs-string">'compounds'</span>
+  :adapter    =&amp;gt; <span class="hljs-string">&#x27;mysql&#x27;</span>,
+  :host       =&amp;gt; <span class="hljs-string">&#x27;localhost&#x27;</span>,
+  :username   =&amp;gt;  <span class="hljs-string">&#x27;root&#x27;</span>,
+  :password   =&amp;gt;  <span class="hljs-string">&#x27;&#x27;</span>,
+  :database   =&amp;gt;  <span class="hljs-string">&#x27;compounds&#x27;</span>
 )
 
 class Compound &amp;lt; ActiveRecord::Base
@@ -125,19 +125,19 @@ end
 <p>The <code>belongs_to</code> line is the counterpart to <code>Fingerprint's</code> <code>has_many</code> line. Together, both <code>Fingerprint</code> and <code>Compound</code> create a system in which each <code>Fingerprint</code> can reference multiple <code>Compounds</code> and each <code>Compound</code> references one <code>Fingerprint</code>.</p>
 <p>Let's test this with interactive Ruby:</p>
 <pre><code class="hljs bash language-bash">$ irb
-irb(main):001:0&amp;gt; require <span class="hljs-string">'fingerprint'</span>
+irb(main):001:0&amp;gt; require <span class="hljs-string">&#x27;fingerprint&#x27;</span>
 =&amp;gt; <span class="hljs-literal">true</span>
 irb(main):002:0&amp;gt; f=Fingerprint.find 1
 =&amp;gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: 1, byte0: 0, byte1: 0, byte2: 0, byte3: 0, byte4: 0, byte5: 0, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 0, byte11: 0, byte12: 0, byte13: 0, byte14: 0, byte15: 0&amp;gt;</span>
 irb(main):003:0&amp;gt; f.compounds
-=&amp;gt; [<span class="hljs-comment">#&amp;lt;Compound id: 1, fingerprint_id: 1, smiles: "c1ccccc1"&amp;gt;, #&amp;lt;Compound id: 2, fingerprint_id: 1, smiles: "c1ccccc1Br"&amp;gt;]</span>
+=&amp;gt; [<span class="hljs-comment">#&amp;lt;Compound id: 1, fingerprint_id: 1, smiles: &quot;c1ccccc1&quot;&amp;gt;, #&amp;lt;Compound id: 2, fingerprint_id: 1, smiles: &quot;c1ccccc1Br&quot;&amp;gt;]</span>
 </code></pre>
 <p>Looks good. Our code has made the correct association between a <code>Fingerprint</code> and its <code>Compounds</code>. What about the other way around?</p>
 <pre><code class="hljs bash language-bash">$ irb
-irb(main):001:0&amp;gt; require <span class="hljs-string">'compound'</span>
+irb(main):001:0&amp;gt; require <span class="hljs-string">&#x27;compound&#x27;</span>
 =&amp;gt; <span class="hljs-literal">true</span>
 irb(main):002:0&amp;gt; c=Compound.find 1
-=&amp;gt; <span class="hljs-comment">#&amp;lt;Compound id: 1, fingerprint_id: 1, smiles: "c1ccccc1"&amp;gt;</span>
+=&amp;gt; <span class="hljs-comment">#&amp;lt;Compound id: 1, fingerprint_id: 1, smiles: &quot;c1ccccc1&quot;&amp;gt;</span>
 irb(main):003:0&amp;gt; c.fingerprint
 =&amp;gt; <span class="hljs-comment">#&amp;lt;Fingerprint id: 1, byte0: 0, byte1: 0, byte2: 0, byte3: 0, byte4: 0, byte5: 0, byte6: 0, byte7: 0, byte8: 0, byte9: 0, byte10: 0, byte11: 0, byte12: 0, byte13: 0, byte14: 0, byte15: 0&amp;gt;</span>
 </code></pre>

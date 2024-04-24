@@ -34,12 +34,12 @@
           <time datetime="2007-09-20T00:00:00.000Z">2007-09-20T00:00:00.000Z</time>
       </header>
       <p>A very common operation in cheminformatics is the interconversion of molfiles and SMILES strings. Usually, converting from SMILES gives a molfile in which all atoms have coordinates of (0,0,0). Sometimes you just need more than that. The following Ruby CDK code will accept an arbitrary SMILES string and return a molfile with fully-assigned 2D atom coordinates:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
-<span class="hljs-keyword">include</span> RCDK::Util
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
+<span class="hljs-keyword">include</span> <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span>
 
-XY.coordinate_molfile Lang.smiles_to_molfile(<span class="hljs-string">'c1ccccc1'</span>)
+<span class="hljs-variable constant_">XY</span>.coordinate_molfile <span class="hljs-title class_">Lang</span>.smiles_to_molfile(<span class="hljs-string">&#x27;c1ccccc1&#x27;</span>)
 </code></pre>
 <p>Looking at it this way, those four lines of require/include statements seem pretty darn verbose.</p>
     </article>

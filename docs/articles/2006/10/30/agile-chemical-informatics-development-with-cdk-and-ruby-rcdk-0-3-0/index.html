@@ -43,30 +43,30 @@
 <p>Alternatively, the source package and RubyGem can be downloaded <a href="http://rubyforge.org/frs/?group_id=2199">here</a>.</p>
 <h2 id="tighterjavaintegration">Tighter Java Integration</h2>
 <p>RCDK-0.3.0 introduces a previously-described <a href="http://depth-first.com/articles/2006/10/24/metaprogramming-with-ruby-mapping-java-packages-onto-ruby-modules">Java package to Ruby module mapping mechanism</a>. For example, if you'd like to create a Java <code>ArrayList</code>, it can be done through the new <code>jrequire</code> command:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-jrequire <span class="hljs-string">'java.util.ArrayList'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+jrequire <span class="hljs-string">&#x27;java.util.ArrayList&#x27;</span>
 
-list = Java::Util::ArrayList.new
+list = <span class="hljs-title class_">Java</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:ArrayList</span>.new
 
 list.size <span class="hljs-comment"># =&gt; 0</span>
 </code></pre>
 <h2 id="iupacnomenclaturetranslation">IUPAC Nomenclature Translation</h2>
 <p>RCDK's most important new chemical informatics feature is made possible by <a href="http://wwmm.ch.cam.ac.uk/blogs/corbett/">Peter Corbett's</a> excellent IUPAC nomenclature translation library <a href="http://depth-first.com/articles/2006/10/17/from-iupac-nomenclature-to-2-d-structures-with-opsin">OPSIN</a>. It can either be used directly with <code>jrequire</code>, or indirectly through RCDK's convenience library <code>RCDK::Util</code>:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
 
-mol = RCDK::Util::Lang.read_iupac <span class="hljs-string">'quinoline'</span>
+mol = <span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Lang</span>.read_iupac <span class="hljs-string">&#x27;quinoline&#x27;</span>
 mol.getAtomCount <span class="hljs-comment"># =&gt; 10</span>
 </code></pre>
 <p>There are two things to notice here. First, no <code>jrequire</code> statement is needed when using the <code>RCDK::Util</code> library. Second, there is a multisecond delay after <code>read_iupac</code> is invoked. OPSIN itself introduces this delay during the <code>NameToStructure</code> constructor call, and RCDK inherits this behavior. However, after the first invocation of <code>read_iupac</code>, subsequent calls to this method are very fast.</p>
 <p>Let's decorate the quinoline nucleus with some substituents and render a 2-D image of the result. Execute the following code, either through the Ruby interpreter (<code>ruby</code>) or through Interactive Ruby (<code>irb</code>):</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rcdk'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rcdk/util'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rcdk&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rcdk/util&#x27;</span>
 
-RCDK::Util::Image.iupac_to_png(<span class="hljs-string">'3-chloro-4-(2-aminopropyl)-6-mercapto-8-(2-hydroxyphenyl)-quinoline-2-carboxylic acid'</span>, <span class="hljs-string">'test.png'</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>)
+<span class="hljs-variable constant_">RCDK</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Util</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:Image</span>.iupac_to_png(<span class="hljs-string">&#x27;3-chloro-4-(2-aminopropyl)-6-mercapto-8-(2-hydroxyphenyl)-quinoline-2-carboxylic acid&#x27;</span>, <span class="hljs-string">&#x27;test.png&#x27;</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>)
 </code></pre>
 <p>Running this code produces the following image in your working directory:</p>
 <p><img src="/images/posts/20061030/test.png" alt="Test"></p>

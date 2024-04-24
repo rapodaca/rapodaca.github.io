@@ -70,19 +70,19 @@
 </ul>
 <p>The big win here is the <a href="https://rauchg.com/2015/pure-ui">declarative expression</a> of the user interface. For example, in JavaScript we might write something like this:</p>
 <pre><code class="hljs js language-js"><span class="hljs-comment">// naive, impractical approach</span>
-<span class="hljs-keyword">const</span> render = <span class="hljs-function">(<span class="hljs-params">state</span>) =&gt;</span> {
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">render</span> = (<span class="hljs-params">state</span>) =&gt; {
   <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> analyze state</span>
 
   <span class="hljs-keyword">const</span> html = [
-  <span class="hljs-string">'&lt;div id="ui"&gt;'</span>,
+  <span class="hljs-string">&#x27;&lt;div id=&quot;ui&quot;&gt;&#x27;</span>,
     <span class="hljs-comment">// HTML content consistent with state</span>
-  <span class="hljs-string">'&lt;div&gt;'</span>
+  <span class="hljs-string">&#x27;&lt;div&gt;&#x27;</span>
   ];
 
-  <span class="hljs-keyword">return</span> html.join(<span class="hljs-string">''</span>);
+  <span class="hljs-keyword">return</span> html.<span class="hljs-title function_">join</span>(<span class="hljs-string">&#x27;&#x27;</span>);
 };
 
-<span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#app'</span>).innerHTML = render(state);
+<span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#app&#x27;</span>).<span class="hljs-property">innerHTML</span> = <span class="hljs-title function_">render</span>(state);
 </code></pre>
 <p>This naive approach can work for small applications, but things quickly degrade with scale. Performance is sometimes cited as a problem ("the DOM is slow"), and it can be with large collections of nodes. But a bigger problem is what this approach can do to the application using it. For example, re-rendering the DOM tree would mean re-attaching event listeners, some of which may have state of their own. The need to manage these re-attachments could quickly negate the original promise: simplicity.</p>
 <p>Alternatively, an application can update only those DOM nodes affected by a user action. This approach requires a way to identify the relevant nodes and make the appropriate change. As before, the solution scales poorly with increasing DOM node count.</p>
@@ -105,28 +105,28 @@
   <iframe src="https://www.youtube.com/embed/Io6JjgckHbg" allowfullscreen=""></iframe>
 </div>
 <p>Consider a simple application using the naive re-render approach described earlier. Pressing a button increments a counter. A UI element should report the number of clicks. We might write such a UI like this:</p>
-<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;utf-8&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Naive Render<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span>&gt;</span>Increment<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"counter"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
+    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;button&quot;</span>&gt;</span>Increment<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;counter&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;module&quot;</span>&gt;</span><span class="language-javascript">
       <span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
-      <span class="hljs-keyword">const</span> template = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-string">`
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">template</span> = (<span class="hljs-params"></span>) =&gt; <span class="hljs-string">`
         &lt;p&gt;Count:&lt;/p&gt;
         &lt;p&gt;<span class="hljs-subst">${count}</span>&lt;/p&gt;
       `</span>;
 
-      <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'.counter'</span>).innerHTML = template();
+      <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;.counter&#x27;</span>).<span class="hljs-property">innerHTML</span> = <span class="hljs-title function_">template</span>();
 
-      <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'button'</span>).addEventListener(<span class="hljs-string">'click'</span>, e =&gt; {
+      <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;button&#x27;</span>).<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;click&#x27;</span>, <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> {
         count++;
 
-        <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'.counter'</span>).innerHTML = template();
+        <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;.counter&#x27;</span>).<span class="hljs-property">innerHTML</span> = <span class="hljs-title function_">template</span>();
       });
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
@@ -141,30 +141,30 @@
   </figcaption>
 </figure>
 <p>Compare this behavior with the alternative using lit-html. The overall structure of the event handler is similar. After updating the <code>count</code> field, the UI is re-rendered. </p>
-<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<pre><code class="hljs html language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;utf-8&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>lit-html Render<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span>&gt;</span>Increment<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"counter"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"module"</span>&gt;</span><span class="javascript">
-      <span class="hljs-keyword">import</span> {html, render} <span class="hljs-keyword">from</span> <span class="hljs-string">'https://unpkg.com/lit-html?module'</span>;
+    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;button&quot;</span>&gt;</span>Increment<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;counter&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;module&quot;</span>&gt;</span><span class="language-javascript">
+      <span class="hljs-keyword">import</span> {html, render} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;https://unpkg.com/lit-html?module&#x27;</span>;
 
       <span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
-      <span class="hljs-keyword">const</span> template = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> html`<span class="xml">
+      <span class="hljs-keyword">const</span> <span class="hljs-title function_">template</span> = (<span class="hljs-params"></span>) =&gt; html`<span class="language-xml">
         <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Count:<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${count}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span></span><span class="hljs-subst">${count}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
       `</span>;
 
-      render(template(), <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'.counter'</span>));
+      <span class="hljs-title function_">render</span>(<span class="hljs-title function_">template</span>(), <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;.counter&#x27;</span>));
 
-      <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'button'</span>).addEventListener(<span class="hljs-string">'click'</span>, e =&gt; {
+      <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;button&#x27;</span>).<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;click&#x27;</span>, <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> {
         count++;
 
-        render(template(), <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'.counter'</span>));
+        <span class="hljs-title function_">render</span>(<span class="hljs-title function_">template</span>(), <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;.counter&#x27;</span>));
       });
     </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>

@@ -52,11 +52,11 @@
 <p>I've been trying to understand how to access GWT's low-level JavaScript cross-compiler functionality without the rest of the GWT, with mixed success. The good news is this appears to be one of the ways the creators of GWT envisioned it to be used; the bad news is I've found no documentation describing exactly how to do it.</p>
 <p>Surprisingly, getting this seemingly obvious use case to work is anything but <a href="http://rhjr.net/dto/">obvious</a>. Most documentation dives right into using GWT to build fancy websites. What's needed here is far more basic.</p>
 <p>What would be most helpful would be a step-by-step procedure for compiling a simple HelloWorld.java class into a HelloWorld.js JavaScript file, preferably using only command-line tools:</p>
-<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HelloWorld</span>
-</span>{
-  <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">sayHello</span><span class="hljs-params">()</span>
-  </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-string">"hello"</span>;
+<pre><code class="hljs java language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HelloWorld</span>
+{
+  <span class="hljs-keyword">public</span> String <span class="hljs-title function_">sayHello</span><span class="hljs-params">()</span>
+  {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;hello&quot;</span>;
   }
 }
 </code></pre>

@@ -40,36 +40,36 @@
 <p>Create a working directory called <code>depict</code>. From the <code>lib</code> directory of the Structure-CDK distribution, copy <code>cdk-20060714.jar</code> and <code>structure-cdk-0.1.2.jar</code> into your <code>depict</code> working directory.</p>
 <h2 id="thecode">The Code</h2>
 <p>Now create a file called <code>depict.rb</code> and copy the following code into it:</p>
-<pre><code class="hljs ruby language-ruby">ENV[<span class="hljs-string">'CLASSPATH'</span>] = <span class="hljs-string">'./cdk-20060714.jar:./structure-cdk-0.1.2.jar'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-variable constant_">ENV</span>[<span class="hljs-string">&#x27;CLASSPATH&#x27;</span>] = <span class="hljs-string">&#x27;./cdk-20060714.jar:./structure-cdk-0.1.2.jar&#x27;</span>
 
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rjb'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rjb'</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rjb&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rjb&#x27;</span>
 
-SmilesParser = Rjb::import <span class="hljs-string">'org.openscience.cdk.smiles.SmilesParser'</span>
-StructureDiagramGenerator = Rjb::import <span class="hljs-string">'org.openscience.cdk.layout.StructureDiagramGenerator'</span>
-ImageKit = Rjb::import <span class="hljs-string">'net.sf.structure.cdk.util.ImageKit'</span>
+<span class="hljs-title class_">SmilesParser</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;org.openscience.cdk.smiles.SmilesParser&#x27;</span>
+<span class="hljs-title class_">StructureDiagramGenerator</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;org.openscience.cdk.layout.StructureDiagramGenerator&#x27;</span>
+<span class="hljs-title class_">ImageKit</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span> <span class="hljs-string">&#x27;net.sf.structure.cdk.util.ImageKit&#x27;</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Depictor</span></span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Depictor</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @smiles_parser = SmilesParser.new
-    @sdg = StructureDiagramGenerator.new
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@smiles_parser</span> = <span class="hljs-title class_">SmilesParser</span>.new
+    <span class="hljs-variable">@sdg</span> = <span class="hljs-title class_">StructureDiagramGenerator</span>.new
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict_png</span><span class="hljs-params">(smiles, width, height, path_to_png)</span></span>
-    ImageKit::writePNG(smi_to_mol(smiles), width, height, path_to_png)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">depict_png</span>(<span class="hljs-params">smiles, width, height, path_to_png</span>)
+    <span class="hljs-title class_">ImageKit</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:writePNG</span>(smi_to_mol(smiles), width, height, path_to_png)
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">depict_svg</span><span class="hljs-params">(smiles, width, height, path_to_svg)</span></span>
-    ImageKit::writeSVG(smi_to_mol(smiles), width, height, path_to_svg)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">depict_svg</span>(<span class="hljs-params">smiles, width, height, path_to_svg</span>)
+    <span class="hljs-title class_">ImageKit</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:writeSVG</span>(smi_to_mol(smiles), width, height, path_to_svg)
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">smi_to_mol</span><span class="hljs-params">(smiles)</span></span>
-    @sdg.setMolecule(@smiles_parser.parseSmiles(smiles))
-    @sdg.generateCoordinates
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">smi_to_mol</span>(<span class="hljs-params">smiles</span>)
+    <span class="hljs-variable">@sdg</span>.setMolecule(<span class="hljs-variable">@smiles_parser</span>.parseSmiles(smiles))
+    <span class="hljs-variable">@sdg</span>.generateCoordinates
 
-    @sdg.getMolecule
+    <span class="hljs-variable">@sdg</span>.getMolecule
   <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre>
@@ -78,12 +78,12 @@ ImageKit = Rjb::import <span class="hljs-string">'net.sf.structure.cdk.util.Imag
 </code></pre>
 <p>This tells RJB where to find Java's native libraries. Because of RJB's current design, <tt>LD<em>LIBRARY</em>PATH</tt> needs to be set from the command line, rather than from within a Ruby process.</p>
 <p>Using the <tt>Depictor</tt> class is simple. For example, to generate SVG and PNG images of desloratadine (Clarinex):</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'depict'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;depict&#x27;</span>
 
-depictor = Depictor.new
+depictor = <span class="hljs-title class_">Depictor</span>.new
 
-depictor.depict_svg(<span class="hljs-string">'Clc4ccc3C(=C1CCNCC1)c2ncccc2CCc3c4'</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-string">'desloratadine.svg'</span>)
-depictor.depict_png(<span class="hljs-string">'Clc4ccc3C(=C1CCNCC1)c2ncccc2CCc3c4'</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-string">'desloratadine.png'</span>)
+depictor.depict_svg(<span class="hljs-string">&#x27;Clc4ccc3C(=C1CCNCC1)c2ncccc2CCc3c4&#x27;</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-string">&#x27;desloratadine.svg&#x27;</span>)
+depictor.depict_png(<span class="hljs-string">&#x27;Clc4ccc3C(=C1CCNCC1)c2ncccc2CCc3c4&#x27;</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-string">&#x27;desloratadine.png&#x27;</span>)
 </code></pre>
 <h2 id="theoutput">The Output</h2>
 <p>Running the above code, either with the Ruby interpreter (ruby) or with Interactive Ruby (irb) will produce an SVG and a PNG image in your <code>depict</code> directory containing the 2-D structure of the popular antihistamine (see image below). Scalable Vector Graphics (SVG) format is a popular, XML-based vector graphics encoding system that can be viewed with the <a href="http://www.mozilla.com/firefox/">Firefox browser</a> and several other software packages.</p>

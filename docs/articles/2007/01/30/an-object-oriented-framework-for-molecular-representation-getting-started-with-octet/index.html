@@ -52,20 +52,20 @@
 <p><a href="http://rubyforge.org/projects/rjb/">Ruby Java Bridge</a> (RJB) is the magic technology that makes this possible. Previous articles have discussed the installation and use of RJB on <a href="http://depth-first.com/articles/2006/10/12/running-ruby-java-bridge-on-windows">Windows</a> and <a href="http://depth-first.com/articles/2006/08/26/scripting-java-libraries-with-ruby-java-bridge">Linux</a>.</p>
 <h2 id="asimpletest">A Simple Test</h2>
 <p>Assuming you've installed Ruby, RubyGems and Ruby Java Bridge, you can perform a simple demonstration of Octet in Ruby:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">'rubygems'</span>
-require_gem <span class="hljs-string">'rjb'</span>
-<span class="hljs-keyword">require</span> <span class="hljs-string">'rjb'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rubygems&#x27;</span>
+require_gem <span class="hljs-string">&#x27;rjb&#x27;</span>
+<span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;rjb&#x27;</span>
 
-BasicMoleculeBuilder = Rjb::import(<span class="hljs-string">'net.sf.octet.builder.BasicMoleculeBuilder'</span>)
-RepresentationKit = Rjb::import(<span class="hljs-string">'net.sf.octet.util.RepresentationKit'</span>)
-MoleculeKit = Rjb::import(<span class="hljs-string">'net.sf.octet.util.MoleculeKit'</span>)
-System = Rjb::import(<span class="hljs-string">'java.lang.System'</span>)
-
-
-builder = BasicMoleculeBuilder.new
+<span class="hljs-title class_">BasicMoleculeBuilder</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span>(<span class="hljs-string">&#x27;net.sf.octet.builder.BasicMoleculeBuilder&#x27;</span>)
+<span class="hljs-title class_">RepresentationKit</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span>(<span class="hljs-string">&#x27;net.sf.octet.util.RepresentationKit&#x27;</span>)
+<span class="hljs-title class_">MoleculeKit</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span>(<span class="hljs-string">&#x27;net.sf.octet.util.MoleculeKit&#x27;</span>)
+<span class="hljs-title class_">System</span> = <span class="hljs-title class_">Rjb</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:import</span>(<span class="hljs-string">&#x27;java.lang.System&#x27;</span>)
 
 
-RepresentationKit.buildHexane(builder)
+builder = <span class="hljs-title class_">BasicMoleculeBuilder</span>.new
+
+
+<span class="hljs-title class_">RepresentationKit</span>.buildHexane(builder)
 
 
 molecule = builder.releaseMolecule

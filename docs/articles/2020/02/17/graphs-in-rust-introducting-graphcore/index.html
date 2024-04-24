@@ -64,37 +64,37 @@
 <p>The center of Gamma is the <code>Graph</code> trait, which defines the following methods:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> crate::graph::Error;
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Graph</span></span>&lt;<span class="hljs-symbol">'a</span>, N: <span class="hljs-symbol">'a</span>&gt; {
-    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">NodeIterator</span></span>: <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-symbol">'a</span> N&gt;;
-    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">NeighborIterator</span></span>: <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-symbol">'a</span> N&gt;;
-    <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">EdgeIterator</span></span>: <span class="hljs-built_in">Iterator</span>&lt;Item=(&amp;<span class="hljs-symbol">'a</span> N, &amp;<span class="hljs-symbol">'a</span> N)&gt;;
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">trait</span> <span class="hljs-title class_">Graph</span>&lt;<span class="hljs-symbol">&#x27;a</span>, N: <span class="hljs-symbol">&#x27;a</span>&gt; {
+    <span class="hljs-keyword">type</span> <span class="hljs-title class_">NodeIterator</span>: <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-symbol">&#x27;a</span> N&gt;;
+    <span class="hljs-keyword">type</span> <span class="hljs-title class_">NeighborIterator</span>: <span class="hljs-built_in">Iterator</span>&lt;Item=&amp;<span class="hljs-symbol">&#x27;a</span> N&gt;;
+    <span class="hljs-keyword">type</span> <span class="hljs-title class_">EdgeIterator</span>: <span class="hljs-built_in">Iterator</span>&lt;Item=(&amp;<span class="hljs-symbol">&#x27;a</span> N, &amp;<span class="hljs-symbol">&#x27;a</span> N)&gt;;
 
     <span class="hljs-comment">/// Returns true if there are no nodes, or false otherwise.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">is_empty</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">bool</span>;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">is_empty</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">bool</span>;
 
     <span class="hljs-comment">/// Returns the number of nodes in this graph.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">order</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">usize</span>;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">order</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">usize</span>;
 
     <span class="hljs-comment">/// Returns the number of edges in this graph.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">size</span></span>(&amp;<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-built_in">usize</span>;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">size</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">usize</span>;
 
     <span class="hljs-comment">/// Iterates the nodes of this graph</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">nodes</span></span>(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-keyword">self</span>) -&gt; Self::NodeIterator;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">nodes</span>(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span>::NodeIterator;
 
     <span class="hljs-comment">/// Returns true if node is a member, or false otherwise. </span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">has_node</span></span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) -&gt; <span class="hljs-built_in">bool</span>;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">has_node</span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">bool</span>;
 
     <span class="hljs-comment">/// Iterates the neighbors of node.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">neighbors</span></span>(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-keyword">self</span>, node: &amp;N) -&gt; <span class="hljs-built_in">Result</span>&lt;Self::NeighborIterator, Error&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">neighbors</span>(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">self</span>, node: &amp;N) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-keyword">Self</span>::NeighborIterator, Error&gt;;
 
     <span class="hljs-comment">/// Returns the number of neighbors connected to node.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">degree</span></span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">usize</span>, Error&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">degree</span>(&amp;<span class="hljs-keyword">self</span>, node: &amp;N) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">usize</span>, Error&gt;;
 
     <span class="hljs-comment">/// Iterates the edges of this graph.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">edges</span></span>(&amp;<span class="hljs-symbol">'a</span> <span class="hljs-keyword">self</span>) -&gt; Self::EdgeIterator;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">edges</span>(&amp;<span class="hljs-symbol">&#x27;a</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span>::EdgeIterator;
 
     <span class="hljs-comment">/// Returns true if an edge exists between source and target.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">has_edge</span></span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;N, target: &amp;N) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">bool</span>, Error&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">has_edge</span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;N, target: &amp;N) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">bool</span>, Error&gt;;
 }
 </code></pre>
 <p>This API was chosen to satisfy two opposing goals: utility and brevity. On the one hand, <code>Graph</code> should provide a rich API because it alone defines the features available to all graph traversals and analyses. On the other hand, the number of methods must be kept low to avoid burdening implementors with unnecessary work. A previous post offers some thoughts on <a href="/articles/2020/01/06/a-minimal-graph-api/">the minimal Graph API</a> used here.</p>
@@ -103,9 +103,9 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> crate::graph::Error;
 <span class="hljs-keyword">use</span> crate::graph::Graph;
 
-<span class="hljs-keyword">pub</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">WeightedGraph</span></span>&lt;<span class="hljs-symbol">'a</span>, N:<span class="hljs-symbol">'a</span>, E&gt; : Graph&lt;<span class="hljs-symbol">'a</span>, N&gt; {
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">trait</span> <span class="hljs-title class_">WeightedGraph</span>&lt;<span class="hljs-symbol">&#x27;a</span>, N:<span class="hljs-symbol">&#x27;a</span>, E&gt; : Graph&lt;<span class="hljs-symbol">&#x27;a</span>, N&gt; {
     <span class="hljs-comment">/// Returns the weight between source and target.</span>
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">weight</span></span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;<span class="hljs-symbol">'a</span> N, target: &amp;<span class="hljs-symbol">'a</span> N) -&gt; <span class="hljs-built_in">Result</span>&lt;<span class="hljs-built_in">Option</span>&lt;&amp;E&gt;, Error&gt;;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">weight</span>(&amp;<span class="hljs-keyword">self</span>, source: &amp;<span class="hljs-symbol">&#x27;a</span> N, target: &amp;<span class="hljs-symbol">&#x27;a</span> N) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">Option</span>&lt;&amp;E&gt;, Error&gt;;
 }
 </code></pre>
 <h2 id="hashgraph">HashGraph</h2>
@@ -113,64 +113,64 @@
 <p>The <code>build</code> function allows for declarative construction of a <code>HashGraph</code>:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = HashGraph::<span class="hljs-title function_ invoke__">build</span>(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, ()),
         (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, ())
-    ]).unwrap();
+    ]).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(graph.is_empty(), <span class="hljs-literal">false</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">is_empty</span>(), <span class="hljs-literal">false</span>);
 }
 </code></pre>
 <p>Alternatively, mutator methods can be used to accomplish the same result:</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = HashGraph::&lt;_,()&gt;::new();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = HashGraph::&lt;_,()&gt;::<span class="hljs-title function_ invoke__">new</span>();
 
-    graph.add_node(<span class="hljs-number">0</span>).unwrap();
-    graph.add_node(<span class="hljs-number">1</span>).unwrap();
-    graph.add_node(<span class="hljs-number">2</span>).unwrap();
-    graph.add_edge(&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>).unwrap();
-    graph.add_edge(&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>).unwrap();
+    graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-number">0</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
+    graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-number">1</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
+    graph.<span class="hljs-title function_ invoke__">add_node</span>(<span class="hljs-number">2</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
+    graph.<span class="hljs-title function_ invoke__">add_edge</span>(&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
+    graph.<span class="hljs-title function_ invoke__">add_edge</span>(&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(graph.has_edge(&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">0</span>).unwrap(), <span class="hljs-literal">true</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">has_edge</span>(&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">0</span>).<span class="hljs-title function_ invoke__">unwrap</span>(), <span class="hljs-literal">true</span>);
 }
 </code></pre>
 <p>Custom node types can be used directly with <code>HashGraph</code>. Unlike many graph libraries, Gamma lets you work directly with your own node references, rather than node references returned to you by the library. This vastly simplifies the use of custom node types. The only constraint on a node is that it must implement <code>std::hash::Hash</code> and <code>std::cmp::Eq</code>.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
 
 <span class="hljs-meta">#[derive(Eq, Hash, PartialEq, Debug)]</span>
-<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node</span></span> {
-    value: <span class="hljs-built_in">u8</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Node</span> {
+    value: <span class="hljs-type">u8</span>
 }
 
-<span class="hljs-keyword">impl</span> Node {
-    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">new</span></span>(value: <span class="hljs-built_in">u8</span>) -&gt; <span class="hljs-keyword">Self</span> {
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Node</span> {
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(value: <span class="hljs-type">u8</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> {
         Node { value }
     }
 }
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> n0 = &amp;Node::new(<span class="hljs-number">0</span>);
-    <span class="hljs-keyword">let</span> n1 = &amp;Node::new(<span class="hljs-number">1</span>);
-    <span class="hljs-keyword">let</span> graph = HashGraph::&lt;_, ()&gt;::build(
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n0</span> = &amp;Node::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">n1</span> = &amp;Node::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">1</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">graph</span> = HashGraph::&lt;_, ()&gt;::<span class="hljs-title function_ invoke__">build</span>(
         <span class="hljs-built_in">vec!</span>[ n0, n1 ], <span class="hljs-built_in">vec!</span>[ (&amp;n0, &amp;n1, ()) ]
-    ).unwrap();
+    ).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(graph.has_edge(&amp;n0, &amp;n1).unwrap(), <span class="hljs-literal">true</span>);
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">has_edge</span>(&amp;n0, &amp;n1).<span class="hljs-title function_ invoke__">unwrap</span>(), <span class="hljs-literal">true</span>);
 }
 </code></pre>
 <p><code>HashGraph</code> supports the <code>WeightedGraph</code> trait by allowing any type to be used as a weight. For example, the following example shows how to use strings as weights.</p>
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
-        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-string">"a"</span>),
-        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-string">"b"</span>)
-    ]).unwrap();
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">graph</span> = HashGraph::<span class="hljs-title function_ invoke__">build</span>(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+        (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-string">&quot;a&quot;</span>),
+        (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-string">&quot;b&quot;</span>)
+    ]).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(graph.weight(&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>).unwrap(), <span class="hljs-literal">Some</span>(&amp;<span class="hljs-string">"a"</span>));
+    <span class="hljs-built_in">assert_eq!</span>(graph.<span class="hljs-title function_ invoke__">weight</span>(&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>).<span class="hljs-title function_ invoke__">unwrap</span>(), <span class="hljs-title function_ invoke__">Some</span>(&amp;<span class="hljs-string">&quot;a&quot;</span>));
 }
 </code></pre>
 <h2 id="traversalwithiterators">Traversal with Iterators</h2>
@@ -179,15 +179,15 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
 <span class="hljs-keyword">use</span> gamma::traversal::depth_first;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">graph</span> = HashGraph::<span class="hljs-title function_ invoke__">build</span>(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, ()),
         (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, ()),
         (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, ()),
-    ]).unwrap();
-    <span class="hljs-keyword">let</span> traversal = depth_first(&amp;graph, &amp;<span class="hljs-number">0</span>).unwrap();
+    ]).<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">traversal</span> = <span class="hljs-title function_ invoke__">depth_first</span>(&amp;graph, &amp;<span class="hljs-number">0</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>),
         (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">false</span>),
         (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, <span class="hljs-literal">true</span>)
@@ -198,16 +198,16 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
 <span class="hljs-keyword">use</span> gamma:traversal::breadth_first;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">graph</span> = HashGraph::<span class="hljs-title function_ invoke__">build</span>(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, ()),
         (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, ()),
         (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, ()),
-    ]).unwrap();
-    <span class="hljs-keyword">let</span> traversal = depth_first(&amp;graph, &amp;<span class="hljs-number">0</span>).unwrap();
-    <span class="hljs-keyword">let</span> cuts = traversal.filter(|edge| edge.<span class="hljs-number">2</span>);
+    ]).<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">traversal</span> = <span class="hljs-title function_ invoke__">depth_first</span>(&amp;graph, &amp;<span class="hljs-number">0</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">cuts</span> = traversal.<span class="hljs-title function_ invoke__">filter</span>(|edge| edge.<span class="hljs-number">2</span>);
 
-    <span class="hljs-built_in">assert_eq!</span>(cuts.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+    <span class="hljs-built_in">assert_eq!</span>(cuts.collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
         (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, <span class="hljs-literal">true</span>)
     ]);
 }
@@ -216,15 +216,15 @@
 <pre><code class="hljs rust language-rust"><span class="hljs-keyword">use</span> gamma::graph::HashGraph;
 <span class="hljs-keyword">use</span> gamma::traversal::breadth_first;
 
-<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">let</span> graph = HashGraph::build(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">graph</span> = HashGraph::<span class="hljs-title function_ invoke__">build</span>(<span class="hljs-built_in">vec!</span>[ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ], <span class="hljs-built_in">vec!</span>[
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, ()),
         (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, ()),
         (&amp;<span class="hljs-number">2</span>, &amp;<span class="hljs-number">0</span>, ()),
-    ]).unwrap();
-    <span class="hljs-keyword">let</span> traversal = breadth_first(&amp;graph, &amp;<span class="hljs-number">0</span>).unwrap();
+    ]).<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">traversal</span> = <span class="hljs-title function_ invoke__">breadth_first</span>(&amp;graph, &amp;<span class="hljs-number">0</span>).<span class="hljs-title function_ invoke__">unwrap</span>();
 
-    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-built_in">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
+    <span class="hljs-built_in">assert_eq!</span>(traversal.collect::&lt;<span class="hljs-type">Vec</span>&lt;_&gt;&gt;(), <span class="hljs-built_in">vec!</span>[
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>),
         (&amp;<span class="hljs-number">0</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">false</span>),
         (&amp;<span class="hljs-number">1</span>, &amp;<span class="hljs-number">2</span>, <span class="hljs-literal">true</span>)

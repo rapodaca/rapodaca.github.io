@@ -49,7 +49,7 @@
 <p>Jythonconsole offers some nice touches, including dropdown code-completion and, of course, command line history - although the latter isn't persistent across sessions.</p>
 <h2 id="scriptingmxwithpython">Scripting MX With Python</h2>
 <p>Before we use MX from Jython, we'll need to specify a location for the MX jarfile. Assuming <a href="http://mx-java.googlecode.com/files/mx-0.104.0.jar">mx-0.104.0.jar</a> is in our working directory, this can be accomplished with:</p>
-<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> CLASSPATH=<span class="hljs-string">'mx-0.104.0.jar'</span>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">export</span> CLASSPATH=<span class="hljs-string">&#x27;mx-0.104.0.jar&#x27;</span>
 </code></pre>
 <p>Invoking Jython now gives us access to the complete set of MX functionality.</p>
 <h2 id="hellobenzene">Hello, Benzene</h2>
@@ -70,7 +70,7 @@ Jython 2.5b0 (trunk:5540, Oct 31 2008, 13:55:41)
 <h2 id="update">Update</h2>
 <p>It's also possible to import the MX jarfile into Jython using <code>sys.path.append</code>:</p>
 <pre><code class="hljs python language-python"><span class="hljs-keyword">import</span> sys
-sys.path.append(<span class="hljs-string">"mx-0.104.0.jar"</span>)
+sys.path.append(<span class="hljs-string">&quot;mx-0.104.0.jar&quot;</span>)
 <span class="hljs-keyword">from</span> com.metamolecular.mx.io <span class="hljs-keyword">import</span> Molecules
 </code></pre>
     </article>

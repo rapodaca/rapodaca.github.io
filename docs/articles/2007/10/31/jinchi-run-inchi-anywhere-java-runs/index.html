@@ -56,10 +56,10 @@ Options:
 <p>If we wanted to process a molfile representing toluene, we'd use something like the following:</p>
 <pre><code class="hljs bash language-bash">java -jar jinchi.jar <span class="hljs-built_in">test</span>/toluene.mol
 InChI version 1, Software version 1.01 release 07/21/2006
-Opened <span class="hljs-built_in">log</span> file <span class="hljs-string">'test/toluene.mol.log'</span>
-Opened input file <span class="hljs-string">'test/toluene.mol'</span>
-Opened output file <span class="hljs-string">'test/toluene.mol.txt'</span>
-Opened problem file <span class="hljs-string">'test/toluene.mol.prb'</span>
+Opened <span class="hljs-built_in">log</span> file <span class="hljs-string">&#x27;test/toluene.mol.log&#x27;</span>
+Opened input file <span class="hljs-string">&#x27;test/toluene.mol&#x27;</span>
+Opened output file <span class="hljs-string">&#x27;test/toluene.mol.txt&#x27;</span>
+Opened problem file <span class="hljs-string">&#x27;test/toluene.mol.prb&#x27;</span>
 Options: Mobile H Perception ON
 Isotopic ON, Absolute Stereo ON
 Omit undefined/unknown stereogenic centers and bonds
@@ -71,8 +71,8 @@ End of file detected after structure <span class="hljs-comment">#1.</span>
 Finished processing 1 structure: 0 errors, processing time 0:00:00.00
 </code></pre>
 <p>This command would produce the following output file, just like the cInChI program:</p>
-<pre><code class="hljs bash language-bash">cat <span class="hljs-built_in">test</span>/toluene.mol.txt
-* Input_File: <span class="hljs-string">"test/toluene.mol"</span>
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cat</span> <span class="hljs-built_in">test</span>/toluene.mol.txt
+* Input_File: <span class="hljs-string">&quot;test/toluene.mol&quot;</span>
 Structure: 1
 InChI=1/C7H8/c1-7-5-3-2-4-6-7/h2-6H,1H3
 AuxInfo=1/0/N:1,2,3,4,5,6,7/E:(3,4)(5,6)/rA:7nCCCCCCC/rB:;d2;s2;s3;d4;s1d5s6;/rC:3.6373,2.8,0;0,.7,0;0,2.1,0;1.2124,0,0;1.2124,2.8,0;2.4249,.7,0;2.4249,2.1,0;
@@ -80,16 +80,16 @@ AuxInfo=1/0/N:1,2,3,4,5,6,7/E:(3,4)(5,6)/rA:7nCCCCCCC/rB:;d2;s2;s3;d4;s1d5s6;/rC
 <p>We can also convert InChIs into molfiles (command line options work the same as in cInChI):</p>
 <pre><code class="hljs bash language-bash">java -jar jinchi.jar <span class="hljs-built_in">test</span>/toluene.mol.txt -OutputSDF
 InChI version 1, Software version 1.01 release 07/21/2006
-Opened <span class="hljs-built_in">log</span> file <span class="hljs-string">'test/toluene.mol.txt.log'</span>
-Opened input file <span class="hljs-string">'test/toluene.mol.txt'</span>
-Opened output file <span class="hljs-string">'test/toluene.mol.txt.txt'</span>
-Opened problem file <span class="hljs-string">'test/toluene.mol.txt.prb'</span>
+Opened <span class="hljs-built_in">log</span> file <span class="hljs-string">&#x27;test/toluene.mol.txt.log&#x27;</span>
+Opened input file <span class="hljs-string">&#x27;test/toluene.mol.txt&#x27;</span>
+Opened output file <span class="hljs-string">&#x27;test/toluene.mol.txt.txt&#x27;</span>
+Opened problem file <span class="hljs-string">&#x27;test/toluene.mol.txt.prb&#x27;</span>
 Options: Output SDfile only
 End of file detected after structure <span class="hljs-comment">#1.</span>
 Finished processing 1 structure: 0 errors, processing time 0:00:00.00
 </code></pre>
 <p>In this case the output is:</p>
-<pre><code class="hljs bash language-bash">cat <span class="hljs-built_in">test</span>/toluene.mol.txt.txt
+<pre><code class="hljs bash language-bash"><span class="hljs-built_in">cat</span> <span class="hljs-built_in">test</span>/toluene.mol.txt.txt
 Structure <span class="hljs-comment">#1</span>
   InChI v1 SDfile Output
 

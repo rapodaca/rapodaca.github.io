@@ -39,25 +39,25 @@
 <p>Rubidium will eventually be packaged as a <a href="http://www.rubygems.org/">RubyGem</a> and hosted on <a href="http://rubyforge.org">RubyForge</a>. For now, the toolkit consists of a running library that will updated and documented on this blog.</p>
 <h2 id="thelibrary">The Library</h2>
 <p>The library extends the CDK module presented in the <a href="/articles/2007/10/15/an-introduction-to-the-rubidium-cheminforamtics-toolkit-interconvert-smiles-inchi-and-molfile-with-an-open-babel-like-interface">previous article in this series</a>. The main change is the addition of an <code>IUPACReader</code> class, based on Peter Corbett's excellent <a href="/articles/2007/10/12/jruby-for-cheminformatics-parsing-iupac-nomenclature-with-opsin">OPSIN library</a>:</p>
-<pre><code class="hljs ruby language-ruby"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">IUPACReader</span></span>
-  import <span class="hljs-string">'java.io.StringReader'</span>
-  import <span class="hljs-string">'uk.ac.cam.ch.wwmm.opsin.NameToStructure'</span>
-  import <span class="hljs-string">'org.openscience.cdk.io.CMLReader'</span>
-  import <span class="hljs-string">'org.openscience.cdk.ChemFile'</span>
+<pre><code class="hljs ruby language-ruby"><span class="hljs-keyword">class</span> <span class="hljs-title class_">IUPACReader</span>
+  import <span class="hljs-string">&#x27;java.io.StringReader&#x27;</span>
+  import <span class="hljs-string">&#x27;uk.ac.cam.ch.wwmm.opsin.NameToStructure&#x27;</span>
+  import <span class="hljs-string">&#x27;org.openscience.cdk.io.CMLReader&#x27;</span>
+  import <span class="hljs-string">&#x27;org.openscience.cdk.ChemFile&#x27;</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">initialize</span></span>
-    @iupac_reader = NameToStructure.new
-    @cml_reader = CMLReader.new
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">initialize</span>
+    <span class="hljs-variable">@iupac_reader</span> = <span class="hljs-title class_">NameToStructure</span>.new
+    <span class="hljs-variable">@cml_reader</span> = <span class="hljs-title class_">CMLReader</span>.new
   <span class="hljs-keyword">end</span>
 
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">read</span> <span class="hljs-title">name</span></span>
-    cml = @iupac_reader.parse_to_cml(name)
+  <span class="hljs-keyword">def</span> <span class="hljs-title function_">read</span> name
+    cml = <span class="hljs-variable">@iupac_reader</span>.parse_to_cml(name)
 
-    raise <span class="hljs-string">"Could not parse '<span class="hljs-subst">#{name}</span>'."</span> <span class="hljs-keyword">unless</span> cml
+    <span class="hljs-keyword">raise</span> <span class="hljs-string">&quot;Could not parse &#x27;<span class="hljs-subst">#{name}</span>&#x27;.&quot;</span> <span class="hljs-keyword">unless</span> cml
 
-    @cml_reader.set_reader StringReader.new(cml.to_xml)
+    <span class="hljs-variable">@cml_reader</span>.set_reader <span class="hljs-title class_">StringReader</span>.new(cml.to_xml)
 
-    chem_file = @cml_reader.read ChemFile.new
+    chem_file = <span class="hljs-variable">@cml_reader</span>.read <span class="hljs-title class_">ChemFile</span>.new
 
     chem_file.chem_sequence(<span class="hljs-number">0</span>).chem_model(<span class="hljs-number">0</span>).molecule_set.molecule(<span class="hljs-number">0</span>)
   <span class="hljs-keyword">end</span>
@@ -68,26 +68,26 @@
 <h2 id="atest">A Test</h2>
 <p>We can test Rubidium's IUPAC nomenclature parsing abilities with <code>jirb</code>. For example, to convert from name to SMILES:</p>
 <pre><code class="hljs bash language-bash">jirb
-irb(main):001:0&gt; require <span class="hljs-string">'cdk'</span>
+irb(main):001:0&gt; require <span class="hljs-string">&#x27;cdk&#x27;</span>
 =&gt; <span class="hljs-literal">true</span>
 irb(main):002:0&gt; c=CDK::Conversion.new
 =&gt; <span class="hljs-comment">#&amp;lt;CDK::Conversion:0x46ca65 ... &amp;gt;</span>
-irb(main):003:0&gt; c.set_formats <span class="hljs-string">'iupac'</span>, <span class="hljs-string">'smi'</span>
-=&gt; <span class="hljs-string">"smi"</span>
-irb(main):004:0&gt; c.convert <span class="hljs-string">'1,4-dichlorobenzene'</span>
-=&gt; <span class="hljs-string">"C=1C=C(C=CC=1Cl)Cl"</span>
+irb(main):003:0&gt; c.set_formats <span class="hljs-string">&#x27;iupac&#x27;</span>, <span class="hljs-string">&#x27;smi&#x27;</span>
+=&gt; <span class="hljs-string">&quot;smi&quot;</span>
+irb(main):004:0&gt; c.convert <span class="hljs-string">&#x27;1,4-dichlorobenzene&#x27;</span>
+=&gt; <span class="hljs-string">&quot;C=1C=C(C=CC=1Cl)Cl&quot;</span>
 </code></pre>
 <p>To convert from name to InChI (in the same <code>jirb</code> session):</p>
-<pre><code class="hljs bash language-bash">irb(main):005:0&gt; c.set_out_format <span class="hljs-string">'inchi'</span>
-=&gt; <span class="hljs-string">"inchi"</span>
-irb(main):006:0&gt; c.convert <span class="hljs-string">'1,4-dichlorobenzene'</span>
-=&gt; <span class="hljs-string">"InChI=1/C6H4Cl2/c7-5-1-2-6(8)4-3-5/h1-4H"</span>
+<pre><code class="hljs bash language-bash">irb(main):005:0&gt; c.set_out_format <span class="hljs-string">&#x27;inchi&#x27;</span>
+=&gt; <span class="hljs-string">&quot;inchi&quot;</span>
+irb(main):006:0&gt; c.convert <span class="hljs-string">&#x27;1,4-dichlorobenzene&#x27;</span>
+=&gt; <span class="hljs-string">&quot;InChI=1/C6H4Cl2/c7-5-1-2-6(8)4-3-5/h1-4H&quot;</span>
 </code></pre>
 <p>And to convert from name to Molfile (also in the same <code>jirb</code> session):</p>
-<pre><code class="hljs bash language-bash">irb(main):007:0&gt; c.set_out_format <span class="hljs-string">'mol'</span>
-=&gt; <span class="hljs-string">"mol"</span>
-irb(main):008:0&gt; c.convert <span class="hljs-string">'1,4-dichlorobenzene'</span>
-=&gt; <span class="hljs-string">"\n  CDK    10/19/07,7:59\n\n  8  8  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 Cl  0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 Cl  0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  2  0  0  0  0 \n  2  3  1  0  0  0  0 \n  3  4  2  0  0  0  0 \n  4  5  1  0  0  0  0 \n  5  6  2  0  0  0  0 \n  6  1  1  0  0  0  0 \n  7  1  1  0  0  0  0 \n  8  4  1  0  0  0  0 \nM  END\n"</span>
+<pre><code class="hljs bash language-bash">irb(main):007:0&gt; c.set_out_format <span class="hljs-string">&#x27;mol&#x27;</span>
+=&gt; <span class="hljs-string">&quot;mol&quot;</span>
+irb(main):008:0&gt; c.convert <span class="hljs-string">&#x27;1,4-dichlorobenzene&#x27;</span>
+=&gt; <span class="hljs-string">&quot;\n  CDK    10/19/07,7:59\n\n  8  8  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 Cl  0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 Cl  0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  2  0  0  0  0 \n  2  3  1  0  0  0  0 \n  3  4  2  0  0  0  0 \n  4  5  1  0  0  0  0 \n  5  6  2  0  0  0  0 \n  6  1  1  0  0  0  0 \n  7  1  1  0  0  0  0 \n  8  4  1  0  0  0  0 \nM  END\n&quot;</span>
 </code></pre>
 <h2 id="conclusions">Conclusions</h2>
 <p>By re-using a simple conversion API together with another Java library, we've given Rubidium the ability to translate IUPAC nomenclature into other molecular languages. The additional code was both easy to write and easy to test. Future articles will discuss the packaging, distribution, and further elaboration of Rubidium.</p>

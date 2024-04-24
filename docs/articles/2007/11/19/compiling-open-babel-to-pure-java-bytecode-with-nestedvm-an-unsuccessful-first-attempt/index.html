@@ -68,8 +68,8 @@ Destructor!
 <p>NestedVM doesn't build the g++ compiler by default - it's something that needs to be done manually. Fortunately, it's not difficult to do:</p>
 <pre><code class="hljs bash language-bash">make cxxtest
 ...
-java -cp build tests.CXXTest
-Test<span class="hljs-string">'s constructor
+java -<span class="hljs-built_in">cp</span> build tests.CXXTest
+Test<span class="hljs-string">&#x27;s constructor
 Name: 0x50b40
 Name: PKc
 Is pointer: 1
@@ -79,7 +79,7 @@ Is pointer: 0
 Hello, World from Test
 Now throwing an exception
 sayhi threw: const char *:Hello, Exception Handling!
-Test'</span>s destructor
+Test&#x27;</span>s destructor
 </code></pre>
 <p>Finally, with all tools built, we need to set up our environment:</p>
 <pre><code class="hljs bash language-bash">make env.sh
@@ -101,7 +101,7 @@ Test'</span>s destructor
 <p>We're now ready for the final stage in the process, converting the MIPS binary to a Java class file. Again, NestedVM makes this simple:</p>
 <pre><code class="hljs bash language-bash"><span class="hljs-built_in">cd</span> tools
 java org.ibex.nestedvm.Compiler -outfile Babel.class Babel babel
-Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">"main"</span> java.lang.IllegalStateException: unresolved phantom target
+Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">&quot;main&quot;</span> java.lang.IllegalStateException: unresolved phantom target
         at org.ibex.classgen.MethodGen.resolveTarget(MethodGen.java:555)
         at org.ibex.classgen.MethodGen._generateCode(MethodGen.java:664)
         at org.ibex.classgen.MethodGen.generateCode(MethodGen.java:618)
