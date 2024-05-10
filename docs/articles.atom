@@ -4,12 +4,20 @@
   <title>Depth-First</title>
   <link href="https://depth-first.com/articles.atom" rel="self"/>
   <link href="https://depth-first.com"/>
-  <updated>2024-05-01T18:55:16.751Z</updated>
+  <updated>2024-05-10T15:30:19.637Z</updated>
   <id>http://depth-first.com/</id>
   <author>
     <name>Richard L. Apodaca</name>
   </author>
 
+    <entry>
+      <title>Clock Yourself</title>
+      <link href="https://depth-first.com/articles/2024/05/10/clock-yourself/"/>
+        <updated>2024-05-10T23:15:00Z</updated>
+        <published>2024-05-10T23:15:00Z</published>
+      <id>http://depth-first.com/articles/2024/05/10/clock-yourself/</id>
+      <summary>My struggle against fear of falling and the app that helped me.</summary>
+    </entry>
     <entry>
       <title>Compassion & Choices</title>
       <link href="https://depth-first.com/articles/2024/05/01/compassion-and-choices/"/>
@@ -201,13 +209,5 @@
         <published>2023-07-27T18:30:00Z</published>
       <id>http://depth-first.com/articles/2023/07/27/tumor-board/</id>
       <summary>The disquieting limits to glioblastoma&#x27;s front-line diagnostic technique.</summary>
-    </entry>
-    <entry>
-      <title>The Ambiguously Alarming Brain MRI</title>
-      <link href="https://depth-first.com/articles/2023/07/21/the-ambiguously-alarming-brain-mri/"/>
-        <updated>2023-07-21T21:30:00Z</updated>
-        <published>2023-07-21T21:30:00Z</published>
-      <id>http://depth-first.com/articles/2023/07/21/the-ambiguously-alarming-brain-mri/</id>
-      <summary>A close look at one reason that glioblastoma remains incurable despite decades of research.</summary>
     </entry>
 </feed>
