@@ -4,12 +4,20 @@
   <title>Depth-First</title>
   <link href="https://depth-first.com/articles.atom" rel="self"/>
   <link href="https://depth-first.com"/>
-  <updated>2024-05-10T15:30:19.637Z</updated>
+  <updated>2024-05-24T22:48:25.688Z</updated>
   <id>http://depth-first.com/</id>
   <author>
     <name>Richard L. Apodaca</name>
   </author>
 
+    <entry>
+      <title>Bridge to Nowhere</title>
+      <link href="https://depth-first.com/articles/2024/05/24/bridge-to-nowhere/"/>
+        <updated>2024-05-24T23:15:00Z</updated>
+        <published>2024-05-24T23:15:00Z</published>
+      <id>http://depth-first.com/articles/2024/05/24/bridge-to-nowhere/</id>
+      <summary>Taking a closer look at the opening act of a glioblastoma diagnosis.</summary>
+    </entry>
     <entry>
       <title>Clock Yourself</title>
       <link href="https://depth-first.com/articles/2024/05/10/clock-yourself/"/>
@@ -201,13 +209,5 @@
         <published>2023-08-06T20:20:00Z</published>
       <id>http://depth-first.com/articles/2023/08/06/temodar-mgmt-methylation-and-the-endless-loop-of-bad-glioblastoma-treatments/</id>
       <summary>Understanding why half of patients will take a drug offering little to no benefit.</summary>
-    </entry>
-    <entry>
-      <title>Tumor Board</title>
-      <link href="https://depth-first.com/articles/2023/07/27/tumor-board/"/>
-        <updated>2023-07-27T18:30:00Z</updated>
-        <published>2023-07-27T18:30:00Z</published>
-      <id>http://depth-first.com/articles/2023/07/27/tumor-board/</id>
-      <summary>The disquieting limits to glioblastoma&#x27;s front-line diagnostic technique.</summary>
     </entry>
 </feed>
